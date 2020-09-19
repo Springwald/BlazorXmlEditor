@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 
 namespace de.springwald.xml
 {
-    public interface IAsyncEvent<T>
+    public interface IXmlAsyncEvent<T>
     {
-        void Add(AsyncEvent<T>.Handler handler);
-        void Remove(AsyncEvent<T>.Handler handler);
+        void Add(XmlAsyncEvent<T>.Handler handler);
+        void Remove(XmlAsyncEvent<T>.Handler handler);
     }
 
-    public class AsyncEvent<T> : IAsyncEvent<T>
+    public class XmlAsyncEvent<T> : IXmlAsyncEvent<T>
     {
         public delegate Task Handler(T data);
 
@@ -37,7 +37,7 @@ namespace de.springwald.xml
             }
         }
 
-        //public void expose() : IAsyncEvent<T> {
+        //public void expose() : IXmlAsyncEvent<T> {
         //    return this;
         //}
     }

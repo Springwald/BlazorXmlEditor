@@ -21,7 +21,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public Color BackColor => Color.White;
 
-        public AsyncEvent<EventArgs> Invalidated { get; } = new AsyncEvent<EventArgs>();
+        public XmlAsyncEvent<EventArgs> Invalidated { get; } = new XmlAsyncEvent<EventArgs>();
 
     }
 }

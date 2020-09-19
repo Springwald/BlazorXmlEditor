@@ -5,9 +5,9 @@ namespace de.springwald.xml.editor
 {
     public partial class XMLEditor
     {
-        public AsyncEvent<MouseEventArgs> MouseUpEvent = new AsyncEvent<MouseEventArgs>();
-        public AsyncEvent<MouseEventArgs> MouseDownEvent = new AsyncEvent<MouseEventArgs>();
-        public AsyncEvent<MouseEventArgs> MouseDownMoveEvent = new AsyncEvent<MouseEventArgs>();
+        public XmlAsyncEvent<MouseEventArgs> MouseUpEvent = new XmlAsyncEvent<MouseEventArgs>();
+        public XmlAsyncEvent<MouseEventArgs> MouseDownEvent = new XmlAsyncEvent<MouseEventArgs>();
+        public XmlAsyncEvent<MouseEventArgs> MouseDownMoveEvent = new XmlAsyncEvent<MouseEventArgs>();
 
         private bool _mausIstGedrueckt = false; // Wird die Maustaste noch gehalten?
 

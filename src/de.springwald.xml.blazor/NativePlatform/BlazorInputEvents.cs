@@ -13,21 +13,21 @@ namespace de.springwald.xml.blazor.NativePlatform
             this.SetUpTimer();
         }
 
-        public AsyncEvent<MouseEventArgs> MouseDown { get; } = new AsyncEvent<MouseEventArgs>();
+        public XmlAsyncEvent<MouseEventArgs> MouseDown { get; } = new XmlAsyncEvent<MouseEventArgs>();
 
-        public AsyncEvent<MouseEventArgs> MouseUp { get; } = new AsyncEvent<MouseEventArgs>();
+        public XmlAsyncEvent<MouseEventArgs> MouseUp { get; } = new XmlAsyncEvent<MouseEventArgs>();
 
-        public AsyncEvent<MouseEventArgs> MouseMove { get; } = new AsyncEvent<MouseEventArgs>();
+        public XmlAsyncEvent<MouseEventArgs> MouseMove { get; } = new XmlAsyncEvent<MouseEventArgs>();
 
-        public AsyncEvent<KeyPressEventArgs> KeyPress { get; } = new AsyncEvent<KeyPressEventArgs>();
+        public XmlAsyncEvent<KeyPressEventArgs> KeyPress { get; } = new XmlAsyncEvent<KeyPressEventArgs>();
 
-        public AsyncEvent<PreviewKeyDownEventArgs> PreviewKey { get; } = new AsyncEvent<PreviewKeyDownEventArgs>();
+        public XmlAsyncEvent<PreviewKeyDownEventArgs> PreviewKey { get; } = new XmlAsyncEvent<PreviewKeyDownEventArgs>();
 
-        public AsyncEvent<EventArgs> Leave { get; } = new AsyncEvent<EventArgs>();
+        public XmlAsyncEvent<EventArgs> Leave { get; } = new XmlAsyncEvent<EventArgs>();
 
-        public AsyncEvent<EventArgs> BlinkInterval { get; } = new AsyncEvent<EventArgs>();
+        public XmlAsyncEvent<EventArgs> BlinkInterval { get; } = new XmlAsyncEvent<EventArgs>();
 
-        public AsyncEvent<EventArgs> BlinkDone { get; } = new AsyncEvent<EventArgs>();
+        public XmlAsyncEvent<EventArgs> BlinkDone { get; } = new XmlAsyncEvent<EventArgs>();
 
         public void Dispose()
         {

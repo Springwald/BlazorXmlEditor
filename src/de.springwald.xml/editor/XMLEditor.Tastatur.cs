@@ -7,8 +7,8 @@ namespace de.springwald.xml.editor
     public partial class XMLEditor
     {
 
-        public AsyncEvent<KeyEventArgs> KeyDownEvent = new AsyncEvent<KeyEventArgs>();
-        public AsyncEvent<KeyPressEventArgs> KeyPressEvent = new AsyncEvent<KeyPressEventArgs>();
+        public XmlAsyncEvent<KeyEventArgs> KeyDownEvent = new XmlAsyncEvent<KeyEventArgs>();
+        public XmlAsyncEvent<KeyPressEventArgs> KeyPressEvent = new XmlAsyncEvent<KeyPressEventArgs>();
 
         private void TastaturEventsAnmelden()
         {

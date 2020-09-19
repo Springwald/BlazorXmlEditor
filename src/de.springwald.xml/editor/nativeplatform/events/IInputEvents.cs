@@ -5,18 +5,18 @@ namespace de.springwald.xml.editor.nativeplatform.events
 {
     public interface IInputEvents
     {
-        AsyncEvent<MouseEventArgs> MouseDown { get; }
-        AsyncEvent<MouseEventArgs> MouseUp { get; }
-        AsyncEvent<MouseEventArgs> MouseMove { get; }
+        XmlAsyncEvent<MouseEventArgs> MouseDown { get; }
+        XmlAsyncEvent<MouseEventArgs> MouseUp { get; }
+        XmlAsyncEvent<MouseEventArgs> MouseMove { get; }
 
-        AsyncEvent<KeyPressEventArgs> KeyPress { get; }
-        AsyncEvent<PreviewKeyDownEventArgs> PreviewKey { get; }
+        XmlAsyncEvent<KeyPressEventArgs> KeyPress { get; }
+        XmlAsyncEvent<PreviewKeyDownEventArgs> PreviewKey { get; }
 
-        AsyncEvent<EventArgs> Leave { get; }
+        XmlAsyncEvent<EventArgs> Leave { get; }
 
-        AsyncEvent<EventArgs> BlinkInterval { get; }
+        XmlAsyncEvent<EventArgs> BlinkInterval { get; }
 
-        AsyncEvent<EventArgs> BlinkDone { get; }
+        XmlAsyncEvent<EventArgs> BlinkDone { get; }
 
         /// <summary>
         /// reset blink timer to start

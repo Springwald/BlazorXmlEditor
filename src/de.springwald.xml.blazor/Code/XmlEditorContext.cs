@@ -22,6 +22,6 @@ namespace de.springwald.xml.blazor
                 await this.RootNodeChanged.Trigger(rootNode);
             }
         }
-        public AsyncEvent<XmlNode> RootNodeChanged { get; set; } = new AsyncEvent<XmlNode>();
+        public XmlAsyncEvent<XmlNode> RootNodeChanged { get; set; } = new XmlAsyncEvent<XmlNode>();
     }
 }

@@ -23,7 +23,7 @@ namespace de.springwald.xml.cursor
         /// Event definieren, wenn sich der Cursor geändert hat
         /// </summary>
         // public event System.EventHandler ChangedEvent;
-        public AsyncEvent<EventArgs> ChangedEvent { get; }
+        public XmlAsyncEvent<EventArgs> ChangedEvent { get; }
 
         private bool _cursorWirdGeradeGesetzt = false; // Um Doppelevents zu vermeiden
 
@@ -39,7 +39,7 @@ namespace de.springwald.xml.cursor
         {
             EndPos = new XMLCursorPos();
             StartPos = new XMLCursorPos();
-            this.ChangedEvent = new AsyncEvent<EventArgs>();
+            this.ChangedEvent = new XmlAsyncEvent<EventArgs>();
             this.UnterEventsAnmelden();
         }
 

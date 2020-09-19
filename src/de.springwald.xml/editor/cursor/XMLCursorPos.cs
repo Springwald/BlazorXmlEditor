@@ -11,7 +11,7 @@ namespace de.springwald.xml.cursor
         /// <summary>
         /// Event definieren, wenn sich der Cursor geändert hat
         /// </summary>
-        public AsyncEvent<EventArgs> PosChangedEvent { get; } = new AsyncEvent<EventArgs>();
+        public XmlAsyncEvent<EventArgs> PosChangedEvent { get; } = new XmlAsyncEvent<EventArgs>();
 
 
         private System.Xml.XmlNode _aktNode;        // Der XMLNode, welcher aktuell den Fokus hat
