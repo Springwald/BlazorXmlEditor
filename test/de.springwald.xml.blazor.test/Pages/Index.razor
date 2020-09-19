@@ -1,0 +1,58 @@
+﻿@page "/"
+@using de.springwald.xml.blazor
+@using de.springwald.xml.blazor.test.DemoData
+@using System.Timers
+
+
+<h1>load xml demo</h1>
+
+<h2>loading document @this.actualDocumentIndex</h2>
+
+<de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" />
+
+@code {
+
+    XmlEditorContext editorContext = new XmlEditorContext();
+    private Timer loadDocumentTimer;
+    private string[] documents = new[] {
+        "<category><pattern>GUTEN TAG</pattern><template>Hallo, ich freue mich, Sie kennen zu lernen.</template></category>",
+        "<category><pattern>GUTEN TAG 2</pattern><template>Hallo 2, ich freue mich 2, Sie kennen zu 2 lernen...</template></category>"};
+    private int actualDocumentIndex = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var demoDtd = DemoDtd.LoadDemoDtd();
+        this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
+        this.loadDocumentTimer = new Timer();
+        this.loadDocumentTimer.Elapsed += LoadDocumentTimedEvent;
+        this.loadDocumentTimer.Interval = 1;
+        this.loadDocumentTimer.Start();
+        await base.OnInitializedAsync();
+    }
+
+    private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+    {
+        await this.LoadDemoXml();
+    }
+
+    protected async Task LoadDemoXml()
+    {
+        this.loadDocumentTimer.Stop();
+
+        this.IncrementDocumentIndex();
+        var xmlDocument = new System.Xml.XmlDocument();
+        xmlDocument.LoadXml(this.documents[this.actualDocumentIndex]);
+        await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
+
+        this.loadDocumentTimer.Start();
+    }
+
+    protected void IncrementDocumentIndex()
+    {
+        this.actualDocumentIndex++;
+        if (this.actualDocumentIndex >= this.documents.Length) this.actualDocumentIndex = 0;
+        this.StateHasChanged();
+    }
+
+
+}

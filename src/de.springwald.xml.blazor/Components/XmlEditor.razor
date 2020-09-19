@@ -1,0 +1,128 @@
+﻿@using de.springwald.xml.blazor
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas
+@using de.springwald.xml.blazor.NativePlatform
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+
+<div class="card">
+    <div class="card-body">
+        <div tabindex="0" @onclick="EventOnClick" @onkeypress="EventOnKeyPress" @onkeydown="EventOnKeyDown" @ref="_canvasDivReference">
+            <BECanvas Width="400" Height="500" @ref="_canvasReference">
+            </BECanvas>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private bool initDone;
+    private XmlEditorContext _editorContext;
+    private de.springwald.xml.editor.XMLEditor xmlEditor;
+    protected BECanvasComponent _canvasReference;
+    protected ElementReference _canvasDivReference;
+    protected de.springwald.xml.editor.nativeplatform.INativePlatform nativePlattform;
+
+    [Parameter]
+    public XmlEditorContext EditorContext
+    {
+        set
+        {
+            this._editorContext = value;
+            if (value != null && this.nativePlattform != null) this.Init();
+        }
+        get
+        {
+            return this._editorContext;
+        }
+    }
+
+    private void Init()
+    {
+        if (this.initDone) return;
+        this.initDone = true;;
+        this.xmlEditor = new de.springwald.xml.editor.XMLEditor(this._editorContext.XmlRules, nativePlattform);
+        nativePlattform.InputEvents.BlinkInterval.Add(this.blinkDone);
+        this._editorContext.RootNodeChanged.Add(this.RootNodeChanged);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await  base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            this.nativePlattform = new BlazorNativePlatform(_canvasReference, await this._canvasReference.CreateCanvas2DAsync());
+            if (this.EditorContext != null) this.Init();
+            await base.OnAfterRenderAsync(firstRender);
+        }
+    }
+
+
+    async Task blinkDone(EventArgs e)
+    {
+        await Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        this._editorContext?.RootNodeChanged.Remove(this.RootNodeChanged);
+    }
+
+    private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
+    {
+        await this.xmlEditor.SetRootNode(rootNode);
+        await this.xmlEditor.Paint(new de.springwald.xml.events.PaintEventArgs() { Graphics = nativePlattform.Gfx });
+    }
+
+    public class BoundingClientRect
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double Top { get; set; }
+        public double Right { get; set; }
+        public double Bottom { get; set; }
+        public double Left { get; set; }
+    }
+
+    async void EventOnClick(MouseEventArgs e)
+    {
+        var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+
+        var x = (int)(e.ClientX - result.Left);
+        var y = (int)(e.ClientY - result.Top);
+
+        await this.nativePlattform.InputEvents.MouseDown.Trigger(new de.springwald.xml.events.MouseEventArgs
+        {
+            X = x,
+            Y = y
+        });
+    }
+
+    async void EventOnKeyPress(KeyboardEventArgs e)
+    {
+
+        await this.nativePlattform.InputEvents.KeyPress.Trigger(new de.springwald.xml.events.KeyPressEventArgs { KeyChar = e.Key });
+    }
+
+    async void EventOnKeyDown(KeyboardEventArgs e)
+    {
+
+        await this.nativePlattform.InputEvents.PreviewKey.Trigger(new de.springwald.xml.events.PreviewKeyDownEventArgs { KeyData = de.springwald.xml.events.Keys.A });
+    }
+
+    //async void EventOnKeyUp(KeyboardEventArgs e)
+    //{
+    //    await this.nativePlattform.InputEvents.KeyPress.Trigger(new de.springwald.xml.events.KeyPressEventArgs { KeyChar = e.Key });
+    //}
+
+
+
+}

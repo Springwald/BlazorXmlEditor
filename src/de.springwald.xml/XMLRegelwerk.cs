@@ -1,0 +1,257 @@
+using de.springwald.xml.cursor;
+using de.springwald.xml.dtd;
+using de.springwald.xml.dtd.pruefer;
+using de.springwald.xml.editor;
+using de.springwald.xml.editor.nativeplatform.gfx;
+using System;
+using System.Linq;
+
+namespace de.springwald.xml
+{
+
+    /// <summary>
+    /// Diese Arten der Darstellung kann ein XML-Element im Editor annehmen
+    /// </summary>
+	public enum DarstellungsArten { Fliesselement = 1, EigeneZeile };
+
+    /// <summary>
+    /// Die Beschreibung der Regeln für Anlage und Abhängigkeiten der ucXMLElemente.
+    /// </summary>
+    /// <remarks>
+    /// Schön wäre es, wenn hier später einmal ein DTD-Import möglich ist
+    /// </remarks>
+    /// <remarks>
+    /// (C)2005 Daniel Springwald, Herne Germany
+    /// Springwald Software  - www.springwald.de
+    /// daniel@springwald.de -   0700-SPRINGWALD
+    /// all rights reserved
+    /// </remarks>
+
+    public class XMLRegelwerk
+    {
+
+        private DTD _dtd;                   // Wenn eine DTD zugewiesen ist, dann steht diese hier
+        private DTDPruefer _dtdPruefer;
+        private de.springwald.xml.dtd.DTDNodeEditCheck _checker;
+
+        /// <summary>Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können</summary>
+        protected XMLElementGruppenListe _elementGruppen;
+
+        /// <summary>
+        /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
+        /// </summary>
+        public de.springwald.xml.dtd.pruefer.DTDPruefer DTDPruefer
+        {
+            get
+            {
+                if (_dtdPruefer == null) // Noch kein DTD-Prüfer instanziert
+                {
+                    if (_dtd == null) // Noch keine DTD zugewiesen
+                    {
+                        throw new ApplicationException("No DTD attached!");
+                    }
+                    _dtdPruefer = new DTDPruefer(_dtd); // Neuen DTD-Prüfer für die DTD erzeugen
+                }
+                return _dtdPruefer;
+            }
+        }
+
+        /// <summary>
+        /// Wenn eine DTD zugewiesen ist, dann steht diese hier
+        /// </summary>
+        public de.springwald.xml.dtd.DTD DTD
+        {
+            get { return _dtd; }
+        }
+
+        /// <summary>
+        ///  Soweit wird ein Child-Element in einer neuen Zeile eingerückt
+        /// </summary>
+        public virtual int ChildEinrueckungX
+        {
+            get { return 20; }
+        }
+
+        /// <summary>
+        /// Der Abstand zwischen zwei Zeilen
+        /// </summary>
+        public virtual int AbstandYZwischenZeilen
+        {
+            get { return 5; }
+        }
+
+        /// <summary>
+        /// Der Abstand zwischen zwei Fliesstextelementen
+        /// </summary>
+        public virtual int AbstandFliessElementeX
+        {
+            get { return 0; }
+        }
+
+        /// <summary>
+        /// Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können
+        /// </summary>
+        public virtual XMLElementGruppenListe ElementGruppen
+        {
+            get
+            {
+                if (_elementGruppen == null)
+                {
+                    _elementGruppen = new XMLElementGruppenListe();
+                }
+                return _elementGruppen;
+            }
+        }
+
+
+
+        public XMLRegelwerk(de.springwald.xml.dtd.DTD dtd)
+        {
+            _dtd = dtd;
+        }
+
+        public XMLRegelwerk()
+        {
+            _dtd = null;
+        }
+
+
+        /// <summary>
+        /// Ermittelt die Farbe, in welcher dieser Node gezeichnet werden soll
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public virtual Color NodeFarbe(System.Xml.XmlNode node, bool selektiert)
+        {
+            if (selektiert)
+            {
+                return Color.DarkBlue;
+            }
+            else
+            {
+                return Color.FromArgb(245, 245, 255);
+            }
+        }
+
+
+
+        /// <summary>
+        /// In welcher Art soll der übergebene Node gezeichnet werden?
+        /// </summary>
+        /// <param name="xmlNode"></param>
+        /// <returns></returns>
+        public virtual DarstellungsArten DarstellungsArt(System.Xml.XmlNode xmlNode)
+        {
+            if (xmlNode is System.Xml.XmlText) return DarstellungsArten.Fliesselement;
+            if (xmlNode is System.Xml.XmlWhitespace) return DarstellungsArten.Fliesselement;
+            if (xmlNode is System.Xml.XmlComment) return DarstellungsArten.EigeneZeile;
+
+            if (IstSchliessendesTagSichtbar(xmlNode))
+            {
+                return DarstellungsArten.EigeneZeile;
+            }
+            else
+            {
+                return DarstellungsArten.Fliesselement;
+            }
+        }
+
+        /// <summary>
+        /// Wird der übergebene Node 2x gezeichnet, einmal mit > und einmal mit < ?
+        /// </summary>
+        /// <param name="xmlNode"></param>
+        /// <returns></returns>
+        public virtual bool IstSchliessendesTagSichtbar(System.Xml.XmlNode xmlNode)
+        {
+            if (xmlNode is System.Xml.XmlText) return false;
+
+            DTDElement element = _dtd.DTDElementByNode_(xmlNode, false); // Das betroffene DTD-Element holen
+
+            if (element != null)
+            {
+                if (element.AlleElementNamenWelcheAlsDirektesChildZulaessigSind.Count > 1) // Das Element kann Unterelement haben (> 1 statt 0, weil Kommentar ist immer dabei)
+                {
+                    return true;
+                }
+                else // Das Element kann keine Unterelemte haben
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Ermittelt, ob das angegebene Tag an dieser Stelle erlaubt ist
+        /// </summary>
+        /// <param name="tagname">Der Name des Tags</param>
+        /// <param name="cursorPos">Die zu prüfende Position</param>
+        /// <returns></returns>
+        public bool IstDiesesTagAnDieserStelleErlaubt(string tagname, XMLCursorPos zielPunkt)
+        {
+            // Die Liste der erlaubten Tags holen und schauen, ob darin das Tag vorkommt
+            return (from e in ErlaubteEinfuegeElemente_(zielPunkt, true, true)
+                    where e == tagname
+                    select e).Count() > 0;
+        }
+
+
+        /// <summary>
+        /// Definiert, welche XML-Elemente an dieser Stelle eingefügt werden dürfen
+        /// </summary>
+        /// <param name="zielPunkt"></param>
+        /// <param name="pcDATAMitAuflisten">wenn true, wird PCDATA mit als Node aufgeführt, sofern er erlaubt ist</param>
+        /// <returns>Eine Auflistung der Nodenamen. Null bedeutet, es sind keine Elemente zugelassen.
+        /// Ist der Inhalt "", dann ist das Element frei einzugeben </returns>
+        public virtual string[] ErlaubteEinfuegeElemente_(XMLCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
+        {
+
+#warning evtl. Optimierungs-TODO:
+            // Wahrscheinlich (allein schon durch die Nutzung von IstDiesesTagAnDieserStelleErlaubt() etc.)
+            // wird diese Liste oft hintereinander identisch neu erzeugt. Es macht daher Sinn, wenn der
+            // das letzte Ergebnis hier ggf. gebuffert würde. Dabei sollte aber ausgeschlossen werden, dass
+            // sich der XML-Inhalt in der Zwischenzeit geändert hat!
+
+            if (zielPunkt.AktNode == null) return new string[] { }; // Wenn nichts gewählt ist, ist auch nichts erlaubt
+
+            if (this._dtd == null) // Keine DTD hinterlegt
+            {
+                return new string[] { "" }; // Freie Eingabe erlaubt
+            }
+            else
+            {
+                if (_checker == null)
+                {
+                    _checker = new DTDNodeEditCheck(_dtd);
+                }
+                return _checker.AnDieserStelleErlaubteTags_(zielPunkt, pcDATAMitAuflisten, kommentareMitAuflisten);
+            }
+
+            //string[] s = {"","node1","node2"}; // Freie Eingabe oder Node1 oder Node2 erlaubt
+
+        }
+
+
+
+
+
+        /// <summary>
+        /// Konvertiert / Formatiert einen Text, welcher an eine bestimmte Stelle eingefügt werden soll
+        /// so, wie es diese Stelle erfordert. In einer AIML-DTD kann dies z.B. bedeuten, dass der
+        /// Text zum Einfügen in das PATTERN Tag auf Großbuchstaben umgestellt wird
+        /// </summary>
+        /// <param name="einfuegeText"></param>
+        /// <param name="woEinfuegen"></param>
+        /// <returns></returns>
+        /// <param name="ersatzNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
+        /// AIML-Template wir * gedrückt, dann wird ein STAR-Tag eingefügt</param>
+        public virtual string EinfuegeTextPreProcessing(string einfuegeText, XMLCursorPos woEinfuegen, out System.Xml.XmlNode ersatzNode)
+        {
+            ersatzNode = null;
+            return einfuegeText; // In der Standardform geht der Text immer durch
+        }
+
+
+    }
+}

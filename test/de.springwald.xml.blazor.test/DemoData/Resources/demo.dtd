@@ -1,0 +1,176 @@
+
+
+<!--
+
+<!ENTITY % textFunctions
+    "formal | person | person2 | think">
+
+<!ENTITY % functions
+    " %botGetters; | %getters;          | %historyFunctions; | %setters; 
+    | %star;       | %stimulasResponse; | %textFunctions;">
+	
+-->
+
+<!-- 
+<!ENTITY % scripts
+    " script">
+	
+-->
+
+<!-- Verzweigungen auf Basis von Zufall oder Wenn-Dann-Abfragen -->
+<!ENTITY % flow
+    "condition | random">
+
+<!-- Text-Funktionen -->
+<!ENTITY % textFunctions
+    "formal | gender | person | person2 | think | sentence ">
+
+<!-- Funktionen (entfernt wurden: sr -->
+<!ENTITY % functions
+    " %textFunctions; | srai | that | get | input | bot | set | star | thatstar | script ">
+
+<!-- Diese HTML-Elemente dürfen in der Bot-Antwort verwendet werden-->
+<!ENTITY % html
+    "a | applet | br | em | img | p | table | ul">
+
+<!-- Aus diesen Bausteinen darf eine Bot-Antwort bestehen-->
+<!ENTITY % template
+	" %html; | %flow; | %functions; ">
+
+
+<!--============ START Haupt-Elemente ===================-->
+
+<!ELEMENT aiml  (meta*, (category | topic)*)>
+<!ATTLIST aiml  version CDATA  #REQUIRED >
+
+<!ELEMENT meta EMPTY>
+<!ATTLIST meta  content CDATA  #REQUIRED
+                name    CDATA  #REQUIRED >
+
+<!ELEMENT topic    (category)+>
+
+<!ELEMENT category  (pattern , that? , template )>
+
+<!ELEMENT pattern  (#PCDATA | bot )*>
+
+<!ELEMENT template (#PCDATA | %template;)*>
+
+<!ELEMENT bot EMPTY>
+
+<!ATTLIST bot
+  name  CDATA  #REQUIRED >
+
+<!-- <!ATTLIST bot    name  (	            botmaster | 						birthday |             boyfriend |            girlfriend |						country |						friends | 	          birthplace | 						size |						star | 						location |						name |						favoriteactor | 						favoriteactress | 						favoriteartist | 						favoriteauthor | 						favoritecolor | 						favoritefood | 						favoritemovie | 						favoritesong | 						favoritesport | 						wear | 						website	)  #REQUIRED > -->
+
+<!ELEMENT that  (#PCDATA | bot )*>
+<!ATTLIST that
+  index CDATA #IMPLIED
+  >
+
+<!ELEMENT srai  (#PCDATA | bot | star )*>
+
+<!ELEMENT set  (#PCDATA | %functions; )*>
+<!ATTLIST set  name CDATA  #REQUIRED >
+
+<!ELEMENT star EMPTY>
+<!ATTLIST star
+  index CDATA #IMPLIED
+  >
+
+<!ELEMENT input EMPTY>
+<!ATTLIST input
+  index CDATA #IMPLIED
+  >
+
+<!ELEMENT thatstar EMPTY>
+<!ATTLIST thatstar
+  index CDATA #IMPLIED
+  >
+
+<!ELEMENT sr EMPTY>
+
+<!ELEMENT get EMPTY>
+<!ATTLIST get  name CDATA  #REQUIRED >
+
+<!ELEMENT birthday EMPTY>
+
+<!--============ ENDE Haupt-Elemente ===================-->
+
+
+
+<!--============ START Text Funktionen =================-->
+
+<!ELEMENT formal   (#PCDATA | %functions;)*>
+<!ELEMENT gender   (#PCDATA | %functions;)*>
+<!ELEMENT person   (#PCDATA | %functions;)*>
+<!ELEMENT person2  (#PCDATA | %functions;)*>
+<!ELEMENT sentence (#PCDATA | %functions;)*>
+<!ELEMENT think    (#PCDATA | %functions;)*>
+
+<!--============ ENDE Text Funktionen ==================-->
+
+
+
+
+
+<!--============ START Verzweigungen und Scripting  ====-->
+
+<!ELEMENT condition (#PCDATA | %template; | li)*>
+<!ATTLIST condition
+  name  CDATA #IMPLIED
+  value CDATA #IMPLIED
+  contains CDATA #IMPLIED
+  exists  (	true | false ) #IMPLIED
+  >
+
+<!ELEMENT li (#PCDATA | %template;)*>
+<!ATTLIST li
+  name  CDATA #IMPLIED
+  value CDATA #IMPLIED
+  contains CDATA #IMPLIED
+  exists  (	true | false ) #IMPLIED
+  >
+
+<!ELEMENT random (li+)>
+
+<!ELEMENT script (#PCDATA | get)*>
+<!ATTLIST script
+  language (gaitoscript | javascript ) #REQUIRED
+  >
+
+<!--=========== ENDE Verzweigungen und Scripting  =====-->
+
+<!--============ START HTML-Elemente ===================-->
+
+<!ELEMENT a      (#PCDATA | %template;)*>
+<!ATTLIST a
+  href CDATA #IMPLIED
+  target CDATA #IMPLIED
+  >
+<!ELEMENT applet (#PCDATA)>
+<!ATTLIST applet
+  code     CDATA #REQUIRED
+  codebase CDATA #IMPLIED
+  height   CDATA #IMPLIED
+  width    CDATA #IMPLIED
+  >
+<!ELEMENT br     EMPTY>
+<!ELEMENT em     (#PCDATA)>
+<!ELEMENT img    EMPTY>
+<!ATTLIST img
+  src CDATA #IMPLIED
+  >
+<!ELEMENT p      (#PCDATA | %template;)*>
+<!ELEMENT table  (tr)+>
+<!ATTLIST table
+  border      CDATA #IMPLIED
+  cellpadding CDATA #IMPLIED
+  cellspacing CDATA #IMPLIED
+  >
+<!ELEMENT td     (#PCDATA | %template;)*>
+<!ELEMENT tr     (td)+>
+<!ELEMENT ul     (li)*>
+
+<!--============ ENDE HTML-Elemente ===================-->
+
+
