@@ -24,7 +24,7 @@ namespace de.springwald.xml.blazor.NativePlatform {
             this.ControlElement = new BlazorControlElement(canvas);
             this.InputEvents = new BlazorInputEvents();
             this.Focus = new BlazorFocus();
-            this.Gfx = new BlazorGfx(context);
+            this.Gfx = new BlazorGfx(context, canvas);
         }
 
         public void ProtokolliereFehler(string v)

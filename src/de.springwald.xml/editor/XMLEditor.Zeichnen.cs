@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
 {
-
     /// <summary>
     /// Die Zeichnungsfunktionen des XML-Editors
     /// </summary>

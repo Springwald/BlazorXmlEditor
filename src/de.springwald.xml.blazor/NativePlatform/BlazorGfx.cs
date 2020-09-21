@@ -1,4 +1,5 @@
-﻿using Blazor.Extensions.Canvas.Canvas2D;
+﻿using Blazor.Extensions;
+using Blazor.Extensions.Canvas.Canvas2D;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
 using System.Runtime.InteropServices.ComTypes;
@@ -9,10 +10,24 @@ namespace de.springwald.xml.blazor.NativePlatform
     public class BlazorGfx : IGraphics
     {
         private Canvas2DContext context;
+        private BECanvasComponent canvas;
 
-        public BlazorGfx(Canvas2DContext context)
+        public BlazorGfx(Canvas2DContext context, Blazor.Extensions.BECanvasComponent canvas)
         {
             this.context = context;
+            this.canvas = canvas;
+        }
+
+        public async Task StartBatch()
+        {
+            var ctx = this.context;
+            await ctx.BeginBatchAsync();
+        }
+
+        public async Task EndBatch()
+        {
+            var ctx = this.context;
+            await ctx.EndBatchAsync();
         }
 
         public async Task DrawLineAsync(Pen pen, int x1, int y1, int x2, int y2)
@@ -35,7 +50,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task DrawPathAsync(Pen pen, GraphicsPath gp)
         {
-            return;
             if (gp.Lines.Count == 0) return;
 
             var ctx = this.context;
@@ -57,7 +71,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task DrawStringAsync(string text, Font font, SolidBrush brush, int x, int y, StringFormat drawFormat)
         {
-            return;
             var ctx = this.context;
             await this.SetFontFormat(font);
             await ctx.SetFillStyleAsync(brush.Color.AsHtml);
@@ -76,7 +89,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task<float> MeasureDisplayStringWidthAsync(string text, Font font, StringFormat drawFormat)
         {
-            return 100f;
             var ctx = this.context;
             await this.SetFontFormat(font);
             var size = await ctx.MeasureTextAsync(text);
@@ -85,7 +97,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task FillPathAsync(SolidBrush brush, GraphicsPath gp)
         {
-            return;
             if (gp.Lines.Count == 0) return;
 
             var ctx = this.context;
@@ -97,10 +108,8 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ResetStroke(ctx);
         }
 
-
         public async Task FillPolygonAsync(SolidBrush brush, Point[] points)
         {
-            return;
             if (points.Length == 0) return;
 
             var ctx = this.context;
@@ -123,14 +132,12 @@ namespace de.springwald.xml.blazor.NativePlatform
             await Task.CompletedTask; // to prevent warning because of empty async method
         }
 
-
         public async Task ClearAsync(Color color)
         {
-            return;
             var ctx = this.context;
             await ctx.SetFillStyleAsync(color.AsHtml);
 #warning todo clear real canvas size
-            await ctx.FillRectAsync(0, 0, 1000, 1000);
+            await ctx.ClearRectAsync(0, 0, this.canvas.Width, this.canvas.Height);
         }
 
 
@@ -139,7 +146,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         private static async Task LinePath(GraphicsPath gp, Canvas2DContext ctx)
         {
-            return;
             await ctx.MoveToAsync(gp.Lines[0].X1, gp.Lines[0].Y1);
             await ctx.LineToAsync(gp.Lines[0].X2, gp.Lines[0].Y2);
             for (int i = 1; i < gp.Lines.Count; i++)
@@ -154,7 +160,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         private async Task SetFontFormat(Font font)
         {
-            return;
             await this.context.SetTextAlignAsync(TextAlign.Left);
             await this.context.SetTextBaselineAsync(TextBaseline.Top);
             await this.context.SetFontAsync($"{font.Height}px {font.Name}"); // e.g. '48px serif';
@@ -188,7 +193,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         private async Task SetStrokeFromPen(Pen pen, Canvas2DContext ctx)
         {
-            return;
             await ctx.SetStrokeStyleAsync(pen.Color.AsHtml);
             await ctx.SetLineWidthAsync(pen.Width);
             await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
@@ -196,12 +200,11 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         private async Task ResetStroke(Canvas2DContext ctx)
         {
-            return;
             // reset line dashs and other parameters
             await ctx.SetLineDashAsync(new float[] { });
             await ctx.SetLineCapAsync(LineCap.Butt);
         }
 
-      
+
     }
 }

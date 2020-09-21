@@ -4,6 +4,9 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 {
     public interface IGraphics
     {
+        Task StartBatch();
+        Task EndBatch();
+
         Task DrawLineAsync(Pen myPen, int x1, int y1, int x2, int y2);
 
         Task DrawPathAsync(Pen newPen, GraphicsPath gp);

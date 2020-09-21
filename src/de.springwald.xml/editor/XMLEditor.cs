@@ -19,7 +19,7 @@ namespace de.springwald.xml.editor
 
     public partial class XMLEditor : IDisposable
     {
-        public INativePlatform NativePlatform { get; }
+        public INativePlatform NativePlatform { get; } 
 
         /// <summary>
         /// Der Inhalt des Editor-XMLs hat sich geändert
@@ -96,6 +96,8 @@ namespace de.springwald.xml.editor
 
         public async Task SetRootNode(System.Xml.XmlNode value)
         {
+           // await this.NativePlatform.Gfx.StartBatch();
+
             this._rootNode = value;
 
             if (_rootNode == null)
@@ -144,8 +146,10 @@ namespace de.springwald.xml.editor
                 this.NativePlatform.ControlElement.Enabled = true;
             }
 
+           // await this.NativePlatform.Gfx.EndBatch();
+
             // Bescheid sagen, dass der Inhalt des XMLs sich geändert hat
-           await ContentChanged();
+            await ContentChanged();
         }
 
         /// <summary>
@@ -222,7 +226,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        async Task _cursor_ChangedEvent( EventArgs e)
+        async Task _cursor_ChangedEvent(EventArgs e)
         {
             ScrollingNotwendig();
 
