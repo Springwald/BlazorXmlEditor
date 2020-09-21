@@ -1,0 +1,12 @@
+﻿@inherits LayoutComponentBase
+
+<Grid style="height: 100%">
+    <ColumnDefinition Width="minmax(15em, 10%)" />
+    <ColumnDefinition Width="auto" />
+    <Element Column="0" style="background-image: linear-gradient(180deg, #26508E 0%, #117FBD 70%); padding: 1em;">
+        <NavMenu />
+    </Element>
+    <Element Column="1" style="padding: 2em; overflow-y: auto; height: 100%;">
+        @Body
+    </Element>
+</Grid>

@@ -48,6 +48,7 @@
         xmlDocument.LoadXml(this.documents[this.actualDocumentIndex]);
         await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
         this.loadDocumentTimer.Start();
+
         await Task.CompletedTask;
     }
 
@@ -65,8 +66,6 @@
 
         this.actualDocumentIndex++;
         if (this.actualDocumentIndex >= this.documents.Length) this.actualDocumentIndex = 0;
-
-
     }
 
 
