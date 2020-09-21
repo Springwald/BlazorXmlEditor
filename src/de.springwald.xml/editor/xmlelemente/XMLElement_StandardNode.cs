@@ -218,10 +218,8 @@ namespace de.springwald.xml.editor
 
         protected override async Task NodeZeichnenAbschluss(XMLPaintArten paintArt, int offSetX, int offSetY, PaintEventArgs e)
         {
-
             if (e != null) // wenn im Paint-Modus
             {
-
                 // Falls der Cursor hinter dem letzten Child dieses Nodes steht, dann
                 // den Cursor auch dahin zeichnen
                 //if ((_xmlEditor.Cursor.AktNode == _xmlNode) && (_xmlEditor.Cursor.PosInNode == (int)XMLCursorPositionen.CursorHinterLetztemChild)) 
@@ -302,7 +300,6 @@ namespace de.springwald.xml.editor
                     _pfeilBereichRechts = new Rectangle(0, 0, 0, 0);
                     _tagBereichRechts = new Rectangle(0, 0, 0, 0);
                 }
-
             }
             await base.NodeZeichnenAbschluss(paintArt, offSetX, offSetY, e);
         }
@@ -452,8 +449,6 @@ namespace de.springwald.xml.editor
                 await _xmlEditor.CursorRoh.CursorPosSetzenDurchMausAktion(this._xmlNode, XMLCursorPositionen.CursorAufNodeSelbstHinteresTag, aktion);
                 return;
             }
-
-
             await base.WurdeAngeklickt(point, aktion); // Nicht auf Pfeil geklickt, dann Event weiterreichen an Base-Klasse
         }
 
@@ -496,8 +491,6 @@ namespace de.springwald.xml.editor
                     _farbeRahmenRand = Color.Red;
                 }
             }
-
         }
-
     }
 }

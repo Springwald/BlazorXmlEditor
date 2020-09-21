@@ -6,11 +6,15 @@
 
 <h1>load xml demo</h1>
 
-<h2>loading document @this.actualDocumentIndex</h2>
+<h2>loading document @this.actualDocumentIndex / @fps FPS</h2>
 
 <de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" />
 
 @code {
+
+    private DateTime startTime = DateTime.Now;
+    private int frames;
+    private string fps;
 
     XmlEditorContext editorContext = new XmlEditorContext();
     private Timer loadDocumentTimer;
@@ -47,11 +51,22 @@
         await Task.CompletedTask;
     }
 
+    private int showCounter = 0;
+
     protected void IncrementDocumentIndex()
     {
+        this.frames++;
+        if (this.showCounter != DateTime.Now.Second)
+        {
+            this.showCounter = DateTime.Now.Second;
+            this.fps = $"{(this.frames / (DateTime.Now - this.startTime).TotalSeconds):0.00}";
+            this.StateHasChanged();
+        }
+
         this.actualDocumentIndex++;
         if (this.actualDocumentIndex >= this.documents.Length) this.actualDocumentIndex = 0;
-        this.StateHasChanged();
+
+
     }
 
 
