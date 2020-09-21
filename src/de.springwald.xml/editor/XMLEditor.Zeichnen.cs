@@ -1,3 +1,4 @@
+using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 using System.Threading.Tasks;
 
@@ -41,10 +42,11 @@ namespace de.springwald.xml.editor
                 _virtuelleHoehe = _rootElement.PaintPos.PosY + 50 - ZeichnungsOffsetY;
 
                 // XML-Anzeige zeichnen
-                //e.Graphics.Clear(Color.White);
+               // await this.NativePlatform.Gfx.ClearAsync(Color.White);
                 _rootElement.PaintPos = paintPos;
-                await _rootElement.Paint(XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, ZeichnungsOffsetX, ZeichnungsOffsetY, e);
-            } 
+               // await _rootElement.Paint(XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, ZeichnungsOffsetX, ZeichnungsOffsetY, e);
+            }
+            await Task.CompletedTask;
         }
 
         public void FokusAufEingabeFormularSetzen()

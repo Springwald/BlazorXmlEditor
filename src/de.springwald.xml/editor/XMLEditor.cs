@@ -145,7 +145,7 @@ namespace de.springwald.xml.editor
             }
 
             // Bescheid sagen, dass der Inhalt des XMLs sich geändert hat
-            await ContentChanged();
+           await ContentChanged();
         }
 
      

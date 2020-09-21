@@ -1,6 +1,7 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.blazor.NativePlatform
@@ -116,6 +117,16 @@ namespace de.springwald.xml.blazor.NativePlatform
             await Task.CompletedTask; // to prevent warning because of empty async method
         }
 
+
+        public async Task ClearAsync(Color color)
+        {
+            var ctx = this.context;
+            await ctx.SetFillStyleAsync(color.AsHtml);
+#warning todo clear real canvas size
+            await ctx.FillRectAsync(0, 0, 1000, 1000);
+        }
+
+
         // ######### private helpers ##########
 
 
@@ -180,6 +191,6 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.SetLineCapAsync(LineCap.Butt);
         }
 
-
+      
     }
 }

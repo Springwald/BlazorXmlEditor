@@ -372,7 +372,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         private void MausklickBereicheBufferLeeren()
         {
-            _klickBereiche = new Rectangle[] { };
+            if (_klickBereiche.Length != 0) _klickBereiche = new Rectangle[] { };
         }
 
 

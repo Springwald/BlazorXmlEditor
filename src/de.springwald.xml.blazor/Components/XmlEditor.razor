@@ -77,7 +77,7 @@
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
     {
         await this.xmlEditor.SetRootNode(rootNode);
-        await this.xmlEditor.Paint(new de.springwald.xml.events.PaintEventArgs() { Graphics = nativePlattform.Gfx });
+        //await this.xmlEditor.Paint(new de.springwald.xml.events.PaintEventArgs() { Graphics = nativePlattform.Gfx });
     }
 
     public class BoundingClientRect
