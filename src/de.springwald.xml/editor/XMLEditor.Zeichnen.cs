@@ -42,9 +42,9 @@ namespace de.springwald.xml.editor
                 _virtuelleHoehe = _rootElement.PaintPos.PosY + 50 - ZeichnungsOffsetY;
 
                 // XML-Anzeige zeichnen
-               // await this.NativePlatform.Gfx.ClearAsync(Color.White);
+                await this.NativePlatform.Gfx.ClearAsync(Color.White);
                 _rootElement.PaintPos = paintPos;
-               // await _rootElement.Paint(XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, ZeichnungsOffsetX, ZeichnungsOffsetY, e);
+                await _rootElement.Paint(XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, ZeichnungsOffsetX, ZeichnungsOffsetY, e);
             }
             await Task.CompletedTask;
         }

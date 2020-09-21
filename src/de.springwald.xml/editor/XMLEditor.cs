@@ -148,8 +148,6 @@ namespace de.springwald.xml.editor
            await ContentChanged();
         }
 
-     
-
         /// <summary>
         /// Gibt an, ob der Rootnode selektiert ist 
         /// </summary>
