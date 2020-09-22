@@ -1,10 +1,10 @@
-﻿@page "/TypingDemo"
+﻿@page "/SelectDemo"
 @using de.springwald.xml.blazor.Components
 @using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
 
-<h1>typing demo</h1>
+<h1>select demo</h1>
 
 <h2>@fps FPS</h2>
 
@@ -17,9 +17,8 @@
     private XmlEditor xmlEditor;
 
     XmlEditorContext editorContext = new XmlEditorContext();
-    private Timer typingTimer;
+    private Timer selectTimer;
     private string documentContent = "<category><pattern>GUTEN TAG</pattern><template>Hallo, ich freue mich, Sie kennen zu lernen.</template></category>";
-    private int actualDocumentIndex = 0;
     private System.Xml.XmlDocument xmlDocument;
 
     protected override async Task OnInitializedAsync()
@@ -27,19 +26,19 @@
         var demoDtd = DemoDtd.LoadDemoDtd();
         this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
 
-        this.typingTimer = new Timer();
-        this.typingTimer.Elapsed += LoadDocumentTimedEvent;
-        this.typingTimer.Interval = 10;
-        this.typingTimer.Start();
+        this.selectTimer = new Timer();
+        this.selectTimer.Elapsed += LoadDocumentTimedEvent;
+        this.selectTimer.Interval = 10;
+        this.selectTimer.Start();
+
         await base.OnInitializedAsync();
     }
 
-    private int typingPos;
     public bool flipFlop;
 
     private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
     {
-        this.typingTimer.Stop();
+        this.selectTimer.Stop();
 
         if (this.xmlDocument == null)
         {
@@ -52,27 +51,24 @@
         var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
         var textNode = patternNode.ChildNodes[0];
 
-        this.typingPos++;
-        if (this.typingPos > 10) this.typingPos = 0;
-
-        if (this.typingPos < 5)
+        flipFlop = !flipFlop;
+        if (flipFlop)
         {
             await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
-                        textNode,
-                        cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
-                        this.typingPos);
+                            patternNode,
+                            cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
         }
         else
         {
-            await this.xmlEditor.Editor.AktionTextAnCursorPosEinfuegen("a ", editor.XMLEditor.UndoSnapshotSetzenOptionen.ja);
+            await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+                            templateNode,
+                            cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
         }
-
         this.Count();
-        this.typingTimer.Start();
+        this.selectTimer.Start();
     }
 
     private int showCounter = 0;
-
     protected void Count()
     {
         this.frames++;
@@ -82,7 +78,5 @@
             this.fps = $"{(this.frames / (DateTime.Now - this.startTime).TotalSeconds):0.00}";
             this.StateHasChanged();
         }
-
-        this.actualDocumentIndex++;
     }
 }
