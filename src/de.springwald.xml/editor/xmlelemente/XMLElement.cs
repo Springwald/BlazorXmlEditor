@@ -333,6 +333,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected virtual async Task ZeichneCursorStrich(PaintEventArgs e)
         {
+            return;
             if (!_xmlEditor.CursorRoh.IstEtwasSelektiert) // Wenn nichts selektiert ist
             {
                 if (this._xmlNode == this._xmlEditor.CursorOptimiert.StartPos.AktNode)  // Wenn dies überhaupt der aktuelle Node ist

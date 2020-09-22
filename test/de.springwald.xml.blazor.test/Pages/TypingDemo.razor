@@ -1,0 +1,91 @@
+﻿@page "/TypingDemo"
+@using de.springwald.xml.blazor.Components
+@using de.springwald.xml.blazor
+@using de.springwald.xml.blazor.test.DemoData
+@using System.Timers
+
+<h1>typing demo</h1>
+
+<h2>loading document @fps FPS</h2>
+
+<de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
+
+@code {
+    private DateTime startTime = DateTime.Now;
+    private int frames;
+    private string fps;
+    private XmlEditor xmlEditor;
+
+    XmlEditorContext editorContext = new XmlEditorContext();
+    private Timer typingTimer;
+    private string documentContent = "<category><pattern>GUTEN TAG</pattern><template>Hallo, ich freue mich, Sie kennen zu lernen.</template></category>";
+    private int actualDocumentIndex = 0;
+    private System.Xml.XmlDocument xmlDocument;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var demoDtd = DemoDtd.LoadDemoDtd();
+        this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
+
+        this.typingTimer = new Timer();
+        this.typingTimer.Elapsed += LoadDocumentTimedEvent;
+        this.typingTimer.Interval = 2000;
+        this.typingTimer.Start();
+        await base.OnInitializedAsync();
+    }
+
+    private int typingPos;
+
+    private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+    {
+        this.typingTimer.Stop();
+
+        this.typingPos++;
+        if (this.typingPos > 10) this.typingPos = 3;
+        if (this.typingPos == 1)
+        {
+            this.xmlDocument = new System.Xml.XmlDocument();
+            xmlDocument.LoadXml(this.documentContent);
+            await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
+        }
+        if (this.typingPos == 2)
+        {
+            var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
+            var textNode = patternNode.ChildNodes[0];
+            //var content = textNode.InnerText;
+            await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+                            textNode,
+                            cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
+                            2);
+            await this.xmlEditor.Editor.Paint(new events.PaintEventArgs());
+        }
+        else
+        {
+            if (this.typingPos < 6)
+            {
+                await this.xmlEditor.Editor.AktionTextAnCursorPosEinfuegen("a", editor.XMLEditor.UndoSnapshotSetzenOptionen.ja);
+            } else
+            {
+                // await this.xmlEditor.Editor.AktionDelete(editor.XMLEditor.UndoSnapshotSetzenOptionen.ja);
+            }
+        }
+
+        this.Count();
+        this.typingTimer.Start();
+    }
+
+    private int showCounter = 0;
+
+    protected void Count()
+    {
+        this.frames++;
+        if (this.showCounter != DateTime.Now.Second)
+        {
+            this.showCounter = DateTime.Now.Second;
+            this.fps = $"{(this.frames / (DateTime.Now - this.startTime).TotalSeconds):0.00}";
+            this.StateHasChanged();
+        }
+
+        this.actualDocumentIndex++;
+    }
+}

@@ -19,7 +19,7 @@
 
     private bool initDone;
     private XmlEditorContext _editorContext;
-    private de.springwald.xml.editor.XMLEditor xmlEditor;
+    public de.springwald.xml.editor.XMLEditor Editor;
     protected BECanvasComponent _canvasReference;
     protected ElementReference _canvasDivReference;
     protected de.springwald.xml.editor.nativeplatform.INativePlatform nativePlattform;
@@ -38,15 +38,6 @@
         }
     }
 
-    private void Init()
-    {
-        if (this.initDone) return;
-        this.initDone = true;;
-        this.xmlEditor = new de.springwald.xml.editor.XMLEditor(this._editorContext.XmlRules, nativePlattform);
-        nativePlattform.InputEvents.BlinkInterval.Add(this.blinkDone);
-        this._editorContext.RootNodeChanged.Add(this.RootNodeChanged);
-    }
-
     protected override async Task OnInitializedAsync()
     {
         await  base.OnInitializedAsync();
@@ -62,6 +53,15 @@
         }
     }
 
+    private void Init()
+    {
+        if (this.initDone) return;
+        this.initDone = true; ;
+        this.Editor = new de.springwald.xml.editor.XMLEditor(this._editorContext.XmlRules, nativePlattform);
+        nativePlattform.InputEvents.BlinkInterval.Add(this.blinkDone);
+        this._editorContext.RootNodeChanged.Add(this.RootNodeChanged);
+    }
+
     async Task blinkDone(EventArgs e)
     {
         await Task.CompletedTask;
@@ -74,7 +74,7 @@
 
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
     {
-        await this.xmlEditor.SetRootNode(rootNode);
+        await this.Editor.SetRootNode(rootNode);
         //await this.xmlEditor.Paint(new de.springwald.xml.events.PaintEventArgs() { Graphics = nativePlattform.Gfx });
     }
 
@@ -120,7 +120,4 @@
     //{
     //    await this.nativePlattform.InputEvents.KeyPress.Trigger(new de.springwald.xml.events.KeyPressEventArgs { KeyChar = e.Key });
     //}
-
-
-
 }

@@ -3,7 +3,6 @@
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
 
-
 <h1>load xml demo</h1>
 
 <h2>loading document @this.actualDocumentIndex / @fps FPS</h2>
@@ -67,6 +66,4 @@
         this.actualDocumentIndex++;
         if (this.actualDocumentIndex >= this.documents.Length) this.actualDocumentIndex = 0;
     }
-
-
 }
