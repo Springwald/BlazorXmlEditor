@@ -74,7 +74,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet das XML-Element auf den Bildschirm
         /// </summary>
-        public virtual async Task Paint(int marginLeft, int paintPosX, XMLPaintArten paintArt, PaintEventArgs e)
+        public virtual async Task Paint(int marginLeft, int paintPosX, int paintPosY, XMLPaintArten paintArt, PaintEventArgs e)
         {
             if (this._disposed) return;
             if (this.XMLNode == null) return;
@@ -101,9 +101,9 @@ namespace de.springwald.xml.editor
 
             // Alles zeichnen
             this._wirdGeradeGezeichnet = true;
-            await NodeZeichnenStart(marginLeft, paintPosX, paintArt, e);
-            await UnternodesZeichnen(marginLeft, paintPosX, paintArt, e);
-            await NodeZeichnenAbschluss(marginLeft, paintPosX, paintArt, e);
+            await NodeZeichnenStart(marginLeft, paintPosX,  paintPosY, paintArt, e);
+            await UnternodesZeichnen(marginLeft, paintPosX,  paintPosY, paintArt, e);
+            await NodeZeichnenAbschluss(marginLeft, paintPosX,  paintPosY, paintArt, e);
             this._wirdGeradeGezeichnet = false;
 
 #if klickbereicheRotAnzeigen
@@ -117,7 +117,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected virtual async Task NodeZeichnenStart(int marginLeft, int paintPosX, XMLPaintArten paintArt,  PaintEventArgs e)
+        protected virtual async Task NodeZeichnenStart(int marginLeft, int paintPosX, int PaintPosY, XMLPaintArten paintArt,  PaintEventArgs e)
         {
             await Task.CompletedTask; // to prevent warning because of empty async method
             // vermerken, wie hoch die Zeile bisher ist
@@ -130,7 +130,7 @@ namespace de.springwald.xml.editor
         /// <param name="nachDiesemNodeNeuZeichnenErzwingen">Alle Nodes nach diesem Childnode müssen
         /// noch gezeichnet werden. Das tritt zum Beispiel ein, wenn sich der Inhalt eines Childnodes
         /// geändert hat und nun alles folgende z.B. wegen Verschiebung neu gezeichnet werden muss.</param>
-        protected virtual async Task UnternodesZeichnen(int marginLeft, int paintPosX, XMLPaintArten paintArt,  PaintEventArgs e)
+        protected virtual async Task UnternodesZeichnen(int marginLeft, int paintPosX, int paintPosY, XMLPaintArten paintArt,  PaintEventArgs e)
         {
             if (this.XMLNode is System.Xml.XmlText) // es handelt sich um einen Textnode 
             {
@@ -161,8 +161,6 @@ namespace de.springwald.xml.editor
                         this.PaintPos.ZeilenStartX = this.PaintPos.PosX;    // Beginnen mit dem Element selbst
                         break;
                 }
-
-
 
                 // Alle Child-Controls anzeigen und ggf. vorher anlegen
                 for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
@@ -231,7 +229,7 @@ namespace de.springwald.xml.editor
                                 HoeheAktZeile = this.PaintPos.HoeheAktZeile
                             };
                             childElement.PaintPos = childZeichenPos;
-                            await childElement.Paint(marginLeft, paintPosX, paintArt, e);
+                            await childElement.Paint(marginLeft, paintPosX,  paintPosY, paintArt, e);
                             break;
 
                         case DarstellungsArten.EigeneZeile:
@@ -278,7 +276,7 @@ namespace de.springwald.xml.editor
                             }
 
                             childElement.PaintPos = childZeichenPos;
-                            await childElement.Paint(marginLeft, paintPosX, paintArt,  e);
+                            await childElement.Paint(marginLeft, paintPosX, paintPosY, paintArt,  e);
 
                             break;
 
@@ -314,7 +312,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet den Abschluss des aktuellen Nodes (z.B. einen schließenden Haken)
         /// </summary>
-        protected virtual async Task NodeZeichnenAbschluss(int marginLeft, int paintPosX, XMLPaintArten paintArt,  PaintEventArgs e)
+        protected virtual async Task NodeZeichnenAbschluss(int marginLeft, int paintPosX, int paintPosY, XMLPaintArten paintArt,  PaintEventArgs e)
         {
             await ZeichneCursorStrich(e);
         }
@@ -324,7 +322,6 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected virtual async Task ZeichneCursorStrich(PaintEventArgs e)
         {
-            return;
             if (!_xmlEditor.CursorRoh.IstEtwasSelektiert) // Wenn nichts selektiert ist
             {
                 if (this.XMLNode == this._xmlEditor.CursorOptimiert.StartPos.AktNode)  // Wenn dies überhaupt der aktuelle Node ist

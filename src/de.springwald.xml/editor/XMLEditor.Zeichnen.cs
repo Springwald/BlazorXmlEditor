@@ -25,6 +25,7 @@ namespace de.springwald.xml.editor
         {
             var marginLeft = 0;
             var paintPosX = 0;
+            var paintPosY = 0;
 
             if (_rootElement != null)  // Wenn das 
             {
@@ -38,7 +39,7 @@ namespace de.springwald.xml.editor
 
                 // XML-Anzeige vorberechnen
                 _rootElement.PaintPos = paintPos.Clone();
-                await _rootElement.Paint(marginLeft, paintPosX, XMLPaintArten.Vorberechnen,  e);
+                await _rootElement.Paint(marginLeft, paintPosX,  paintPosY, XMLPaintArten.Vorberechnen,  e);
 
                 _virtuelleBreite = _rootElement.PaintPos.BisherMaxX + 50 - ZeichnungsOffsetX;
                 _virtuelleHoehe = _rootElement.PaintPos.PosY + 50 - ZeichnungsOffsetY;
@@ -46,7 +47,7 @@ namespace de.springwald.xml.editor
                 // XML-Anzeige zeichnen
                 await this.NativePlatform.Gfx.ClearAsync(Color.White);
                 _rootElement.PaintPos = paintPos;
-                await _rootElement.Paint(marginLeft, paintPosX, XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, e);
+                await _rootElement.Paint(marginLeft, paintPosX, paintPosY, XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, e);
             }
             await Task.CompletedTask;
         }
