@@ -74,7 +74,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet das XML-Element auf den Bildschirm
         /// </summary>
-        public virtual async Task Paint(XMLPaintArten paintArt, int offSetX, int offSetY, PaintEventArgs e)
+        public virtual async Task Paint(XMLPaintArten paintArt, PaintEventArgs e)
         {
             if (this._disposed) return;
             if (this.XMLNode == null) return;
@@ -101,9 +101,9 @@ namespace de.springwald.xml.editor
 
             // Alles zeichnen
             this._wirdGeradeGezeichnet = true;
-            await NodeZeichnenStart(paintArt, offSetX, offSetY, e);
-            await UnternodesZeichnen(paintArt, offSetX, offSetY, e);
-            await NodeZeichnenAbschluss(paintArt, offSetX, offSetY, e);
+            await NodeZeichnenStart(paintArt, e);
+            await UnternodesZeichnen(paintArt, e);
+            await NodeZeichnenAbschluss(paintArt, e);
             this._wirdGeradeGezeichnet = false;
 
 #if klickbereicheRotAnzeigen
@@ -117,7 +117,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected virtual async Task NodeZeichnenStart(XMLPaintArten paintArt, int offSetX, int offSetY, PaintEventArgs e)
+        protected virtual async Task NodeZeichnenStart(XMLPaintArten paintArt,  PaintEventArgs e)
         {
             await Task.CompletedTask; // to prevent warning because of empty async method
             // vermerken, wie hoch die Zeile bisher ist
@@ -130,7 +130,7 @@ namespace de.springwald.xml.editor
         /// <param name="nachDiesemNodeNeuZeichnenErzwingen">Alle Nodes nach diesem Childnode müssen
         /// noch gezeichnet werden. Das tritt zum Beispiel ein, wenn sich der Inhalt eines Childnodes
         /// geändert hat und nun alles folgende z.B. wegen Verschiebung neu gezeichnet werden muss.</param>
-        protected virtual async Task UnternodesZeichnen(XMLPaintArten paintArt, int offSetX, int offSetY, PaintEventArgs e)
+        protected virtual async Task UnternodesZeichnen(XMLPaintArten paintArt,  PaintEventArgs e)
         {
             if (this.XMLNode is System.Xml.XmlText) // es handelt sich um einen Textnode 
             {
@@ -231,7 +231,7 @@ namespace de.springwald.xml.editor
                                 HoeheAktZeile = this.PaintPos.HoeheAktZeile
                             };
                             childElement.PaintPos = childZeichenPos;
-                            await childElement.Paint(paintArt, offSetX, offSetY, e);
+                            await childElement.Paint(paintArt, e);
                             break;
 
                         case DarstellungsArten.EigeneZeile:
@@ -278,7 +278,7 @@ namespace de.springwald.xml.editor
                             }
 
                             childElement.PaintPos = childZeichenPos;
-                            await childElement.Paint(paintArt, offSetX, offSetY, e);
+                            await childElement.Paint(paintArt,  e);
 
                             break;
 
@@ -314,7 +314,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet den Abschluss des aktuellen Nodes (z.B. einen schließenden Haken)
         /// </summary>
-        protected virtual async Task NodeZeichnenAbschluss(XMLPaintArten paintArt, int offSetX, int offSetY, PaintEventArgs e)
+        protected virtual async Task NodeZeichnenAbschluss(XMLPaintArten paintArt,  PaintEventArgs e)
         {
             await ZeichneCursorStrich(e);
         }

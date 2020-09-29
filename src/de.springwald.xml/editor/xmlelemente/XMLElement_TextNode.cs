@@ -120,7 +120,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected override async Task NodeZeichnenStart(XMLPaintArten paintArt, int offSetX, int offSetY, PaintEventArgs e)
+        protected override async Task NodeZeichnenStart(XMLPaintArten paintArt,  PaintEventArgs e)
         {
             if (_drawFont == null)
             {

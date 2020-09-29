@@ -70,7 +70,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected override async Task NodeZeichnenStart(XMLPaintArten paintArt, int offSetX, int offSetY, PaintEventArgs e)
+        protected override async Task NodeZeichnenStart(XMLPaintArten paintArt,  PaintEventArgs e)
         {
             if (_drawFontNodeName == null)
             {
@@ -216,7 +216,7 @@ namespace de.springwald.xml.editor
 
         }
 
-        protected override async Task NodeZeichnenAbschluss(XMLPaintArten paintArt, int offSetX, int offSetY, PaintEventArgs e)
+        protected override async Task NodeZeichnenAbschluss(XMLPaintArten paintArt,  PaintEventArgs e)
         {
             if (e != null) // wenn im Paint-Modus
             {
@@ -301,7 +301,7 @@ namespace de.springwald.xml.editor
                     _tagBereichRechts = new Rectangle(0, 0, 0, 0);
                 }
             }
-            await base.NodeZeichnenAbschluss(paintArt, offSetX, offSetY, e);
+            await base.NodeZeichnenAbschluss(paintArt, e);
         }
 
 
