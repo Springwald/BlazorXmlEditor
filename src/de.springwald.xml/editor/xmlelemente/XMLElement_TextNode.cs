@@ -120,7 +120,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected override async Task NodeZeichnenStart(int marginLeft, int paintPosX, int PaintPosY, XMLPaintArten paintArt,  PaintEventArgs e)
+        protected override async Task NodeZeichnenStart(PaintContext paintContext, PaintEventArgs e)
         {
             if (_drawFont == null)
             {
@@ -138,35 +138,28 @@ namespace de.springwald.xml.editor
             int _randY = 2; // Abstand zum oberen Rand der Zeile
             int aktTextTeilStartPos = 0;
 
-            switch (paintArt)
+
+            int selektionStart = -1;
+            int selektionLaenge = 0;
+
+            StartUndEndeDerSelektionBestimmen(ref selektionStart, ref selektionLaenge);
+
+            // die Merke-Buffer der einzelnen Zeilen leeren
+            int maxLaengeProZeile = (int)((paintContext.ZeilenEndeX - paintContext.ZeilenStartX) / _breiteProBuchstabe);
+            int bereitsLaengeDerZeile = (int)(paintContext.PaintPosX / _breiteProBuchstabe);
+            TextTeiler teiler =
+                new TextTeiler(
+                    AktuellerInhalt, selektionStart, selektionLaenge, maxLaengeProZeile, bereitsLaengeDerZeile,
+                        ZeichenZumUmbrechen
+                    );
+            _textTeile = teiler.TextTeile;
+
+            // Texthintergrund färben
+            foreach (TextTeil teil in _textTeile)
             {
-                case XMLPaintArten.Vorberechnen:
-
-                    int selektionStart = -1;
-                    int selektionLaenge = 0;
-
-                    StartUndEndeDerSelektionBestimmen(ref selektionStart, ref selektionLaenge);
-
-                    // die Merke-Buffer der einzelnen Zeilen leeren
-                    int maxLaengeProZeile = (int)((this.PaintPos.ZeilenEndeX - this.PaintPos.ZeilenStartX) / _breiteProBuchstabe);
-                    int bereitsLaengeDerZeile = (int)(this.PaintPos.PosX / _breiteProBuchstabe);
-                    TextTeiler teiler =
-                        new TextTeiler(
-                            AktuellerInhalt, selektionStart, selektionLaenge, maxLaengeProZeile, bereitsLaengeDerZeile,
-                                ZeichenZumUmbrechen
-                            );
-                    _textTeile = teiler.TextTeile;
-
-                    break;
-                default:
-                    // Texthintergrund färben
-                    foreach (TextTeil teil in _textTeile)
-                    {
-                        SolidBrush newBrush = new SolidBrush(GetHintergrundFarbe(teil.Invertiert));
-                        // Hintergrund füllen
-                        await e.Graphics.FillRectangleAsync(newBrush, teil.Rechteck);
-                    }
-                    break;
+                SolidBrush newBrush = new SolidBrush(GetHintergrundFarbe(teil.Invertiert));
+                // Hintergrund füllen
+                await e.Graphics.FillRectangleAsync(newBrush, teil.Rechteck);
             }
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
@@ -178,49 +171,44 @@ namespace de.springwald.xml.editor
                 {
 
                     // Neue Zeile beginnen
-                    this.PaintPos.PosY += _xmlEditor.Regelwerk.AbstandYZwischenZeilen + this.PaintPos.HoeheAktZeile; // Zeilenumbruch
-                    this.PaintPos.PosX = this.PaintPos.ZeilenStartX;
-                    this.PaintPos.HoeheAktZeile = _hoeheProBuchstabe + _randY * 2;  // noch gar keine Höhe
+                    paintContext.PaintPosY += _xmlEditor.Regelwerk.AbstandYZwischenZeilen + paintContext.HoeheAktZeile; // Zeilenumbruch
+                    paintContext.PaintPosX = paintContext.ZeilenStartX;
+                    paintContext.HoeheAktZeile = _hoeheProBuchstabe + _randY * 2;  // noch gar keine Höhe
                 }
 
-                if (paintArt == XMLPaintArten.Vorberechnen) // Nur Berechnen
+                // Nur Berechnen, nicht zeichnen
+                textTeil.Rechteck = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, (int)(_breiteProBuchstabe * textTeil.Text.Length), _hoeheProBuchstabe + _randY * 2);
+
+                // ggf. den Cursorstrich berechnen
+                if (this.XMLNode == _xmlEditor.CursorOptimiert.StartPos.AktNode) // ist der Cursor im aktuellen Textnode
                 {
-                    // Nur Berechnen, nicht zeichnen
-                    textTeil.Rechteck = new Rectangle(this.PaintPos.PosX, this.PaintPos.PosY, (int)(_breiteProBuchstabe * textTeil.Text.Length), _hoeheProBuchstabe + _randY * 2);
-
-                    // ggf. den Cursorstrich berechnen
-                    if (this.XMLNode == _xmlEditor.CursorOptimiert.StartPos.AktNode) // ist der Cursor im aktuellen Textnode
+                    if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorInnerhalbDesTextNodes)
                     {
-                        if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorInnerhalbDesTextNodes)
+                        // Checken, ob der Cursor innerhalb dieses Textteiles liegt
+                        if ((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode >= aktTextTeilStartPos) && (_xmlEditor.CursorOptimiert.StartPos.PosImTextnode <= aktTextTeilStartPos + textTeil.Text.Length))
                         {
-                            // Checken, ob der Cursor innerhalb dieses Textteiles liegt
-                            if ((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode >= aktTextTeilStartPos) && (_xmlEditor.CursorOptimiert.StartPos.PosImTextnode <= aktTextTeilStartPos + textTeil.Text.Length))
-                            {
-                                // Herausfinden, wieviel Pixel die Cursor-Position im Text liegt
-                                int xCursorPos = this.PaintPos.PosX + (int)((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode - aktTextTeilStartPos) * _breiteProBuchstabe);
-                                xCursorPos = Math.Max(this.PaintPos.PosX, xCursorPos);
+                            // Herausfinden, wieviel Pixel die Cursor-Position im Text liegt
+                            int xCursorPos = paintContext.PaintPosX + (int)((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode - aktTextTeilStartPos) * _breiteProBuchstabe);
+                            xCursorPos = Math.Max(paintContext.PaintPosX, xCursorPos);
 
-                                // Position für Cursor-Strich vermerken
-                                this._cursorStrichPos = new Point(xCursorPos, this.PaintPos.PosY);
-                            }
+                            // Position für Cursor-Strich vermerken
+                            this._cursorStrichPos = new Point(xCursorPos, paintContext.PaintPosY);
                         }
                     }
-
-                    // Merken, wo im Text wir uns gerade befinden
-                    aktTextTeilStartPos += textTeil.Text.Length;
-
-                    // für die Klickbereiche merken, wohin dieser Textteil gezeichnet wird 
-                    this._klickBereiche = this._klickBereiche.Append(textTeil.Rechteck).ToArray(); // original:  this._klickBereiche.Add(textTeil.Rechteck);
-                }
-                else // Nur Zeichnen
-                {
-                    // Die Schrift zeichnen
-                    await e.Graphics.DrawStringAsync(textTeil.Text, _drawFont, GetZeichenFarbe(textTeil.Invertiert), textTeil.Rechteck.X, textTeil.Rechteck.Y + _randY, _drawFormat);
                 }
 
-                this.PaintPos.BisherMaxX = Math.Max(this.PaintPos.BisherMaxX, textTeil.Rechteck.X + textTeil.Rechteck.Width);
-                this.PaintPos.HoeheAktZeile = Math.Max(this.PaintPos.HoeheAktZeile, _hoeheProBuchstabe + _randY + _randY);
-                this.PaintPos.PosX += schriftBreite;
+                // Merken, wo im Text wir uns gerade befinden
+                aktTextTeilStartPos += textTeil.Text.Length;
+
+                // für die Klickbereiche merken, wohin dieser Textteil gezeichnet wird 
+                this._klickBereiche = this._klickBereiche.Append(textTeil.Rechteck).ToArray(); // original:  this._klickBereiche.Add(textTeil.Rechteck);
+                                                                                               // Die Schrift zeichnen
+                await e.Graphics.DrawStringAsync(textTeil.Text, _drawFont, GetZeichenFarbe(textTeil.Invertiert), textTeil.Rechteck.X, textTeil.Rechteck.Y + _randY, _drawFormat);
+
+                paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, textTeil.Rechteck.X + textTeil.Rechteck.Width);
+                paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, _hoeheProBuchstabe + _randY + _randY);
+                paintContext.PaintPosX += schriftBreite;
+                paintContext.PaintPosX += schriftBreite;
             }
 
 
@@ -229,7 +217,7 @@ namespace de.springwald.xml.editor
             {
                 if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
                 {
-                    this._cursorStrichPos = new Point(this.PaintPos.PosX - 1, this.PaintPos.PosY);
+                    this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
             }
         }
@@ -264,11 +252,11 @@ namespace de.springwald.xml.editor
         {
             // Die Farben für "nicht invertiert" definieren
             _farbeHintergrund_ = this._xmlEditor.NativePlatform.ControlElement.BackColor;
-            _drawBrush_ = new SolidBrush(Color.Black);	// Schrift-Pinsel bereitstellen;
+            _drawBrush_ = new SolidBrush(Color.Black);  // Schrift-Pinsel bereitstellen;
 
             // Die Farben für "invertiert" definieren
             _farbeHintergrundInvertiert_ = Color.DarkBlue;
-            _drawBrushInvertiert_ = new SolidBrush(Color.White);	// Schrift-Pinsel bereitstellen;
+            _drawBrushInvertiert_ = new SolidBrush(Color.White);    // Schrift-Pinsel bereitstellen;
 
             // Die Farben für schwach "invertiert" definieren
             _farbeHintergrundInvertiertOhneFokus_ = Color.Gray;

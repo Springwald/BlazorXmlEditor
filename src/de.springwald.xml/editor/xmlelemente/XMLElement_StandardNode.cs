@@ -70,7 +70,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected override async Task NodeZeichnenStart(int marginLeft, int paintPosX, int PaintPosY, XMLPaintArten paintArt,  PaintEventArgs e)
+        protected override async Task NodeZeichnenStart(PaintContext paintContext, PaintEventArgs e)
         {
             if (_drawFontNodeName == null)
             {
@@ -90,83 +90,65 @@ namespace de.springwald.xml.editor
             // Bestimmen, wie hoch der Anker am linken Node-Rand hängt
             _ankerEinzugY = _hoeheProBuchstabeNodeName / 2 + _randY;
 
-            switch (paintArt)
+            // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
+            if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
             {
-                case XMLPaintArten.Vorberechnen:
-                    // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
-                    if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
-                    {
-                        if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
-                        {
-                            // Position für Cursor-Strich vermerken
-                            this._cursorStrichPos = new Point(this.PaintPos.PosX + 1, this.PaintPos.PosY);
-                        }
-                    }
-                    break;
+                if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
+                {
+                    // Position für Cursor-Strich vermerken
+                    this._cursorStrichPos = new Point(paintContext.PaintPosX + 1, paintContext.PaintPosY);
+                }
             }
 
             // Die Breite der Schrift vorausberechnen
             int schriftBreite = (int)(await this._xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _drawFontNodeName, _drawFormat)); //, drawFont);
 
             // ### Den Namen um den Node malen ###
-            switch (paintArt)
-            {
-                case XMLPaintArten.Vorberechnen:
-                    break;
-                default:
-                    FarbenSetzen(paintArt);
-                    // Einen Rahmen um den Node und die Attribute zeichnen.
-                    // Die Dimensionen _rahmenBreite und _rahmenHoehe wurden im NurBerechnen-Durchlauf bestimmt
-                    await zeichneRahmenNachGroesse(this.PaintPos.PosX, this.PaintPos.PosY, _rahmenBreite, _rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
-                    break;
-            }
+            FarbenSetzen();
+            // Einen Rahmen um den Node und die Attribute zeichnen.
+            // Die Dimensionen _rahmenBreite und _rahmenHoehe wurden im NurBerechnen-Durchlauf bestimmt
+            // await zeichneRahmenNachGroesse(this.PaintPos.PosX, this.PaintPos.PosY, _rahmenBreite, _rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
+            await zeichneRahmenNachGroesse(paintContext.PaintPosX, paintContext.PaintPosY, _rahmenBreite, _rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
 
             // ### Den Namen des Nodes schreiben ###
             // Pinsel für Node-Name-Schrift bereitstellen
             SolidBrush drawBrush = new SolidBrush(_farbeNodeNameSchrift);
 
-            this.PaintPos.PosX += _randX;  // Abstand vom Rahmen nur Node-Name-Schrift
-            switch (paintArt)
-            {
-                case XMLPaintArten.Vorberechnen:
-                    break;
-                default:
-                    // Die Node-Namen-Schrift zeichnen
-                    await e.Graphics.DrawStringAsync(this.XMLNode.Name, _drawFontNodeName, drawBrush, this.PaintPos.PosX, this.PaintPos.PosY + _randY, _drawFormat);
-                    break;
-            }
-            this.PaintPos.PosX += schriftBreite + _randX; // Abstand von der Schrift zum Rand oder den Attributen
+            paintContext.PaintPosX += _randX;  // Abstand vom Rahmen nur Node-Name-Schrift
+
+            // Die Node-Namen-Schrift zeichnen
+            // await e.Graphics.DrawStringAsync(this.XMLNode.Name, _drawFontNodeName, drawBrush, this.PaintPos.PosX, this.PaintPos.PosY + _randY, _drawFormat);
+            await e.Graphics.DrawStringAsync(this.XMLNode.Name, _drawFontNodeName, drawBrush, paintContext.PaintPosX, paintContext.PaintPosY + _randY, _drawFormat);
+            paintContext.PaintPosX += schriftBreite + _randX;  // Abstand von der Schrift zum Rand oder den Attributen
 
             // ### Die Attribute zeichnen ###
-            await AttributeZeichnen(paintArt, e);
+            await AttributeZeichnen(paintContext, e);
 
             // RahmenBreite und Hoehe bestimmen
-            _rahmenBreite = this.PaintPos.PosX - _startX;
+            _rahmenBreite = paintContext.PaintPosX - _startX;
             _rahmenHoehe = _hoeheProBuchstabeNodeName + _randY + _randY;
 
             // Ein Pixel weiter nach rechts, weil wir sonst auf der Rahmenlinie zeichnen
-            this.PaintPos.PosX++;
+            paintContext.PaintPosX++;
 
             // ### ggf. den weiterführenden Pfeil am Ende des Rahmens zeichnen ###
             if (_xmlEditor.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
                 // nach dem Noderahmen einen Pfeil nach rechts zeichnen
-                if (paintArt != XMLPaintArten.Vorberechnen)
-                {
-                    // Pfeil nach rechts
-                    SolidBrush brush = new SolidBrush(_farbePfeil);
-                    int x = this.PaintPos.PosX;
-                    int y = this.PaintPos.PosY + _ankerEinzugY;
-                    Point point1 = new Point(x, y - _pfeilDicke);
-                    Point point2 = new Point(x + _pfeilLaenge, y);
-                    Point point3 = new Point(x, y + _pfeilDicke);
-                    Point[] points = { point1, point2, point3 };
-                    await e.Graphics.FillPolygonAsync(brush, points);  // Fill polygon to screen.
+                // Pfeil nach rechts
+                SolidBrush brush = new SolidBrush(_farbePfeil);
+                int x = paintContext.PaintPosX;
+                int y = paintContext.PaintPosY + _ankerEinzugY;
+                Point point1 = new Point(x, y - _pfeilDicke);
+                Point point2 = new Point(x + _pfeilLaenge, y);
+                Point point3 = new Point(x, y + _pfeilDicke);
+                Point[] points = { point1, point2, point3 };
+                await e.Graphics.FillPolygonAsync(brush, points);  // Fill polygon to screen.
 
-                    // Den rechten Pfeilbereich merken
-                    _pfeilBereichLinks = new Rectangle(x, y - _pfeilDicke, _pfeilLaenge, _pfeilDicke * 2);
-                }
-                this.PaintPos.PosX += _pfeilLaenge;  // Den Zeichnungscursor hinter den Pfeil setzen
+                // Den rechten Pfeilbereich merken
+                _pfeilBereichLinks = new Rectangle(x, y - _pfeilDicke, _pfeilLaenge, _pfeilDicke * 2);
+                paintContext.PaintPosX += _pfeilLaenge;
+                paintContext.PaintPosX += _pfeilLaenge;  // Den Zeichnungscursor hinter den Pfeil setzen
             }
             else
             {
@@ -174,49 +156,42 @@ namespace de.springwald.xml.editor
             }
 
 
-            if (paintArt == XMLPaintArten.Vorberechnen)
+            // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
+            if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
             {
-                // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
-                if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+                if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode)
                 {
-                    if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode)
-                    {
-                        // Position für Cursor-Strich vermerken
-                        this._cursorStrichPos = new Point(this.PaintPos.PosX - 1, this.PaintPos.PosY);
-                    }
+                    // Position für Cursor-Strich vermerken
+                    this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
             }
 
-            this.PaintPos.HoeheAktZeile = System.Math.Max(this.PaintPos.HoeheAktZeile, _rahmenHoehe); // Schauen, wie hoch die aktuelle Zeile ist
+            paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, _rahmenHoehe); // Schauen, wie hoch die aktuelle Zeile ist
 
             // Merken, wo die Mausbereiche sind
-            if (paintArt == XMLPaintArten.Vorberechnen)
+            _tagBereichLinks = new Rectangle(_startX, _startY, paintContext.PaintPosX - _startX, _rahmenHoehe);
+
+            this._klickBereiche = this._klickBereiche.Append(_tagBereichLinks).ToArray(); // original: this._klickBereiche.Add(_tagBereichLinks);
+
+            // Wenn es kein schließendes Tag gibt, dann wird der Cursorstrich bei "hinter dem Node" direkt nach dem
+            // ersten und einzigen Tag gezeichnet
+            if (!_xmlEditor.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
-                _tagBereichLinks = new Rectangle(_startX, _startY, this.PaintPos.PosX - _startX, _rahmenHoehe);
-
-                this._klickBereiche = this._klickBereiche.Append(_tagBereichLinks).ToArray(); // original: this._klickBereiche.Add(_tagBereichLinks);
-
-                // Wenn es kein schließendes Tag gibt, dann wird der Cursorstrich bei "hinter dem Node" direkt nach dem
-                // ersten und einzigen Tag gezeichnet
-                if (!_xmlEditor.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
+                // Falls der Cursor hinter dem Node stehen, dann den Cursor auch dahin zeichnen
+                if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
                 {
-                    // Falls der Cursor hinter dem Node stehen, dann den Cursor auch dahin zeichnen
-                    if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+                    if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
                     {
-                        if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
-                        {
-                            // Position für Cursor-Strich vermerken
-                            this._cursorStrichPos = new Point(this.PaintPos.PosX - 1, this.PaintPos.PosY);
-                        }
+                        // Position für Cursor-Strich vermerken
+                        this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                     }
                 }
             }
 
-            this.PaintPos.BisherMaxX = System.Math.Max(this.PaintPos.BisherMaxX, this.PaintPos.PosX);
-
+            paintContext.BisherMaxX = System.Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
         }
 
-        protected override async Task NodeZeichnenAbschluss(int marginLeft, int paintPosX, int paintPosY, XMLPaintArten paintArt,  PaintEventArgs e)
+        protected override async Task NodeZeichnenAbschluss(PaintContext paintContext, PaintEventArgs e)
         {
             if (e != null) // wenn im Paint-Modus
             {
@@ -230,70 +205,58 @@ namespace de.springwald.xml.editor
                 if (_xmlEditor.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
                 {
                     int schriftBreite = 0; // Die berechnete, für den Nodenamen benötigte Breite
-                    int startX = this.PaintPos.PosX;
+                    int startX = paintContext.PaintPosX;
                     int rahmenHoehe = 0;
 
                     // vor dem Noderahmen einen Pfeil nach links zeichnen
-                    if (paintArt != XMLPaintArten.Vorberechnen)
-                    {
-                        // Pfeil nach links
-                        SolidBrush brush = new SolidBrush(_farbePfeil);
-                        int x = this.PaintPos.PosX;
-                        int y = this.PaintPos.PosY + _ankerEinzugY;
-                        Point point1 = new Point(x + _pfeilLaenge, y - _pfeilDicke);
-                        Point point2 = new Point(x, y);
-                        Point point3 = new Point(x + _pfeilLaenge, y + _pfeilDicke);
-                        Point[] points = { point1, point2, point3 };
-                        await e.Graphics.FillPolygonAsync(brush, points);  // Fill polygon to screen.
+                    // Pfeil nach links
+                    SolidBrush brush = new SolidBrush(_farbePfeil);
+                    int x = paintContext.PaintPosX;
+                    int y = paintContext.PaintPosY + _ankerEinzugY;
+                    Point point1 = new Point(x + _pfeilLaenge, y - _pfeilDicke);
+                    Point point2 = new Point(x, y);
+                    Point point3 = new Point(x + _pfeilLaenge, y + _pfeilDicke);
+                    Point[] points = { point1, point2, point3 };
+                    await e.Graphics.FillPolygonAsync(brush, points);  // Fill polygon to screen.
 
-                        // Den rechten Pfeilbereich merken
-                        _pfeilBereichRechts = new Rectangle(x, y - _pfeilDicke, _pfeilLaenge, _pfeilDicke * 2);
-                    }
-                    this.PaintPos.PosX += _pfeilLaenge; // Zeichnungscursor hinter den Pfeil setzen
+                    // Den rechten Pfeilbereich merken
+                    _pfeilBereichRechts = new Rectangle(x, y - _pfeilDicke, _pfeilLaenge, _pfeilDicke * 2);
+                    paintContext.PaintPosX += _pfeilLaenge; // Zeichnungscursor hinter den Pfeil setzen
 
                     rahmenHoehe = _hoeheProBuchstabeNodeName + _randY * 2;
 
                     // Die Breite vorausberechnen
-                    schriftBreite = (int) (await e.Graphics.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _drawFontNodeName,  _drawFormat));
+                    schriftBreite = (int)(await e.Graphics.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _drawFontNodeName, _drawFormat));
 
                     // ## RAHMEN für schließenden Node  zeichnen ###
-                    if (paintArt != XMLPaintArten.Vorberechnen)
-                    {
-                        await zeichneRahmenNachGroesse(this.PaintPos.PosX, this.PaintPos.PosY, schriftBreite + _randX * 2, rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
-                    }
-                    this.PaintPos.PosX += _randX; // Abstand zwischen Rahmen und Schrift
+                    await zeichneRahmenNachGroesse(paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + _randX * 2, rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
+                    paintContext.PaintPosX += _randX; // Abstand zwischen Rahmen und Schrift
 
                     // ## Name für schließenden Node zeichnen ###
-                    if (paintArt != XMLPaintArten.Vorberechnen)
-                    {
-                        // Pinsel bereitstellen
-                        SolidBrush drawBrush = new SolidBrush(_farbeNodeNameSchrift);
-                        // Den Namen des Nodes schreiben
-                        await e.Graphics.DrawStringAsync(this.XMLNode.Name, _drawFontNodeName, drawBrush, this.PaintPos.PosX, this.PaintPos.PosY + _randY, _drawFormat);
-                    }
-                    this.PaintPos.PosX += schriftBreite + _randX; // Abstand zwischen Schrift und Rahmen
+                    // Pinsel bereitstellen
+                    SolidBrush drawBrush = new SolidBrush(_farbeNodeNameSchrift);
+                    // Den Namen des Nodes schreiben
+                    await e.Graphics.DrawStringAsync(this.XMLNode.Name, _drawFontNodeName, drawBrush, paintContext.PaintPosX, paintContext.PaintPosY + _randY, _drawFormat);
+                    paintContext.PaintPosX += schriftBreite + _randX; // Abstand zwischen Schrift und Rahmen
 
                     // Ein Pixel weiter nach rechts, weil wir sonst auf der Rahmenlinie zeichnen
                     // und der Cursor sonst auf dem Rahmen blinkt
-                    this.PaintPos.PosX++;
+                    paintContext.PaintPosX++;
 
                     // Merken, wo die Mausbereiche sind
-                    if (paintArt == XMLPaintArten.Vorberechnen)
-                    {
-                        _tagBereichRechts = new Rectangle(startX, this.PaintPos.PosY, this.PaintPos.PosX - startX, rahmenHoehe);
-                        this._klickBereiche = this._klickBereiche.Append(_tagBereichRechts).ToArray(); // original:  _klickBereiche.Add(_tagBereichRechts);
+                    _tagBereichRechts = new Rectangle(startX, paintContext.PaintPosY, paintContext.PaintPosX - startX, rahmenHoehe);
+                    this._klickBereiche = this._klickBereiche.Append(_tagBereichRechts).ToArray(); // original:  _klickBereiche.Add(_tagBereichRechts);
 
-                        // Falls der Cursor hinter dem Node stehen, dann den Cursor auch dahin zeichnen
-                        if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+                    // Falls der Cursor hinter dem Node stehen, dann den Cursor auch dahin zeichnen
+                    if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+                    {
+                        if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
                         {
-                            if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
-                            {
-                                // Position für Cursor-Strich vermerken
-                                this._cursorStrichPos = new Point(this.PaintPos.PosX - 1, this.PaintPos.PosY);
-                            }
+                            // Position für Cursor-Strich vermerken
+                            this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                         }
                     }
-                    this.PaintPos.BisherMaxX = System.Math.Max(this.PaintPos.BisherMaxX, this.PaintPos.PosX);
+                    paintContext.BisherMaxX = System.Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
                 }
                 else
                 {
@@ -301,14 +264,14 @@ namespace de.springwald.xml.editor
                     _tagBereichRechts = new Rectangle(0, 0, 0, 0);
                 }
             }
-            await base.NodeZeichnenAbschluss(marginLeft, paintPosX, paintPosY, paintArt, e);
+            await base.NodeZeichnenAbschluss(paintContext, e);
         }
 
 
         /// <summary>
         /// Zeichnet den Bereich der Attribute 
         /// </summary>
-        private async Task AttributeZeichnen(XMLPaintArten paintArt, PaintEventArgs e)
+        private async Task AttributeZeichnen(PaintContext paintContext, PaintEventArgs e)
         {
             // Die Zeichnungsgröße der Aribute bestimmen
             int attributeBreite;
@@ -331,19 +294,16 @@ namespace de.springwald.xml.editor
                     attributeBreite = (int)(_breiteProBuchstabeAttribute * attributeString.Length);
                     attributeHoehe = _hoeheProBuchstabeNodeName;
 
-                    if (paintArt != XMLPaintArten.Vorberechnen)
-                    {
-                        // einen Rahmen um die Attribute zeichnen
-                        await zeichneRahmenNachGroesse(this.PaintPos.PosX, this.PaintPos.PosY + _randY, attributeBreite, attributeHoehe, 2, _farbeAttributeHintergrund, _farbeAttributeRand, e);
+                    // einen Rahmen um die Attribute zeichnen
+                    await zeichneRahmenNachGroesse(paintContext.PaintPosX, paintContext.PaintPosY + _randY, attributeBreite, attributeHoehe, 2, _farbeAttributeHintergrund, _farbeAttributeRand, e);
 
-                        // Pinsel bereitstellen
-                        SolidBrush drawBrush = new SolidBrush(_farbeAttributeSchrift);
-                        // Attribute zeichnen
-                        await e.Graphics.DrawStringAsync(attributeString.ToString(), _drawFontAttribute, drawBrush, this.PaintPos.PosX + 1, this.PaintPos.PosY + _randY, _drawFormat); ;
-                    }
+                    // Pinsel bereitstellen
+                    SolidBrush drawBrush = new SolidBrush(_farbeAttributeSchrift);
+                    // Attribute zeichnen
+                    await e.Graphics.DrawStringAsync(attributeString.ToString(), _drawFontAttribute, drawBrush, paintContext.PaintPosX + 1, paintContext.PaintPosY + _randY, _drawFormat); ;
 
                     // Zeichencursor hinter die Attribute setzen
-                    this.PaintPos.PosX += attributeBreite + _randX;
+                    paintContext.PaintPosX += attributeBreite + _randX;
 
                 }
                 else
@@ -455,7 +415,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Vertauscht die Vorder- und Hintergrundfarben, um den Node selektiert darstellen zu können
         /// </summary>
-        private void FarbenSetzen(XMLPaintArten paintArt)
+        private void FarbenSetzen()
         {
             if (this._xmlEditor.CursorOptimiert.IstNodeInnerhalbDerSelektion(this.XMLNode))
             {
@@ -481,16 +441,16 @@ namespace de.springwald.xml.editor
             _farbeAttributeRand = Color.FromArgb(225, 225, 225);
             _farbeRahmenRand = Color.FromArgb(100, 100, 150);
 
-            if (paintArt == XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting)
-            {
-                // Wenn der Node laut DTD defekt ist, dann Farben überschreiben
-                if (!this._xmlEditor.Regelwerk.DTDPruefer.IstXmlNodeOk(this.XMLNode, false))
-                {
-                    _farbeNodeNameSchrift = Color.Red;
-                    _farbePfeil = Color.Red;
-                    _farbeRahmenRand = Color.Red;
-                }
-            }
+            //if (paintArt == XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting)
+            //{
+            //    // Wenn der Node laut DTD defekt ist, dann Farben überschreiben
+            //    if (!this._xmlEditor.Regelwerk.DTDPruefer.IstXmlNodeOk(this.XMLNode, false))
+            //    {
+            //        _farbeNodeNameSchrift = Color.Red;
+            //        _farbePfeil = Color.Red;
+            //        _farbeRahmenRand = Color.Red;
+            //    }
+            //}
         }
     }
 }

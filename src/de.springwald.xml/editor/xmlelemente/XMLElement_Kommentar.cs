@@ -34,7 +34,5 @@ namespace de.springwald.xml.editor
             _farbeHintergrundInvertiertOhneFokus_ = Color.Gray;
             _drawBrushInvertiertOhneFokus_ = new SolidBrush(Color.LightGray);	// Schrift-Pinsel bereitstellen;
         }
-
-
     }
 }

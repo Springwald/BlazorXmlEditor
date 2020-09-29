@@ -23,31 +23,30 @@ namespace de.springwald.xml.editor
         /// </summary>
         public async Task Paint(PaintEventArgs e)
         {
-            var marginLeft = 0;
-            var paintPosX = 0;
-            var paintPosY = 0;
+          
 
             if (_rootElement != null)  // Wenn das 
             {
-                XMLEditorPaintPos paintPos = new XMLEditorPaintPos
+
+                var paintContext = new PaintContext
                 {
-                    PosX = 10 + ZeichnungsOffsetX,
-                    PosY = 10 + ZeichnungsOffsetY,
+                    MarginLeft = 0,
+                    PaintPosX = 10 + ZeichnungsOffsetX,
+                    PaintPosY = 10 + ZeichnungsOffsetY,
                     ZeilenStartX = 10 + ZeichnungsOffsetX,
                     ZeilenEndeX = WunschUmbruchX_ - ZeichnungsOffsetX
                 };
 
                 // XML-Anzeige vorberechnen
-                _rootElement.PaintPos = paintPos.Clone();
-                await _rootElement.Paint(marginLeft, paintPosX,  paintPosY, XMLPaintArten.Vorberechnen,  e);
+                var context1 =  await _rootElement.Paint(paintContext.Clone() , e);
 
-                _virtuelleBreite = _rootElement.PaintPos.BisherMaxX + 50 - ZeichnungsOffsetX;
-                _virtuelleHoehe = _rootElement.PaintPos.PosY + 50 - ZeichnungsOffsetY;
+                _virtuelleBreite = context1.BisherMaxX + 50 - ZeichnungsOffsetX;
+                _virtuelleHoehe = context1.PaintPosY + 50 - ZeichnungsOffsetY;
 
-                // XML-Anzeige zeichnen
-                await this.NativePlatform.Gfx.ClearAsync(Color.White);
-                _rootElement.PaintPos = paintPos;
-                await _rootElement.Paint(marginLeft, paintPosX, paintPosY, XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, e);
+                //// XML-Anzeige zeichnen
+                //await this.NativePlatform.Gfx.ClearAsync(Color.White);
+                //_rootElement.PaintPos = paintPos;
+                //await _rootElement.Paint(paintContext, XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, e);
             }
             await Task.CompletedTask;
         }
