@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace de.springwald.xml.editor
 {
     /// <summary>
-    /// Grund-Element zum Zeichnen von XML-Editor-Elementen
+    /// Basic element for drawing XML editor elements
     /// </summary>
     /// <remarks>
     // (C)2006 Daniel Springwald, Herne Germany
@@ -18,7 +18,7 @@ namespace de.springwald.xml.editor
     /// daniel@springwald.de -   0700-SPRINGWALD
     /// all rights reserved
     /// </remarks>
-    public class XMLElement : IDisposable
+    public abstract class XMLElement : IDisposable
     {
         private bool _disposed = false;
 
@@ -76,9 +76,9 @@ namespace de.springwald.xml.editor
         /// </summary>
         public virtual async Task Paint(XMLPaintArten paintArt, int offSetX, int offSetY, PaintEventArgs e)
         {
-            if (_disposed) return;
+            if (this._disposed) return;
             if (this.XMLNode == null) return;
-            if (_xmlEditor == null) return;
+            if (this._xmlEditor == null) return;
 
             if (paintArt == XMLPaintArten.Vorberechnen)
             {
