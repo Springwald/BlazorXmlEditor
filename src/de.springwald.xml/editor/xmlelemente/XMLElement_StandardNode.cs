@@ -113,7 +113,7 @@ namespace de.springwald.xml.editor
             // Einen Rahmen um den Node und die Attribute zeichnen.
             // Die Dimensionen _rahmenBreite und _rahmenHoehe wurden im NurBerechnen-Durchlauf bestimmt
             // await zeichneRahmenNachGroesse(this.PaintPos.PosX, this.PaintPos.PosY, _rahmenBreite, _rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
-            await zeichneRahmenNachGroesse(paintContext.PaintPosX, paintContext.PaintPosY, _rahmenBreite, _rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
+             await zeichneRahmenNachGroesse(paintContext.PaintPosX, paintContext.PaintPosY, _rahmenBreite, _rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
 
             // ### Den Namen des Nodes schreiben ###
             // Pinsel für Node-Name-Schrift bereitstellen
@@ -336,14 +336,15 @@ namespace de.springwald.xml.editor
             gp.AddLine(x1, y2 - rundung, x1, y1 + rundung); //e
             gp.CloseFigure();
 
+            fuellFarbe = Color.Red;
+            rahmenFarbe = Color.DarkBlue;
+
             // mit Farbe fuellen
             if (fuellFarbe != Color.Transparent)
             {
                 SolidBrush newBrush = new SolidBrush(fuellFarbe);
-                // e.Graphics.FillPathAsync(newBrush, gp);
+                await e.Graphics.FillPathAsync(newBrush, gp);
             }
-
-            rahmenFarbe = Color.DarkBlue;
 
             // Rahmen zeichnen
             if (rahmenFarbe != Color.Transparent)

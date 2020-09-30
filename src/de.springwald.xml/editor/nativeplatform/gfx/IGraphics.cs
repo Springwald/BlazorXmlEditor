@@ -16,7 +16,7 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         Task DrawRectangleAsync(Pen newPen, Rectangle rechteck);
         Task FillRectangleAsync(SolidBrush newBrush, Rectangle rechteck);
 
-        Task ClearAsync(Color white);
+        Task ClearAsync(Color color);
 
         Task DrawStringAsync(string name, Font drawFontNodeName, SolidBrush drawBrush, int posX, int v, StringFormat drawFormat);
         // Task  SizeF MeasureString(string text, Font drawFont, int maxWidth, StringFormat drawFormat);

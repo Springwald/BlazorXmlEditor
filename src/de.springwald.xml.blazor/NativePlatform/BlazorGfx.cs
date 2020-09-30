@@ -52,7 +52,11 @@ namespace de.springwald.xml.blazor.NativePlatform
             if (gp.Lines.Count == 0) return;
 
             var ctx = this.context;
+
             await this.SetStrokeFromPen(pen, ctx);
+            // await ctx.SetLineCapAsync(this.GetLineCap(Pen.LineCap.NoAnchor));
+            //  await ctx.SetLineJoinAsync(LineJoin.Round);
+            //  await ctx.SetStrokeStyleAsync("");
             await LinePath(gp, ctx);
             await ctx.StrokeAsync();
 
@@ -61,7 +65,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task DrawRectangleAsync(Pen pen, Rectangle rectangle)
         {
-            
             var ctx = this.context;
             await this.SetStrokeFromPen(pen, ctx);
             await ctx.StrokeRectAsync(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
@@ -101,11 +104,8 @@ namespace de.springwald.xml.blazor.NativePlatform
             var ctx = this.context;
             await ctx.SetFillStyleAsync(brush.Color.AsHtml);
             await ctx.BeginPathAsync();
-            await ctx.SetLineDashAsync(this.GetDashStyle(Pen.DashStyles.Solid));
-            await ctx.SetLineCapAsync(this.GetLineCap(Pen.LineCap.NoAnchor));
             await LinePath(gp, ctx);
             await ctx.FillAsync();
-
             await ResetStroke(ctx);
         }
 

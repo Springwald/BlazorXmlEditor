@@ -35,8 +35,8 @@
         // representation of a color. The string has a leading '#' character that is followed
         // by 6 hexadecimal digits.
         {
-            if (actColor.A == 255) return $"#{actColor.R:X}{actColor.G:X}{actColor.B:X}";
-            return $"#{actColor.R:X}{actColor.G:X}{actColor.B:X}{actColor.A:X}";
+            if (actColor.A == 255) return $"#{actColor.R:X2}{actColor.G:X2}{actColor.B:X2}";
+            return $"#{actColor.R:X2}{actColor.G:X2}{actColor.B:X2}{actColor.A:X2}";
             // return "#" + Color.R.ToString("X4") + IntToHex(actColor.G, 2) + IntToHex(actColor.B, 2);
         }
 

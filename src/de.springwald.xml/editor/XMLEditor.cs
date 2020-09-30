@@ -1,5 +1,6 @@
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform;
+using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
 using System.Threading.Tasks;
 
@@ -205,6 +206,7 @@ namespace de.springwald.xml.editor
 
         private async Task Invalidated(EventArgs data)
         {
+            await this.NativePlatform.Gfx.ClearAsync(Color.White);
             await this.Paint(
                 new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx }, 
                 limitRight:this.NativePlatform.ControlElement.Width );
