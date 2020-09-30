@@ -5,7 +5,6 @@ using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 using System;
 using System.Collections;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
@@ -129,22 +128,8 @@ namespace de.springwald.xml.editor
 					throw new ApplicationException("UnternodesZeichnen:XMLNode ist leer");
 				}
 
-				// paintContext.PaintPosX += this._xmlEditor.Regelwerk.AbstandFliessElementeX;
-
 				var childPaintContext = paintContext.Clone();
 				childPaintContext.LimitLeft = paintContext.PaintPosX;
-
-				//switch (_xmlEditor.Regelwerk.DarstellungsArt(this.XMLNode))
-				//{
-				//	case DarstellungsArten.Fliesselement:
-				//		break;
-
-				//	case DarstellungsArten.EigeneZeile:
-				//		// Den Zeilenstart für den Fliesselement-Umbruch auf den Start dieses
-				//		// Elementes verlegen
-				//		childPaintContext.LimitLeft = paintContext.LimitLeft + 30;
-				//		break;
-				//}
 
 				// Alle Child-Controls anzeigen und ggf. vorher anlegen
 				for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
@@ -174,17 +159,6 @@ namespace de.springwald.xml.editor
 						}
 					}
 
-					//switch (_xmlEditor.Regelwerk.DarstellungsArt(childElement.XMLNode))
-					//{
-					//	case DarstellungsArten.Fliesselement:
-					//		continue;
-					//}
-
-					//this.ZeichenPosY+=myXMLRegelwerk.ZeilenAbstandY+this.myUeberlaengeYAktuelleZeile ; // Zeilenumbruch
-					//this.myUeberlaengeYAktuelleZeile = 0; // die aktuelle Zeile hat noch keinen
-
-					
-
 					// An dieser Stelle sollte im Objekt ChildControl die entsprechends
 					// Instanz des XMLElement-Controls für den aktuellen XMLChildNode stehen
 					switch (_xmlEditor.Regelwerk.DarstellungsArt(childElement.XMLNode))
@@ -205,8 +179,7 @@ namespace de.springwald.xml.editor
 							 
 							// Linie nach unten
 							myPen.StartCap = Pen.LineCap.SquareAnchor;
-							myPen.EndCap = Pen.LineCap.NoAnchor;
-                            //e.Graphics.DrawLine(myPen, _startX,_startY, _startX , childElement.AnkerPos.Y); 
+							myPen.EndCap = Pen.LineCap.RoundAnchor;
                             await e.Graphics.DrawLineAsync(myPen,
                                 paintContext.LimitLeft, paintContext.PaintPosY + this.LineHeight / 2,
                                 paintContext.LimitLeft, childPaintContext.PaintPosY + childElement.LineHeight / 2);

@@ -61,10 +61,11 @@
                         textNode,
                         cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
                         this.typingPos);
+            await this.xmlEditor.Editor.AktionNodeOderZeichenHinterCursorPosLoeschen(this.xmlEditor.Editor.CursorRoh.StartPos, editor.XMLEditor.UndoSnapshotSetzenOptionen.nein);
         }
         else
         {
-            await this.xmlEditor.Editor.AktionTextAnCursorPosEinfuegen("a ", editor.XMLEditor.UndoSnapshotSetzenOptionen.ja);
+            await this.xmlEditor.Editor.AktionTextAnCursorPosEinfuegen("a", editor.XMLEditor.UndoSnapshotSetzenOptionen.ja);
         }
 
         this.Count();

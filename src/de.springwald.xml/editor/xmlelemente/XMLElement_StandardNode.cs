@@ -51,7 +51,9 @@ namespace de.springwald.xml.editor
 
         private int _ankerEinzugY = 0; // soweit ist der Y-Mittelpunkt des NodesRahmens vom jeweiligen PosY enfernt
 
-        public override int LineHeight { get; } = 100;
+        private const int FontHeight = 14;
+
+        public override int LineHeight { get; } = FontHeight;
 
         /// <summary>
         /// Dort sollte der Ast des Baumes ankleben, wenn dieses Element in einem Ast des Parent gezeichnet werden soll
@@ -71,8 +73,8 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected override async Task NodeZeichnenStart(PaintContext paintContext, PaintEventArgs e)
         {
-            var startY = paintContext.PaintPosY;
             var startX = paintContext.PaintPosX;
+            var startY = paintContext.PaintPosY;
 
             if (_drawFontNodeName == null)
             {
@@ -81,7 +83,7 @@ namespace de.springwald.xml.editor
                 _drawFormat.FormatFlags = _drawFormat.FormatFlags | StringFormatFlags.MeasureTrailingSpaces;
                 _drawFormat.Trimming = StringTrimming.None;
 
-                _drawFontNodeName = new Font("Arial", 14, Font.GraphicsUnit.Point);
+                _drawFontNodeName = new Font("Arial", FontHeight, Font.GraphicsUnit.Point);
                 _hoeheProBuchstabeNodeName = _drawFontNodeName.Height;
 
                 _drawFontAttribute = new Font("Courier New", 12, Font.GraphicsUnit.Point);
@@ -139,12 +141,12 @@ namespace de.springwald.xml.editor
             {
                 // nach dem Noderahmen einen Pfeil nach rechts zeichnen
                 // Pfeil nach rechts
-                SolidBrush brush = new SolidBrush(_farbePfeil);
+                var brush = new SolidBrush(_farbePfeil);
                 int x = paintContext.PaintPosX;
                 int y = paintContext.PaintPosY + _ankerEinzugY;
-                Point point1 = new Point(x, y - _pfeilDicke);
-                Point point2 = new Point(x + _pfeilLaenge, y);
-                Point point3 = new Point(x, y + _pfeilDicke);
+                var point1 = new Point(x, y - _pfeilDicke);
+                var point2 = new Point(x + _pfeilLaenge, y);
+                var point3 = new Point(x, y + _pfeilDicke);
                 Point[] points = { point1, point2, point3 };
                 await e.Graphics.FillPolygonAsync(brush, points);  // Fill polygon to screen.
 
@@ -157,7 +159,6 @@ namespace de.springwald.xml.editor
             {
                 _pfeilBereichLinks = new Rectangle(0, 0, 0, 0);
             }
-
 
             // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
             if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
@@ -279,9 +280,6 @@ namespace de.springwald.xml.editor
             if (string.IsNullOrWhiteSpace(attributeString)) return;
 
             // Wenn Attribute an diesem XML-Node sind, dann anzeigen
-            // Die Breite + Hoehe der Attribute vorausberechnen
-
-            //var attributeBreite = (int)(_breiteProBuchstabeAttribute * attributeString.Length);
             var attributeBreite = await this.GetAttributeWidth(attributeString, e);
             var attributeHoehe = _hoeheProBuchstabeNodeName;
 
@@ -290,8 +288,9 @@ namespace de.springwald.xml.editor
 
             // Pinsel bereitstellen
             SolidBrush drawBrush = new SolidBrush(_farbeAttributeSchrift);
+
             // Attribute zeichnen
-            await e.Graphics.DrawStringAsync(attributeString.ToString(), _drawFontAttribute, drawBrush, paintContext.PaintPosX + 1, paintContext.PaintPosY + _randY, _drawFormat); ;
+            await e.Graphics.DrawStringAsync(attributeString.ToString(), _drawFontAttribute, drawBrush, paintContext.PaintPosX + 1, paintContext.PaintPosY + _randY*2, _drawFormat); ;
 
             // Zeichencursor hinter die Attribute setzen
             paintContext.PaintPosX += attributeBreite + _randX;
@@ -334,9 +333,6 @@ namespace de.springwald.xml.editor
             gp.AddLine(x2 - rundung, y2, x1 + rundung, y2); //d
             gp.AddLine(x1, y2 - rundung, x1, y1 + rundung); //e
             gp.CloseFigure();
-
-            fuellFarbe = Color.Red;
-            rahmenFarbe = Color.DarkBlue;
 
             // mit Farbe fuellen
             if (fuellFarbe != Color.Transparent)
