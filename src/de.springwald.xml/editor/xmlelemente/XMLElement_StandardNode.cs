@@ -54,7 +54,7 @@ namespace de.springwald.xml.editor
         private int _rahmenBreite;
         private int _rahmenHoehe;
 
-        public override int LineHeight { get; }
+        public override int LineHeight { get; } = 100;
 
         /// <summary>
         /// Dort sollte der Ast des Baumes ankleben, wenn dieses Element in einem Ast des Parent gezeichnet werden soll
@@ -74,6 +74,8 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected override async Task NodeZeichnenStart(PaintContext paintContext, PaintEventArgs e)
         {
+            var startY = paintContext.PaintPosY;
+
             if (_drawFontNodeName == null)
             {
                 // Das Format für die Schriftarten bereitstellen
@@ -128,7 +130,7 @@ namespace de.springwald.xml.editor
             await AttributeZeichnen(paintContext, e);
 
             // RahmenBreite und Hoehe bestimmen
-            _rahmenBreite = paintContext.PaintPosX - _startX;
+            _rahmenBreite = paintContext.PaintPosX - paintContext.LimitLeft;
             _rahmenHoehe = _hoeheProBuchstabeNodeName + _randY + _randY;
 
             // Ein Pixel weiter nach rechts, weil wir sonst auf der Rahmenlinie zeichnen
@@ -137,7 +139,6 @@ namespace de.springwald.xml.editor
             // ### ggf. den weiterführenden Pfeil am Ende des Rahmens zeichnen ###
             if (_xmlEditor.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
-              
                 // nach dem Noderahmen einen Pfeil nach rechts zeichnen
                 // Pfeil nach rechts
                 SolidBrush brush = new SolidBrush(_farbePfeil);
@@ -173,7 +174,7 @@ namespace de.springwald.xml.editor
             paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, _rahmenHoehe); // Schauen, wie hoch die aktuelle Zeile ist
 
             // Merken, wo die Mausbereiche sind
-            _tagBereichLinks = new Rectangle(_startX, _startY, paintContext.PaintPosX - _startX, _rahmenHoehe);
+            _tagBereichLinks = new Rectangle(paintContext.LimitLeft, startY, paintContext.PaintPosX - paintContext.LimitLeft, _rahmenHoehe);
 
             this._klickBereiche = this._klickBereiche.Append(_tagBereichLinks).ToArray(); // original: this._klickBereiche.Add(_tagBereichLinks);
 
@@ -339,13 +340,18 @@ namespace de.springwald.xml.editor
             if (fuellFarbe != Color.Transparent)
             {
                 SolidBrush newBrush = new SolidBrush(fuellFarbe);
-                await e.Graphics.FillPathAsync(newBrush, gp);
+                // e.Graphics.FillPathAsync(newBrush, gp);
             }
+
+            rahmenFarbe = Color.DarkBlue;
 
             // Rahmen zeichnen
             if (rahmenFarbe != Color.Transparent)
             {
-                await e.Graphics.DrawPathAsync(new Pen(color: rahmenFarbe, width: 1), gp);
+                var pen = new Pen(color: rahmenFarbe, width: 1);
+                pen.EndCap = Pen.LineCap.NoAnchor;
+                pen.StartCap = Pen.LineCap.NoAnchor;
+                await e.Graphics.DrawPathAsync(pen, gp);
             }
         }
 

@@ -21,16 +21,14 @@ namespace de.springwald.xml.editor
         /// Muss in der überschriebenen OnPoint-Methode des Zeichnungssteuerelementes
         /// aufgerufen werden
         /// </summary>
-        public async Task Paint(PaintEventArgs e)
+        public async Task Paint(PaintEventArgs e, int limitRight)
         {
-          
-
             if (_rootElement != null)  // Wenn das 
             {
-
                 var paintContext = new PaintContext
                 {
-                    MarginLeft = 0,
+                    LimitLeft = 0,
+                    LimitRight = limitRight,
                     PaintPosX = 10 + ZeichnungsOffsetX,
                     PaintPosY = 10 + ZeichnungsOffsetY,
                     ZeilenStartX = 10 + ZeichnungsOffsetX,
@@ -39,7 +37,6 @@ namespace de.springwald.xml.editor
 
                 // XML-Anzeige vorberechnen
                 var context1 =  await _rootElement.Paint(paintContext.Clone() , e);
-
                 _virtuelleBreite = context1.BisherMaxX + 50 - ZeichnungsOffsetX;
                 _virtuelleHoehe = context1.PaintPosY + 50 - ZeichnungsOffsetY;
 

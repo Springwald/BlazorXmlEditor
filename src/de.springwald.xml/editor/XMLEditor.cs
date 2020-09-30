@@ -205,7 +205,9 @@ namespace de.springwald.xml.editor
 
         private async Task Invalidated(EventArgs data)
         {
-            await this.Paint(new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx });
+            await this.Paint(
+                new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx }, 
+                limitRight:this.NativePlatform.ControlElement.Width );
         }
 
         /// <summary>

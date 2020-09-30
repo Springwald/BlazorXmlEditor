@@ -37,7 +37,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
             await ctx.BeginPathAsync();
             await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
-
             await ctx.SetLineCapAsync(this.GetLineCap(pen.StartCap));
             await ctx.MoveToAsync(x1, y1);
 
@@ -102,6 +101,8 @@ namespace de.springwald.xml.blazor.NativePlatform
             var ctx = this.context;
             await ctx.SetFillStyleAsync(brush.Color.AsHtml);
             await ctx.BeginPathAsync();
+            await ctx.SetLineDashAsync(this.GetDashStyle(Pen.DashStyles.Solid));
+            await ctx.SetLineCapAsync(this.GetLineCap(Pen.LineCap.NoAnchor));
             await LinePath(gp, ctx);
             await ctx.FillAsync();
 
@@ -114,6 +115,9 @@ namespace de.springwald.xml.blazor.NativePlatform
 
             var ctx = this.context;
             await ctx.SetFillStyleAsync(brush.Color.AsHtml);
+            await ctx.SetLineDashAsync(this.GetDashStyle(Pen.DashStyles.Solid));
+            await ctx.SetLineCapAsync(this.GetLineCap(Pen.LineCap.NoAnchor));
+
 
             await ctx.BeginPathAsync();
             await ctx.MoveToAsync(points[0].X, points[0].Y);

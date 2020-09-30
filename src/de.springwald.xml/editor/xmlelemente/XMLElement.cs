@@ -26,12 +26,7 @@ namespace de.springwald.xml.editor
 		/*private Color _backgroundColorNeutral_ = Color.White;
 		private Color _backgroundColorSelected_ = Color.LightBlue;*/
 
-		protected XMLEditorPaintPos _merkeStartPaintPos;
-
 		protected Point _cursorStrichPos;   // dort wird der Cursor in diesem Node gezeichnet, wenn es der aktuell  Node ist
-
-		protected int _startX = 0;      // dort wurde dieses Element zu zeichnen begonnen
-		protected int _startY = 0;      // dort wurde dieses Element zu zeichnen begonnen
 
 		protected de.springwald.xml.editor.XMLEditor _xmlEditor;
 		protected ArrayList _childElemente = new ArrayList();           // Die ChildElemente in diesem Steuerelement
@@ -46,8 +41,7 @@ namespace de.springwald.xml.editor
 
 		//public de.springwald.xml.editor.XMLEditorPaintPos PaintPos { get; set; }
 
-
-		public abstract int LineHeight { get; }
+		public abstract int LineHeight { get; } 
 
 		/// <summary>
 		/// Dort sollte der Ast des Baumes ankleben, wenn dieses Element in einem Ast des Parent gezeichnet werden soll
@@ -84,22 +78,13 @@ namespace de.springwald.xml.editor
 			if (this.XMLNode == null) return paintContext;
 			if (this._xmlEditor == null) return paintContext;
 
-
-			// Startposition merken
-			_startX = paintContext.PaintPosX;
-			_startY = paintContext.PaintPosY;
-
 			MausklickBereicheBufferLeeren();
-			_cursorStrichPos = new Point(_startX, _startY);
+			_cursorStrichPos = new Point(paintContext.PaintPosX, paintContext.PaintPosY);
 
 			// Alles zeichnen
 			this._wirdGeradeGezeichnet = true;
 			await NodeZeichnenStart(paintContext, e);
-
-			var context2 = await UnternodesZeichnen(paintContext.Clone(), e);
-			paintContext.PaintPosX = context2.PaintPosX;
-			paintContext.PaintPosY = context2.PaintPosY;
-
+			await UnternodesZeichnen(paintContext, e);
 			await NodeZeichnenAbschluss(paintContext, e);
 			this._wirdGeradeGezeichnet = false;
 
@@ -129,11 +114,10 @@ namespace de.springwald.xml.editor
 		/// <param name="nachDiesemNodeNeuZeichnenErzwingen">Alle Nodes nach diesem Childnode müssen
 		/// noch gezeichnet werden. Das tritt zum Beispiel ein, wenn sich der Inhalt eines Childnodes
 		/// geändert hat und nun alles folgende z.B. wegen Verschiebung neu gezeichnet werden muss.</param>
-		protected virtual async Task<PaintContext> UnternodesZeichnen(PaintContext paintContext, PaintEventArgs e)
+		protected virtual async Task UnternodesZeichnen(PaintContext paintContext, PaintEventArgs e)
 		{
 			if (this.XMLNode is System.Xml.XmlText) // es handelt sich um einen Textnode 
 			{
-				return paintContext;
 			}
 			else
 			{ 
@@ -147,26 +131,20 @@ namespace de.springwald.xml.editor
 
 				// paintContext.PaintPosX += this._xmlEditor.Regelwerk.AbstandFliessElementeX;
 
-				switch (_xmlEditor.Regelwerk.DarstellungsArt(this.XMLNode))
-				{
-					case DarstellungsArten.Fliesselement:
-						break;
+				var childPaintContext = paintContext.Clone();
+				childPaintContext.LimitLeft = paintContext.PaintPosX;
 
-					case DarstellungsArten.EigeneZeile:
-						// Den Zeilenstart für den Fliesselement-Umbruch auf den Start dieses
-						// Elementes verlegen
-						paintContext.ZeilenStartX = paintContext.PaintPosX;    // Beginnen mit dem Element selbst
-						break;
-				}
+				//switch (_xmlEditor.Regelwerk.DarstellungsArt(this.XMLNode))
+				//{
+				//	case DarstellungsArten.Fliesselement:
+				//		break;
 
-				var childPaintContext = new PaintContext()
-				{
-					ZeilenStartX = paintContext.ZeilenStartX,
-					ZeilenEndeX = paintContext.ZeilenEndeX,
-					PaintPosX = paintContext.PaintPosX,
-					PaintPosY = paintContext.PaintPosY,
-					HoeheAktZeile = paintContext.HoeheAktZeile
-				};
+				//	case DarstellungsArten.EigeneZeile:
+				//		// Den Zeilenstart für den Fliesselement-Umbruch auf den Start dieses
+				//		// Elementes verlegen
+				//		childPaintContext.LimitLeft = paintContext.LimitLeft + 30;
+				//		break;
+				//}
 
 				// Alle Child-Controls anzeigen und ggf. vorher anlegen
 				for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
@@ -216,11 +194,11 @@ namespace de.springwald.xml.editor
 							// Dieses Child-Element beginnt eine neue Zeile und wird dann in dieser gezeichnet
 
 							// Neue Zeile beginnen
-							childPaintContext.PaintPosX = paintContext.PaintPosX + _xmlEditor.Regelwerk.ChildEinrueckungX;
+							childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.Regelwerk.ChildEinrueckungX;
+							childPaintContext.PaintPosX = childPaintContext.LimitLeft;
 							childPaintContext.PaintPosY += _xmlEditor.Regelwerk.AbstandYZwischenZeilen + paintContext.HoeheAktZeile; // Zeilenumbruch
 							childPaintContext.HoeheAktZeile = 0; // noch kein Element in dieser Zeile, daher Hoehe 0
 																 // X-Cursor auf den Start der neuen Zeile setzen
-
 							// Linie nach unten und dann nach rechts ins ChildElement
 							Pen myPen = new Pen(Color.Gray, 1);
 							myPen.DashStyle = Pen.DashStyles.Dash;
@@ -228,18 +206,18 @@ namespace de.springwald.xml.editor
 							// Linie nach unten
 							myPen.StartCap = Pen.LineCap.SquareAnchor;
 							myPen.EndCap = Pen.LineCap.NoAnchor;
-							//e.Graphics.DrawLine(myPen, _startX,_startY, _startX , childElement.AnkerPos.Y); 
-							await e.Graphics.DrawLineAsync(myPen,
-								paintContext.PaintPosX, paintContext.PaintPosY + this.LineHeight / 2,
-								paintContext.PaintPosX, childPaintContext.PaintPosY + childElement.LineHeight / 2);
+                            //e.Graphics.DrawLine(myPen, _startX,_startY, _startX , childElement.AnkerPos.Y); 
+                            await e.Graphics.DrawLineAsync(myPen,
+                                paintContext.LimitLeft, paintContext.PaintPosY + this.LineHeight / 2,
+                                paintContext.LimitLeft, childPaintContext.PaintPosY + childElement.LineHeight / 2);
 
-							// Linie nach rechts mit Pfeil auf ChildElement
-							myPen.StartCap = Pen.LineCap.NoAnchor;
+                            // Linie nach rechts mit Pfeil auf ChildElement
+                            myPen.StartCap = Pen.LineCap.NoAnchor;
 							myPen.EndCap = Pen.LineCap.SquareAnchor; // Pfeil am Ende
 																	 //e.Graphics.DrawLine(myPen, _startX ,  childElement.AnkerPos.Y, childElement.AnkerPos.X, childElement.AnkerPos.Y); 
 							await e.Graphics.DrawLineAsync(myPen,
-								paintContext.PaintPosX, paintContext.PaintPosY + this.LineHeight / 2,
-								childPaintContext.PaintPosX, childPaintContext.PaintPosY + childElement.LineHeight / 2);
+								paintContext.LimitLeft, childPaintContext.PaintPosY + childElement.LineHeight / 2,
+								childPaintContext.LimitLeft, childPaintContext.PaintPosY + childElement.LineHeight / 2);
 
 							childPaintContext= await childElement.Paint(childPaintContext, e);
 							// paintContext.PaintPosX = context2.PaintPosX;
@@ -298,11 +276,8 @@ namespace de.springwald.xml.editor
 					_childElemente.TrimToSize();
 				}
 
-
 				paintContext.PaintPosX = childPaintContext.PaintPosX;
 				paintContext.PaintPosY = childPaintContext.PaintPosY;
-				return paintContext;
-
 			}
 		}
 

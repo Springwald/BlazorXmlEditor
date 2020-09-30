@@ -106,11 +106,10 @@ namespace de.springwald.xml.editor
         /// </summary>
         public char[] ZeichenZumAusruecken { get; set; }
 
-        public override int LineHeight { get; }
+        public override int LineHeight { get; } = 10;
 
         public XMLElement_TextNode(System.Xml.XmlNode xmlNode, de.springwald.xml.editor.XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
-
             FarbenSetzen(); // Farben bereitstellen
         }
 
@@ -139,8 +138,6 @@ namespace de.springwald.xml.editor
 
             int _randY = 2; // Abstand zum oberen Rand der Zeile
             int aktTextTeilStartPos = 0;
-
-
             int selektionStart = -1;
             int selektionLaenge = 0;
 
@@ -171,7 +168,6 @@ namespace de.springwald.xml.editor
 
                 if (textTeil.IstNeueZeile) // Dieser Textteil beginnt eine neue Zeile
                 {
-
                     // Neue Zeile beginnen
                     paintContext.PaintPosY += _xmlEditor.Regelwerk.AbstandYZwischenZeilen + paintContext.HoeheAktZeile; // Zeilenumbruch
                     paintContext.PaintPosX = paintContext.ZeilenStartX;

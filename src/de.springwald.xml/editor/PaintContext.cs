@@ -16,13 +16,14 @@ namespace de.springwald.xml.editor
     /// </remarks>
     public class PaintContext
     {
-        public int MarginLeft { get; set; }
+        public int LimitLeft { get; set; }
+        public int LimitRight { get; set; }
 
         public int PaintPosX { get; set; }
         public int PaintPosY { get; set; }
 
         public int ZeilenStartX { get; set; }
-        
+
         public int HoeheAktZeile { get; set; }
 
         public int ZeilenEndeX { get; set; }
@@ -34,7 +35,8 @@ namespace de.springwald.xml.editor
         {
             return new PaintContext
             {
-                MarginLeft = this.MarginLeft,
+                LimitLeft = this.LimitLeft,
+                LimitRight = this.LimitRight,
                 PaintPosX = this.PaintPosX,
                 PaintPosY = this.PaintPosY,
                 ZeilenStartX = this.ZeilenStartX,
