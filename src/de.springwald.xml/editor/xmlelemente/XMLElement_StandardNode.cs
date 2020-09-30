@@ -51,9 +51,6 @@ namespace de.springwald.xml.editor
 
         private int _ankerEinzugY = 0; // soweit ist der Y-Mittelpunkt des NodesRahmens vom jeweiligen PosY enfernt
 
-        private int _rahmenBreite;
-        private int _rahmenHoehe;
-
         public override int LineHeight { get; } = 100;
 
         /// <summary>
@@ -75,6 +72,7 @@ namespace de.springwald.xml.editor
         protected override async Task NodeZeichnenStart(PaintContext paintContext, PaintEventArgs e)
         {
             var startY = paintContext.PaintPosY;
+            var startX = paintContext.PaintPosX;
 
             if (_drawFontNodeName == null)
             {
@@ -108,30 +106,30 @@ namespace de.springwald.xml.editor
             int schriftBreite = (int)(await this._xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _drawFontNodeName, _drawFormat)); //, drawFont);
 
             // ### Den Namen um den Node malen ###
-            FarbenSetzen();
-
-            // Einen Rahmen um den Node und die Attribute zeichnen.
-            // Die Dimensionen _rahmenBreite und _rahmenHoehe wurden im NurBerechnen-Durchlauf bestimmt
-            // await zeichneRahmenNachGroesse(this.PaintPos.PosX, this.PaintPos.PosY, _rahmenBreite, _rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
-             await zeichneRahmenNachGroesse(paintContext.PaintPosX, paintContext.PaintPosY, _rahmenBreite, _rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
+            this.FarbenSetzen();
 
             // ### Den Namen des Nodes schreiben ###
             // Pinsel für Node-Name-Schrift bereitstellen
-            SolidBrush drawBrush = new SolidBrush(_farbeNodeNameSchrift);
+            var drawBrush = new SolidBrush(_farbeNodeNameSchrift);
 
-            paintContext.PaintPosX += _randX;  // Abstand vom Rahmen nur Node-Name-Schrift
+            paintContext.PaintPosX += _randX;  // Abstand vom Rahmen zur Node-Name-Schrift
+
+            var attributeString = this.GetAttributeString();
+            var attributeWidth = await this.GetAttributeWidth(attributeString, e);
+
+            // RahmenBreite und Hoehe bestimmen
+            var borderWidth = schriftBreite + attributeWidth + (attributeWidth == 0 ? _randX * 2: _randX * 3);
+            var borderHeight = _hoeheProBuchstabeNodeName + _randY + _randY;
+
+            // Einen Rahmen um den Node und die Attribute zeichnen.
+            await zeichneRahmenNachGroesse(startX, paintContext.PaintPosY, borderWidth, borderHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
 
             // Die Node-Namen-Schrift zeichnen
-            // await e.Graphics.DrawStringAsync(this.XMLNode.Name, _drawFontNodeName, drawBrush, this.PaintPos.PosX, this.PaintPos.PosY + _randY, _drawFormat);
             await e.Graphics.DrawStringAsync(this.XMLNode.Name, _drawFontNodeName, drawBrush, paintContext.PaintPosX, paintContext.PaintPosY + _randY, _drawFormat);
             paintContext.PaintPosX += schriftBreite + _randX;  // Abstand von der Schrift zum Rand oder den Attributen
 
-            // ### Die Attribute zeichnen ###
-            await AttributeZeichnen(paintContext, e);
-
-            // RahmenBreite und Hoehe bestimmen
-            _rahmenBreite = paintContext.PaintPosX - paintContext.LimitLeft;
-            _rahmenHoehe = _hoeheProBuchstabeNodeName + _randY + _randY;
+            // Die Attribute zeichnen 
+            await AttributeZeichnen(paintContext, attributeString, e);
 
             // Ein Pixel weiter nach rechts, weil wir sonst auf der Rahmenlinie zeichnen
             paintContext.PaintPosX++;
@@ -171,10 +169,10 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, _rahmenHoehe); // Schauen, wie hoch die aktuelle Zeile ist
+            paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, borderHeight); // Schauen, wie hoch die aktuelle Zeile ist
 
             // Merken, wo die Mausbereiche sind
-            _tagBereichLinks = new Rectangle(paintContext.LimitLeft, startY, paintContext.PaintPosX - paintContext.LimitLeft, _rahmenHoehe);
+            _tagBereichLinks = new Rectangle(paintContext.LimitLeft, startY, paintContext.PaintPosX - paintContext.LimitLeft, borderHeight);
 
             this._klickBereiche = this._klickBereiche.Append(_tagBereichLinks).ToArray(); // original: this._klickBereiche.Add(_tagBereichLinks);
 
@@ -276,45 +274,46 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet den Bereich der Attribute 
         /// </summary>
-        private async Task AttributeZeichnen(PaintContext paintContext, PaintEventArgs e)
+        private async Task AttributeZeichnen(PaintContext paintContext, string attributeString, PaintEventArgs e)
         {
-            // Die Zeichnungsgröße der Aribute bestimmen
-            int attributeBreite;
-            int attributeHoehe;
+            if (string.IsNullOrWhiteSpace(attributeString)) return;
 
+            // Wenn Attribute an diesem XML-Node sind, dann anzeigen
+            // Die Breite + Hoehe der Attribute vorausberechnen
+
+            //var attributeBreite = (int)(_breiteProBuchstabeAttribute * attributeString.Length);
+            var attributeBreite = await this.GetAttributeWidth(attributeString, e);
+            var attributeHoehe = _hoeheProBuchstabeNodeName;
+
+            // einen Rahmen um die Attribute zeichnen
+            await zeichneRahmenNachGroesse(paintContext.PaintPosX + _drawFontAttribute.Height/4, paintContext.PaintPosY + _randY, attributeBreite, attributeHoehe, 2, _farbeAttributeHintergrund, _farbeAttributeRand, e);
+
+            // Pinsel bereitstellen
+            SolidBrush drawBrush = new SolidBrush(_farbeAttributeSchrift);
+            // Attribute zeichnen
+            await e.Graphics.DrawStringAsync(attributeString.ToString(), _drawFontAttribute, drawBrush, paintContext.PaintPosX + 1, paintContext.PaintPosY + _randY, _drawFormat); ;
+
+            // Zeichencursor hinter die Attribute setzen
+            paintContext.PaintPosX += attributeBreite + _randX;
+        }
+
+        private async Task<int> GetAttributeWidth(string attributeString, PaintEventArgs e) {
+            if (string.IsNullOrWhiteSpace(attributeString)) return 0;
+            return (int) await e.Graphics.MeasureDisplayStringWidthAsync(attributeString, _drawFontAttribute, _drawFormat);
+        }
+
+        private string GetAttributeString()
+        {
             System.Xml.XmlAttributeCollection attribute = this.XMLNode.Attributes; // Attribs auf Kurznamen umlegen
+            if (attribute == null) return null;
+            if (attribute.Count == 0) return null;
 
-            if (attribute != null)
+            StringBuilder attributeString = new StringBuilder();
+            for (int attribLauf = 0; attribLauf < attribute.Count; attribLauf++)
             {
-                if (attribute.Count != 0)
-                {  // Wenn Attribute an diesem XML-Node sind, dann anzeigen
-                    StringBuilder attributeString = new StringBuilder();
-                    for (int attribLauf = 0; attribLauf < attribute.Count; attribLauf++)
-                    {
-                        attributeString.AppendFormat(" {0}=\"{1}\"", attribute[attribLauf].Name, attribute[attribLauf].Value);
-                    }
-
-                    // Die Breite + Hoehe der Attribute vorausberechnen
-                    //attributeBreite = (int)de.springwald.toolbox.ToolboxUsercontrols.MeasureDisplayStringWidth (e.Graphics,attributeString,_drawFontAttribute,_drawFormat); //drawFont);
-                    attributeBreite = (int)(_breiteProBuchstabeAttribute * attributeString.Length);
-                    attributeHoehe = _hoeheProBuchstabeNodeName;
-
-                    // einen Rahmen um die Attribute zeichnen
-                    await zeichneRahmenNachGroesse(paintContext.PaintPosX, paintContext.PaintPosY + _randY, attributeBreite, attributeHoehe, 2, _farbeAttributeHintergrund, _farbeAttributeRand, e);
-
-                    // Pinsel bereitstellen
-                    SolidBrush drawBrush = new SolidBrush(_farbeAttributeSchrift);
-                    // Attribute zeichnen
-                    await e.Graphics.DrawStringAsync(attributeString.ToString(), _drawFontAttribute, drawBrush, paintContext.PaintPosX + 1, paintContext.PaintPosY + _randY, _drawFormat); ;
-
-                    // Zeichencursor hinter die Attribute setzen
-                    paintContext.PaintPosX += attributeBreite + _randX;
-
-                }
-                else
-                {  // Keine Attribute an diesem XMLNode
-                }
+                attributeString.AppendFormat(" {0}=\"{1}\"", attribute[attribLauf].Name, attribute[attribLauf].Value);
             }
+            return attributeString.ToString();
         }
 
         /// <summary>
