@@ -54,14 +54,16 @@ namespace de.springwald.xml.editor
         private int _rahmenBreite;
         private int _rahmenHoehe;
 
+        public override int LineHeight { get; }
+
         /// <summary>
         /// Dort sollte der Ast des Baumes ankleben, wenn dieses Element in einem Ast des Parent gezeichnet werden soll
         /// </summary>
         /// <returns></returns>
-        protected override Point AnkerPos
-        {
-            get { return new Point(_startX - 4, _startY + _ankerEinzugY); }
-        }
+        //protected override Point AnkerPos
+        //{
+        //    get { return new Point(_startX - 4, _startY + _ankerEinzugY); }
+        //}
 
         public XMLElement_StandardNode(System.Xml.XmlNode xmlNode, de.springwald.xml.editor.XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
@@ -87,9 +89,6 @@ namespace de.springwald.xml.editor
                 _hoeheProBuchstabeAttribut = _drawFontAttribute.Height;
             }
 
-            // Bestimmen, wie hoch der Anker am linken Node-Rand hängt
-            _ankerEinzugY = _hoeheProBuchstabeNodeName / 2 + _randY;
-
             // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
             if (_xmlEditor.CursorOptimiert.StartPos.AktNode == this.XMLNode)
             {
@@ -100,11 +99,15 @@ namespace de.springwald.xml.editor
                 }
             }
 
+            // Bestimmen, wie hoch der Anker am linken Node-Rand hängt
+            _ankerEinzugY = _hoeheProBuchstabeNodeName / 2 + _randY;
+
             // Die Breite der Schrift vorausberechnen
             int schriftBreite = (int)(await this._xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _drawFontNodeName, _drawFormat)); //, drawFont);
 
             // ### Den Namen um den Node malen ###
             FarbenSetzen();
+
             // Einen Rahmen um den Node und die Attribute zeichnen.
             // Die Dimensionen _rahmenBreite und _rahmenHoehe wurden im NurBerechnen-Durchlauf bestimmt
             // await zeichneRahmenNachGroesse(this.PaintPos.PosX, this.PaintPos.PosY, _rahmenBreite, _rahmenHoehe, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
@@ -134,6 +137,7 @@ namespace de.springwald.xml.editor
             // ### ggf. den weiterführenden Pfeil am Ende des Rahmens zeichnen ###
             if (_xmlEditor.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
+              
                 // nach dem Noderahmen einen Pfeil nach rechts zeichnen
                 // Pfeil nach rechts
                 SolidBrush brush = new SolidBrush(_farbePfeil);

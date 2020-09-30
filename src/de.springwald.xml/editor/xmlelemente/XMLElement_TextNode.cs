@@ -106,6 +106,8 @@ namespace de.springwald.xml.editor
         /// </summary>
         public char[] ZeichenZumAusruecken { get; set; }
 
+        public override int LineHeight { get; }
+
         public XMLElement_TextNode(System.Xml.XmlNode xmlNode, de.springwald.xml.editor.XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
 
