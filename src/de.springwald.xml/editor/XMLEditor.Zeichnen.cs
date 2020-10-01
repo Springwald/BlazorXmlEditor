@@ -23,6 +23,9 @@ namespace de.springwald.xml.editor
         /// </summary>
         public async Task Paint(PaintEventArgs e, int limitRight)
         {
+            await this.NativePlatform.Gfx.StartBatch();
+            await this.NativePlatform.Gfx.ClearAsync(Color.Gray);
+
             if (_rootElement != null)  // Wenn das 
             {
                 var paintContext = new PaintContext
@@ -32,7 +35,6 @@ namespace de.springwald.xml.editor
                     PaintPosX = 10 + ZeichnungsOffsetX,
                     PaintPosY = 10 + ZeichnungsOffsetY,
                     ZeilenStartX = 10 + ZeichnungsOffsetX,
-                    ZeilenEndeX = WunschUmbruchX_ - ZeichnungsOffsetX
                 };
 
                 // XML-Anzeige vorberechnen
@@ -45,7 +47,8 @@ namespace de.springwald.xml.editor
                 //_rootElement.PaintPos = paintPos;
                 //await _rootElement.Paint(paintContext, XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, e);
             }
-            await Task.CompletedTask;
+
+            await this.NativePlatform.Gfx.EndBatch();
         }
 
         public void FokusAufEingabeFormularSetzen()

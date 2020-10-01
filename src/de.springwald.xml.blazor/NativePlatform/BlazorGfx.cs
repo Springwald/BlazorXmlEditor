@@ -2,7 +2,6 @@
 using Blazor.Extensions.Canvas.Canvas2D;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.blazor.NativePlatform
@@ -11,6 +10,7 @@ namespace de.springwald.xml.blazor.NativePlatform
     {
         private Canvas2DContext context;
         private BECanvasComponent canvas;
+        private bool isInBatch = false;
 
         public BlazorGfx(Canvas2DContext context, Blazor.Extensions.BECanvasComponent canvas)
         {
@@ -20,14 +20,18 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task StartBatch()
         {
-            var ctx = this.context;
-            await ctx.BeginBatchAsync();
+            //if (this.isInBatch) await this.EndBatch();
+            //var ctx = this.context;
+            //this.isInBatch = true;
+            //await ctx.BeginBatchAsync();
         }
 
         public async Task EndBatch()
         {
-            var ctx = this.context;
-            await ctx.EndBatchAsync();
+            //if (!isInBatch) return;
+            //var ctx = this.context;
+            //await ctx.EndBatchAsync();
+            //this.isInBatch = false;
         }
 
         public async Task DrawLineAsync(Pen pen, int x1, int y1, int x2, int y2)
@@ -74,27 +78,30 @@ namespace de.springwald.xml.blazor.NativePlatform
         public async Task DrawStringAsync(string text, Font font, SolidBrush brush, int x, int y, StringFormat drawFormat)
         {
             var ctx = this.context;
-            await this.SetFontFormat(font);
             await ctx.SetFillStyleAsync(brush.Color.AsHtml);
-            await ctx.SetFontAsync(font.Name);
+            await this.SetFontFormat(ctx, font);
             await ctx.FillTextAsync(text, x, y);
             await ResetStroke(ctx);
         }
 
-        //public async Task<SizeF> MeasureString(string text, Font font, int maxWidth, StringFormat drawFormat)
-        //{
-        //    var ctx = this.context;
-        //    await this.SetFontFormat(font);
-        //    var size = await ctx.MeasureTextAsync(text);
-        //    return new SizeF { Width = (float)size.Width, Height = size.;
-        //}
-
         public async Task<float> MeasureDisplayStringWidthAsync(string text, Font font, StringFormat drawFormat)
         {
             var ctx = this.context;
-            await this.SetFontFormat(font);
+            await this.SetFontFormat(ctx, font);
             var size = await ctx.MeasureTextAsync(text);
+            size = await ctx.MeasureTextAsync(text); // Strange, but second call is needed to prevent usage of previous font size ?!?
             return (float)size.Width;
+        }
+
+        private async Task SetFontFormat(Canvas2DContext ctx, Font font)
+        {
+            await ctx.SetFontAsync($"{font.Height}px {font.Name}"); // e.g. '48px serif';
+            await ctx.SetTextAlignAsync(TextAlign.Left);
+            await ctx.SetTextBaselineAsync(TextBaseline.Top);
+            var a = ctx.Font;
+            var b = a;
+            //await this.context.SetFontAsync("12px serif"); // e.g. '48px serif';
+            // await ctx.SetLineWidthAsync(1);
         }
 
         public async Task FillPathAsync(SolidBrush brush, GraphicsPath gp)
@@ -123,8 +130,6 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
             await ctx.LineToAsync(points[0].X, points[0].Y);
             await ctx.FillAsync();
-
-            await ResetStroke(ctx);
         }
 
         public async Task FillRectangleAsync(SolidBrush newBrush, Rectangle rechteck)
@@ -135,14 +140,18 @@ namespace de.springwald.xml.blazor.NativePlatform
         public async Task ClearAsync(Color color)
         {
             var ctx = this.context;
-            await ctx.SetFillStyleAsync(color.AsHtml);
-#warning todo clear real canvas size
-            await ctx.ClearRectAsync(0, 0, this.canvas.Width, this.canvas.Height);
+            if (color != Color.White)
+            {
+                await ctx.SetFillStyleAsync(color.AsHtml);
+                await ctx.FillRectAsync(0, 0, this.canvas.Width, this.canvas.Height);
+            }
+            else
+            {
+                await ctx.ClearRectAsync(0, 0, this.canvas.Width, this.canvas.Height);
+            }
         }
 
-
         // ######### private helpers ##########
-
 
         private static async Task LinePath(GraphicsPath gp, Canvas2DContext ctx)
         {
@@ -156,14 +165,6 @@ namespace de.springwald.xml.blazor.NativePlatform
                 }
                 await ctx.LineToAsync(gp.Lines[i].X2, gp.Lines[i].Y2);
             }
-        }
-
-        private async Task SetFontFormat(Font font)
-        {
-            await this.context.SetTextAlignAsync(TextAlign.Left);
-            await this.context.SetTextBaselineAsync(TextBaseline.Top);
-            await this.context.SetFontAsync($"{font.Height}px {font.Name}"); // e.g. '48px serif';
-            await this.context.SetLineWidthAsync(1);
         }
 
         private LineCap GetLineCap(Pen.LineCap cap)

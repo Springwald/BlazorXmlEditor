@@ -20,7 +20,7 @@ namespace de.springwald.xml.editor
 
     public partial class XMLEditor : IDisposable
     {
-        public INativePlatform NativePlatform { get; } 
+        public INativePlatform NativePlatform { get; }
 
         /// <summary>
         /// Der Inhalt des Editor-XMLs hat sich geändert
@@ -97,7 +97,7 @@ namespace de.springwald.xml.editor
 
         public async Task SetRootNode(System.Xml.XmlNode value)
         {
-           // await this.NativePlatform.Gfx.StartBatch();
+            // await this.NativePlatform.Gfx.StartBatch();
 
             this._rootNode = value;
 
@@ -147,7 +147,7 @@ namespace de.springwald.xml.editor
                 this.NativePlatform.ControlElement.Enabled = true;
             }
 
-           // await this.NativePlatform.Gfx.EndBatch();
+            // await this.NativePlatform.Gfx.EndBatch();
 
             // Bescheid sagen, dass der Inhalt des XMLs sich geändert hat
             await ContentChanged();
@@ -206,10 +206,8 @@ namespace de.springwald.xml.editor
 
         private async Task Invalidated(EventArgs data)
         {
-            await this.NativePlatform.Gfx.ClearAsync(Color.White);
-            await this.Paint(
-                new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx }, 
-                limitRight:this.NativePlatform.ControlElement.Width );
+            var limitRight = this.NativePlatform.ControlElement.Width;
+            await this.Paint(new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx }, limitRight: limitRight);
         }
 
         /// <summary>
@@ -223,7 +221,6 @@ namespace de.springwald.xml.editor
             neuElement = new ElementCreator(this).createPaintElementForNode(xmlNode);
             return neuElement;
         }
-
 
         /// <summary>
         /// Der Cursor hat sich geändert

@@ -1,9 +1,8 @@
 using de.springwald.xml.cursor;
+using de.springwald.xml.editor.helper;
 using de.springwald.xml.editor.nativeplatform.gfx;
-using de.springwald.xml.editor.textnode;
 using de.springwald.xml.events;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -33,7 +32,7 @@ namespace de.springwald.xml.editor
         protected SolidBrush _drawBrushInvertiert_;
         protected SolidBrush _drawBrushInvertiertOhneFokus_;
 
-        private List<TextTeil> _textTeile;  // Buffer der einzelnen, gezeichneten Zeilen. Jeder entspricht einem Klickbereich
+        private TextSplitPart[] _textTeile;  // Buffer der einzelnen, gezeichneten Zeilen. Jeder entspricht einem Klickbereich
 
         //#region UnPaint-Werte
         //private string _lastPaintAktuellerInhalt; // der zuletzt in diesem Node gezeichnete Inhalt
@@ -106,7 +105,9 @@ namespace de.springwald.xml.editor
         /// </summary>
         public char[] ZeichenZumAusruecken { get; set; }
 
-        public override int LineHeight { get; } = 10;
+        private const int FontHeight = 14;
+
+        public override int LineHeight { get; } = FontHeight;
 
         public XMLElement_TextNode(System.Xml.XmlNode xmlNode, de.springwald.xml.editor.XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
@@ -131,8 +132,8 @@ namespace de.springwald.xml.editor
                 _drawFormat.Trimming = StringTrimming.None;
 
                 // Die Schrift bereitstellen
-                _drawFont = new Font("Courier New", 14, Font.GraphicsUnit.Point);
-                _breiteProBuchstabe = await this._xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("W", _drawFont, _drawFormat);
+                _drawFont = new Font("Courier New", FontHeight, Font.GraphicsUnit.Point);
+                _breiteProBuchstabe = await this._xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("o", _drawFont, _drawFormat);
                 _hoeheProBuchstabe = _drawFont.Height;
             }
 
@@ -143,39 +144,24 @@ namespace de.springwald.xml.editor
 
             StartUndEndeDerSelektionBestimmen(ref selektionStart, ref selektionLaenge);
 
-            // die Merke-Buffer der einzelnen Zeilen leeren
-            int maxLaengeProZeile = (int)((paintContext.ZeilenEndeX - paintContext.ZeilenStartX) / _breiteProBuchstabe);
-            int bereitsLaengeDerZeile = (int)(paintContext.PaintPosX / _breiteProBuchstabe);
-            TextTeiler teiler =
-                new TextTeiler(
-                    AktuellerInhalt, selektionStart, selektionLaenge, maxLaengeProZeile, bereitsLaengeDerZeile,
-                        ZeichenZumUmbrechen
-                    );
-            _textTeile = teiler.TextTeile;
+            _textTeile = await new TextSplitHelper().SplitText(this._xmlEditor.NativePlatform.Gfx, AktuellerInhalt, selektionStart, selektionLaenge, paintContext, _drawFont, _drawFormat);
+
+            if (selektionStart != -1) _ = _textTeile.Where(t => { t.Inverted = true; return true; });
 
             // Texthintergrund färben
-            foreach (TextTeil teil in _textTeile)
+            foreach (var teil in _textTeile)
             {
-                SolidBrush newBrush = new SolidBrush(GetHintergrundFarbe(teil.Invertiert));
+                // SolidBrush newBrush = new SolidBrush(GetHintergrundFarbe(teil.Invertiert));
+                SolidBrush newBrush = new SolidBrush(Color.Red);
+
                 // Hintergrund füllen
-                await e.Graphics.FillRectangleAsync(newBrush, teil.Rechteck);
+                await e.Graphics.FillRectangleAsync(newBrush, teil.Rectangle);
             }
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
-            foreach (TextTeil textTeil in _textTeile)
+            foreach (var textTeil in _textTeile)
             {
                 int schriftBreite = (int)(_breiteProBuchstabe * textTeil.Text.Length);
-
-                if (textTeil.IstNeueZeile) // Dieser Textteil beginnt eine neue Zeile
-                {
-                    // Neue Zeile beginnen
-                    paintContext.PaintPosY += _xmlEditor.Regelwerk.AbstandYZwischenZeilen + paintContext.HoeheAktZeile; // Zeilenumbruch
-                    paintContext.PaintPosX = paintContext.ZeilenStartX;
-                    paintContext.HoeheAktZeile = _hoeheProBuchstabe + _randY * 2;  // noch gar keine Höhe
-                }
-
-                // Nur Berechnen, nicht zeichnen
-                textTeil.Rechteck = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, (int)(_breiteProBuchstabe * textTeil.Text.Length), _hoeheProBuchstabe + _randY * 2);
 
                 // ggf. den Cursorstrich berechnen
                 if (this.XMLNode == _xmlEditor.CursorOptimiert.StartPos.AktNode) // ist der Cursor im aktuellen Textnode
@@ -199,14 +185,13 @@ namespace de.springwald.xml.editor
                 aktTextTeilStartPos += textTeil.Text.Length;
 
                 // für die Klickbereiche merken, wohin dieser Textteil gezeichnet wird 
-                this._klickBereiche = this._klickBereiche.Append(textTeil.Rechteck).ToArray(); // original:  this._klickBereiche.Add(textTeil.Rechteck);
-                                                                                               // Die Schrift zeichnen
-                await e.Graphics.DrawStringAsync(textTeil.Text, _drawFont, GetZeichenFarbe(textTeil.Invertiert), textTeil.Rechteck.X, textTeil.Rechteck.Y + _randY, _drawFormat);
+                this._klickBereiche = this._klickBereiche.Append(textTeil.Rectangle).ToArray(); // original:  this._klickBereiche.Add(textTeil.Rechteck);
+                                                                                                // Die Schrift zeichnen
+                await e.Graphics.DrawStringAsync(textTeil.Text, _drawFont, GetZeichenFarbe(textTeil.Inverted), textTeil.Rectangle.X, textTeil.Rectangle.Y + _randY, _drawFormat);
 
-                paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, textTeil.Rechteck.X + textTeil.Rechteck.Width);
+                paintContext.PaintPosX += textTeil.Rectangle.Width;
+                paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
                 paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, _hoeheProBuchstabe + _randY + _randY);
-                paintContext.PaintPosX += schriftBreite;
-                paintContext.PaintPosX += schriftBreite;
             }
 
 
@@ -228,11 +213,11 @@ namespace de.springwald.xml.editor
         {
             // Herausfinden, an welcher Position des Textes geklickt wurde
             int posInZeile = 0;
-            foreach (TextTeil teil in _textTeile) // alle Textteile durchgehen
+            foreach (var teil in _textTeile) // alle Textteile durchgehen
             {
-                if (teil.Rechteck.Contains(point)) // Wenn der Klick in diesem Textteil ist
+                if (teil.Rectangle.Contains(point)) // Wenn der Klick in diesem Textteil ist
                 {
-                    posInZeile += Math.Min(teil.Text.Length - 1, (int)((point.X - teil.Rechteck.X) / _breiteProBuchstabe + 0.5));
+                    posInZeile += Math.Min(teil.Text.Length - 1, (int)((point.X - teil.Rectangle.X) / _breiteProBuchstabe + 0.5));
                     break;
                 }
                 else // In diesem Textteil war der Klick nicht
@@ -268,9 +253,9 @@ namespace de.springwald.xml.editor
         /// <returns></returns>
         private int LiegtInWelchemTextTeil(Point point)
         {
-            for (int i = 0; i < _textTeile.Count; i++)
+            for (int i = 0; i < _textTeile.Length; i++)
             {
-                if (_textTeile[i].Rechteck.Contains(point))
+                if (_textTeile[i].Rectangle.Contains(point))
                 {
                     return i;
                 }

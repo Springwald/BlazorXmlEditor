@@ -280,7 +280,7 @@ namespace de.springwald.xml.blazor.test.DemoData
 
                 case "pattern":     // Im Pattern-Tag immer Großbuchstaben und keine Sonderzeichen
 
-                    StringBuilder sauber = new StringBuilder(einfuegeText.ToUpper());
+                    StringBuilder sauber = new StringBuilder(einfuegeText); // einfuegeText.ToUpper());
                     // Bei der Eingabe Umlaute bereits ausschreiben
                     sauber.Replace("Ä", "AE");
                     sauber.Replace("Ö", "OE");

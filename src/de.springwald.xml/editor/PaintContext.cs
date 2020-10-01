@@ -26,8 +26,6 @@ namespace de.springwald.xml.editor
 
         public int HoeheAktZeile { get; set; }
 
-        public int ZeilenEndeX { get; set; }
-
         public int BisherMaxX { get; set; }
 
 
@@ -41,7 +39,6 @@ namespace de.springwald.xml.editor
                 PaintPosY = this.PaintPosY,
                 ZeilenStartX = this.ZeilenStartX,
                 HoeheAktZeile = this.HoeheAktZeile,
-                ZeilenEndeX = this.ZeilenEndeX,
                 BisherMaxX = this.BisherMaxX,
             };
         }

@@ -11,6 +11,9 @@
 <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
 
 @code {
+
+    private const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
+
     private DateTime startTime = DateTime.Now;
     private int frames;
     private string fps;
@@ -18,7 +21,7 @@
 
     XmlEditorContext editorContext = new XmlEditorContext();
     private Timer typingTimer;
-    private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">GUTEN TAG</pattern><template>Hallo, ich freue mich, Sie kennen zu lernen.</template></category>";
+    private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">Lorem</pattern><template>lorem ipsum dolor sit amet</template><template id=\"test2\" id2=\"lorem ipsum dolor sit amet lorem ipsum dolor sit amet\">lorem ipsum dolor sit amet lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
     private int actualDocumentIndex = 0;
     private System.Xml.XmlDocument xmlDocument;
 
@@ -29,13 +32,12 @@
 
         this.typingTimer = new Timer();
         this.typingTimer.Elapsed += LoadDocumentTimedEvent;
-        this.typingTimer.Interval = 10;
+        this.typingTimer.Interval = 1;
         this.typingTimer.Start();
         await base.OnInitializedAsync();
     }
 
-    private int typingPos;
-    public bool flipFlop;
+    private int typingPos = 0;
 
     private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
     {
@@ -53,20 +55,13 @@
         var textNode = patternNode.ChildNodes[0];
 
         this.typingPos++;
-        if (this.typingPos > 10) this.typingPos = 0;
+        if (this.typingPos >= LoremIpsum.Length) this.typingPos = 0;
 
-        if (this.typingPos < 5)
-        {
-            await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
-                        textNode,
-                        cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
-                        this.typingPos);
-            await this.xmlEditor.Editor.AktionNodeOderZeichenHinterCursorPosLoeschen(this.xmlEditor.Editor.CursorRoh.StartPos, editor.XMLEditor.UndoSnapshotSetzenOptionen.nein);
-        }
-        else
-        {
-            await this.xmlEditor.Editor.AktionTextAnCursorPosEinfuegen("a", editor.XMLEditor.UndoSnapshotSetzenOptionen.ja);
-        }
+        await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+                textNode,
+                cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
+                textNode.InnerText.Length);
+        await this.xmlEditor.Editor.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), editor.XMLEditor.UndoSnapshotSetzenOptionen.ja);
 
         this.Count();
         this.typingTimer.Start();
