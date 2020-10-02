@@ -16,7 +16,7 @@ namespace de.springwald.xml.editor.helper
 
     public class TextSplitHelper
     {
-        public async Task<TextSplitPart[]> SplitText(IGraphics gfx, string text, int invertiertStart, int invertiertLaenge, PaintContext paintContext, Font drawFont, StringFormat stringFormat)
+        public async Task<TextSplitPart[]> SplitText(IGraphics gfx, string text, int invertiertStart, int invertiertLaenge, PaintContext paintContext, Font drawFont)
         {
             var result = new List<TextSplitPart>();
 
@@ -30,7 +30,7 @@ namespace de.springwald.xml.editor.helper
             for (int i = 0; i < parts.Length; i++)
             {
                 var part = i == 0 ? parts[i] : $" {parts[i]}";
-                var partWidth = await StringWidthHelper.MeasureStringWidth(gfx, part, drawFont, stringFormat);
+                var partWidth = await StringWidthHelper.MeasureStringWidth(gfx, part, drawFont);
                 if (paintContext.PaintPosX + partWidth > paintContext.LimitRight && lineWidth != 0)
                 {
                     // need to start next line

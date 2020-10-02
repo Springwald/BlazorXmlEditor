@@ -2,6 +2,9 @@
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas
 @using de.springwald.xml.blazor.NativePlatform
+@using de.springwald.xml.blazor
+@using editor.nativeplatform.gfx
+@using de.springwald.xml.editor
 @inject IJSRuntime JSRuntime
 @implements IDisposable
 
@@ -40,7 +43,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await  base.OnInitializedAsync();
+        await base.OnInitializedAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -56,9 +59,25 @@
     private void Init()
     {
         if (this.initDone) return;
-        this.initDone = true; ;
-        this.Editor = new de.springwald.xml.editor.XMLEditor(this._editorContext.XmlRules, nativePlattform);
+        this.initDone = true;
+
+        var config = new EditorConfig
+        {
+            NodeNameFont = new Font(name: "Arial", height: 18, graphicsUnit: Font.GraphicsUnit.Pixel),
+            NodeAttributeFont = new Font(name: "Courier New", height: 12, graphicsUnit: Font.GraphicsUnit.Pixel),
+            TextNodeFont = new Font(name: "Courier New", height: 14, graphicsUnit: Font.GraphicsUnit.Pixel)
+        };
+
+        const bool allFontsSame = true;
+        if (allFontsSame)
+        {
+            config.NodeAttributeFont = config.NodeNameFont;
+            config.TextNodeFont = config.NodeNameFont;
+        }
+
+        this.Editor = new XMLEditor(this._editorContext.XmlRules, nativePlattform, config);
         nativePlattform.InputEvents.BlinkInterval.Add(this.blinkDone);
+
         this._editorContext.RootNodeChanged.Add(this.RootNodeChanged);
     }
 

@@ -7,11 +7,11 @@ namespace de.springwald.xml.editor.helper
     public static class StringWidthHelper
     {
         private static Dictionary<string, int> buffer = new Dictionary<string, int>();
-        public static async Task<int> MeasureStringWidth(IGraphics gfx, string text, Font drawFont, StringFormat stringFormat)
+        public static async Task<int> MeasureStringWidth(IGraphics gfx, string text, Font drawFont)
         {
             var key = $"{text}";
             if (buffer.ContainsKey(key)) return buffer[key];
-            var width = (int)await gfx.MeasureDisplayStringWidthAsync(text, drawFont, stringFormat);
+            var width = (int)await gfx.MeasureDisplayStringWidthAsync(text, drawFont);
             buffer[key] = width;
             return width;
         }

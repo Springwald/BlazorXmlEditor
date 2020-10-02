@@ -5,7 +5,7 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
     {
         public enum GraphicsUnit
         {
-            Point
+            Pixel
         }
 
         public string Name { get; set; }

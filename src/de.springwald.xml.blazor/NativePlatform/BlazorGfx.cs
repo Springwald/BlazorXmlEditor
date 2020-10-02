@@ -20,18 +20,18 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task StartBatch()
         {
-            //if (this.isInBatch) await this.EndBatch();
-            //var ctx = this.context;
-            //this.isInBatch = true;
-            //await ctx.BeginBatchAsync();
+            if (this.isInBatch) await this.EndBatch();
+            this.isInBatch = true;
+
+            //await  this.context.BeginBatchAsync();
         }
 
         public async Task EndBatch()
         {
-            //if (!isInBatch) return;
-            //var ctx = this.context;
-            //await ctx.EndBatchAsync();
-            //this.isInBatch = false;
+            if (!isInBatch) return;
+            this.isInBatch = false;
+
+            //await this.context.EndBatchAsync();
         }
 
         public async Task DrawLineAsync(Pen pen, int x1, int y1, int x2, int y2)
@@ -75,7 +75,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ResetStroke(ctx);
         }
 
-        public async Task DrawStringAsync(string text, Font font, SolidBrush brush, int x, int y, StringFormat drawFormat)
+        public async Task DrawStringAsync(string text, Font font, SolidBrush brush, int x, int y)
         {
             var ctx = this.context;
             await ctx.SetFillStyleAsync(brush.Color.AsHtml);
@@ -84,24 +84,30 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ResetStroke(ctx);
         }
 
-        public async Task<float> MeasureDisplayStringWidthAsync(string text, Font font, StringFormat drawFormat)
+        public async Task<float> MeasureDisplayStringWidthAsync(string text, Font font)
         {
             var ctx = this.context;
             await this.SetFontFormat(ctx, font);
             var size = await ctx.MeasureTextAsync(text);
-            size = await ctx.MeasureTextAsync(text); // Strange, but second call is needed to prevent usage of previous font size ?!?
             return (float)size.Width;
         }
 
         private async Task SetFontFormat(Canvas2DContext ctx, Font font)
         {
-            await ctx.SetFontAsync($"{font.Height}px {font.Name}"); // e.g. '48px serif';
+            var targetFont = string.Empty;
+            switch (font.Unit)
+            {
+                case Font.GraphicsUnit.Pixel:
+                    targetFont = $"{font.Height}px {font.Name}"; // e.g. '48px serif';
+                    break;
+                default: throw new ArgumentOutOfRangeException($"{nameof(font.Unit)}:{font.Unit.ToString()}");
+            }
             await ctx.SetTextAlignAsync(TextAlign.Left);
             await ctx.SetTextBaselineAsync(TextBaseline.Top);
-            var a = ctx.Font;
-            var b = a;
-            //await this.context.SetFontAsync("12px serif"); // e.g. '48px serif';
-            // await ctx.SetLineWidthAsync(1);
+            if (!targetFont.Equals(ctx.Font))
+            {
+                await ctx.SetFontAsync(targetFont); 
+            }
         }
 
         public async Task FillPathAsync(SolidBrush brush, GraphicsPath gp)
@@ -194,9 +200,14 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         private async Task SetStrokeFromPen(Pen pen, Canvas2DContext ctx)
         {
-            await ctx.SetStrokeStyleAsync(pen.Color.AsHtml);
-            await ctx.SetLineWidthAsync(pen.Width);
-            await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
+            var col = pen.Color.AsHtml;
+            // if (!col.Equals(ctx.StrokeStyle)) 
+            await ctx.SetStrokeStyleAsync(col);
+
+            //if (ctx.LineWidth != pen.Width) 
+           //     await ctx.SetLineWidthAsync(pen.Width);
+
+            // await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
         }
 
         private async Task ResetStroke(Canvas2DContext ctx)

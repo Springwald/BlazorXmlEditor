@@ -1,6 +1,5 @@
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform;
-using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
 using System.Threading.Tasks;
 
@@ -20,6 +19,7 @@ namespace de.springwald.xml.editor
 
     public partial class XMLEditor : IDisposable
     {
+        public IEditorConfig EditorConfig { get; }
         public INativePlatform NativePlatform { get; }
 
         /// <summary>
@@ -183,8 +183,9 @@ namespace de.springwald.xml.editor
         /// <param name="regelwerk">Das Regelwerk zur Darstellung des XMLs</param>
         /// <param name="zeichnungsSteuerelement">Das Usercontrol, auf welchem der Editor gezeichnet werden soll</param>
         /// <param name="rootNode">Dies ist der oberste, zu bearbeitende Node. Höher darf nicht bearbeitet werden, selbst wenn im DOM Parents vorhanden sind</param>
-        public XMLEditor(de.springwald.xml.XMLRegelwerk regelwerk, INativePlatform nativePlatform)
+        public XMLEditor(de.springwald.xml.XMLRegelwerk regelwerk, INativePlatform nativePlatform, IEditorConfig editorConfig)
         {
+            this.EditorConfig = editorConfig;
             this.NativePlatform = nativePlatform;
             this.Regelwerk = regelwerk;
 

@@ -18,10 +18,10 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 
         Task ClearAsync(Color color);
 
-        Task DrawStringAsync(string name, Font drawFontNodeName, SolidBrush drawBrush, int posX, int v, StringFormat drawFormat);
+        Task DrawStringAsync(string name, Font drawFontNodeName, SolidBrush drawBrush, int posX, int v);
         // Task  SizeF MeasureString(string text, Font drawFont, int maxWidth, StringFormat drawFormat);
 
-        Task<float> MeasureDisplayStringWidthAsync(string text, Font drawFont, StringFormat drawFormat);
+        Task<float> MeasureDisplayStringWidthAsync(string text, Font drawFont);
         
     }
 }
