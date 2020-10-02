@@ -1,4 +1,4 @@
-#define klickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
+#define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
@@ -88,7 +88,7 @@ namespace de.springwald.xml.editor
             this._wirdGeradeGezeichnet = false;
 
 #if klickbereicheRotAnzeigen
-            KlickbereicheAnzeigen(e);
+            KlickbereicheAnzeigen(paintContext, e);
 #endif
             return paintContext;
         }
@@ -176,17 +176,30 @@ namespace de.springwald.xml.editor
                             // Linie nach unten
                             myPen.StartCap = Pen.LineCap.SquareAnchor;
                             myPen.EndCap = Pen.LineCap.RoundAnchor;
-                            await e.Graphics.DrawLineAsync(myPen,
-                                paintContext.LimitLeft, paintContext.PaintPosY + this.LineHeight / 2,
-                                paintContext.LimitLeft, childPaintContext.PaintPosY + childElement.LineHeight / 2);
+                            e.Graphics.AddJob(new JobDrawLine
+                            {
+                                Layer = paintContext.LayerTagBorder,
+                                Batchable = true,
+                                Pen = myPen,
+                                X1 = paintContext.LimitLeft,
+                                Y1 = paintContext.PaintPosY + this.LineHeight / 2,
+                                X2 = paintContext.LimitLeft,
+                                Y2 = childPaintContext.PaintPosY + childElement.LineHeight / 2
+                            });
 
                             // Linie nach rechts mit Pfeil auf ChildElement
                             myPen.StartCap = Pen.LineCap.NoAnchor;
                             myPen.EndCap = Pen.LineCap.SquareAnchor; // Pfeil am Ende
-                                                                     //e.Graphics.DrawLine(myPen, _startX ,  childElement.AnkerPos.Y, childElement.AnkerPos.X, childElement.AnkerPos.Y); 
-                            await e.Graphics.DrawLineAsync(myPen,
-                                paintContext.LimitLeft, childPaintContext.PaintPosY + childElement.LineHeight / 2,
-                                childPaintContext.LimitLeft, childPaintContext.PaintPosY + childElement.LineHeight / 2);
+                            e.Graphics.AddJob(new JobDrawLine
+                            {
+                                Layer = paintContext.LayerTagBorder,
+                                Batchable = true,
+                                Pen = myPen,
+                                X1 = paintContext.LimitLeft,
+                                Y1 = childPaintContext.PaintPosY + childElement.LineHeight / 2,
+                                X2 = childPaintContext.LimitLeft,
+                                Y2 = childPaintContext.PaintPosY + childElement.LineHeight / 2
+                            });
 
                             childPaintContext = await childElement.Paint(childPaintContext, e);
                             // paintContext.PaintPosX = context2.PaintPosX;
@@ -288,12 +301,18 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// zeichnet die per Maus klickbaren Bereiche
         /// </summary>
-        private async Task KlickbereicheAnzeigen(PaintEventArgs e)
+        private void KlickbereicheAnzeigen(PaintContext paintContext, PaintEventArgs e)
         {
-            Pen newPen = new Pen(Color.Red, 1);
+            var pen = new Pen(Color.Red, 1);
             foreach (Rectangle rechteck in this._klickBereiche)
             {
-                await e.Graphics.DrawRectangleAsync(newPen, rechteck);
+                e.Graphics.AddJob(new JobDrawRectangle
+                {
+                    Layer = paintContext.LayerClickAreas,
+                    Batchable = true,
+                    Pen =  pen,
+                    Rectangle = rechteck
+                });
             }
         }
 

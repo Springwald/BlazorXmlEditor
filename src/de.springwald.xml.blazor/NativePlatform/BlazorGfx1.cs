@@ -46,14 +46,14 @@ namespace de.springwald.xml.blazor.NativePlatform
             if (this.isInBatch) await this.EndBatch();
             this.contextCache = null;
             this.isInBatch = true;
-            //await (await this.GetContext()).BeginBatchAsync();
+            await (await this.GetContext()).BeginBatchAsync();
         }
 
         public async Task EndBatch()
         {
             if (!isInBatch) return;
             this.isInBatch = false;
-            //await (await this.GetContext()).EndBatchAsync();
+            await (await this.GetContext()).EndBatchAsync();
             this.contextCache = null;
         }
 
@@ -162,6 +162,22 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.FillAsync();
         }
 
+        public async Task DrawPolygonAsync(Pen pen, Point[] points)
+        {
+            if (points.Length == 0) return;
+
+            var ctx = await this.GetContext();
+            await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
+            await ctx.BeginPathAsync();
+            await ctx.MoveToAsync(points[0].X, points[0].Y);
+            for (int i = 1; i < points.Length; i++)
+            {
+                await ctx.LineToAsync(points[i].X, points[i].Y);
+            }
+            await ctx.LineToAsync(points[0].X, points[0].Y);
+            await ctx.StrokeAsync();
+        }
+
         public async Task FillRectangleAsync(SolidBrush newBrush, Rectangle rechteck)
         {
             await Task.CompletedTask; // to prevent warning because of empty async method
@@ -249,11 +265,29 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task PaintJobs()
         {
-            foreach(var job in this.jobs)
+            var sorted = this.jobs.OrderBy(j => j.Layer).ThenBy(j => j.Batchable);
+            var batching = false;
+            foreach(var job in sorted)
             {
+                if (job.Batchable)
+                {
+                    if (!batching) {
+                        await this.StartBatch();
+                        batching = true;
+                    }
+                }
+                else
+                {
+                    if (batching)
+                    {
+                        await this.EndBatch();
+                        batching = false;
+                    }
+                }
                 await job.Paint(this);
             }
             this.jobs.Clear();
+            if (batching) await this.EndBatch();
         }
 
     }

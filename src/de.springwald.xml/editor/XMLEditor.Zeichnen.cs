@@ -23,8 +23,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         public async Task Paint(PaintEventArgs e, int limitRight)
         {
-            //await this.NativePlatform.Gfx.StartBatch();
-            await this.NativePlatform.Gfx.ClearAsync(Color.Gray);
+            await this.NativePlatform.Gfx.ClearAsync(Color.White);
 
             if (_rootElement != null)  // Wenn das 
             {
@@ -49,8 +48,6 @@ namespace de.springwald.xml.editor
             }
 
             await this.NativePlatform.Gfx.PaintJobs();
-
-            //await this.NativePlatform.Gfx.EndBatch();
         }
 
         public void FokusAufEingabeFormularSetzen()

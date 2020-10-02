@@ -3,7 +3,6 @@ using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -45,20 +44,9 @@ namespace de.springwald.xml.editor
         private int tagHeight => this._xmlEditor.EditorConfig.NodeNameFont.Height + innerMarginY * 2;
 
         private int attributeHeight => this._xmlEditor.EditorConfig.NodeAttributeFont.Height + 2;
-
         private int attributeMarginY => (tagHeight - attributeHeight) / 2;
 
         public override int LineHeight => tagHeight;
-
-        /// <summary>
-        /// Dort sollte der Ast des Baumes ankleben, wenn dieses Element in einem Ast des Parent gezeichnet werden soll
-        /// </summary>
-        /// <returns></returns>
-        //protected override Point AnkerPos
-        //{
-        //    get { return new Point(_startX - 4, _startY + _ankerEinzugY); }
-        //}
-
         public XMLElement_StandardNode(System.Xml.XmlNode xmlNode, de.springwald.xml.editor.XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
         }
@@ -101,7 +89,7 @@ namespace de.springwald.xml.editor
                 + (attributeTextWidth == 0 ? 0 : innerMarginX + attributeTextWidth) // attributes
                 + innerMarginX; // margin to right border
 
-            await zeichneRahmenNachGroesse(startX, paintContext.PaintPosY, borderWidth, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
+            await zeichneRahmenNachGroesse(paintContext, paintContext.LayerTagBackground, startX, paintContext.PaintPosY, borderWidth, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
 
             paintContext.PaintPosX += innerMarginX;  // margin to left border
 
@@ -109,7 +97,7 @@ namespace de.springwald.xml.editor
             e.Graphics.AddJob(new JobDrawString
             {
                 Batchable = false,
-                Layer = paintContext.TextLayer,
+                Layer = paintContext.LayerText,
                 Text = this.XMLNode.Name,
                 Brush = drawBrush,
                 X = paintContext.PaintPosX,
@@ -117,7 +105,7 @@ namespace de.springwald.xml.editor
                 Font = _xmlEditor.EditorConfig.NodeNameFont
             });
 
-            paintContext.PaintPosX += nodeNameTextWidth + innerMarginX; 
+            paintContext.PaintPosX += nodeNameTextWidth + innerMarginX;
 
             // draw the attributes
             await AttributeZeichnen(paintContext, attributeString, e);
@@ -128,14 +116,19 @@ namespace de.springwald.xml.editor
             // if necessary draw the continuing arrow at the end of the frame 
             if (_xmlEditor.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
-                var brush = new SolidBrush(_farbePfeil);
+                //var brush = new SolidBrush(_farbePfeil);
                 int x = paintContext.PaintPosX;
                 int y = paintContext.PaintPosY + tagHeight / 2;
                 var point1 = new Point(x, y - _pfeilDicke);
                 var point2 = new Point(x + _pfeilLaenge, y);
                 var point3 = new Point(x, y + _pfeilDicke);
-                Point[] points = { point1, point2, point3 };
-                await e.Graphics.FillPolygonAsync(brush, points);  
+                e.Graphics.AddJob(new JobFillPolygon
+                {
+                    Batchable = true,
+                    Layer = paintContext.LayerTagBackground,
+                    Brush = new SolidBrush(_farbePfeil),
+                    Points = new[] { point1, point2, point3 }
+                });
 
                 // Den rechten Pfeilbereich merken
                 _pfeilBereichLinks = new Rectangle(x, y - _pfeilDicke, _pfeilLaenge, _pfeilDicke * 2);
@@ -192,7 +185,7 @@ namespace de.springwald.xml.editor
             var attributeBreite = await this.GetAttributeTextWidth(attributeString, e);
 
             // einen Rahmen um die Attribute zeichnen
-            await zeichneRahmenNachGroesse(paintContext.PaintPosX, paintContext.PaintPosY + attributeMarginY, attributeBreite, attributeHeight, 2, _farbeAttributeHintergrund, _farbeAttributeRand, e);
+            await zeichneRahmenNachGroesse(paintContext, paintContext.LayerAttributeBackground, paintContext.PaintPosX, paintContext.PaintPosY + attributeMarginY, attributeBreite, attributeHeight, 2, _farbeAttributeHintergrund, _farbeAttributeRand, e);
 
             // Pinsel bereitstellen
             SolidBrush drawBrush = new SolidBrush(_farbeAttributeSchrift);
@@ -203,7 +196,7 @@ namespace de.springwald.xml.editor
             e.Graphics.AddJob(new JobDrawString
             {
                 Batchable = false,
-                Layer = paintContext.TextLayer,
+                Layer = paintContext.LayerText,
                 Text = attributeString.ToString(),
                 Brush = drawBrush,
                 X = paintContext.PaintPosX,
@@ -212,7 +205,7 @@ namespace de.springwald.xml.editor
             });
 
             // Zeichencursor hinter die Attribute setzen
-            paintContext.PaintPosX += attributeBreite + innerMarginX;  
+            paintContext.PaintPosX += attributeBreite + innerMarginX;
         }
 
         protected override async Task NodeZeichnenAbschluss(PaintContext paintContext, PaintEventArgs e)
@@ -232,14 +225,18 @@ namespace de.springwald.xml.editor
 
                     // vor dem Noderahmen einen Pfeil nach links zeichnen
                     // Pfeil nach links
-                    SolidBrush brush = new SolidBrush(_farbePfeil);
                     int x = paintContext.PaintPosX;
                     int y = paintContext.PaintPosY + tagHeight / 2;
                     Point point1 = new Point(x + _pfeilLaenge, y - _pfeilDicke);
                     Point point2 = new Point(x, y);
                     Point point3 = new Point(x + _pfeilLaenge, y + _pfeilDicke);
-                    Point[] points = { point1, point2, point3 };
-                    await e.Graphics.FillPolygonAsync(brush, points);  // Fill polygon to screen.
+                    e.Graphics.AddJob(new JobFillPolygon
+                    {
+                        Batchable = true,
+                        Layer = paintContext.LayerTagBackground,
+                        Brush = new SolidBrush(_farbePfeil),
+                        Points = new[] { point1, point2, point3 }
+                    });
 
                     // Den rechten Pfeilbereich merken
                     _pfeilBereichRechts = new Rectangle(x, y - _pfeilDicke, _pfeilLaenge, _pfeilDicke * 2);
@@ -249,7 +246,7 @@ namespace de.springwald.xml.editor
                     int schriftBreite = (int)(await e.Graphics.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont));
 
                     // ## RAHMEN für schließenden Node  zeichnen ###
-                    await zeichneRahmenNachGroesse(paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
+                    await zeichneRahmenNachGroesse(paintContext, paintContext.LayerTagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, e);
                     paintContext.PaintPosX += innerMarginX; // Abstand zwischen Rahmen und Schrift
 
                     // ## Name für schließenden Node zeichnen ###
@@ -260,14 +257,14 @@ namespace de.springwald.xml.editor
                     e.Graphics.AddJob(new JobDrawString
                     {
                         Batchable = false,
-                        Layer = paintContext.TextLayer,
+                        Layer = paintContext.LayerText,
                         Text = this.XMLNode.Name,
                         Brush = drawBrush,
                         X = paintContext.PaintPosX,
                         Y = paintContext.PaintPosY + innerMarginY,
                         Font = _xmlEditor.EditorConfig.NodeNameFont
                     });
-                    //await e.Graphics.DrawStringAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont, drawBrush, paintContext.PaintPosX, paintContext.PaintPosY + innerMarginY);
+                    await e.Graphics.DrawStringAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont, drawBrush, paintContext.PaintPosX, paintContext.PaintPosY + innerMarginY);
 
                     paintContext.PaintPosX += schriftBreite + innerMarginX; // Abstand zwischen Schrift und Rahmen
 
@@ -299,9 +296,6 @@ namespace de.springwald.xml.editor
             await base.NodeZeichnenAbschluss(paintContext, e);
         }
 
-
-
-
         private async Task<int> GetAttributeTextWidth(string attributeString, PaintEventArgs e)
         {
             if (string.IsNullOrEmpty(attributeString)) return 0;
@@ -331,30 +325,43 @@ namespace de.springwald.xml.editor
         /// <param name="y2"></param>
         /// <param name="fuellFarbe"></param>
         /// <param name="rahmenFarbe"></param>
-        private async Task zeichneRahmenNachKoordinaten(int x1, int y1, int x2, int y2, int rundung, Color fuellFarbe, Color rahmenFarbe, PaintEventArgs e)
+        private async Task zeichneRahmenNachKoordinaten(PaintContext paintContext, int layer, int x1, int y1, int x2, int y2, int rundung, Color fuellFarbe, Color rahmenFarbe, PaintEventArgs e)
         {
-            // Rahmen definieren
-            GraphicsPath gp = new GraphicsPath();
-            gp.AddLine(x1 + rundung, y1, x2 - rundung, y1); //a
-            gp.AddLine(x2, y1 + rundung, x2, y2 - rundung); //b
-            gp.AddLine(x2 - rundung, y2, x1 + rundung, y2); //d
-            gp.AddLine(x1, y2 - rundung, x1, y1 + rundung); //e
-            gp.CloseFigure();
+            Point[] points = new[] { 
+                new Point(x1 + rundung, y1),
+                new Point(x2 - rundung, y1),
+                new Point(x2, y1 + rundung),
+                new Point(x2, y2 - rundung),
+                new Point(x2 - rundung, y2),
+                new Point(x1 + rundung, y2),
+                new Point(x1, y2 - rundung),
+                new Point(x1, y1 + rundung)};
 
-            // mit Farbe fuellen
             if (fuellFarbe != Color.Transparent)
             {
-                SolidBrush newBrush = new SolidBrush(fuellFarbe);
-                await e.Graphics.FillPathAsync(newBrush, gp);
+                // mit Farbe fuellen
+                e.Graphics.AddJob(new JobFillPolygon
+                {
+                    Batchable = true,
+                    Layer = layer,
+                    Brush = new SolidBrush(fuellFarbe),
+                    Points = points
+                });
             }
-
-            // Rahmen zeichnen
+           
             if (rahmenFarbe != Color.Transparent)
             {
+                // Rahmen zeichnen
                 var pen = new Pen(color: rahmenFarbe, width: 1);
                 pen.EndCap = Pen.LineCap.NoAnchor;
                 pen.StartCap = Pen.LineCap.NoAnchor;
-                await e.Graphics.DrawPathAsync(pen, gp);
+                e.Graphics.AddJob(new JobDrawPolygon
+                {
+                    Batchable = true,
+                    Layer = paintContext.LayerTagBorder,
+                    Pen = pen,
+                    Points = points
+                });
             }
         }
 
@@ -368,9 +375,9 @@ namespace de.springwald.xml.editor
         /// <param name="fuellFarbe"></param>
         /// <param name="rahmenFarbe"></param>
         /// <param name="e"></param>
-        private async Task zeichneRahmenNachGroesse(int x, int y, int breite, int hoehe, int rundung, Color fuellFarbe, Color rahmenFarbe, PaintEventArgs e)
+        private async Task zeichneRahmenNachGroesse(PaintContext paintContext, int layer, int x, int y, int breite, int hoehe, int rundung, Color fuellFarbe, Color rahmenFarbe, PaintEventArgs e)
         {
-            await zeichneRahmenNachKoordinaten(x, y, x + breite, y + hoehe, rundung, fuellFarbe, rahmenFarbe, e);
+            await zeichneRahmenNachKoordinaten(paintContext, layer, x, y, x + breite, y + hoehe, rundung, fuellFarbe, rahmenFarbe, e);
         }
 
         /// <summary>

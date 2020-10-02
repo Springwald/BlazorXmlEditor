@@ -174,16 +174,14 @@ namespace de.springwald.xml.editor
                 e.Graphics.AddJob(new JobDrawString
                 {
                     Batchable = false,
-                    Layer = paintContext.TextLayer,
+                    Layer = paintContext.LayerText,
                     Text = textTeil.Text,
                     Brush = GetZeichenFarbe(textTeil.Inverted),
                     X = textTeil.Rectangle.X,
                     Y = textTeil.Rectangle.Y + marginY,
                     Font = _xmlEditor.EditorConfig.TextNodeFont
                 });
-                // await e.Graphics.DrawStringAsync(textTeil.Text, this._xmlEditor.EditorConfig.TextNodeFont, GetZeichenFarbe(textTeil.Inverted), textTeil.Rectangle.X, textTeil.Rectangle.Y + marginY);
-
-                paintContext.PaintPosX += textTeil.Rectangle.Width;
+                 paintContext.PaintPosX += textTeil.Rectangle.Width;
                 paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
             }
 
