@@ -34,7 +34,7 @@ namespace de.springwald.xml.editor
             // Dem Zeichnungssteuerelement Bescheid sagen, dass es neu gezeichnet werden muss
             // if (this.NativePlatform.ControlElement != null) await this.NativePlatform.ControlElement.Invalidated.Trigger(EventArgs.Empty);
 
-            var limitRight = this.NativePlatform.ControlElement.Width;
+            var limitRight = this.NativePlatform.Gfx.Width;
             await this.Paint(new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx }, limitRight: limitRight);
 
             // Nach einer Veränderung wird direkt der Cursor-Strich gezeichnet
@@ -54,14 +54,6 @@ namespace de.springwald.xml.editor
         /// Ist die aktuelle Datei schreibgeschützt?
         /// </summary>
         public bool ReadOnly { get; set; }
-
-        /// <summary>
-        /// Die gewünschte Wunsch-Umbruch-Breite
-        /// </summary>
-        public int WunschUmbruchX_
-        {
-            get { return this.NativePlatform.ControlElement.Width - 100; }
-        }
 
         /// <summary>
         /// Das Regelwerk, auf dessen Basis die XML-Bearbeitung geschieht

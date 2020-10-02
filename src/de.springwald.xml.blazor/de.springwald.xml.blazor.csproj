@@ -22,7 +22,6 @@
 
 
 	<ItemGroup>
-		<ProjectReference Include="..\Blazor.Canvas\Canvas\Blazor.Canvas.csproj" />
 		<ProjectReference Include="..\de.springwald.xml\de.springwald.xml.csproj" />
 	</ItemGroup>
 

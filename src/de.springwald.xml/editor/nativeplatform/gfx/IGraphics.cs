@@ -4,6 +4,10 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 {
     public interface IGraphics
     {
+        int Height { get; }
+        int Width { get; }
+
+        Task SetSize(int width, int height);
         Task StartBatch();
         Task EndBatch();
 
@@ -25,3 +29,4 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         
     }
 }
+

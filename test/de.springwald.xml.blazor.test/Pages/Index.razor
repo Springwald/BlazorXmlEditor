@@ -1,98 +1,96 @@
 ﻿@page "/"
-@using Excubo.Blazor.Canvas
+
 @using System.Timers
 
-<h3>Index</h3>
+@*<h3>Index</h3>
 
-<h2>loading document @frames @fps FPS</h2>
+<h2>loading document @frames @fps FPS</h2>*@
 
-<Canvas @ref="helper_canvas" width="250px" height="300px" />
 <!--OR-->
 @*@inject Microsoft.JSInterop.IJSRuntime js;
 <canvas @ref="normal_canvas" width="600px" height="300px"></canvas>*@
 
 @code {
-    private Timer loadDocumentTimer;
-    private DateTime startTime = DateTime.Now;
-    private int frames;
-    private string fps;
-    private int actualDocumentIndex = 0;
+    //private Timer loadDocumentTimer;
+    //private DateTime startTime = DateTime.Now;
+    //private int frames;
+    //private string fps;
+    //private int actualDocumentIndex = 0;
 
 
-    private Canvas helper_canvas;
-    private ElementReference normal_canvas;
-    protected override async Task OnAfterRenderAsync(bool first_render)
-    {
-        if (first_render)
-        {
+    //private ElementReference normal_canvas;
+    //protected override async Task OnAfterRenderAsync(bool first_render)
+    //{
+    //    if (first_render)
+    //    {
 
-            // var ctx1 = await helper_canvas.GetContext2DAsync();
-            this.loadDocumentTimer = new Timer();
-            this.loadDocumentTimer.Elapsed += LoadDocumentTimedEvent;
-            this.loadDocumentTimer.Interval = 1;
-            this.loadDocumentTimer.Start();
-        }
-    }
+    //        // var ctx1 = await helper_canvas.GetContext2DAsync();
+    //        this.loadDocumentTimer = new Timer();
+    //        this.loadDocumentTimer.Elapsed += LoadDocumentTimedEvent;
+    //        this.loadDocumentTimer.Interval = 1;
+    //        this.loadDocumentTimer.Start();
+    //    }
+    //}
 
-    private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
-    {
-        await this.LoadDemoXml();
-    }
+    //private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+    //{
+    //    await this.LoadDemoXml();
+    //}
 
-    protected async Task LoadDemoXml()
-    {
-        this.loadDocumentTimer.Stop();
+    //protected async Task LoadDemoXml()
+    //{
+    //    this.loadDocumentTimer.Stop();
 
-        this.IncrementDocumentIndex();
+    //    this.IncrementDocumentIndex();
 
-        await using (var ctx1 = await helper_canvas.GetContext2DAsync())
-        {
-            await ctx1.ClearRectAsync(0, 0, 100, 300);
-            await ctx1.FontAsync("15px solid");
-            await ctx1.StrokeStyleAsync("red");
-            await ctx1.MoveToAsync(100, 100);
-            await ctx1.LineToAsync(100, 200);
-            await ctx1.LineToAsync(200, 200);
-            await ctx1.LineToAsync(200, 100);
+    //    await using (var ctx1 = await helper_canvas.GetContext2DAsync())
+    //    {
+    //        await ctx1.ClearRectAsync(0, 0, 100, 300);
+    //        await ctx1.FontAsync("15px solid");
+    //        await ctx1.StrokeStyleAsync("red");
+    //        await ctx1.MoveToAsync(100, 100);
+    //        await ctx1.LineToAsync(100, 200);
+    //        await ctx1.LineToAsync(200, 200);
+    //        await ctx1.LineToAsync(200, 100);
 
-            for (int i = 0; i < 100; i++)
-            {
-                await ctx1.LineToAsync(200+i, 100+i);
-                //await ctx1.FillTextAsync($"{this.frames} hashd asdjha sdkjahs dkjah dkajsh dkasd hakjs", 0, i * 2);
-                // await ctx1.IsPointInPathAsync(10 + i*2,  10 + i*2, FillRule.EvenOdd);
-            }
-            await ctx1.StrokeAsync();
-            await ctx1.ClosePathAsync();
-        }
-        //await using (var ctx2 = await js.GetContext2DAsync(normal_canvas))
-        //{
-        //    //await ctx2.FontAsync("160px serif");
-        //    //await ctx2.StrokeTextAsync("Excubo.Blazor.Canvas", 0, 150);
-        //    await ctx2.ClearRectAsync(0, 0, 100, 300);
-        //    await ctx2.FontAsync("15px solid");
-        //    for (int i = 0; i < 100; i++)
-        //    {
-        //        await ctx2.FillTextAsync($"{this.frames}", 0, i * 2);
-        //    }
-        //}
+    //        for (int i = 0; i < 100; i++)
+    //        {
+    //            await ctx1.LineToAsync(200+i, 100+i);
+    //            //await ctx1.FillTextAsync($"{this.frames} hashd asdjha sdkjahs dkjah dkajsh dkasd hakjs", 0, i * 2);
+    //            // await ctx1.IsPointInPathAsync(10 + i*2,  10 + i*2, FillRule.EvenOdd);
+    //        }
+    //        await ctx1.StrokeAsync();
+    //        await ctx1.ClosePathAsync();
+    //    }
+    //    //await using (var ctx2 = await js.GetContext2DAsync(normal_canvas))
+    //    //{
+    //    //    //await ctx2.FontAsync("160px serif");
+    //    //    //await ctx2.StrokeTextAsync("Excubo.Blazor.Canvas", 0, 150);
+    //    //    await ctx2.ClearRectAsync(0, 0, 100, 300);
+    //    //    await ctx2.FontAsync("15px solid");
+    //    //    for (int i = 0; i < 100; i++)
+    //    //    {
+    //    //        await ctx2.FillTextAsync($"{this.frames}", 0, i * 2);
+    //    //    }
+    //    //}
 
-        this.loadDocumentTimer.Start();
-        await Task.CompletedTask;
-    }
+    //    this.loadDocumentTimer.Start();
+    //    await Task.CompletedTask;
+    //}
 
-    private int showCounter = 0;
+    //private int showCounter = 0;
 
-    protected void IncrementDocumentIndex()
-    {
-        this.frames++;
-        if (this.showCounter != DateTime.Now.Second % 30)
-        {
-            this.showCounter = DateTime.Now.Second % 30;
-            this.fps = $"{(this.frames / (DateTime.Now - this.startTime).TotalSeconds):0.00}";
-            this.StateHasChanged();
-        }
+    //protected void IncrementDocumentIndex()
+    //{
+    //    this.frames++;
+    //    if (this.showCounter != DateTime.Now.Second % 30)
+    //    {
+    //        this.showCounter = DateTime.Now.Second % 30;
+    //        this.fps = $"{(this.frames / (DateTime.Now - this.startTime).TotalSeconds):0.00}";
+    //        this.StateHasChanged();
+    //    }
 
-        // this.actualDocumentIndex++;
-        // if (this.actualDocumentIndex >= this.documents.Length) this.actualDocumentIndex = 0;
-    }
+    //    // this.actualDocumentIndex++;
+    //    // if (this.actualDocumentIndex >= this.documents.Length) this.actualDocumentIndex = 0;
+    //}
 }

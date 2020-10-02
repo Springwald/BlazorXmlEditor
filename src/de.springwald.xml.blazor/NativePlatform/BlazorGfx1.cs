@@ -1,4 +1,4 @@
-﻿using Blazor.Extensions;
+﻿﻿using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
@@ -6,9 +6,17 @@ using System.Threading.Tasks;
 
 namespace de.springwald.xml.blazor.NativePlatform
 {
-    public class BlazorGfx : IGraphics
+    public class BlazorGfx1 : IGraphics
     {
-        // public Canvas2DContext context;
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+
+        public Task SetSize(int width, int height)
+        {
+            this.Width = width;
+            this.Height = height;
+            return Task.CompletedTask;
+        }
 
         private Canvas2DContext contextCache;
 
@@ -24,7 +32,7 @@ namespace de.springwald.xml.blazor.NativePlatform
         private BECanvasComponent canvas;
         private bool isInBatch = false;
 
-        public BlazorGfx(BECanvasComponent canvas)
+        public BlazorGfx1(BECanvasComponent canvas)
         {
             this.canvas = canvas;
         }
@@ -41,7 +49,7 @@ namespace de.springwald.xml.blazor.NativePlatform
         {
             if (!isInBatch) return;
             this.isInBatch = false;
-           // await (await this.GetContext()).EndBatchAsync();
+            //await (await this.GetContext()).EndBatchAsync();
             this.contextCache = null;
         }
 
