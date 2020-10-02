@@ -20,7 +20,8 @@ namespace de.springwald.xml.editor
         public readonly int LayerAttributeBackground = 2;
         public readonly int LayerTagBorder = 3;
         public readonly int LayerClickAreas = 9;
-        public readonly int LayerText = 10;
+        public readonly int LayerCursor = 10;
+        public readonly int LayerText = 20;
 
         public int LimitLeft { get; set; }
         public int LimitRight { get; set; }

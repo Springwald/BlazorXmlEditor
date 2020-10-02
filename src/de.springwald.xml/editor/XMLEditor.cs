@@ -35,7 +35,7 @@ namespace de.springwald.xml.editor
             // if (this.NativePlatform.ControlElement != null) await this.NativePlatform.ControlElement.Invalidated.Trigger(EventArgs.Empty);
 
             var limitRight = this.NativePlatform.Gfx.Width;
-            await this.Paint(new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx }, limitRight: limitRight);
+            await this.Paint(limitRight: limitRight);
 
             // Nach einer Veränderung wird direkt der Cursor-Strich gezeichnet
             CursorBlinkOn = true;

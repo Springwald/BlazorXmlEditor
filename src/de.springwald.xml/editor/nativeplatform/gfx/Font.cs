@@ -17,11 +17,12 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         /// </summary>
         public bool Monospace { get; set; }
 
-        public Font(string name, int height, GraphicsUnit graphicsUnit)
+        public Font(string name, int height, GraphicsUnit graphicsUnit, bool monospace)
         {
             this.Name = name;
             this.Height = height;
             this.Unit = graphicsUnit;
+            this.Monospace = monospace;
         }
     }
 }

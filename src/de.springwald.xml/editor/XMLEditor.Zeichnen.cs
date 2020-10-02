@@ -21,7 +21,7 @@ namespace de.springwald.xml.editor
         /// Muss in der überschriebenen OnPoint-Methode des Zeichnungssteuerelementes
         /// aufgerufen werden
         /// </summary>
-        public async Task Paint(PaintEventArgs e, int limitRight)
+        public async Task Paint(int limitRight)
         {
             await this.NativePlatform.Gfx.ClearAsync(Color.White);
 
@@ -37,7 +37,7 @@ namespace de.springwald.xml.editor
                 };
 
                 // XML-Anzeige vorberechnen
-                var context1 =  await _rootElement.Paint(paintContext.Clone() , e);
+                var context1 =  await _rootElement.Paint(paintContext.Clone() , this.NativePlatform.Gfx);
                 _virtuelleBreite = context1.BisherMaxX + 50 - ZeichnungsOffsetX;
                 _virtuelleHoehe = context1.PaintPosY + 50 - ZeichnungsOffsetY;
 

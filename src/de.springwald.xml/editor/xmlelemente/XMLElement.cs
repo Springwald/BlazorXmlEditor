@@ -1,4 +1,4 @@
-#define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
+#define klickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
@@ -43,15 +43,6 @@ namespace de.springwald.xml.editor
         public abstract int LineHeight { get; }
 
         /// <summary>
-        /// Dort sollte der Ast des Baumes ankleben, wenn dieses Element in einem Ast des Parent gezeichnet werden soll
-        /// </summary>
-        /// <returns></returns>
-        //protected Point AnkerPos
-        //{
-        //	get { return new Point(_startX, _startY); }
-        //}
-
-        /// <summary>
         /// Konstruktor des xmlElementes
         /// </summary>
         /// <param name="xmlNode">Der zu zeichnende XML-Node</param>
@@ -71,24 +62,24 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet das XML-Element auf den Bildschirm
         /// </summary>
-        public virtual async Task<PaintContext> Paint(PaintContext paintContext, PaintEventArgs e)
+        public virtual async Task<PaintContext> Paint(PaintContext paintContext, IGraphics gfx)
         {
             if (this._disposed) return paintContext;
             if (this.XMLNode == null) return paintContext;
             if (this._xmlEditor == null) return paintContext;
 
             MausklickBereicheBufferLeeren();
-            _cursorStrichPos = new Point(paintContext.PaintPosX, paintContext.PaintPosY);
+            _cursorStrichPos = null; // new Point(paintContext.PaintPosX, paintContext.PaintPosY);
 
             // Alles zeichnen
             this._wirdGeradeGezeichnet = true;
-            await NodeZeichnenStart(paintContext, e);
-            await UnternodesZeichnen(paintContext, e);
-            await NodeZeichnenAbschluss(paintContext, e);
+            await NodeZeichnenStart(paintContext, gfx);
+            await UnternodesZeichnen(paintContext, gfx);
+            await NodeZeichnenAbschluss(paintContext, gfx);
             this._wirdGeradeGezeichnet = false;
 
 #if klickbereicheRotAnzeigen
-            KlickbereicheAnzeigen(paintContext, e);
+            KlickbereicheAnzeigen(paintContext, gfx);
 #endif
             return paintContext;
         }
@@ -96,7 +87,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected virtual async Task NodeZeichnenStart(PaintContext paintContext, PaintEventArgs e)
+        protected virtual async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx)
         {
             await Task.CompletedTask; // to prevent warning because of empty async method
                                       // vermerken, wie hoch die Zeile bisher ist
@@ -109,7 +100,7 @@ namespace de.springwald.xml.editor
         /// <param name="nachDiesemNodeNeuZeichnenErzwingen">Alle Nodes nach diesem Childnode müssen
         /// noch gezeichnet werden. Das tritt zum Beispiel ein, wenn sich der Inhalt eines Childnodes
         /// geändert hat und nun alles folgende z.B. wegen Verschiebung neu gezeichnet werden muss.</param>
-        protected virtual async Task UnternodesZeichnen(PaintContext paintContext, PaintEventArgs e)
+        protected virtual async Task UnternodesZeichnen(PaintContext paintContext, IGraphics gfx)
         {
             if (this.XMLNode is System.Xml.XmlText) // es handelt sich um einen Textnode 
             {
@@ -125,7 +116,7 @@ namespace de.springwald.xml.editor
                 }
 
                 var childPaintContext = paintContext.Clone();
-                childPaintContext.LimitLeft = paintContext.LimitLeft;
+                childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.Regelwerk.ChildEinrueckungX;
 
                 // Alle Child-Controls anzeigen und ggf. vorher anlegen
                 for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
@@ -176,7 +167,7 @@ namespace de.springwald.xml.editor
                             // Linie nach unten
                             myPen.StartCap = Pen.LineCap.SquareAnchor;
                             myPen.EndCap = Pen.LineCap.RoundAnchor;
-                            e.Graphics.AddJob(new JobDrawLine
+                            gfx.AddJob(new JobDrawLine
                             {
                                 Layer = paintContext.LayerTagBorder,
                                 Batchable = true,
@@ -190,7 +181,7 @@ namespace de.springwald.xml.editor
                             // Linie nach rechts mit Pfeil auf ChildElement
                             myPen.StartCap = Pen.LineCap.NoAnchor;
                             myPen.EndCap = Pen.LineCap.SquareAnchor; // Pfeil am Ende
-                            e.Graphics.AddJob(new JobDrawLine
+                            gfx.AddJob(new JobDrawLine
                             {
                                 Layer = paintContext.LayerTagBorder,
                                 Batchable = true,
@@ -201,7 +192,7 @@ namespace de.springwald.xml.editor
                                 Y2 = childPaintContext.PaintPosY + childElement.LineHeight / 2
                             });
 
-                            childPaintContext = await childElement.Paint(childPaintContext, e);
+                            childPaintContext = await childElement.Paint(childPaintContext, gfx);
                             // paintContext.PaintPosX = context2.PaintPosX;
                             //paintContext.PaintPosY = context2.PaintPosY;
                             break;
@@ -212,8 +203,6 @@ namespace de.springwald.xml.editor
                             // Dieses Child ist ein Fliesselement; es fügt sich in die selbe Zeile
                             // ein, wie das vorherige Element und beginnt keine neue Zeile, 
                             // es sei denn, die aktuelle Zeile ist bereits zu lang
-
-#warning Hier noch vorausschauend berechnen, d.h. die wahrscheinliche Länge des ChildElementes beim Rechnen bereits anhängen
                             if (childPaintContext.PaintPosX > paintContext.LimitRight) // Wenn die Zeile bereits zu voll ist
                             {
                                 // in nächste Zeile
@@ -226,7 +215,7 @@ namespace de.springwald.xml.editor
                                 // das Child rechts daneben setzen	
                             }
 
-                            childPaintContext = await childElement.Paint(childPaintContext, e);
+                            childPaintContext = await childElement.Paint(childPaintContext, gfx);
                             // paintContext.PaintPosX = context1.PaintPosX;
                             // paintContext.PaintPosY = context1.PaintPosY;
                             break;
@@ -266,51 +255,64 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet den Abschluss des aktuellen Nodes (z.B. einen schließenden Haken)
         /// </summary>
-        protected virtual async Task NodeZeichnenAbschluss(PaintContext paintContext, PaintEventArgs e)
+        protected virtual async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
         {
-            await ZeichneCursorStrich(e);
+            this.ZeichneCursorStrich(paintContext, gfx);
         }
 
         /// <summary>
         /// Zeichnet den senkrechten Cursorstrich
         /// </summary>
-        protected virtual async Task ZeichneCursorStrich(PaintEventArgs e)
+        protected virtual void ZeichneCursorStrich(PaintContext paintContext, IGraphics gfx)
         {
-            if (!_xmlEditor.CursorRoh.IstEtwasSelektiert) // Wenn nichts selektiert ist
-            {
-                if (this.XMLNode == this._xmlEditor.CursorOptimiert.StartPos.AktNode)  // Wenn dies überhaupt der aktuelle Node ist
-                {
-                    if ((this._xmlEditor.CursorOptimiert.StartPos.PosAmNode != XMLCursorPositionen.CursorAufNodeSelbstVorderesTag) &&
-                    (this._xmlEditor.CursorOptimiert.StartPos.PosAmNode != XMLCursorPositionen.CursorAufNodeSelbstHinteresTag))// Wenn nicht ein ganzer Node markiert ist
-                    {
-                        if (this._xmlEditor.CursorBlinkOn) // Wenn der Cursor bei diesem Male gezeichnet werden soll
-                        {
-                            // Cursor-Strich zeichnen
-                            Pen newPen = new Pen(Color.Black, 2);
-                            await e.Graphics.DrawLineAsync(newPen, _cursorStrichPos.X, _cursorStrichPos.Y + 1, _cursorStrichPos.X, _cursorStrichPos.Y + 20);
-                        }
+            if (this._cursorStrichPos == null) return;
 
-                        // merken, wo gerade der Cursor gezeichnet wird, damit dorthin gescrollt werden kann,
-                        // wenn der Cursor aus dem sichtbaren Bereich bewegt wird
-                        _xmlEditor.AktScrollingCursorPos = _cursorStrichPos;
-                    }
-                }
+            //if (!_xmlEditor.CursorRoh.IstEtwasSelektiert) // Wenn nichts selektiert ist
+            //{
+            //    if (this.XMLNode == this._xmlEditor.CursorOptimiert.StartPos.AktNode)  // Wenn dies überhaupt der aktuelle Node ist
+            //    {
+            //        if ((this._xmlEditor.CursorOptimiert.StartPos.PosAmNode != XMLCursorPositionen.CursorAufNodeSelbstVorderesTag) &&
+            //        (this._xmlEditor.CursorOptimiert.StartPos.PosAmNode != XMLCursorPositionen.CursorAufNodeSelbstHinteresTag))// Wenn nicht ein ganzer Node markiert ist
+            //        {
+            if (this._xmlEditor.CursorBlinkOn) // Wenn der Cursor bei diesem Male gezeichnet werden soll
+            {
+                // Cursor-Strich zeichnen
+                Pen newPen = new Pen(Color.Black, 2);
+                var height = (int)(Math.Max(this._xmlEditor.EditorConfig.TextNodeFont.Height, this._xmlEditor.EditorConfig.NodeNameFont.Height) * 1.6);
+                var margin = height / 5;
+                gfx.AddJob(new JobDrawLine
+                {
+                    Batchable = true,
+                    Layer = paintContext.LayerCursor,
+                    Pen = newPen,
+                    X1 = _cursorStrichPos.X,
+                    Y1 = _cursorStrichPos.Y + margin,
+                    X2 = _cursorStrichPos.X,
+                    Y2 = _cursorStrichPos.Y + height - margin
+                });
             }
+
+            // merken, wo gerade der Cursor gezeichnet wird, damit dorthin gescrollt werden kann,
+            // wenn der Cursor aus dem sichtbaren Bereich bewegt wird
+            _xmlEditor.AktScrollingCursorPos = _cursorStrichPos;
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
         /// zeichnet die per Maus klickbaren Bereiche
         /// </summary>
-        private void KlickbereicheAnzeigen(PaintContext paintContext, PaintEventArgs e)
+        private void KlickbereicheAnzeigen(PaintContext paintContext, IGraphics gfx)
         {
             var pen = new Pen(Color.Red, 1);
             foreach (Rectangle rechteck in this._klickBereiche)
             {
-                e.Graphics.AddJob(new JobDrawRectangle
+                gfx.AddJob(new JobDrawRectangle
                 {
                     Layer = paintContext.LayerClickAreas,
                     Batchable = true,
-                    Pen =  pen,
+                    Pen = pen,
                     Rectangle = rechteck
                 });
             }

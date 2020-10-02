@@ -1,7 +1,6 @@
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.helper;
 using de.springwald.xml.editor.nativeplatform.gfx;
-using de.springwald.xml.events;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +18,10 @@ namespace de.springwald.xml.editor
     /// </remarks>
     public class XMLElement_TextNode : XMLElement
     {
+
+        protected int lastFontHeight = 0;
+        protected float lastCalculatedFontWidth = 0;
+
         protected Color _farbeHintergrund_;
         protected Color _farbeHintergrundInvertiert_;
         protected Color _farbeHintergrundInvertiertOhneFokus_;
@@ -115,33 +118,36 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected override async Task NodeZeichnenStart(PaintContext paintContext, PaintEventArgs e)
+        protected override async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx)
         {
+            if (lastFontHeight != this._xmlEditor.EditorConfig.TextNodeFont.Height)
+            {
+                lastFontHeight = this._xmlEditor.EditorConfig.TextNodeFont.Height;
+                lastCalculatedFontWidth = await this._xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("W", this._xmlEditor.EditorConfig.TextNodeFont);
+            }
             paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this._xmlEditor.EditorConfig.TextNodeFont.Height);
 
             int marginY = (paintContext.HoeheAktZeile - this._xmlEditor.EditorConfig.TextNodeFont.Height) / 2;
 
-            int aktTextTeilStartPos = 0;
-            int selektionStart = -1;
-            int selektionLaenge = 0;
+            StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge);
 
-            StartUndEndeDerSelektionBestimmen(ref selektionStart, ref selektionLaenge);
-
-            _textTeile = await new TextSplitHelper().SplitText(this._xmlEditor.NativePlatform.Gfx, AktuellerInhalt, selektionStart, selektionLaenge, paintContext, this._xmlEditor.EditorConfig.TextNodeFont);
-
-            if (selektionStart != -1) _ = _textTeile.Where(t => { t.Inverted = true; return true; });
+            _textTeile = new TextSplitHelper().SplitText(AktuellerInhalt, selektionStart, selektionLaenge, paintContext, this._xmlEditor.Regelwerk.AbstandYZwischenZeilen, this._xmlEditor.EditorConfig.TextNodeFont.Height, lastCalculatedFontWidth);
 
             // Texthintergrund färben
             foreach (var teil in _textTeile)
             {
-                // SolidBrush newBrush = new SolidBrush(GetHintergrundFarbe(teil.Invertiert));
-                SolidBrush newBrush = new SolidBrush(Color.Red);
-
                 // Hintergrund füllen
-                await e.Graphics.FillRectangleAsync(newBrush, teil.Rectangle);
+                gfx.AddJob(new JobFillRectangle
+                {
+                     Layer = paintContext.LayerTagBackground,
+                     Batchable = true,
+                     Brush = new SolidBrush(GetHintergrundFarbe(teil.Inverted)),
+                     Rectangle = teil.Rectangle
+                });
             }
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
+            int aktTextTeilStartPos = 0;
             foreach (var textTeil in _textTeile)
             {
                 // ggf. den Cursorstrich berechnen
@@ -153,13 +159,12 @@ namespace de.springwald.xml.editor
                         if ((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode >= aktTextTeilStartPos) && (_xmlEditor.CursorOptimiert.StartPos.PosImTextnode <= aktTextTeilStartPos + textTeil.Text.Length))
                         {
                             // Herausfinden, wieviel Pixel die Cursor-Position im Text liegt
+                            int xCursorPos = paintContext.PaintPosX + (int)((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode - aktTextTeilStartPos) * lastCalculatedFontWidth);
+                            xCursorPos = Math.Max(paintContext.PaintPosX, xCursorPos);
 
-                            // TO DO!
-                            //int xCursorPos = paintContext.PaintPosX + (int)((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode - aktTextTeilStartPos) * breiteProBuchstabe);
-                            //xCursorPos = Math.Max(paintContext.PaintPosX, xCursorPos);
-
-                            //// Position für Cursor-Strich vermerken
-                            //this._cursorStrichPos = new Point(xCursorPos, paintContext.PaintPosY);
+                            // Position für Cursor-Strich vermerken
+                            // this._cursorStrichPos = new Point(xCursorPos, paintContext.PaintPosY + marginY);
+                            this._cursorStrichPos = new Point(xCursorPos, paintContext.PaintPosY);
                         }
                     }
                 }
@@ -171,7 +176,7 @@ namespace de.springwald.xml.editor
                 this._klickBereiche = this._klickBereiche.Append(new Rectangle(textTeil.Rectangle.X, textTeil.Rectangle.Y, textTeil.Rectangle.Width, paintContext.HoeheAktZeile)).ToArray(); // original:  this._klickBereiche.Add(textTeil.Rechteck);
 
                 // draw the text
-                e.Graphics.AddJob(new JobDrawString
+                gfx.AddJob(new JobDrawString
                 {
                     Batchable = false,
                     Layer = paintContext.LayerText,
@@ -181,7 +186,8 @@ namespace de.springwald.xml.editor
                     Y = textTeil.Rectangle.Y + marginY,
                     Font = _xmlEditor.EditorConfig.TextNodeFont
                 });
-                 paintContext.PaintPosX += textTeil.Rectangle.Width;
+                paintContext.PaintPosY = textTeil.Rectangle.Y;
+                paintContext.PaintPosX += textTeil.Rectangle.Width;
                 paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
             }
 
@@ -191,7 +197,7 @@ namespace de.springwald.xml.editor
             {
                 if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
                 {
-                    this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
+                    this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY + marginY);
                 }
             }
         }
@@ -202,21 +208,21 @@ namespace de.springwald.xml.editor
         /// <param name="point"></param>
         protected override async Task WurdeAngeklickt(Point point, MausKlickAktionen aktion)
         {
-            //// Herausfinden, an welcher Position des Textes geklickt wurde
-            //int posInZeile = 0;
-            //foreach (var teil in _textTeile) // alle Textteile durchgehen
-            //{
-            //    if (teil.Rectangle.Contains(point)) // Wenn der Klick in diesem Textteil ist
-            //    {
-            //        posInZeile += Math.Min(teil.Text.Length - 1, (int)((point.X - teil.Rectangle.X) / breiteProBuchstabe + 0.5));
-            //        break;
-            //    }
-            //    else // In diesem Textteil war der Klick nicht
-            //    {
-            //        posInZeile += teil.Text.Length;
-            //    }
-            //}
-            //await _xmlEditor.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, posInZeile, aktion);
+            // Herausfinden, an welcher Position des Textes geklickt wurde
+            int posInZeile = 0;
+            foreach (var teil in _textTeile) // alle Textteile durchgehen
+            {
+                if (teil.Rectangle.Contains(point)) // Wenn der Klick in diesem Textteil ist
+                {
+                    posInZeile += Math.Min(teil.Text.Length - 1, (int)((point.X - teil.Rectangle.X) / Math.Max(1, this.lastCalculatedFontWidth) + 0.5));
+                    break;
+                }
+                else // In diesem Textteil war der Klick nicht
+                {
+                    posInZeile += teil.Text.Length;
+                }
+            }
+            await _xmlEditor.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, posInZeile, aktion);
         }
 
         /// <summary>
@@ -259,8 +265,11 @@ namespace de.springwald.xml.editor
         /// </summary>
         /// <param name="selektionStart"></param>
         /// <param name="selektionEnde"></param>
-        private void StartUndEndeDerSelektionBestimmen(ref int selektionStart, ref int selektionLaenge)
+        private void StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge)
         {
+            selektionStart = -1;
+            selektionLaenge = 0;
+
             XMLCursor cursor = _xmlEditor.CursorOptimiert;
 
             if (cursor.StartPos.AktNode == this.XMLNode) // Der Start der Selektion liegt auf diesem Node

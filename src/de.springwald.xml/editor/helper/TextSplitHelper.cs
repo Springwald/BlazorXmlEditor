@@ -16,7 +16,7 @@ namespace de.springwald.xml.editor.helper
 
     public class TextSplitHelper
     {
-        public async Task<TextSplitPart[]> SplitText(IGraphics gfx, string text, int invertiertStart, int invertiertLaenge, PaintContext paintContext, Font drawFont)
+        public TextSplitPart[] SplitText(string text, int invertiertStart, int invertiertLaenge, PaintContext paintContext, int lineSpaceY, int fontHeight, float fontWidth)
         {
             var result = new List<TextSplitPart>();
 
@@ -24,44 +24,41 @@ namespace de.springwald.xml.editor.helper
 
             var lineContent = new StringBuilder();
             var lineWidth = 0;
-            int fontHeight = drawFont.Height;
             int lineStartX = paintContext.PaintPosX;
+            int actualX = paintContext.PaintPosX;
+            int actualY = paintContext.PaintPosY;
 
             for (int i = 0; i < parts.Length; i++)
             {
                 var part = i == 0 ? parts[i] : $" {parts[i]}";
-                var partWidth = await StringWidthHelper.MeasureStringWidth(gfx, part, drawFont);
-                if (paintContext.PaintPosX + partWidth > paintContext.LimitRight && lineWidth != 0)
+                var partWidth = (int)(part.Length * fontWidth);
+                if (actualX + partWidth > paintContext.LimitRight && lineWidth != 0)
                 {
                     // need to start next line
-                    result.Add(GetSplitPart(lineContent.ToString(), lineStartX, lineWidth, fontHeight, paintContext));
+                    result.Add(GetSplitPart(lineContent.ToString(), lineStartX, actualY, lineWidth, paintContext.HoeheAktZeile));
                     lineWidth = 0;
                     lineContent.Clear();
-                    paintContext.PaintPosX = paintContext.LimitLeft;
-                    lineStartX = paintContext.PaintPosX;
-                    paintContext.PaintPosY += paintContext.HoeheAktZeile;
+                    lineStartX = paintContext.LimitLeft;
+                    actualX = lineStartX;
+                    actualY += paintContext.HoeheAktZeile + lineSpaceY;
                 }
 
                 lineWidth += partWidth;
-                paintContext.PaintPosX += partWidth;
+                actualX += partWidth;
                 paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, fontHeight);
                 lineContent.Append(part);
             }
-            var rest = GetSplitPart(lineContent.ToString(), lineStartX, lineWidth, fontHeight, paintContext);
-            if (rest != null)
-            {
-                result.Add(rest);
-                paintContext.PaintPosX += rest.Rectangle.Width;
-            }
+            var rest = GetSplitPart(lineContent.ToString(), lineStartX, actualY, lineWidth, paintContext.HoeheAktZeile);
+            if (rest != null) result.Add(rest);
             return result.ToArray();
         }
 
-        private TextSplitPart GetSplitPart(string content, int left, int width, int lineHeight, PaintContext paintContext)
+        private TextSplitPart GetSplitPart(string content, int x, int y, int width, int height)
         {
             if (string.IsNullOrEmpty(content)) return null;
             return new TextSplitPart
             {
-                Rectangle = new Rectangle(left, paintContext.PaintPosY, width, lineHeight),
+                Rectangle = new Rectangle(x, y, width + 5, height),
                 Text = content
             };
         }
