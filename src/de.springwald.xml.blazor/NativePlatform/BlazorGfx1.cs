@@ -79,7 +79,6 @@ namespace de.springwald.xml.blazor.NativePlatform
             if (gp.Lines.Count == 0) return;
 
             var ctx = await this.GetContext();
-
             await this.SetStrokeFromPen(pen, ctx);
             // await ctx.SetLineCapAsync(this.GetLineCap(Pen.LineCap.NoAnchor));
             //  await ctx.SetLineJoinAsync(LineJoin.Round);
@@ -168,6 +167,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
             var ctx = await this.GetContext();
             await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
+            await this.SetStrokeFromPen(pen, ctx);
             await ctx.BeginPathAsync();
             await ctx.MoveToAsync(points[0].X, points[0].Y);
             for (int i = 1; i < points.Length; i++)

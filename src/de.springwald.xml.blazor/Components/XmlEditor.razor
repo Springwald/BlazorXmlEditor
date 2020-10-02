@@ -51,7 +51,7 @@
         if (firstRender)
         {
             this.nativePlattform = new BlazorNativePlatform(_canvasReference);
-            this.nativePlattform.SetSize(700, 500);
+            await this.nativePlattform.SetSize(700, 500);
             if (this.EditorContext != null) this.Init();
         }
         await base.OnAfterRenderAsync(firstRender);
@@ -64,12 +64,12 @@
 
         var config = new EditorConfig
         {
-            NodeNameFont = new Font(name: "Courier New", height: 14, graphicsUnit: Font.GraphicsUnit.Pixel),
-            NodeAttributeFont = new Font(name: "Arial", height: 12, graphicsUnit: Font.GraphicsUnit.Pixel),
-            TextNodeFont = new Font(name: "Courier New", height: 16, graphicsUnit: Font.GraphicsUnit.Pixel)
+            NodeNameFont = new Font(name: "Verdana, Geneva, sans-serif", height: 13, graphicsUnit: Font.GraphicsUnit.Pixel),
+            NodeAttributeFont = new Font(name: "Verdana, Geneva, sans-serif", height: 12, graphicsUnit: Font.GraphicsUnit.Pixel),
+            TextNodeFont = new Font(name: "\"Lucida Console\", Monaco, monospace", height: 14, graphicsUnit: Font.GraphicsUnit.Pixel)
         };
 
-        const bool allFontsSame = true;
+        const bool allFontsSame = false;
         if (allFontsSame)
         {
             config.NodeAttributeFont = config.NodeNameFont;
