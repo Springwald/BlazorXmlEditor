@@ -26,16 +26,19 @@ namespace de.springwald.xml.editor
         /// Der Inhalt des Editor-XMLs hat sich geändert
         /// </summary>
         public event EventHandler ContentChangedEvent;
+
         protected virtual async Task ContentChanged()
         {
-            ContentChangedEvent?.Invoke(this, EventArgs.Empty);
+            // ContentChangedEvent?.Invoke(this, EventArgs.Empty);
 
             // Dem Zeichnungssteuerelement Bescheid sagen, dass es neu gezeichnet werden muss
-            if (this.NativePlatform.ControlElement != null) await this.NativePlatform.ControlElement.Invalidated.Trigger(EventArgs.Empty);
+            // if (this.NativePlatform.ControlElement != null) await this.NativePlatform.ControlElement.Invalidated.Trigger(EventArgs.Empty);
+
+            var limitRight = this.NativePlatform.ControlElement.Width;
+            await this.Paint(new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx }, limitRight: limitRight);
 
             // Nach einer Veränderung wird direkt der Cursor-Strich gezeichnet
             CursorBlinkOn = true;
-
             xmlElementeAufraeumen(); // Ggf. haben durch die Änderung XMLElemente Ihren Parent verloren etc.. Daher das Aufräumen anstoßen
         }
 
@@ -191,8 +194,7 @@ namespace de.springwald.xml.editor
 
             this.NativePlatform.ControlElement.Enabled = false; // Bis zu einer Content-Zuweisung erstmal deaktiviert */
 
-            this.NativePlatform.ControlElement.Invalidated.Add(this.Invalidated);
-
+            // this.NativePlatform.ControlElement.Invalidated.Add(this.Invalidated);
 
             _cursor = new XMLCursor();
             _cursor.ChangedEvent.Add(this._cursor_ChangedEvent);
@@ -205,11 +207,11 @@ namespace de.springwald.xml.editor
             InitScrolling();
         }
 
-        private async Task Invalidated(EventArgs data)
-        {
-            var limitRight = this.NativePlatform.ControlElement.Width;
-            await this.Paint(new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx }, limitRight: limitRight);
-        }
+        //private async Task Invalidated(EventArgs data)
+        //{
+        //    var limitRight = this.NativePlatform.ControlElement.Width;
+        //    await this.Paint(new events.PaintEventArgs { Graphics = this.NativePlatform.Gfx }, limitRight: limitRight);
+        //}
 
         /// <summary>
         /// Stellt ein XML-Steuerelement-Element bereit
@@ -234,7 +236,8 @@ namespace de.springwald.xml.editor
 
             if (this.NativePlatform.ControlElement != null)
             {
-                await this.NativePlatform.ControlElement.Invalidated.Trigger(e);
+                await this.ContentChanged();
+                // await this.NativePlatform.ControlElement.Invalidated.Trigger(e);
             }
 
             // Nach einer Cursorbewegung wird der Cursor zunächst als Strich gezeichnet

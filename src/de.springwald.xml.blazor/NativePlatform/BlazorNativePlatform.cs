@@ -18,13 +18,13 @@ namespace de.springwald.xml.blazor.NativePlatform {
         public IGraphics Gfx { get; }
 
 
-        public BlazorNativePlatform(BECanvasComponent canvas, Canvas2DContext context)
+        public BlazorNativePlatform(BECanvasComponent canvas)
         {
             this.Clipboard = new BlazorClipboard();
             this.ControlElement = new BlazorControlElement(canvas);
             this.InputEvents = new BlazorInputEvents();
             this.Focus = new BlazorFocus();
-            this.Gfx = new BlazorGfx(context, canvas);
+            this.Gfx = new BlazorGfx(canvas);
         }
 
         public void ProtokolliereFehler(string v)

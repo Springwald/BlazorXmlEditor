@@ -114,12 +114,12 @@ namespace de.springwald.xml.editor
 
         async Task _hScrollBar_ValueChanged(object sender, EventArgs e)
         {
-            await this.NativePlatform.ControlElement.Invalidated.Trigger(EventArgs.Empty);
+         //   await this.NativePlatform.ControlElement.Invalidated.Trigger(EventArgs.Empty);
         }
 
         async Task _vScrollBar_ValueChanged(object sender, EventArgs e)
         {
-            await this.NativePlatform.ControlElement.Invalidated.Trigger(EventArgs.Empty);
+           // await this.NativePlatform.ControlElement.Invalidated.Trigger(EventArgs.Empty);
         }
 
 

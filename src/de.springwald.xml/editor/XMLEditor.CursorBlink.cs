@@ -121,14 +121,14 @@ namespace de.springwald.xml.editor
             if (HatFokus) // Fokus ist im Zeichnungselement
             {
                 _cursorBlinkOn = (!_cursorBlinkOn);
-                await this.NativePlatform.ControlElement.Invalidated.Trigger(null);
+                // await this.NativePlatform.ControlElement.Invalidated.Trigger(null);
             }
             else // Fokus ist nicht im Zeichnungssteuerelement
             {
                 if (_cursorBlinkOn == true) // Muss noch ausgeschaltet werden?
                 {
                     _cursorBlinkOn = false;
-                    await this.NativePlatform.ControlElement.Invalidated.Trigger(null);
+                   //  await this.NativePlatform.ControlElement.Invalidated.Trigger(null);
                 }
             }
         }

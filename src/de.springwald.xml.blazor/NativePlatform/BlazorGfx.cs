@@ -8,35 +8,46 @@ namespace de.springwald.xml.blazor.NativePlatform
 {
     public class BlazorGfx : IGraphics
     {
-        private Canvas2DContext context;
+        // public Canvas2DContext context;
+
+        private Canvas2DContext contextCache;
+
+        private async Task<Canvas2DContext> GetContext()
+        {
+            if (this.contextCache == null)
+            {
+                this.contextCache = await this.canvas.CreateCanvas2DAsync();
+            }
+            return this.contextCache;
+        }
+
         private BECanvasComponent canvas;
         private bool isInBatch = false;
 
-        public BlazorGfx(Canvas2DContext context, Blazor.Extensions.BECanvasComponent canvas)
+        public BlazorGfx(BECanvasComponent canvas)
         {
-            this.context = context;
             this.canvas = canvas;
         }
 
         public async Task StartBatch()
         {
             if (this.isInBatch) await this.EndBatch();
+            this.contextCache = null;
             this.isInBatch = true;
-
-            //await  this.context.BeginBatchAsync();
+            //await (await this.GetContext()).BeginBatchAsync();
         }
 
         public async Task EndBatch()
         {
             if (!isInBatch) return;
             this.isInBatch = false;
-
-            //await this.context.EndBatchAsync();
+           // await (await this.GetContext()).EndBatchAsync();
+            this.contextCache = null;
         }
 
         public async Task DrawLineAsync(Pen pen, int x1, int y1, int x2, int y2)
         {
-            var ctx = this.context;
+            var ctx = await this.GetContext();
             await this.SetStrokeFromPen(pen, ctx);
 
             await ctx.BeginPathAsync();
@@ -55,7 +66,7 @@ namespace de.springwald.xml.blazor.NativePlatform
         {
             if (gp.Lines.Count == 0) return;
 
-            var ctx = this.context;
+            var ctx = await this.GetContext();
 
             await this.SetStrokeFromPen(pen, ctx);
             // await ctx.SetLineCapAsync(this.GetLineCap(Pen.LineCap.NoAnchor));
@@ -69,7 +80,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task DrawRectangleAsync(Pen pen, Rectangle rectangle)
         {
-            var ctx = this.context;
+            var ctx = await this.GetContext();
             await this.SetStrokeFromPen(pen, ctx);
             await ctx.StrokeRectAsync(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
             await ResetStroke(ctx);
@@ -77,7 +88,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task DrawStringAsync(string text, Font font, SolidBrush brush, int x, int y)
         {
-            var ctx = this.context;
+            var ctx = await this.GetContext();
             await ctx.SetFillStyleAsync(brush.Color.AsHtml);
             await this.SetFontFormat(ctx, font);
             await ctx.FillTextAsync(text, x, y);
@@ -86,8 +97,9 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task<float> MeasureDisplayStringWidthAsync(string text, Font font)
         {
-            var ctx = this.context;
+            var ctx = await this.GetContext();
             await this.SetFontFormat(ctx, font);
+            //await Task.Delay(1000);
             var size = await ctx.MeasureTextAsync(text);
             return (float)size.Width;
         }
@@ -106,7 +118,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.SetTextBaselineAsync(TextBaseline.Top);
             if (!targetFont.Equals(ctx.Font))
             {
-                await ctx.SetFontAsync(targetFont); 
+                await ctx.SetFontAsync(targetFont);
             }
         }
 
@@ -114,7 +126,7 @@ namespace de.springwald.xml.blazor.NativePlatform
         {
             if (gp.Lines.Count == 0) return;
 
-            var ctx = this.context;
+            var ctx = await this.GetContext();
             await ctx.SetFillStyleAsync(brush.Color.AsHtml);
             await ctx.BeginPathAsync();
             await LinePath(gp, ctx);
@@ -126,7 +138,7 @@ namespace de.springwald.xml.blazor.NativePlatform
         {
             if (points.Length == 0) return;
 
-            var ctx = this.context;
+            var ctx = await this.GetContext();
             await ctx.SetFillStyleAsync(brush.Color.AsHtml);
             await ctx.BeginPathAsync();
             await ctx.MoveToAsync(points[0].X, points[0].Y);
@@ -145,7 +157,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task ClearAsync(Color color)
         {
-            var ctx = this.context;
+            var ctx = await this.GetContext();
             if (color != Color.White)
             {
                 await ctx.SetFillStyleAsync(color.AsHtml);
@@ -205,7 +217,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.SetStrokeStyleAsync(col);
 
             //if (ctx.LineWidth != pen.Width) 
-           //     await ctx.SetLineWidthAsync(pen.Width);
+            //     await ctx.SetLineWidthAsync(pen.Width);
 
             // await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
         }

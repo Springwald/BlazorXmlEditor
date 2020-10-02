@@ -38,9 +38,9 @@ namespace de.springwald.xml.editor
         private const int _pfeilLaenge = 7;         // so dick ist der zu zeichnende Pfeil
         private const int _pfeilDicke = 7;          // so lang ist der zu zeichnende Pfeil
 
-        private int innerMarginX => (this._xmlEditor.EditorConfig.NodeNameFont.Height) / 1;
+        private int innerMarginX => (this._xmlEditor.EditorConfig.NodeNameFont.Height) / 2;
 
-        private int innerMarginY => Math.Max(1, this._xmlEditor.EditorConfig.NodeNameFont.Height / 2);
+        private int innerMarginY => Math.Max(1, this._xmlEditor.EditorConfig.NodeNameFont.Height / 3);
 
         private int tagHeight => this._xmlEditor.EditorConfig.NodeNameFont.Height + innerMarginY * 2;
 

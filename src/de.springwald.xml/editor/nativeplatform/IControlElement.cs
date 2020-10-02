@@ -13,7 +13,7 @@ namespace de.springwald.xml.editor.nativeplatform
         /// <summary>
         /// Repaint native control
         /// </summary>
-        XmlAsyncEvent<EventArgs> Invalidated { get; }
+        // XmlAsyncEvent<EventArgs> Invalidated { get; }
 
     }
 }

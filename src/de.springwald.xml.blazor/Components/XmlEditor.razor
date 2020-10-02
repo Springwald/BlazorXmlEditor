@@ -25,7 +25,7 @@
     public de.springwald.xml.editor.XMLEditor Editor;
     protected BECanvasComponent _canvasReference;
     protected ElementReference _canvasDivReference;
-    protected de.springwald.xml.editor.nativeplatform.INativePlatform nativePlattform;
+    protected BlazorNativePlatform nativePlattform;
 
     [Parameter]
     public XmlEditorContext EditorContext
@@ -50,25 +50,25 @@
     {
         if (firstRender)
         {
-            this.nativePlattform = new BlazorNativePlatform(_canvasReference, await this._canvasReference.CreateCanvas2DAsync());
+            this.nativePlattform = new BlazorNativePlatform(_canvasReference);
             if (this.EditorContext != null) this.Init();
-            await base.OnAfterRenderAsync(firstRender);
         }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
-    private void Init()
+    private void Init() 
     {
         if (this.initDone) return;
         this.initDone = true;
 
         var config = new EditorConfig
         {
-            NodeNameFont = new Font(name: "Arial", height: 18, graphicsUnit: Font.GraphicsUnit.Pixel),
-            NodeAttributeFont = new Font(name: "Courier New", height: 12, graphicsUnit: Font.GraphicsUnit.Pixel),
-            TextNodeFont = new Font(name: "Courier New", height: 14, graphicsUnit: Font.GraphicsUnit.Pixel)
+            NodeNameFont = new Font(name: "Arial", height: 14, graphicsUnit: Font.GraphicsUnit.Pixel),
+            NodeAttributeFont = new Font(name: "Arial", height: 12, graphicsUnit: Font.GraphicsUnit.Pixel),
+            TextNodeFont = new Font(name: "Courier New", height: 16, graphicsUnit: Font.GraphicsUnit.Pixel)
         };
 
-        const bool allFontsSame = true;
+        const bool allFontsSame = false;
         if (allFontsSame)
         {
             config.NodeAttributeFont = config.NodeNameFont;
