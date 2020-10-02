@@ -106,7 +106,17 @@ namespace de.springwald.xml.editor
             paintContext.PaintPosX += innerMarginX;  // margin to left border
 
             // draw node name
-            await e.Graphics.DrawStringAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont, drawBrush, paintContext.PaintPosX, paintContext.PaintPosY + innerMarginY);
+            e.Graphics.AddJob(new JobDrawString
+            {
+                Batchable = false,
+                Layer = paintContext.TextLayer,
+                Text = this.XMLNode.Name,
+                Brush = drawBrush,
+                X = paintContext.PaintPosX,
+                Y = paintContext.PaintPosY + innerMarginY,
+                Font = _xmlEditor.EditorConfig.NodeNameFont
+            });
+
             paintContext.PaintPosX += nodeNameTextWidth + innerMarginX; 
 
             // draw the attributes
@@ -189,7 +199,17 @@ namespace de.springwald.xml.editor
 
             // Attribute zeichnen
             var attributeInnerMarginY = (attributeHeight - this._xmlEditor.EditorConfig.NodeAttributeFont.Height) / 2;
-            await e.Graphics.DrawStringAsync(attributeString.ToString(), this._xmlEditor.EditorConfig.NodeAttributeFont, drawBrush, paintContext.PaintPosX, paintContext.PaintPosY + attributeMarginY + attributeInnerMarginY); ;
+
+            e.Graphics.AddJob(new JobDrawString
+            {
+                Batchable = false,
+                Layer = paintContext.TextLayer,
+                Text = attributeString.ToString(),
+                Brush = drawBrush,
+                X = paintContext.PaintPosX,
+                Y = paintContext.PaintPosY + attributeMarginY + attributeInnerMarginY,
+                Font = _xmlEditor.EditorConfig.NodeAttributeFont
+            });
 
             // Zeichencursor hinter die Attribute setzen
             paintContext.PaintPosX += attributeBreite + innerMarginX;  
@@ -235,8 +255,20 @@ namespace de.springwald.xml.editor
                     // ## Name für schließenden Node zeichnen ###
                     // Pinsel bereitstellen
                     SolidBrush drawBrush = new SolidBrush(_farbeNodeNameSchrift);
+
                     // Den Namen des Nodes schreiben
-                    await e.Graphics.DrawStringAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont, drawBrush, paintContext.PaintPosX, paintContext.PaintPosY + innerMarginY);
+                    e.Graphics.AddJob(new JobDrawString
+                    {
+                        Batchable = false,
+                        Layer = paintContext.TextLayer,
+                        Text = this.XMLNode.Name,
+                        Brush = drawBrush,
+                        X = paintContext.PaintPosX,
+                        Y = paintContext.PaintPosY + innerMarginY,
+                        Font = _xmlEditor.EditorConfig.NodeNameFont
+                    });
+                    //await e.Graphics.DrawStringAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont, drawBrush, paintContext.PaintPosX, paintContext.PaintPosY + innerMarginY);
+
                     paintContext.PaintPosX += schriftBreite + innerMarginX; // Abstand zwischen Schrift und Rahmen
 
                     // Ein Pixel weiter nach rechts, weil wir sonst auf der Rahmenlinie zeichnen

@@ -23,7 +23,6 @@ namespace de.springwald.xml.editor
         protected Color _farbeHintergrundInvertiert_;
         protected Color _farbeHintergrundInvertiertOhneFokus_;
 
-
         protected SolidBrush _drawBrush_;
         protected SolidBrush _drawBrushInvertiert_;
         protected SolidBrush _drawBrushInvertiertOhneFokus_;
@@ -170,8 +169,19 @@ namespace de.springwald.xml.editor
 
                 // für die Klickbereiche merken, wohin dieser Textteil gezeichnet wird 
                 this._klickBereiche = this._klickBereiche.Append(new Rectangle(textTeil.Rectangle.X, textTeil.Rectangle.Y, textTeil.Rectangle.Width, paintContext.HoeheAktZeile)).ToArray(); // original:  this._klickBereiche.Add(textTeil.Rechteck);
-                                                                                                                                                                                             // Die Schrift zeichnen
-                await e.Graphics.DrawStringAsync(textTeil.Text, this._xmlEditor.EditorConfig.TextNodeFont, GetZeichenFarbe(textTeil.Inverted), textTeil.Rectangle.X, textTeil.Rectangle.Y + marginY);
+
+                // draw the text
+                e.Graphics.AddJob(new JobDrawString
+                {
+                    Batchable = false,
+                    Layer = paintContext.TextLayer,
+                    Text = textTeil.Text,
+                    Brush = GetZeichenFarbe(textTeil.Inverted),
+                    X = textTeil.Rectangle.X,
+                    Y = textTeil.Rectangle.Y + marginY,
+                    Font = _xmlEditor.EditorConfig.TextNodeFont
+                });
+                // await e.Graphics.DrawStringAsync(textTeil.Text, this._xmlEditor.EditorConfig.TextNodeFont, GetZeichenFarbe(textTeil.Inverted), textTeil.Rectangle.X, textTeil.Rectangle.Y + marginY);
 
                 paintContext.PaintPosX += textTeil.Rectangle.Width;
                 paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);

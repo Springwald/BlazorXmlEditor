@@ -11,6 +11,9 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         Task StartBatch();
         Task EndBatch();
 
+        void AddJob(IGfxJob job);
+        Task PaintJobs();
+
         Task DrawLineAsync(Pen myPen, int x1, int y1, int x2, int y2);
 
         Task DrawPathAsync(Pen newPen, GraphicsPath gp);
@@ -22,7 +25,7 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 
         Task ClearAsync(Color color);
 
-        Task DrawStringAsync(string name, Font drawFontNodeName, SolidBrush drawBrush, int posX, int v);
+        Task DrawStringAsync(string name, Font drawFontNodeName, SolidBrush drawBrush, int x, int y);
         // Task  SizeF MeasureString(string text, Font drawFont, int maxWidth, StringFormat drawFormat);
 
         Task<float> MeasureDisplayStringWidthAsync(string text, Font drawFont);

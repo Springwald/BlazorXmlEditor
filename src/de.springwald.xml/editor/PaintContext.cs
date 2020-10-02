@@ -16,6 +16,8 @@ namespace de.springwald.xml.editor
     /// </remarks>
     public class PaintContext
     {
+        public readonly int TextLayer = 10;
+
         public int LimitLeft { get; set; }
         public int LimitRight { get; set; }
 

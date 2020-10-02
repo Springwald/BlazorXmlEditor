@@ -2,6 +2,8 @@
 using Blazor.Extensions.Canvas.Canvas2D;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.blazor.NativePlatform
@@ -10,6 +12,8 @@ namespace de.springwald.xml.blazor.NativePlatform
     {
         public int Width { get; private set; }
         public int Height { get; private set; }
+
+        private List<IGfxJob> jobs = new List<IGfxJob>();
 
         public Task SetSize(int width, int height)
         {
@@ -237,6 +241,20 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.SetLineCapAsync(LineCap.Butt);
         }
 
+
+        public void AddJob(IGfxJob job)
+        {
+            this.jobs.Add(job);
+        }
+
+        public async Task PaintJobs()
+        {
+            foreach(var job in this.jobs)
+            {
+                await job.Paint(this);
+            }
+            this.jobs.Clear();
+        }
 
     }
 }
