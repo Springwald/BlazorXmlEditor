@@ -14,11 +14,11 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 
         public Font Font { get; set; }
 
-        public SolidBrush Brush { get; set; }
+        public Color Color  { get; set; }
 
         public async Task Paint(IGraphics gfx)
         {
-            await gfx.DrawStringAsync(this.Text, this.Font, this.Brush, this.X, this.Y);
+            await gfx.DrawStringAsync(this.Text, this.Font, this.Color, this.X, this.Y);
         }
     }
 }

@@ -26,9 +26,9 @@ namespace de.springwald.xml.editor
         protected Color _farbeHintergrundInvertiert_;
         protected Color _farbeHintergrundInvertiertOhneFokus_;
 
-        protected SolidBrush _drawBrush_;
-        protected SolidBrush _drawBrushInvertiert_;
-        protected SolidBrush _drawBrushInvertiertOhneFokus_;
+        protected Color _drawBrush_;
+        protected Color _drawBrushInvertiert_;
+        protected Color _drawBrushInvertiertOhneFokus_;
 
         private TextSplitPart[] _textTeile;  // Buffer der einzelnen, gezeichneten Zeilen. Jeder entspricht einem Klickbereich
 
@@ -66,7 +66,7 @@ namespace de.springwald.xml.editor
             }
         }
 
-        private SolidBrush GetZeichenFarbe(bool invertiert)
+        private Color GetZeichenFarbe(bool invertiert)
         {
             if (invertiert)
             {
@@ -141,7 +141,7 @@ namespace de.springwald.xml.editor
                 {
                      Layer = paintContext.LayerTagBackground,
                      Batchable = true,
-                     Brush = new SolidBrush(GetHintergrundFarbe(teil.Inverted)),
+                     Color = GetHintergrundFarbe(teil.Inverted),
                      Rectangle = teil.Rectangle
                 });
             }
@@ -181,7 +181,7 @@ namespace de.springwald.xml.editor
                     Batchable = false,
                     Layer = paintContext.LayerText,
                     Text = textTeil.Text,
-                    Brush = GetZeichenFarbe(textTeil.Inverted),
+                    Color = GetZeichenFarbe(textTeil.Inverted),
                     X = textTeil.Rectangle.X,
                     Y = textTeil.Rectangle.Y + marginY,
                     Font = _xmlEditor.EditorConfig.TextNodeFont
@@ -190,7 +190,6 @@ namespace de.springwald.xml.editor
                 paintContext.PaintPosX += textTeil.Rectangle.Width;
                 paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
             }
-
 
             // ggf. den Cursorstrich hinter dem Node berechnen
             if (this.XMLNode == _xmlEditor.CursorOptimiert.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
@@ -232,15 +231,15 @@ namespace de.springwald.xml.editor
         {
             // Die Farben für "nicht invertiert" definieren
             _farbeHintergrund_ = this._xmlEditor.NativePlatform.ControlElement.BackColor;
-            _drawBrush_ = new SolidBrush(Color.Black);  // Schrift-Pinsel bereitstellen;
+            _drawBrush_ = Color.Black;  // Schrift-Pinsel bereitstellen;
 
             // Die Farben für "invertiert" definieren
             _farbeHintergrundInvertiert_ = Color.DarkBlue;
-            _drawBrushInvertiert_ = new SolidBrush(Color.White);    // Schrift-Pinsel bereitstellen;
+            _drawBrushInvertiert_ = Color.White;    // Schrift-Pinsel bereitstellen;
 
             // Die Farben für schwach "invertiert" definieren
             _farbeHintergrundInvertiertOhneFokus_ = Color.Gray;
-            _drawBrushInvertiertOhneFokus_ = new SolidBrush(Color.White);   // Schrift-Pinsel bereitstellen;
+            _drawBrushInvertiertOhneFokus_ = Color.White;   // Schrift-Pinsel bereitstellen;
         }
 
         /// <summary>

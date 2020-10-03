@@ -61,16 +61,10 @@ namespace de.springwald.xml.blazor.NativePlatform
         {
             var ctx = await this.GetContext();
             await this.SetStrokeFromPen(pen, ctx);
-
             await ctx.BeginPathAsync();
-            await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
-            await ctx.SetLineCapAsync(this.GetLineCap(pen.StartCap));
             await ctx.MoveToAsync(x1, y1);
-
-            await ctx.SetLineCapAsync(this.GetLineCap(pen.EndCap));
             await ctx.LineToAsync(x2, y2);
             await ctx.StrokeAsync();
-
             await ResetStroke(ctx);
         }
 
@@ -97,10 +91,10 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ResetStroke(ctx);
         }
 
-        public async Task DrawStringAsync(string text, Font font, SolidBrush brush, int x, int y)
+        public async Task DrawStringAsync(string text, Font font, Color color, int x, int y)
         {
             var ctx = await this.GetContext();
-            await ctx.SetFillStyleAsync(brush.Color.AsHtml);
+            await ctx.SetFillStyleAsync(color.AsHtml);
             await this.SetFontFormat(ctx, font);
             await ctx.FillTextAsync(text, x, y);
             await ResetStroke(ctx);
@@ -133,24 +127,24 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
-        public async Task FillPathAsync(SolidBrush brush, GraphicsPath gp)
+        public async Task FillPathAsync(Color color, GraphicsPath gp)
         {
             if (gp.Lines.Count == 0) return;
 
             var ctx = await this.GetContext();
-            await ctx.SetFillStyleAsync(brush.Color.AsHtml);
+            await ctx.SetFillStyleAsync(color.AsHtml);
             await ctx.BeginPathAsync();
             await LinePath(gp, ctx);
             await ctx.FillAsync();
             await ResetStroke(ctx);
         }
 
-        public async Task FillPolygonAsync(SolidBrush brush, Point[] points)
+        public async Task FillPolygonAsync(Color color, Point[] points)
         {
             if (points.Length == 0) return;
 
             var ctx = await this.GetContext();
-            await ctx.SetFillStyleAsync(brush.Color.AsHtml);
+            await ctx.SetFillStyleAsync(color.AsHtml);
             await ctx.BeginPathAsync();
             await ctx.MoveToAsync(points[0].X, points[0].Y);
             for (int i = 1; i < points.Length; i++)
@@ -166,7 +160,6 @@ namespace de.springwald.xml.blazor.NativePlatform
             if (points.Length == 0) return;
 
             var ctx = await this.GetContext();
-            await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
             await this.SetStrokeFromPen(pen, ctx);
             await ctx.BeginPathAsync();
             await ctx.MoveToAsync(points[0].X, points[0].Y);
@@ -178,7 +171,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.StrokeAsync();
         }
 
-        public async Task FillRectangleAsync(SolidBrush newBrush, Rectangle rechteck)
+        public async Task FillRectangleAsync(Color color, Rectangle rechteck)
         {
             await Task.CompletedTask; // to prevent warning because of empty async method
         }
@@ -210,31 +203,6 @@ namespace de.springwald.xml.blazor.NativePlatform
                     await ctx.LineToAsync(gp.Lines[i].X1, gp.Lines[i].Y1);
                 }
                 await ctx.LineToAsync(gp.Lines[i].X2, gp.Lines[i].Y2);
-            }
-        }
-
-        private LineCap GetLineCap(Pen.LineCap cap)
-        {
-            switch (cap)
-            {
-                case Pen.LineCap.NoAnchor: return LineCap.Butt;
-                case Pen.LineCap.SquareAnchor: return LineCap.Square;
-                case Pen.LineCap.RoundAnchor: return LineCap.Round;
-                default: throw new ArgumentOutOfRangeException($"{nameof(cap)}: {cap.ToString()}");
-            }
-        }
-
-        private float[] GetDashStyle(Pen.DashStyles dashStyle)
-        {
-            switch (dashStyle)
-            {
-                case Pen.DashStyles.Solid:
-                    return new float[] { };
-
-                case Pen.DashStyles.Dash:
-                    return new float[] { 1, 4 };
-
-                default: throw new ArgumentOutOfRangeException($"{nameof(dashStyle)}: {dashStyle.ToString()}");
             }
         }
 

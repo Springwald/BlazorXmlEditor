@@ -1,4 +1,4 @@
-#define klickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
+#define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
@@ -161,12 +161,10 @@ namespace de.springwald.xml.editor
                             childPaintContext.HoeheAktZeile = 0; // noch kein Element in dieser Zeile, daher Hoehe 0
                                                                  // X-Cursor auf den Start der neuen Zeile setzen
                                                                  // Linie nach unten und dann nach rechts ins ChildElement
-                            Pen myPen = new Pen(Color.Gray, 1);
-                            myPen.DashStyle = Pen.DashStyles.Dash;
+                            Pen myPen = new Pen(Color.LightGray, 1);
+                            // myPen.DashStyle = Pen.DashStyles.Dash;
 
                             // Linie nach unten
-                            myPen.StartCap = Pen.LineCap.SquareAnchor;
-                            myPen.EndCap = Pen.LineCap.RoundAnchor;
                             gfx.AddJob(new JobDrawLine
                             {
                                 Layer = paintContext.LayerTagBorder,
@@ -179,8 +177,6 @@ namespace de.springwald.xml.editor
                             });
 
                             // Linie nach rechts mit Pfeil auf ChildElement
-                            myPen.StartCap = Pen.LineCap.NoAnchor;
-                            myPen.EndCap = Pen.LineCap.SquareAnchor; // Pfeil am Ende
                             gfx.AddJob(new JobDrawLine
                             {
                                 Layer = paintContext.LayerTagBorder,

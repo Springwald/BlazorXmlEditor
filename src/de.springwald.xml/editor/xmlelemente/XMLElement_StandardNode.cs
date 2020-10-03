@@ -71,8 +71,6 @@ namespace de.springwald.xml.editor
             this.FarbenSetzen();
 
             // ### Den Namen des Nodes schreiben ###
-            // Pinsel für Node-Name-Schrift bereitstellen
-            var drawBrush = new SolidBrush(_farbeNodeNameSchrift);
 
             // Pre-calculate the width of the node name
             int nodeNameTextWidth = (int)(await this._xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont));
@@ -98,7 +96,7 @@ namespace de.springwald.xml.editor
                 Batchable = false,
                 Layer = paintContext.LayerText,
                 Text = this.XMLNode.Name,
-                Brush = drawBrush,
+                Color = _farbeNodeNameSchrift,
                 X = paintContext.PaintPosX,
                 Y = paintContext.PaintPosY + innerMarginY,
                 Font = _xmlEditor.EditorConfig.NodeNameFont
@@ -122,7 +120,7 @@ namespace de.springwald.xml.editor
                 {
                     Batchable = true,
                     Layer = paintContext.LayerTagBorder,
-                    Brush = new SolidBrush(_farbeRahmenRand),
+                    Color = _farbeRahmenRand,
                     Points = new[] { point1, point2, point3 }
                 });
 
@@ -186,18 +184,13 @@ namespace de.springwald.xml.editor
                 attributeBreite, attributeHeight, 2,
               _farbeAttributeHintergrund, _farbeAttributeRand, gfx);
 
-            // Pinsel bereitstellen
-            SolidBrush drawBrush = new SolidBrush(_farbeAttributeSchrift);
-
             // Attribute zeichnen
-
-
             gfx.AddJob(new JobDrawString
             {
                 Batchable = false,
                 Layer = paintContext.LayerText,
                 Text = attributeString.ToString(),
-                Brush = drawBrush,
+                Color = _farbeAttributeSchrift,
                 X = paintContext.PaintPosX,
                 Y = paintContext.PaintPosY + attributeMarginY + attributeInnerMarginY + 1,
                 Font = _xmlEditor.EditorConfig.NodeAttributeFont
@@ -239,7 +232,7 @@ namespace de.springwald.xml.editor
                 {
                     Batchable = true,
                     Layer = paintContext.LayerTagBorder,
-                    Brush = new SolidBrush(_farbeRahmenRand),
+                    Color = _farbeRahmenRand,
                     Points = new[] { point1, point2, point3 }
                 });
 
@@ -252,16 +245,13 @@ namespace de.springwald.xml.editor
                 paintContext.PaintPosX += innerMarginX; // Abstand zwischen Rahmen und Schrift
 
                 // ## Name für schließenden Node zeichnen ###
-                // Pinsel bereitstellen
-                SolidBrush drawBrush = new SolidBrush(_farbeNodeNameSchrift);
-
                 // Den Namen des Nodes schreiben
                 gfx.AddJob(new JobDrawString
                 {
                     Batchable = false,
                     Layer = paintContext.LayerText,
                     Text = this.XMLNode.Name,
-                    Brush = drawBrush,
+                    Color = _farbeNodeNameSchrift,
                     X = paintContext.PaintPosX,
                     Y = paintContext.PaintPosY + innerMarginY,
                     Font = _xmlEditor.EditorConfig.NodeNameFont
@@ -345,7 +335,7 @@ namespace de.springwald.xml.editor
                 {
                     Batchable = true,
                     Layer = layer,
-                    Brush = new SolidBrush(fuellFarbe),
+                    Color = fuellFarbe,
                     Points = points
                 });
             }
@@ -354,8 +344,6 @@ namespace de.springwald.xml.editor
             {
                 // Rahmen zeichnen
                 var pen = new Pen(color: rahmenFarbe, width: 1);
-                pen.EndCap = Pen.LineCap.NoAnchor;
-                pen.StartCap = Pen.LineCap.NoAnchor;
                 gfx.AddJob(new JobDrawPolygon
                 {
                     Batchable = true,
