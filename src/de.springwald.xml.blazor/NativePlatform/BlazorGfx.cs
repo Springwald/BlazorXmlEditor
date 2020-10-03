@@ -8,21 +8,19 @@ using System.Threading.Tasks;
 
 namespace de.springwald.xml.blazor.NativePlatform
 {
-    public class BlazorGfx1 : IGraphics
+    public class BlazorGfx : IGraphics
     {
+        private List<IGfxJob> jobs = new List<IGfxJob>();
+        private Canvas2DContext contextCache;
+        private BECanvasComponent canvas;
+        private bool isInBatch = false;
+
         public int Width { get; private set; }
         public int Height { get; private set; }
-
-        private List<IGfxJob> jobs = new List<IGfxJob>();
-
-        public Task SetSize(int width, int height)
+        public BlazorGfx(BECanvasComponent canvas)
         {
-            this.Width = width;
-            this.Height = height;
-            return Task.CompletedTask;
+            this.canvas = canvas;
         }
-
-        private Canvas2DContext contextCache;
 
         private async Task<Canvas2DContext> GetContext()
         {
@@ -33,12 +31,11 @@ namespace de.springwald.xml.blazor.NativePlatform
             return this.contextCache;
         }
 
-        private BECanvasComponent canvas;
-        private bool isInBatch = false;
-
-        public BlazorGfx1(BECanvasComponent canvas)
+        public Task SetSize(int width, int height)
         {
-            this.canvas = canvas;
+            this.Width = width;
+            this.Height = height;
+            return Task.CompletedTask;
         }
 
         public async Task StartBatch()
@@ -65,21 +62,6 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.MoveToAsync(x1, y1);
             await ctx.LineToAsync(x2, y2);
             await ctx.StrokeAsync();
-            await ResetStroke(ctx);
-        }
-
-        public async Task DrawPathAsync(Pen pen, GraphicsPath gp)
-        {
-            if (gp.Lines.Count == 0) return;
-
-            var ctx = await this.GetContext();
-            await this.SetStrokeFromPen(pen, ctx);
-            // await ctx.SetLineCapAsync(this.GetLineCap(Pen.LineCap.NoAnchor));
-            //  await ctx.SetLineJoinAsync(LineJoin.Round);
-            //  await ctx.SetStrokeStyleAsync("");
-            await LinePath(gp, ctx);
-            await ctx.StrokeAsync();
-
             await ResetStroke(ctx);
         }
 
@@ -125,18 +107,6 @@ namespace de.springwald.xml.blazor.NativePlatform
             {
                 await ctx.SetFontAsync(targetFont);
             }
-        }
-
-        public async Task FillPathAsync(Color color, GraphicsPath gp)
-        {
-            if (gp.Lines.Count == 0) return;
-
-            var ctx = await this.GetContext();
-            await ctx.SetFillStyleAsync(color.AsHtml);
-            await ctx.BeginPathAsync();
-            await LinePath(gp, ctx);
-            await ctx.FillAsync();
-            await ResetStroke(ctx);
         }
 
         public async Task FillPolygonAsync(Color color, Point[] points)
@@ -192,30 +162,12 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         // ######### private helpers ##########
 
-        private static async Task LinePath(GraphicsPath gp, Canvas2DContext ctx)
-        {
-            await ctx.MoveToAsync(gp.Lines[0].X1, gp.Lines[0].Y1);
-            await ctx.LineToAsync(gp.Lines[0].X2, gp.Lines[0].Y2);
-            for (int i = 1; i < gp.Lines.Count; i++)
-            {
-                if (gp.Lines[i].X1 != gp.Lines[i - 1].X2 || gp.Lines[i].Y1 != gp.Lines[i - 1].Y2)
-                {
-                    await ctx.LineToAsync(gp.Lines[i].X1, gp.Lines[i].Y1);
-                }
-                await ctx.LineToAsync(gp.Lines[i].X2, gp.Lines[i].Y2);
-            }
-        }
 
         private async Task SetStrokeFromPen(Pen pen, Canvas2DContext ctx)
         {
             var col = pen.Color.AsHtml;
-            // if (!col.Equals(ctx.StrokeStyle)) 
-            await ctx.SetStrokeStyleAsync(col);
-
-            //if (ctx.LineWidth != pen.Width) 
-            //     await ctx.SetLineWidthAsync(pen.Width);
-
-            // await ctx.SetLineDashAsync(this.GetDashStyle(pen.DashStyle));
+            if (!col.Equals(ctx.StrokeStyle))   await ctx.SetStrokeStyleAsync(col);
+            if (ctx.LineWidth != pen.Width)   await ctx.SetLineWidthAsync(pen.Width);
         }
 
         private async Task ResetStroke(Canvas2DContext ctx)

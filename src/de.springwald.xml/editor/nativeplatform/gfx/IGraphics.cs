@@ -8,8 +8,6 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         int Width { get; }
 
         Task SetSize(int width, int height);
-        //Task StartBatch();
-        //Task EndBatch();
 
         void AddJob(IGfxJob job);
         
@@ -18,8 +16,6 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 
         Task DrawLineAsync(Pen pen, int x1, int y1, int x2, int y2);
 
-        Task DrawPathAsync(Pen pen, GraphicsPath gp);
-        Task FillPathAsync(Color color, GraphicsPath gp);
         Task FillPolygonAsync(Color color, Point[] points);
 
         Task DrawPolygonAsync(Pen pen, Point[] points);
@@ -30,10 +26,6 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         Task ClearAsync(Color color);
 
         Task DrawStringAsync(string name, Font font, Color color, int x, int y);
-        // Task  SizeF MeasureString(string text, Font drawFont, int maxWidth, StringFormat drawFormat);
-
-
-
     }
 }
 

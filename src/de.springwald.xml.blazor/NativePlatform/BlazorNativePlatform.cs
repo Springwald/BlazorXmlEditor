@@ -37,7 +37,7 @@ namespace de.springwald.xml.blazor.NativePlatform {
             this.ControlElement = new BlazorControlElement();
             this.InputEvents = new BlazorInputEvents();
             this.Focus = new BlazorFocus();
-            this.Gfx = new BlazorGfx1(canvas);
+            this.Gfx = new BlazorGfx(canvas);
         }
 
 #endif 
