@@ -22,22 +22,12 @@ namespace de.springwald.xml.blazor.NativePlatform
 
                 case GfxJob.JobTypes.DrawPolygon:
                     var drawDrawPolygonJob = job as JobDrawPolygon;
-                    await gfx.DrawPolygonAsync(drawDrawPolygonJob.Pen, drawDrawPolygonJob.Points);
-                    break;
-
-                case GfxJob.JobTypes.FillPolygon:
-                    var drawFillPolygonJob = job as JobFillPolygon;
-                    await gfx.FillPolygonAsync(drawFillPolygonJob.Color, drawFillPolygonJob.Points);
+                    await gfx.DrawPolygonAsync(drawDrawPolygonJob.FillColor, drawDrawPolygonJob.BorderColor, drawDrawPolygonJob.BorderWidth, drawDrawPolygonJob.Points);
                     break;
 
                 case GfxJob.JobTypes.DrawRectangle:
                     var drawDrawRectangleJob = job as JobDrawRectangle;
-                    await gfx.DrawRectangleAsync(drawDrawRectangleJob.Pen, drawDrawRectangleJob.Rectangle);
-                    break;
-
-                case GfxJob.JobTypes.FillRectangle:
-                    var drawFillRectangleJob = job as JobFillRectangle;
-                    await gfx.FillRectangleAsync(drawFillRectangleJob.Color, drawFillRectangleJob.Rectangle);
+                    await gfx.DrawRectangleAsync( drawDrawRectangleJob.FillColor, drawDrawRectangleJob.BorderColor, drawDrawRectangleJob.BorderWidth , drawDrawRectangleJob.Rectangle);
                     break;
 
                 case GfxJob.JobTypes.DrawString:

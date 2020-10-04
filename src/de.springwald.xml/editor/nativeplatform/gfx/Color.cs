@@ -13,8 +13,9 @@
         public static readonly Color LightGray = new Color(200, 200, 200);
         public static readonly Color White = new Color(255, 255, 255);
         public static readonly Color Red = new Color(255, 0, 0);
-        public static readonly Color Transparent = new Color(0, 0, 0, 0);
+        public static readonly Color Blue = new Color(0, 0, 255);
         public static readonly Color DarkBlue = new Color(0, 0, 100);
+        public static readonly Color Transparent = new Color(0, 0, 0, 0);
 
         private Color(byte r, byte g, byte b) : this(r, g, b, 255) { }
         private Color(byte r, byte g, byte b, byte a)

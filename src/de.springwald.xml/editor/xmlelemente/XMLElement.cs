@@ -301,14 +301,13 @@ namespace de.springwald.xml.editor
         /// </summary>
         private void KlickbereicheAnzeigen(PaintContext paintContext, IGraphics gfx)
         {
-            var pen = new Pen(Color.Red, 1);
             foreach (Rectangle rechteck in this._klickBereiche)
             {
                 gfx.AddJob(new JobDrawRectangle
                 {
                     Layer = paintContext.LayerClickAreas,
                     Batchable = true,
-                    Pen = pen,
+                    BorderColor = Color.Red,
                     Rectangle = rechteck
                 });
             }

@@ -137,11 +137,11 @@ namespace de.springwald.xml.editor
             foreach (var teil in _textTeile)
             {
                 // Hintergrund füllen
-                gfx.AddJob(new JobFillRectangle
+                gfx.AddJob(new JobDrawRectangle
                 {
                      Layer = paintContext.LayerTagBackground,
                      Batchable = true,
-                     Color = GetHintergrundFarbe(teil.Inverted),
+                     FillColor = GetHintergrundFarbe(teil.Inverted),
                      Rectangle = teil.Rectangle
                 });
             }

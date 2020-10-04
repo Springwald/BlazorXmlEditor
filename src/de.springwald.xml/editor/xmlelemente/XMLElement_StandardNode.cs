@@ -86,7 +86,7 @@ namespace de.springwald.xml.editor
                 + (attributeTextWidth == 0 ? 0 : innerMarginX + attributeTextWidth) // attributes
                 + innerMarginX; // margin to right border
 
-            await zeichneRahmenNachGroesse(paintContext, paintContext.LayerTagBackground, startX, paintContext.PaintPosY, borderWidth, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+            zeichneRahmenNachGroesse(paintContext.LayerTagBackground, startX, paintContext.PaintPosY, borderWidth, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
 
             paintContext.PaintPosX += innerMarginX;  // margin to left border
 
@@ -116,11 +116,11 @@ namespace de.springwald.xml.editor
                 var point1 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + innerMarginY);
                 var point2 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + tagHeight / 2);
                 var point3 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + tagHeight - innerMarginY);
-                gfx.AddJob(new JobFillPolygon
+                gfx.AddJob(new JobDrawPolygon
                 {
                     Batchable = true,
                     Layer = paintContext.LayerTagBorder,
-                    Color = _farbeRahmenRand,
+                    BorderColor = _farbeRahmenRand,
                     Points = new[] { point1, point2, point3 }
                 });
 
@@ -179,7 +179,7 @@ namespace de.springwald.xml.editor
             var attributeBreite = await this.GetAttributeTextWidth(attributeString, gfx);
 
             // einen Rahmen um die Attribute zeichnen
-            await zeichneRahmenNachGroesse(paintContext, paintContext.LayerAttributeBackground,
+            zeichneRahmenNachGroesse(paintContext.LayerAttributeBackground,
                 paintContext.PaintPosX, paintContext.PaintPosY + attributeMarginY,
                 attributeBreite, attributeHeight, 2,
               _farbeAttributeHintergrund, _farbeAttributeRand, gfx);
@@ -215,9 +215,9 @@ namespace de.springwald.xml.editor
                 int schriftBreite = (int)(await gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont));
 
                 var esteemedWidth = schriftBreite + innerMarginX * 3;
-                if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight && paintContext.PaintPosX != paintContext.LimitLeft )
+                if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight && paintContext.PaintPosX != paintContext.LimitLeft)
                 {
-                    paintContext.PaintPosX = paintContext.LimitLeft +_xmlEditor.Regelwerk.ChildEinrueckungX;
+                    paintContext.PaintPosX = paintContext.LimitLeft + _xmlEditor.Regelwerk.ChildEinrueckungX;
                     paintContext.PaintPosY += paintContext.HoeheAktZeile;
                 }
 
@@ -228,11 +228,11 @@ namespace de.springwald.xml.editor
                 Point point1 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + innerMarginY);
                 Point point2 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + tagHeight - innerMarginY);
                 Point point3 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + tagHeight / 2);
-                gfx.AddJob(new JobFillPolygon
+                gfx.AddJob(new JobDrawPolygon
                 {
                     Batchable = true,
                     Layer = paintContext.LayerTagBorder,
-                    Color = _farbeRahmenRand,
+                    BorderColor  = _farbeRahmenRand,
                     Points = new[] { point1, point2, point3 }
                 });
 
@@ -241,7 +241,7 @@ namespace de.springwald.xml.editor
                 paintContext.PaintPosX += innerMarginX + 1; // Zeichnungscursor hinter den Pfeil setzen
 
                 // ## RAHMEN für schließenden Node  zeichnen ###
-                await zeichneRahmenNachGroesse(paintContext, paintContext.LayerTagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+                zeichneRahmenNachGroesse(paintContext.LayerTagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
                 paintContext.PaintPosX += innerMarginX; // Abstand zwischen Rahmen und Schrift
 
                 // ## Name für schließenden Node zeichnen ###
@@ -316,7 +316,7 @@ namespace de.springwald.xml.editor
         /// <param name="y2"></param>
         /// <param name="fuellFarbe"></param>
         /// <param name="rahmenFarbe"></param>
-        private async Task zeichneRahmenNachKoordinaten(PaintContext paintContext, int layer, int x1, int y1, int x2, int y2, int rundung, Color fuellFarbe, Color rahmenFarbe, IGraphics gfx)
+        private void zeichneRahmenNachKoordinaten(int layer, int x1, int y1, int x2, int y2, int rundung, Color fuellFarbe, Color rahmenFarbe, IGraphics gfx)
         {
             Point[] points = new[] {
                 new Point(x1 + rundung, y1),
@@ -328,30 +328,16 @@ namespace de.springwald.xml.editor
                 new Point(x1, y2 - rundung),
                 new Point(x1, y1 + rundung)};
 
-            if (fuellFarbe != Color.Transparent)
+            // Rahmen zeichnen
+            gfx.AddJob(new JobDrawPolygon
             {
-                // mit Farbe fuellen
-                gfx.AddJob(new JobFillPolygon
-                {
-                    Batchable = true,
-                    Layer = layer,
-                    Color = fuellFarbe,
-                    Points = points
-                });
-            }
-
-            if (rahmenFarbe != Color.Transparent)
-            {
-                // Rahmen zeichnen
-                var pen = new Pen(color: rahmenFarbe, width: 1);
-                gfx.AddJob(new JobDrawPolygon
-                {
-                    Batchable = true,
-                    Layer = paintContext.LayerTagBorder,
-                    Pen = pen,
-                    Points = points
-                });
-            }
+                Batchable = true,
+                Layer = layer,
+                FillColor = fuellFarbe == Color.Transparent ? null : fuellFarbe,
+                BorderColor = rahmenFarbe == Color.Transparent ? null : rahmenFarbe,
+                BorderWidth = 1,
+                Points = points
+            });
         }
 
         /// <summary>
@@ -364,9 +350,9 @@ namespace de.springwald.xml.editor
         /// <param name="fuellFarbe"></param>
         /// <param name="rahmenFarbe"></param>
         /// <param name="e"></param>
-        private async Task zeichneRahmenNachGroesse(PaintContext paintContext, int layer, int x, int y, int breite, int hoehe, int rundung, Color fuellFarbe, Color rahmenFarbe, IGraphics gfx)
+        private void zeichneRahmenNachGroesse(int layer, int x, int y, int breite, int hoehe, int rundung, Color fuellFarbe, Color rahmenFarbe, IGraphics gfx)
         {
-            await zeichneRahmenNachKoordinaten(paintContext, layer, x, y, x + breite, y + hoehe, rundung, fuellFarbe, rahmenFarbe, gfx);
+            this.zeichneRahmenNachKoordinaten(layer, x, y, x + breite, y + hoehe, rundung, fuellFarbe, rahmenFarbe, gfx);
         }
 
         /// <summary>

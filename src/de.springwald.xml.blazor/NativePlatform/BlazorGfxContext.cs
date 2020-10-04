@@ -51,7 +51,7 @@ namespace de.springwald.xml.blazor.NativePlatform
         {
             if (color != this.actualFillColor)
             {
-                await ctx.SetStrokeStyleAsync(color.AsHtml);
+                await ctx.SetFillStyleAsync(color.AsHtml);
                 this.actualFillColor = color;
             }
         }
@@ -109,11 +109,20 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.StrokeAsync();
         }
 
-        public async Task DrawRectangleAsync(Pen pen, Rectangle rectangle)
+        public async Task DrawRectangleAsync(Color fillColor, Color borderColor, float borderWidth, Rectangle rectangle)
         {
-            await this.SetStrokeColor(pen.Color);
-            await this.SetLineWidth(pen.Width);
-            await ctx.StrokeRectAsync(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+            if (fillColor != null)
+            {
+                await this.SetFillColor(fillColor);
+                await ctx.FillRectAsync(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+            }
+
+            if (borderColor != null)
+            {
+                await this.SetStrokeColor(borderColor);
+                await this.SetLineWidth(borderWidth);
+                await ctx.StrokeRectAsync(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+            }
         }
 
         public async Task DrawStringAsync(string text, Font font, Color color, int x, int y)
@@ -130,8 +139,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             return (float)size.Width;
         }
 
-
-        public async Task FillPolygonAsync(Color fillColor, Point[] points)
+        public async Task DrawPolygonAsync(Color fillColor, Color borderColor, float borderWidth , Point[] points)
         {
             if (points.Length == 0) return;
 
@@ -145,30 +153,17 @@ namespace de.springwald.xml.blazor.NativePlatform
 
             if (fillColor != null)
             {
-                await ctx.SetFillStyleAsync(fillColor.AsHtml);
+                await this.SetFillColor(fillColor);
                 await ctx.FillAsync();
             }
-        }
-
-        public async Task DrawPolygonAsync(Pen pen, Point[] points)
-        {
-            if (points.Length == 0) return;
-
-            await this.SetStrokeColor(pen.Color);
-            await ctx.BeginPathAsync();
-            await ctx.MoveToAsync(points[0].X, points[0].Y);
-            for (int i = 1; i < points.Length; i++)
+            if (borderColor != null)
             {
-                await ctx.LineToAsync(points[i].X, points[i].Y);
+                await this.SetStrokeColor(borderColor);
+                await this.SetLineWidth(borderWidth);
+                await ctx.StrokeAsync();
             }
-            await ctx.LineToAsync(points[0].X, points[0].Y);
-            await ctx.StrokeAsync();
         }
 
-        public async Task FillRectangleAsync(Color color, Rectangle rechteck)
-        {
-            await Task.CompletedTask; // to prevent warning because of empty async method
-        }
 
         public async Task ClearAsync(Color color)
         {

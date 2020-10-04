@@ -8,8 +8,6 @@
             DrawLine,
             DrawPolygon,
             DrawRectangle,
-            FillPolygon,
-            FillRectangle,
             DrawString
         }
 
