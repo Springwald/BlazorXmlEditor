@@ -6,8 +6,8 @@
 @using de.springwald.xml.blazor.test.Components
 
 <h1>move cursor demo</h1>
-<FpsCounter @ref="fpsCounter"/>
-<p>@this.cursorPos</p>
+<FpsCounter @ref="fpsCounter" />
+<p>@this.cursorPosStart > @this.cursorPosEnde</p>
 <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
 
 
@@ -22,7 +22,8 @@
     private Timer moveTimer;
     private int actualDocumentIndex = 0;
     private System.Xml.XmlDocument xmlDocument;
-    private string cursorPos;
+    private string cursorPosStart;
+    private string cursorPosEnde;
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,10 +50,13 @@
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
             await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
+            var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
+            var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
+            var textNode = patternNode.ChildNodes[0];
             await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
-               xmlDocument.DocumentElement.FirstChild,
-               cursor.XMLCursorPositionen.CursorVorDemNode,
-               0);
+                textNode,
+                cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
+                3);
         }
         var cursorStatus = this.xmlEditor.Editor.CursorRoh;
 
@@ -65,7 +69,8 @@
             }
 
             await cursorStatus.EndPos.MoveRight(xmlDocument.DocumentElement, this.editorContext.XmlRules);
-        } else
+        }
+        else
         {
             step--;
             if (step == 0)
@@ -75,7 +80,8 @@
             await cursorStatus.EndPos.MoveLeft(xmlDocument.DocumentElement, this.editorContext.XmlRules);
         }
 
-        this.cursorPos = $"{cursorStatus.StartPos.AktNode.Name}:{cursorStatus.StartPos.PosAmNode}:{cursorStatus.StartPos.PosImTextnode}";
+        this.cursorPosStart = $"{cursorStatus.StartPos.AktNode.Name}:{cursorStatus.StartPos.PosAmNode}:{cursorStatus.StartPos.PosImTextnode}";
+        this.cursorPosEnde = $"{cursorStatus.EndPos.AktNode.Name}:{cursorStatus.EndPos.PosAmNode}:{cursorStatus.EndPos.PosImTextnode}";
         StateHasChanged();
 
         this.fpsCounter.Count();

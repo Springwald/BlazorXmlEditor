@@ -1,6 +1,8 @@
 ﻿using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +35,7 @@ namespace de.springwald.xml.editor.helper
             int actualY = paintContext.PaintPosY;
             bool actualInverted = false;
 
-            var words = this.GetWords(text, invertiertStart, invertiertLaenge);
+            var words = this.GetWords(text, invertiertStart, invertiertLaenge).ToArray();
 
             foreach (var word in words)
             {
@@ -61,39 +63,39 @@ namespace de.springwald.xml.editor.helper
 
         private IEnumerable<SplitWort> GetWords(string text, int invertiertStart, int invertiertLaenge)
         {
-            bool actualInverted = invertiertStart == 0;
+            bool actualInverted =  invertiertStart == 0;
             var splits = text.Split(new char[] { ' ' }, StringSplitOptions.None);
             bool firstWord = true;
             foreach (var splitRaw in splits)
             {
-                var split = firstWord ? splitRaw : $" {splitRaw}";
+                var rest = firstWord ? splitRaw : $" {splitRaw}";
                 firstWord = false;
-                if (actualInverted)
+                while (rest.Length > 0)
                 {
-                    if (split.Length < invertiertLaenge) // selection ends here
+                    if (actualInverted && invertiertLaenge > 0 && invertiertLaenge <= rest.Length) // selection ends here
                     {
-                        yield return new SplitWort { Inverted = true, Text = split.Substring(0, invertiertLaenge) };
-                        yield return new SplitWort { Inverted = false, Text = split.Substring(invertiertLaenge) };
+                        yield return new SplitWort { Inverted = true, Text = rest.Substring(0, invertiertLaenge) };
+                        rest = rest.Substring(invertiertLaenge);
+                        invertiertLaenge = 0;
                         actualInverted = false;
                     }
                     else
                     {
-                        yield return new SplitWort { Inverted = true, Text = split };
+                        if (!actualInverted && invertiertStart > 0 && invertiertStart <= rest.Length) // selection starts here
+                        {
+                            yield return new SplitWort { Inverted = false, Text = rest.Substring(0, invertiertStart) };
+                            rest = rest.Substring(invertiertStart);
+                            invertiertStart = -1;
+                            actualInverted = true;
+                        }
+                        else
+                        {
+                            yield return new SplitWort { Inverted = actualInverted, Text = rest };
+                            invertiertStart -= rest.Length;
+                            rest = string.Empty;
+                        }
                     }
                 }
-                else
-                {
-                    if (split.Length < invertiertStart) // selection starts here
-                    {
-                        yield return new SplitWort { Inverted = false, Text = split.Substring(0, invertiertStart) };
-                        yield return new SplitWort { Inverted = true, Text = split.Substring(invertiertStart) };
-                    }
-                    else // no selection change in this node
-                    {
-                        yield return new SplitWort { Inverted = false, Text = split };
-                    }
-                }
-                invertiertLaenge -= split.Length;
             }
         }
 
