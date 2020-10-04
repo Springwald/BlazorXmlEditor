@@ -91,13 +91,25 @@ namespace de.springwald.xml.blazor.NativePlatform
             return (float)size.Width;
         }
 
+        private string FontHtmlString(Font font)
+        {
+            return string.Join(", ", font.Names.Select(n => CreateHtmlFontName(n)));
+        }
+
+        private string CreateHtmlFontName(string fontname)
+        {
+            fontname = fontname.Trim(new char[] { ' ', '\"' }); 
+            if (fontname.Contains(" ")) fontname  = $"\"{fontname}\"";
+            return fontname;
+        }
+
         private async Task SetFontFormat(Canvas2DContext ctx, Font font)
         {
             var targetFont = string.Empty;
             switch (font.Unit)
             {
                 case Font.GraphicsUnit.Pixel:
-                    targetFont = $"{font.Height}px {font.Name}"; // e.g. '48px serif';
+                    targetFont = $"{font.Height}px {FontHtmlString(font)}"; // e.g. '48px serif';
                     break;
                 default: throw new ArgumentOutOfRangeException($"{nameof(font.Unit)}:{font.Unit.ToString()}");
             }

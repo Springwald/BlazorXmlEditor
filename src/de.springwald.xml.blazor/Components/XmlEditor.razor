@@ -64,21 +64,10 @@
 
         var config = new EditorConfig
         {
-            NodeNameFont = new Font(name: "Verdana, Geneva, sans-serif", height: 13, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
-            NodeAttributeFont = new Font(name: "Verdana, Geneva, sans-serif", height: 12, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
-            TextNodeFont = new Font(name: "\"Lucida Console\", Monaco, monospace", height: 14, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: true)
-
-            //NodeNameFont = new Font(name: "Verdana, Geneva, sans-serif", height: 23, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
-            //NodeAttributeFont = new Font(name: "Verdana, Geneva, sans-serif", height: 12, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
-            //TextNodeFont = new Font(name: "\"Lucida Console\", Monaco, monospace", height: 14, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: true)
+            NodeNameFont = new Font(names: new [] { "Verdana", "Geneva", "sans-serif" }, height: 13, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
+            NodeAttributeFont = new Font(names: new[] { "Verdana", "Geneva", "sans-serif" }, height: 12, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
+            TextNodeFont = new Font(names: new[] { "Lucida Console", "Monaco", "monospace" }, height: 14, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: true)
         };
-
-        const bool allFontsSame = false;
-        if (allFontsSame)
-        {
-            config.NodeAttributeFont = config.NodeNameFont;
-            config.TextNodeFont = config.NodeNameFont;
-        }
 
         this.Editor = new XMLEditor(this._editorContext.XmlRules, nativePlattform, config);
         nativePlattform.InputEvents.BlinkInterval.Add(this.blinkDone);

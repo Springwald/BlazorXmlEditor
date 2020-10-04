@@ -1,4 +1,6 @@
 ﻿
+using System.Linq;
+
 namespace de.springwald.xml.editor.nativeplatform.gfx
 {
     public class Font
@@ -8,7 +10,8 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
             Pixel
         }
 
-        public string Name { get; set; }
+        public string[] Names { get; set; }
+
         public int Height { get; set; }
         public GraphicsUnit Unit { get; set; }
 
@@ -17,9 +20,9 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         /// </summary>
         public bool Monospace { get; set; }
 
-        public Font(string name, int height, GraphicsUnit graphicsUnit, bool monospace)
+        public Font(string[] names, int height, GraphicsUnit graphicsUnit, bool monospace)
         {
-            this.Name = name;
+            this.Names = names;
             this.Height = height;
             this.Unit = graphicsUnit;
             this.Monospace = monospace;

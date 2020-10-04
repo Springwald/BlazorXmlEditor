@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor.nativeplatform.gfx
 {
@@ -16,7 +13,7 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 
         public async Task Paint(IGraphics gfx)
         {
-            await gfx.DrawLineAsync(this.Pen, X1,Y1,X2,Y2);
+            await gfx.DrawLineAsync(this.Pen, X1, Y1, X2, Y2);
         }
     }
 }
