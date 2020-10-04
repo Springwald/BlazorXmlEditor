@@ -1,16 +1,9 @@
-﻿using System.Threading.Tasks;
-
-namespace de.springwald.xml.editor.nativeplatform.gfx
+﻿namespace de.springwald.xml.editor.nativeplatform.gfx
 {
-    class JobDrawRectangle : GfxJob, IGfxJob
+    public class JobDrawRectangle : GfxJob
     {
+        public override JobTypes JobType => JobTypes.DrawRectangle;
         public Pen Pen { get; set; }
-
         public Rectangle Rectangle { get; set; }
-
-        public async Task Paint(IGraphics gfx)
-        {
-            await gfx.DrawRectangleAsync(this.Pen, this.Rectangle);
-        }
     }
 }

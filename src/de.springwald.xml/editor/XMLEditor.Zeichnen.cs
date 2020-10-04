@@ -1,4 +1,5 @@
 using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.editor.nativeplatform.gfxobs;
 using de.springwald.xml.events;
 using System.Threading.Tasks;
 
@@ -23,7 +24,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         public async Task Paint(int limitRight)
         {
-            await this.NativePlatform.Gfx.ClearAsync(Color.White);
+            this.NativePlatform.Gfx.AddJob(new JobClear { Color = Color.White });
 
             if (_rootElement != null)  // Wenn das 
             {

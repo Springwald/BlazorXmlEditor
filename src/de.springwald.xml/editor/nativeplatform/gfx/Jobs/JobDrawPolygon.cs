@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace de.springwald.xml.editor.nativeplatform.gfx
+﻿namespace de.springwald.xml.editor.nativeplatform.gfx
 {
-    public class JobDrawPolygon : GfxJob, IGfxJob
+    public class JobDrawPolygon : GfxJob
     {
+        public override JobTypes JobType => JobTypes.DrawPolygon;
         public Pen Pen { get; set; }
-
         public Point[] Points { get; set; }
-
-        public async Task Paint(IGraphics gfx)
-        {
-            await gfx.DrawPolygonAsync(this.Pen, this.Points);
-        }
     }
 }
