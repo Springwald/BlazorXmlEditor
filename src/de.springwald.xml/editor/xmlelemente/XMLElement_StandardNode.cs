@@ -283,7 +283,7 @@ namespace de.springwald.xml.editor
                 _pfeilBereichRechts = new Rectangle(0, 0, 0, 0);
                 _tagBereichRechts = new Rectangle(0, 0, 0, 0);
             }
-             base.NodeZeichnenAbschluss(paintContext, gfx);
+            await base.NodeZeichnenAbschluss(paintContext, gfx);
         }
 
         private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)

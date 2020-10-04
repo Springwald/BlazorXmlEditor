@@ -1,4 +1,4 @@
-#define XklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
+#define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
@@ -13,7 +13,7 @@ namespace de.springwald.xml.editor
     /// Basic element for drawing XML editor elements
     /// </summary>
     /// <remarks>
-    // (C)2006 Daniel Springwald, Herne Germany
+    // (C)2006 Daniel Springwald, Bochum Germany
     /// Springwald Software  - www.springwald.de
     /// daniel@springwald.de -   0700-SPRINGWALD
     /// all rights reserved
@@ -89,6 +89,8 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected virtual async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx)
         {
+
+
             await Task.CompletedTask; // to prevent warning because of empty async method
                                       // vermerken, wie hoch die Zeile bisher ist
                                       //this._hoeheAktuelleZeile = 0;
@@ -161,15 +163,12 @@ namespace de.springwald.xml.editor
                             childPaintContext.HoeheAktZeile = 0; // noch kein Element in dieser Zeile, daher Hoehe 0
                                                                  // X-Cursor auf den Start der neuen Zeile setzen
                                                                  // Linie nach unten und dann nach rechts ins ChildElement
-                            Pen myPen = new Pen(Color.LightGray, 1);
-                            // myPen.DashStyle = Pen.DashStyles.Dash;
-
-                            // Linie nach unten
+                                                                 // Linie nach unten
                             gfx.AddJob(new JobDrawLine
                             {
                                 Layer = paintContext.LayerTagBorder,
                                 Batchable = true,
-                                Pen = myPen,
+                                Color = Color.LightGray,
                                 X1 = paintContext.LimitLeft,
                                 Y1 = paintContext.PaintPosY + this.LineHeight / 2,
                                 X2 = paintContext.LimitLeft,
@@ -181,7 +180,7 @@ namespace de.springwald.xml.editor
                             {
                                 Layer = paintContext.LayerTagBorder,
                                 Batchable = true,
-                                Pen = myPen,
+                                Color = Color.LightGray,
                                 X1 = paintContext.LimitLeft,
                                 Y1 = childPaintContext.PaintPosY + childElement.LineHeight / 2,
                                 X2 = childPaintContext.LimitLeft,
@@ -189,13 +188,10 @@ namespace de.springwald.xml.editor
                             });
 
                             childPaintContext = await childElement.Paint(childPaintContext, gfx);
-                            // paintContext.PaintPosX = context2.PaintPosX;
-                            //paintContext.PaintPosY = context2.PaintPosY;
                             break;
 
 
                         case DarstellungsArten.Fliesselement:
-
                             // Dieses Child ist ein Fliesselement; es fügt sich in die selbe Zeile
                             // ein, wie das vorherige Element und beginnt keine neue Zeile, 
                             // es sei denn, die aktuelle Zeile ist bereits zu lang
@@ -212,25 +208,13 @@ namespace de.springwald.xml.editor
                             }
 
                             childPaintContext = await childElement.Paint(childPaintContext, gfx);
-                            // paintContext.PaintPosX = context1.PaintPosX;
-                            // paintContext.PaintPosY = context1.PaintPosY;
                             break;
 
 
                         default:
                             MessageBox.Show("undefiniert");
-                            //ChildControl.Zeichnen();
                             break;
                     }
-
-                    // Den Cursor in der aktuellen Zeile nach rechts verschieben
-                    //paintContext.PaintPosX = childPaintContext.PaintPosX;
-                    //paintContext.PaintPosY = childPaintContext.PaintPosY;
-
-                    //// vermerken, wie hoch die Zeile ist
-                    //paintContext.HoeheAktZeile = paintContext.HoeheAktZeile;
-                    //paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.BisherMaxX);
-
                 }
 
                 // Sollten wir mehr ChildControls als XMLChildNodes haben, dann diese
@@ -262,39 +246,26 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected virtual void ZeichneCursorStrich(PaintContext paintContext, IGraphics gfx)
         {
-            if (this._cursorStrichPos == null) return;
+            if (this._cursorStrichPos == null || this._xmlEditor.CursorBlinkOn == false) return;
 
-            //if (!_xmlEditor.CursorRoh.IstEtwasSelektiert) // Wenn nichts selektiert ist
-            //{
-            //    if (this.XMLNode == this._xmlEditor.CursorOptimiert.StartPos.AktNode)  // Wenn dies überhaupt der aktuelle Node ist
-            //    {
-            //        if ((this._xmlEditor.CursorOptimiert.StartPos.PosAmNode != XMLCursorPositionen.CursorAufNodeSelbstVorderesTag) &&
-            //        (this._xmlEditor.CursorOptimiert.StartPos.PosAmNode != XMLCursorPositionen.CursorAufNodeSelbstHinteresTag))// Wenn nicht ein ganzer Node markiert ist
-            //        {
-            if (this._xmlEditor.CursorBlinkOn) // Wenn der Cursor bei diesem Male gezeichnet werden soll
+            // Cursor-Strich zeichnen
+            var height = (int)(Math.Max(this._xmlEditor.EditorConfig.TextNodeFont.Height, this._xmlEditor.EditorConfig.NodeNameFont.Height) * 1.6);
+            var margin = height / 5;
+            gfx.AddJob(new JobDrawLine
             {
-                // Cursor-Strich zeichnen
-                Pen newPen = new Pen(Color.Black, 2);
-                var height = (int)(Math.Max(this._xmlEditor.EditorConfig.TextNodeFont.Height, this._xmlEditor.EditorConfig.NodeNameFont.Height) * 1.6);
-                var margin = height / 5;
-                gfx.AddJob(new JobDrawLine
-                {
-                    Batchable = true,
-                    Layer = paintContext.LayerCursor,
-                    Pen = newPen,
-                    X1 = _cursorStrichPos.X,
-                    Y1 = _cursorStrichPos.Y + margin,
-                    X2 = _cursorStrichPos.X,
-                    Y2 = _cursorStrichPos.Y + height - margin
-                });
-            }
+                Batchable = true,
+                Layer = paintContext.LayerCursor,
+                Color = Color.Black,
+                LineWidth = 2,
+                X1 = _cursorStrichPos.X,
+                Y1 = _cursorStrichPos.Y + margin,
+                X2 = _cursorStrichPos.X,
+                Y2 = _cursorStrichPos.Y + height - margin
+            });
 
             // merken, wo gerade der Cursor gezeichnet wird, damit dorthin gescrollt werden kann,
             // wenn der Cursor aus dem sichtbaren Bereich bewegt wird
             _xmlEditor.AktScrollingCursorPos = _cursorStrichPos;
-            //        }
-            //    }
-            //}
         }
 
         /// <summary>
@@ -434,7 +405,7 @@ namespace de.springwald.xml.editor
                 // Das Element neu Zeichnen
 
                 //System.Drawing.Graphics g = this._xmlEditor.ZeichnungsSteuerelement.CreateGraphics();
-                //this.UnPaint(g);	// Element wegradieren
+                // this.UnPaint(g);	// Element wegradieren
                 //this.Paint (false,new PaintEventArgs (g,this._xmlEditor.ZeichnungsSteuerelement.ClientRectangle)); // Neu zeichnen
             }
             await Task.CompletedTask; // to prevent warning because of empty async method

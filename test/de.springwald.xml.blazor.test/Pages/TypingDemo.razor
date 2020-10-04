@@ -27,15 +27,18 @@
         var demoDtd = DemoDtd.LoadDemoDtd();
         this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
         this.typingTimer = new Timer();
-        this.typingTimer.Elapsed += LoadDocumentTimedEvent;
+        this.typingTimer.Elapsed += TypingTimerEvent;
         this.typingTimer.Interval = 1;
         this.typingTimer.Start();
         await base.OnInitializedAsync();
     }
 
     private int typingPos = 0;
+    private System.Xml.XmlNode patternNode;
+    private System.Xml.XmlNode templateNode;
+    private System.Xml.XmlNode textNode;
 
-    private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+    private async void TypingTimerEvent(Object source, System.Timers.ElapsedEventArgs e)
     {
         this.typingTimer.Stop();
 
@@ -44,11 +47,10 @@
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
             await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
+            patternNode = xmlDocument.DocumentElement.ChildNodes[0];
+            templateNode = xmlDocument.DocumentElement.ChildNodes[1];
+            textNode = patternNode.ChildNodes[0];
         }
-
-        var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
-        var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
-        var textNode = patternNode.ChildNodes[0];
 
         this.typingPos++;
         if (this.typingPos >= LoremIpsum.Length) this.typingPos = 0;

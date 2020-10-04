@@ -21,7 +21,7 @@ namespace de.springwald.xml.editor
         private bool _naechstesLostFokusVerhindern = false; // Damit beim TAB das Verlassen des Fokus ignoriert wird
 
 
-        async Task zeichnungsSteuerelement_PreviewKeyDown(PreviewKeyDownEventArgs e)
+        public async Task zeichnungsSteuerelement_PreviewKeyDown(PreviewKeyDownEventArgs e)
         {
             //if (Regelwerk.PreviewKeyDown(e, out _naechsteTasteBeiKeyPressAlsTextAufnehmen, this))
             //{
@@ -166,7 +166,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async Task zeichnungsSteuerelement_KeyPress( KeyPressEventArgs e)
+        public async Task zeichnungsSteuerelement_KeyPress( KeyPressEventArgs e)
         {
             if (_naechsteTasteBeiKeyPressAlsTextAufnehmen)
             {

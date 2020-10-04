@@ -17,7 +17,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
                 case GfxJob.JobTypes.DrawLine:
                     var drawLineJob = job as JobDrawLine;
-                    await gfx.DrawLineAsync(drawLineJob.Pen, drawLineJob.X1, drawLineJob.Y1, drawLineJob.X2, drawLineJob.Y2);
+                    await gfx.DrawLineAsync(drawLineJob.Color, drawLineJob.LineWidth, drawLineJob.X1, drawLineJob.Y1, drawLineJob.X2, drawLineJob.Y2);
                     break;
 
                 case GfxJob.JobTypes.DrawPolygon:

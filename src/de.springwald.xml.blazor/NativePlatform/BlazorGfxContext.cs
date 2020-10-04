@@ -76,12 +76,10 @@ namespace de.springwald.xml.blazor.NativePlatform
             this.actualFont = font;
         }
 
-
-
-        internal async Task DrawLineAsync(Pen pen, int x1, int y1, int x2, int y2)
+        internal async Task DrawLineAsync(Color color, float lineWidth, int x1, int y1, int x2, int y2)
         {
-            await this.SetStrokeColor(pen.Color);
-            await this.SetLineWidth(pen.Width);
+            await this.SetStrokeColor(color);
+            await this.SetLineWidth(lineWidth);
             await ctx.BeginPathAsync();
             await ctx.MoveToAsync(x1, y1);
             await ctx.LineToAsync(x2, y2);

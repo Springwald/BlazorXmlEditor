@@ -11,9 +11,9 @@ namespace de.springwald.xml.editor
     /// XML-Element zur Darstellung eines Textnodes
     /// </summary>
     /// <remarks>
-    /// (C)2006 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
+    /// (C)2006 Daniel Springwald, Bochum Germany
+    /// Springwald Software  -  www.springwald.de
+    /// daniel@springwald.de - +49 234 298 788 46
     /// all rights reserved
     /// </remarks>
     public class XMLElement_TextNode : XMLElement
@@ -129,7 +129,7 @@ namespace de.springwald.xml.editor
 
             int marginY = (paintContext.HoeheAktZeile - this._xmlEditor.EditorConfig.TextNodeFont.Height) / 2;
 
-            StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge);
+            this.StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge);
 
             _textTeile = new TextSplitHelper().SplitText(AktuellerInhalt, selektionStart, selektionLaenge, paintContext, this._xmlEditor.Regelwerk.AbstandYZwischenZeilen, this._xmlEditor.EditorConfig.TextNodeFont.Height, lastCalculatedFontWidth);
 
@@ -139,11 +139,20 @@ namespace de.springwald.xml.editor
                 // Hintergrund füllen
                 gfx.AddJob(new JobDrawRectangle
                 {
-                     Layer = paintContext.LayerTagBackground,
-                     Batchable = true,
-                     FillColor = GetHintergrundFarbe(teil.Inverted),
-                     Rectangle = teil.Rectangle
+                    Layer = paintContext.LayerTagBackground,
+                    Batchable = true,
+                    FillColor = GetHintergrundFarbe(teil.Inverted),
+                    Rectangle = teil.Rectangle
                 });
+            }
+
+            // ggf. den Cursorstrich vor dem Node berechnen
+            if (this.XMLNode == _xmlEditor.CursorOptimiert.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
+            {
+                if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
+                {
+                    this._cursorStrichPos = new Point(paintContext.PaintPosX-1, paintContext.PaintPosY);
+                }
             }
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
@@ -158,13 +167,10 @@ namespace de.springwald.xml.editor
                         // Checken, ob der Cursor innerhalb dieses Textteiles liegt
                         if ((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode >= aktTextTeilStartPos) && (_xmlEditor.CursorOptimiert.StartPos.PosImTextnode <= aktTextTeilStartPos + textTeil.Text.Length))
                         {
-                            // Herausfinden, wieviel Pixel die Cursor-Position im Text liegt
-                            int xCursorPos = paintContext.PaintPosX + (int)((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode - aktTextTeilStartPos) * lastCalculatedFontWidth);
-                            xCursorPos = Math.Max(paintContext.PaintPosX, xCursorPos);
-
-                            // Position für Cursor-Strich vermerken
-                            // this._cursorStrichPos = new Point(xCursorPos, paintContext.PaintPosY + marginY);
-                            this._cursorStrichPos = new Point(xCursorPos, paintContext.PaintPosY);
+                            this._cursorStrichPos = new Point(
+                                textTeil.Rectangle.X + (int)((_xmlEditor.CursorOptimiert.StartPos.PosImTextnode - aktTextTeilStartPos) * lastCalculatedFontWidth),
+                                textTeil.Rectangle.Y
+                                );
                         }
                     }
                 }
@@ -187,7 +193,7 @@ namespace de.springwald.xml.editor
                     Font = _xmlEditor.EditorConfig.TextNodeFont
                 });
                 paintContext.PaintPosY = textTeil.Rectangle.Y;
-                paintContext.PaintPosX += textTeil.Rectangle.Width;
+                paintContext.PaintPosX = textTeil.Rectangle.X + textTeil.Rectangle.Width;
                 paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
             }
 
