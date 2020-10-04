@@ -38,7 +38,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             await this.ctx.EndBatchAsync();
         }
 
-        public async Task SetStrokeColor(Color color)
+        internal async Task SetStrokeColor(Color color)
         {
             if (color != this.actualStrokeColor)
             {
@@ -47,7 +47,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
-        public async Task SetFillColor(Color color)
+        internal async Task SetFillColor(Color color)
         {
             if (color != this.actualFillColor)
             {
@@ -56,7 +56,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
-        public async Task SetLineWidth(float width)
+        internal async Task SetLineWidth(float width)
         {
             if (!this.actualLineWidth.Equals(width))
             {
@@ -65,7 +65,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
-        public async Task SetFont(Font font)
+        internal async Task SetFont(Font font)
         {
             if (this.actualFont == null)
             {
@@ -76,30 +76,9 @@ namespace de.springwald.xml.blazor.NativePlatform
             this.actualFont = font;
         }
 
-        private async Task SetFontFormat(Font font)
-        {
-            switch (font.Unit)
-            {
-                case Font.GraphicsUnit.Pixel:
-                    await ctx.SetFontAsync($"{font.Height}px {FontHtmlString(font)}"); // e.g. '48px serif';
-                    break;
-                default: throw new ArgumentOutOfRangeException($"{nameof(font.Unit)}:{font.Unit.ToString()}");
-            }
-        }
 
-        private string FontHtmlString(Font font)
-        {
-            return string.Join(", ", font.Names.Select(n => CreateHtmlFontName(n)));
-        }
 
-        private string CreateHtmlFontName(string fontname)
-        {
-            fontname = fontname.Trim(new char[] { ' ', '\"' });
-            if (fontname.Contains(" ")) fontname = $"\"{fontname}\"";
-            return fontname;
-        }
-
-        public async Task DrawLineAsync(Pen pen, int x1, int y1, int x2, int y2)
+        internal async Task DrawLineAsync(Pen pen, int x1, int y1, int x2, int y2)
         {
             await this.SetStrokeColor(pen.Color);
             await this.SetLineWidth(pen.Width);
@@ -109,7 +88,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.StrokeAsync();
         }
 
-        public async Task DrawRectangleAsync(Color fillColor, Color borderColor, float borderWidth, Rectangle rectangle)
+        internal async Task DrawRectangleAsync(Color fillColor, Color borderColor, float borderWidth, Rectangle rectangle)
         {
             if (fillColor != null)
             {
@@ -125,21 +104,21 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
-        public async Task DrawStringAsync(string text, Font font, Color color, int x, int y)
+        internal async Task DrawStringAsync(string text, Font font, Color color, int x, int y)
         {
             await ctx.SetFillStyleAsync(color.AsHtml);
             await this.SetFont(font);
             await ctx.FillTextAsync(text, x, y);
         }
 
-        public async Task<float> MeasureDisplayStringWidthAsync(string text, Font font)
+        internal async Task<float> MeasureDisplayStringWidthAsync(string text, Font font)
         {
             await this.SetFont(font);
             var size = await ctx.MeasureTextAsync(text);
             return (float)size.Width;
         }
 
-        public async Task DrawPolygonAsync(Color fillColor, Color borderColor, float borderWidth , Point[] points)
+        internal async Task DrawPolygonAsync(Color fillColor, Color borderColor, float borderWidth , Point[] points)
         {
             if (points.Length == 0) return;
 
@@ -164,8 +143,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
-
-        public async Task ClearAsync(Color color)
+        internal async Task ClearAsync(Color color)
         {
             if (color != Color.White)
             {
@@ -178,6 +156,27 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
+        private async Task SetFontFormat(Font font)
+        {
+            switch (font.Unit)
+            {
+                case Font.GraphicsUnit.Pixel:
+                    await ctx.SetFontAsync($"{font.Height}px {FontHtmlString(font)}"); // e.g. '48px serif';
+                    break;
+                default: throw new ArgumentOutOfRangeException($"{nameof(font.Unit)}:{font.Unit.ToString()}");
+            }
+        }
 
+        private string FontHtmlString(Font font)
+        {
+            return string.Join(", ", font.Names.Select(n => CreateHtmlFontName(n)));
+        }
+
+        private string CreateHtmlFontName(string fontname)
+        {
+            fontname = fontname.Trim(new char[] { ' ', '\"' });
+            if (fontname.Contains(" ")) fontname = $"\"{fontname}\"";
+            return fontname;
+        }
     }
 }

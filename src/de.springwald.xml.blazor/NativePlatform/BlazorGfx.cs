@@ -1,8 +1,5 @@
 ﻿using Blazor.Extensions;
-using Blazor.Extensions.Canvas.Canvas2D;
 using de.springwald.xml.editor.nativeplatform.gfx;
-using de.springwald.xml.editor.nativeplatform.gfxobs;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,16 +19,6 @@ namespace de.springwald.xml.blazor.NativePlatform
         public BlazorGfx(BECanvasComponent canvas)
         {
             this.canvas = canvas;
-        }
-
-        private async Task<BlazorGfxContext> GetContext()
-        {
-            if (this.contextCache == null)
-            {
-                var context2d = await this.canvas.CreateCanvas2DAsync();
-                this.contextCache = new BlazorGfxContext(canvas, context2d);
-            }
-            return this.contextCache;
         }
 
         public Task SetSize(int width, int height)
@@ -94,6 +81,16 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
             this.jobs.Clear();
             if (batching) await this.EndBatch();
+        }
+
+        private async Task<BlazorGfxContext> GetContext()
+        {
+            if (this.contextCache == null)
+            {
+                var context2d = await this.canvas.CreateCanvas2DAsync();
+                this.contextCache = new BlazorGfxContext(canvas, context2d);
+            }
+            return this.contextCache;
         }
     }
 }
