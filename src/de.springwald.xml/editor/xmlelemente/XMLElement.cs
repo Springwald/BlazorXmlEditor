@@ -1,4 +1,4 @@
-#define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
+#define XklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
@@ -254,6 +254,7 @@ namespace de.springwald.xml.editor
         protected virtual async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
         {
             this.ZeichneCursorStrich(paintContext, gfx);
+            await Task.CompletedTask;
         }
 
         /// <summary>

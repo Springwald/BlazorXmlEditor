@@ -120,7 +120,7 @@ namespace de.springwald.xml.editor
                 {
                     Batchable = true,
                     Layer = paintContext.LayerTagBorder,
-                    BorderColor = _farbeRahmenRand,
+                    FillColor = _farbeRahmenRand,
                     Points = new[] { point1, point2, point3 }
                 });
 
@@ -164,7 +164,6 @@ namespace de.springwald.xml.editor
                     }
                 }
             }
-
             paintContext.BisherMaxX = System.Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
         }
 
@@ -232,7 +231,7 @@ namespace de.springwald.xml.editor
                 {
                     Batchable = true,
                     Layer = paintContext.LayerTagBorder,
-                    BorderColor  = _farbeRahmenRand,
+                    FillColor = _farbeRahmenRand,
                     Points = new[] { point1, point2, point3 }
                 });
 
@@ -284,7 +283,7 @@ namespace de.springwald.xml.editor
                 _pfeilBereichRechts = new Rectangle(0, 0, 0, 0);
                 _tagBereichRechts = new Rectangle(0, 0, 0, 0);
             }
-            await base.NodeZeichnenAbschluss(paintContext, gfx);
+             base.NodeZeichnenAbschluss(paintContext, gfx);
         }
 
         private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)

@@ -13,8 +13,8 @@
 @code {
     private FpsCounter fpsCounter;
     private XmlEditor xmlEditor;
+    private XmlEditorContext editorContext = new XmlEditorContext();
 
-    XmlEditorContext editorContext = new XmlEditorContext();
     private Timer selectTimer;
     private string documentContent = "<category><pattern>GUTEN TAG</pattern><template>Hallo, ich freue mich, Sie kennen zu lernen.</template></category>";
     private System.Xml.XmlDocument xmlDocument;

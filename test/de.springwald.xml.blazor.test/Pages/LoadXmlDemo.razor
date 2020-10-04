@@ -13,8 +13,8 @@
 @code {
 
     private FpsCounter fpsCounter;
+    private XmlEditorContext editorContext = new XmlEditorContext();
 
-    XmlEditorContext editorContext = new XmlEditorContext();
     private Timer loadDocumentTimer;
     private string[] documents = new[] {
         "<category><pattern>GUTEN TAG</pattern><template>Hallo, ich freue mich, Sie kennen zu lernen.</template></category>",
