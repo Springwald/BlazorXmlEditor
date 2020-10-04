@@ -12,7 +12,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             switch (job.JobType)
             {
                 case GfxJob.JobTypes.Clear:
-                    await gfx.ClearAsync((job as JobClear).Color);
+                    await gfx.ClearAsync((job as JobClear).FillColor);
                     break;
 
                 case GfxJob.JobTypes.DrawLine:

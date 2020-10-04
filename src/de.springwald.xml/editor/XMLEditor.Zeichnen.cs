@@ -1,6 +1,5 @@
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.editor.nativeplatform.gfxobs;
-using de.springwald.xml.events;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
@@ -24,7 +23,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         public async Task Paint(int limitRight)
         {
-            this.NativePlatform.Gfx.AddJob(new JobClear { Color = Color.White });
+            this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = Color.White });
 
             if (_rootElement != null)  // Wenn das 
             {
@@ -38,16 +37,10 @@ namespace de.springwald.xml.editor
                 };
 
                 // XML-Anzeige vorberechnen
-                var context1 =  await _rootElement.Paint(paintContext.Clone() , this.NativePlatform.Gfx);
+                var context1 = await _rootElement.Paint(paintContext.Clone(), this.NativePlatform.Gfx);
                 _virtuelleBreite = context1.BisherMaxX + 50 - ZeichnungsOffsetX;
                 _virtuelleHoehe = context1.PaintPosY + 50 - ZeichnungsOffsetY;
-
-                //// XML-Anzeige zeichnen
-                //await this.NativePlatform.Gfx.ClearAsync(Color.White);
-                //_rootElement.PaintPos = paintPos;
-                //await _rootElement.Paint(paintContext, XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting, e);
             }
-
             await this.NativePlatform.Gfx.PaintJobs();
         }
 

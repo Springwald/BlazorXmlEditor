@@ -69,7 +69,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task PaintJobs()
         {
-            var sorted = this.jobs.OrderBy(j => j.Layer).ThenBy(j => j.Batchable);
+            var sorted = this.jobs.OrderBy(j => j.Layer).ThenBy(j => j.Batchable).ThenBy(j => j.SortKey);
             var batching = false;
             foreach (var job in sorted)
             {

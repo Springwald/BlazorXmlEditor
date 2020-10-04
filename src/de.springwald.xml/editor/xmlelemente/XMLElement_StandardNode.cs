@@ -12,9 +12,9 @@ namespace de.springwald.xml.editor
     /// Zusammenfassung für XMLElement_StandardNode.
     /// </summary>
     /// <remarks>
-    /// (C)2005 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
+    /// (C)2005 Daniel Springwald, Bochum Germany
+    /// Springwald Software  -  www.springwald.de
+    /// daniel@springwald.de  -   0700-SPRINGWALD
     /// all rights reserved
     /// </remarks>
     public class XMLElement_StandardNode : XMLElement

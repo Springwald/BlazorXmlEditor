@@ -15,7 +15,7 @@
 
         public int Layer { get; set; }
         public bool Batchable { get; set; }
-
         public abstract JobTypes JobType { get; }
+        public abstract string SortKey { get; }
     }
 }
