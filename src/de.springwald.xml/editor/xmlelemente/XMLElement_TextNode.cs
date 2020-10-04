@@ -30,7 +30,7 @@ namespace de.springwald.xml.editor
         protected Color _drawBrushInvertiert_;
         protected Color _drawBrushInvertiertOhneFokus_;
 
-        private TextSplitPart[] _textTeile;  // Buffer der einzelnen, gezeichneten Zeilen. Jeder entspricht einem Klickbereich
+        private TextLine[] _textTeile;  // Buffer der einzelnen, gezeichneten Zeilen. Jeder entspricht einem Klickbereich
 
         //#region UnPaint-Werte
         //private string _lastPaintAktuellerInhalt; // der zuletzt in diesem Node gezeichnete Inhalt
@@ -129,6 +129,15 @@ namespace de.springwald.xml.editor
 
             int marginY = (paintContext.HoeheAktZeile - this._xmlEditor.EditorConfig.TextNodeFont.Height) / 2;
 
+            // ggf. den Cursorstrich vor dem Node berechnen
+            if (this.XMLNode == _xmlEditor.CursorOptimiert.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
+            {
+                if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
+                {
+                    this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
+                }
+            }
+
             this.StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge);
 
             _textTeile = new TextSplitHelper().SplitText(AktuellerInhalt, selektionStart, selektionLaenge, paintContext, this._xmlEditor.Regelwerk.AbstandYZwischenZeilen, this._xmlEditor.EditorConfig.TextNodeFont.Height, lastCalculatedFontWidth);
@@ -146,14 +155,7 @@ namespace de.springwald.xml.editor
                 });
             }
 
-            // ggf. den Cursorstrich vor dem Node berechnen
-            if (this.XMLNode == _xmlEditor.CursorOptimiert.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
-            {
-                if (_xmlEditor.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
-                {
-                    this._cursorStrichPos = new Point(paintContext.PaintPosX-1, paintContext.PaintPosY);
-                }
-            }
+           
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
             int aktTextTeilStartPos = 0;
