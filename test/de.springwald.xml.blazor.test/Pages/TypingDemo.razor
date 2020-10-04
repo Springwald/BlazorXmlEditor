@@ -3,10 +3,10 @@
 @using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
+@using de.springwald.xml.blazor.test.Components
 
 <h1>typing demo</h1>
-
-<h2>@fps FPS</h2>
+<FpsCounter @ref="fpsCounter"/>
 
 <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
 
@@ -14,10 +14,8 @@
 
     private const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
 
-    private DateTime startTime = DateTime.Now;
-    private int frames;
-    private string fps;
     private XmlEditor xmlEditor;
+    private FpsCounter fpsCounter;
 
     XmlEditorContext editorContext = new XmlEditorContext();
     private Timer typingTimer;
@@ -29,7 +27,6 @@
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
         this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
-
         this.typingTimer = new Timer();
         this.typingTimer.Elapsed += LoadDocumentTimedEvent;
         this.typingTimer.Interval = 1;
@@ -63,22 +60,9 @@
                 textNode.InnerText.Length);
         await this.xmlEditor.Editor.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), editor.XMLEditor.UndoSnapshotSetzenOptionen.ja);
 
-        this.Count();
-        this.typingTimer.Start();
-    }
-
-    private int showCounter = 0;
-
-    protected void Count()
-    {
-        this.frames++;
-        if (this.showCounter != DateTime.Now.Second)
-        {
-            this.showCounter = DateTime.Now.Second;
-            this.fps = $"{(this.frames / (DateTime.Now - this.startTime).TotalSeconds):0.00}";
-            this.StateHasChanged();
-        }
+        this.fpsCounter.Count();
 
         this.actualDocumentIndex++;
+        this.typingTimer.Start();
     }
 }

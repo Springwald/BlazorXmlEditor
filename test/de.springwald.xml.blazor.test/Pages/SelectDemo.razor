@@ -3,17 +3,15 @@
 @using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
+@using de.springwald.xml.blazor.test.Components
 
 <h1>select demo</h1>
-
-<h2>@fps FPS</h2>
+<FpsCounter @ref="fpsCounter" />
 
 <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
 
 @code {
-    private DateTime startTime = DateTime.Now;
-    private int frames;
-    private string fps;
+    private FpsCounter fpsCounter;
     private XmlEditor xmlEditor;
 
     XmlEditorContext editorContext = new XmlEditorContext();
@@ -64,19 +62,7 @@
                             templateNode,
                             cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
         }
-        this.Count();
+        this.fpsCounter.Count();
         this.selectTimer.Start();
-    }
-
-    private int showCounter = 0;
-    protected void Count()
-    {
-        this.frames++;
-        if (this.showCounter != DateTime.Now.Second)
-        {
-            this.showCounter = DateTime.Now.Second;
-            this.fps = $"{(this.frames / (DateTime.Now - this.startTime).TotalSeconds):0.00}";
-            this.StateHasChanged();
-        }
     }
 }

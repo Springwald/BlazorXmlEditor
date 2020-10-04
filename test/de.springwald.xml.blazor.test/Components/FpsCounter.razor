@@ -1,0 +1,27 @@
+﻿<h2>@fps FPS</h2>
+
+@code {
+
+    private DateTime? startTime = DateTime.Now;
+    private int frames;
+    private string fps;
+    private int showCounter = 0;
+
+    public void Count()
+    {
+        if (this.startTime.HasValue)
+        {
+            this.frames++;
+            if (this.showCounter != DateTime.Now.Second)
+            {
+                this.showCounter = DateTime.Now.Second;
+                this.fps = $"{(this.frames / (DateTime.Now - this.startTime.Value).TotalSeconds):0.00}";
+                this.StateHasChanged();
+            }
+        }
+        else
+        {
+            this.startTime = DateTime.Now;
+        }
+    }
+}
