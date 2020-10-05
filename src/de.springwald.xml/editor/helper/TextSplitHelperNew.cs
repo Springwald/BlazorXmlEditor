@@ -42,6 +42,7 @@ namespace de.springwald.xml.editor.helper
                     {
                         //end of inverting
                         splitHere = true;
+                        inverted = false;
                     }
                 } else
                 {
@@ -49,7 +50,7 @@ namespace de.springwald.xml.editor.helper
                     {
                         // start of inverting
                         inverted = true;
-                        splitHere = false;
+                        splitHere = true;
                     }
                 }
                 if (splitHere)
