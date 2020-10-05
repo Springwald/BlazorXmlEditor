@@ -26,6 +26,7 @@ namespace de.springwald.xml.editor.helper
             var wasInverted = inverted;
             var splitHere = false;
             var startNewLine = false;
+            var endOfText = false;
             var maxLengthThisLine = maxLengthFirstLine;
 
             while (watchOutPos < text.Length)
@@ -36,8 +37,8 @@ namespace de.springwald.xml.editor.helper
 
                 if (watchOutPos == text.Length - 1)
                 {
+                    endOfText = true;
                     splitHere = true;
-                    startNewLine = watchOutPos - usedChars >= maxLengthThisLine;
                 }
 
                 if (text[watchOutPos] == ' ') // next chance to split
@@ -48,7 +49,6 @@ namespace de.springwald.xml.editor.helper
                     }
                     else
                     {
-                        startNewLine = true;
                         splitHere = true;
                     }
                 }
@@ -74,9 +74,10 @@ namespace de.springwald.xml.editor.helper
 
                 if (splitHere)
                 {
+                    startNewLine = watchOutPos - usedChars >= maxLengthThisLine;
+                    if (startNewLine && saveFallbackForActualLine - usedChars == 0) startNewLine = false;
                     if (startNewLine)
                     {
-                        if (saveFallbackForActualLine - usedChars == 0) saveFallbackForActualLine = watchOutPos;
                         var partText = text.Substring(usedChars, saveFallbackForActualLine - usedChars);
                         yield return new TextPart
                         {
@@ -88,17 +89,21 @@ namespace de.springwald.xml.editor.helper
                         usedChars += partText.Length;
                         saveFallbackForActualLine = watchOutPos;
                     }
-                    else
+
+                    if (startNewLine == false || endOfText)
                     {
                         var partText = text.Substring(usedChars, 1 + watchOutPos - usedChars);
-                        yield return new TextPart
+                        if (partText.Length != 0)
                         {
-                            Inverted = wasInverted,
-                            Text = partText,
-                            LineNo = lineNo
-                        };
-                        saveFallbackForActualLine = watchOutPos;
-                        usedChars += partText.Length;
+                            yield return new TextPart
+                            {
+                                Inverted = wasInverted,
+                                Text = partText,
+                                LineNo = lineNo
+                            };
+                            saveFallbackForActualLine = watchOutPos;
+                            usedChars += partText.Length;
+                        }
                     }
                 }
                 watchOutPos++;
