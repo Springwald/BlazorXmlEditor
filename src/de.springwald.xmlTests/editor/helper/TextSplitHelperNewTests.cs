@@ -28,8 +28,24 @@ namespace de.springwald.xml.editor.helper.Tests
             }
         }
 
+
         [TestMethod()]
-        public void SplitEmptyText()
+        public void SplitInvertedTest()
+        {
+            var result = TextSplitHelperNew.SplitText("1234567890ABCDEFG", 5, 5, PaintContext, LineSpaceY, FontHeight, FontWidth).ToArray();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result.Length);
+            Assert.AreEqual("12345",result[0].Text);
+            Assert.IsFalse(result[0].Inverted);
+            Assert.AreEqual("67890", result[1].Text);
+            Assert.IsTrue(result[0].Inverted);
+            Assert.AreEqual("ABCDE", result[2].Text);
+            Assert.IsFalse(result[0].Inverted);
+        }
+
+
+        [TestMethod()]
+        public void SplitEmptyTest()
         {
             var result = TextSplitHelperNew.SplitText(string.Empty, -1, 0, PaintContext, LineSpaceY, FontHeight, FontWidth).ToArray();
             Assert.IsNotNull(result);
@@ -37,7 +53,7 @@ namespace de.springwald.xml.editor.helper.Tests
         }
 
         [TestMethod()]
-        public void SplitOneCharText()
+        public void SplitOneCharTest()
         {
             var result = TextSplitHelperNew.SplitText("A", -1, 0, PaintContext, LineSpaceY, FontHeight, FontWidth).ToArray();
             Assert.IsNotNull(result);
@@ -47,7 +63,7 @@ namespace de.springwald.xml.editor.helper.Tests
         }
 
         [TestMethod()]
-        public void SplitOneCharTextInverted()
+        public void SplitOneCharTestInverted()
         {
             var result = TextSplitHelperNew.SplitText("A", 0, 1, PaintContext, LineSpaceY, FontHeight, FontWidth).ToArray();
             Assert.IsNotNull(result);
@@ -55,5 +71,7 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual("A", result[0].Text);
             Assert.IsTrue(result[0].Inverted);
         }
+
+
     }
 }
