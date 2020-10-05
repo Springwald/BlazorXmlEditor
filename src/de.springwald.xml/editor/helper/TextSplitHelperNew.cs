@@ -15,11 +15,13 @@ namespace de.springwald.xml.editor.helper
 
         public static IEnumerable<TextPart> SplitText(string text, int invertiertStart, int invertiertLaenge, int maxLength, int maxLengthFirstLine)
         {
-            var lineNo = 0;
-            var invertiertEnd = invertiertStart + invertiertLaenge;
-            var pos = 0;
+            var invertiertEnd = invertiertStart + invertiertLaenge - 1;
+
+            var usedChars = 0;
+            var saveFallbackForActualLine = 0;
             var watchOutPos = 0;
-            char charAtPos;
+
+            var lineNo = 0;
             var inverted = invertiertStart == 0;
             var wasInverted = inverted;
             var splitHere = false;
@@ -28,50 +30,78 @@ namespace de.springwald.xml.editor.helper
 
             while (watchOutPos < text.Length)
             {
-                splitHere = watchOutPos == text.Length-1;
+                splitHere = false;
                 wasInverted = inverted;
                 startNewLine = false;
-                watchOutPos++;
-                charAtPos = text[pos];
-                if (charAtPos == ' ') // next chance to split
+
+                if (watchOutPos == text.Length - 1)
                 {
-                    if (watchOutPos - pos >= maxLengthThisLine)
+                    splitHere = true;
+                    startNewLine = watchOutPos - usedChars >= maxLengthThisLine;
+                }
+
+                if (text[watchOutPos] == ' ') // next chance to split
+                {
+                    if (watchOutPos - usedChars <= maxLengthThisLine)
+                    {
+                        saveFallbackForActualLine = watchOutPos;
+                    }
+                    else
                     {
                         startNewLine = true;
                         splitHere = true;
                     }
                 }
+
                 if (inverted)
                 {
-                    if (watchOutPos == invertiertEnd) 
+                    if (watchOutPos == invertiertEnd)
                     {
                         //end of inverting
                         splitHere = true;
                         inverted = false;
                     }
-                } else
+                }
+                else
                 {
-                    if (watchOutPos == invertiertStart)
+                    if (watchOutPos == invertiertStart - 1)
                     {
                         // start of inverting
                         inverted = true;
                         splitHere = true;
                     }
                 }
+
                 if (splitHere)
                 {
-                    yield return new TextPart
-                    {
-                        Inverted = wasInverted,
-                        Text = text.Substring(pos, watchOutPos - pos)
-                    };
-                    pos = watchOutPos ;
                     if (startNewLine)
                     {
+                        if (saveFallbackForActualLine - usedChars == 0) saveFallbackForActualLine = watchOutPos;
+                        var partText = text.Substring(usedChars, saveFallbackForActualLine - usedChars);
+                        yield return new TextPart
+                        {
+                            Inverted = wasInverted,
+                            Text = partText,
+                            LineNo = lineNo
+                        };
                         lineNo++;
-                        maxLengthThisLine = maxLength;
+                        usedChars += partText.Length;
+                        saveFallbackForActualLine = watchOutPos;
+                    }
+                    else
+                    {
+                        var partText = text.Substring(usedChars, 1 + watchOutPos - usedChars);
+                        yield return new TextPart
+                        {
+                            Inverted = wasInverted,
+                            Text = partText,
+                            LineNo = lineNo
+                        };
+                        saveFallbackForActualLine = watchOutPos;
+                        usedChars += partText.Length;
                     }
                 }
+                watchOutPos++;
             }
         }
 
