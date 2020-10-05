@@ -140,7 +140,7 @@ namespace de.springwald.xml.editor
 
             this.StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge);
 
-            _textTeile = new TextSplitHelper().SplitText(AktuellerInhalt, selektionStart, selektionLaenge, paintContext, this._xmlEditor.Regelwerk.AbstandYZwischenZeilen, this._xmlEditor.EditorConfig.TextNodeFont.Height, lastCalculatedFontWidth);
+            _textTeile = new TextSplitHelperOld().SplitText(AktuellerInhalt, selektionStart, selektionLaenge, paintContext, this._xmlEditor.Regelwerk.AbstandYZwischenZeilen, this._xmlEditor.EditorConfig.TextNodeFont.Height, lastCalculatedFontWidth);
 
             // Texthintergrund färben
             foreach (var teil in _textTeile)
