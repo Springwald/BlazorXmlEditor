@@ -64,7 +64,13 @@ namespace de.springwald.xml.editor.helper
                 if (splitHere)
                 {
                     var cutPos = watchOutPos;
-                    if (cutPos - usedChars > maxLengthThisLine && lastWordSpacePos > usedChars) cutPos = lastWordSpacePos;
+                    var rememberLastWordSpacePos = true;
+                    if (cutPos - usedChars > maxLengthThisLine && lastWordSpacePos > usedChars)
+                    {
+                        cutPos = lastWordSpacePos;
+                        lastWordSpacePos = watchOutPos;
+                        rememberLastWordSpacePos = false;
+                    } 
                     var partText = text.Substring(usedChars, 1 + cutPos - usedChars);
                     yield return new TextPart
                     {
@@ -74,7 +80,7 @@ namespace de.springwald.xml.editor.helper
                     };
                     if (cutPos - usedChars > maxLengthThisLine) lineNo++; // start new line when needed
                     usedChars += partText.Length;
-                    lastWordSpacePos = usedChars;
+                    if (rememberLastWordSpacePos) lastWordSpacePos = usedChars;
                 }
                 watchOutPos++;
             }

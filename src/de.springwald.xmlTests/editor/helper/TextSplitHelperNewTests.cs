@@ -151,11 +151,13 @@ namespace de.springwald.xml.editor.helper.Tests
         {
             var result = TextSplitHelperNew.SplitText("12345 67890 ABCDE", -1, 0, 5, 5).ToArray();
             Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.Length);
+            Assert.AreEqual(3, result.Length);
             Assert.AreEqual("12345", result[0].Text);
-            Assert.AreEqual(" 67890 ABCDE", result[1].Text);
+            Assert.AreEqual(" 67890", result[1].Text);
+            Assert.AreEqual(" ABCDE", result[2].Text);
             Assert.IsFalse(result[0].Inverted);
             Assert.IsFalse(result[1].Inverted);
+            Assert.IsFalse(result[2].Inverted);
         }
 
     }
