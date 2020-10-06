@@ -43,13 +43,14 @@ namespace de.springwald.xml.editor.helper
 
                 if (text[watchOutPos] == ' ') // next chance to split
                 {
-                    if (watchOutPos - usedChars <= maxLengthThisLine)
+                    var lineLengthAtWatchOutPos = watchOutPos - usedChars;
+                    if (lineLengthAtWatchOutPos <= maxLengthThisLine)
                     {
-                        saveFallbackForActualLine = watchOutPos;
+                        saveFallbackForActualLine = watchOutPos; // actual word fits into line
                     }
                     else
                     {
-                        splitHere = true;
+                        splitHere = true; // actual word does not fit into line
                     }
                 }
 

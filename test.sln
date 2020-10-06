@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xml.blazor.te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.Canvas", "src\Blazor.Canvas\Canvas\Blazor.Canvas.csproj", "{256B101F-6887-4565-9D53-E028DE9FA2EC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xmlTests", "src\de.springwald.xmlTests\de.springwald.xmlTests.csproj", "{7CA9B0DC-2B47-4540-98A8-CB57425C664A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{256B101F-6887-4565-9D53-E028DE9FA2EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{256B101F-6887-4565-9D53-E028DE9FA2EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{256B101F-6887-4565-9D53-E028DE9FA2EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CA9B0DC-2B47-4540-98A8-CB57425C664A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CA9B0DC-2B47-4540-98A8-CB57425C664A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CA9B0DC-2B47-4540-98A8-CB57425C664A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CA9B0DC-2B47-4540-98A8-CB57425C664A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
