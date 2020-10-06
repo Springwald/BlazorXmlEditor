@@ -14,43 +14,19 @@ namespace de.springwald.xml.editor.helper
         public static IEnumerable<TextPart> SplitText(string text, int invertiertStart, int invertiertLaenge, int maxLength, int maxLengthFirstLine)
         {
             var invertiertEnd = invertiertStart + invertiertLaenge - 1;
-
             var usedChars = 0;
-            var saveFallbackForActualLine = 0;
+            var lastWordSpacePos = 0;
             var watchOutPos = 0;
-
             var lineNo = 0;
             var inverted = invertiertStart == 0;
             var wasInverted = inverted;
-            var splitHere = false;
-            var startNewLine = false;
-            var endOfText = false;
             var maxLengthThisLine = maxLengthFirstLine;
+            bool splitHere;
 
             while (watchOutPos < text.Length)
             {
                 splitHere = false;
                 wasInverted = inverted;
-                startNewLine = false;
-
-                if (watchOutPos == text.Length - 1)
-                {
-                    endOfText = true;
-                    splitHere = true;
-                }
-
-                if (text[watchOutPos] == ' ') // next chance to split
-                {
-                    var lineLengthAtWatchOutPos = watchOutPos - usedChars;
-                    if (lineLengthAtWatchOutPos <= maxLengthThisLine)
-                    {
-                        saveFallbackForActualLine = watchOutPos; // actual word fits into line
-                    }
-                    else
-                    {
-                        splitHere = true; // actual word does not fit into line
-                    }
-                }
 
                 if (inverted)
                 {
@@ -71,41 +47,47 @@ namespace de.springwald.xml.editor.helper
                     }
                 }
 
-                if (splitHere)
+                if (text[watchOutPos] == ' ')
                 {
-                    startNewLine = watchOutPos - usedChars >= maxLengthThisLine;
-                    if (startNewLine && saveFallbackForActualLine - usedChars == 0) startNewLine = false;
-                    if (startNewLine)
+                    if (watchOutPos - usedChars >= maxLengthThisLine)
                     {
-                        var partText = text.Substring(usedChars, saveFallbackForActualLine - usedChars);
-                        yield return new TextPart
-                        {
-                            Inverted = wasInverted,
-                            Text = partText,
-                            LineNo = lineNo
-                        };
-                        lineNo++;
-                        usedChars += partText.Length;
-                        saveFallbackForActualLine = watchOutPos;
+                        splitHere = true;
                     }
-
-                    if (startNewLine == false || endOfText)
+                    else
                     {
-                        var partText = text.Substring(usedChars, 1 + watchOutPos - usedChars);
-                        if (partText.Length != 0)
-                        {
-                            yield return new TextPart
-                            {
-                                Inverted = wasInverted,
-                                Text = partText,
-                                LineNo = lineNo
-                            };
-                            saveFallbackForActualLine = watchOutPos;
-                            usedChars += partText.Length;
-                        }
+                        lastWordSpacePos = watchOutPos;
                     }
                 }
+
+                if (watchOutPos == text.Length - 1) splitHere = true;
+
+                if (splitHere)
+                {
+                    var cutPos = watchOutPos;
+                    if (cutPos - usedChars >= maxLengthThisLine && lastWordSpacePos > usedChars) cutPos = lastWordSpacePos;
+                    var partText = text.Substring(usedChars, 1 + cutPos - usedChars);
+                    yield return new TextPart
+                    {
+                        Inverted = wasInverted,
+                        Text = partText,
+                        LineNo = lineNo
+                    };
+                    if (cutPos - usedChars > maxLengthThisLine) lineNo++; // start new line when needed
+                    usedChars += partText.Length;
+                    lastWordSpacePos = usedChars;
+                }
                 watchOutPos++;
+            }
+
+            if (usedChars < text.Length) // is there unused text left?
+            {
+                var partText = text.Substring(usedChars, text.Length - usedChars);
+                yield return new TextPart
+                {
+                    Inverted = wasInverted,
+                    Text = partText,
+                    LineNo = lineNo
+                };
             }
         }
     }
