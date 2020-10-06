@@ -1,6 +1,4 @@
-﻿using de.springwald.xml.editor.nativeplatform.gfx;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace de.springwald.xml.editor.helper
 {
@@ -110,6 +108,5 @@ namespace de.springwald.xml.editor.helper
                 watchOutPos++;
             }
         }
-
     }
 }
