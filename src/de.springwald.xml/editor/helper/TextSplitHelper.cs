@@ -76,6 +76,7 @@ namespace de.springwald.xml.editor.helper
                 {
                     var cutPos = watchOutPos;
                     var rememberLastWordSpacePos = true;
+                    var newLine = (cutPos - usedChars > maxLengthThisLine);
                     if (cutPos - usedChars > maxLengthThisLine && lastWordSpacePos > usedChars)
                     {
                         cutPos = lastWordSpacePos;
@@ -89,7 +90,7 @@ namespace de.springwald.xml.editor.helper
                         Text = partText,
                         LineNo = lineNo
                     };
-                    if (cutPos - usedChars > maxLengthThisLine)
+                    if (newLine)
                     {
                         lineNo++; // start new line when needed
                         maxLengthThisLine = maxLength;

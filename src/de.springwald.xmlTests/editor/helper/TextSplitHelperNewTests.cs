@@ -14,6 +14,7 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual("1234567890ABCDE", result[0].Text);
             Assert.IsTrue(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
         }
 
         [TestMethod()]
@@ -24,6 +25,7 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual("12345 67890 ABCDE", result[0].Text);
             Assert.IsTrue(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
         }
 
         [TestMethod()]
@@ -34,6 +36,7 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual("1234567890ABCDE", result[0].Text);
             Assert.IsFalse(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
         }
 
         [TestMethod()]
@@ -44,6 +47,7 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual("12345 67890 ABCDE", result[0].Text);
             Assert.IsTrue(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
         }
 
 
@@ -55,10 +59,13 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(3, result.Length);
             Assert.AreEqual("12345", result[0].Text);
             Assert.IsFalse(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
             Assert.AreEqual("67890", result[1].Text);
             Assert.IsTrue(result[1].Inverted);
+            Assert.AreEqual(0, result[1].LineNo);
             Assert.AreEqual("ABCDE", result[2].Text);
             Assert.IsFalse(result[2].Inverted);
+            Assert.AreEqual(0, result[2].LineNo);
         }
 
 
@@ -70,8 +77,10 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(2, result.Length);
             Assert.AreEqual("1234567890", result[0].Text);
             Assert.IsFalse(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
             Assert.AreEqual("ABCDE", result[1].Text);
             Assert.IsTrue(result[1].Inverted);
+            Assert.AreEqual(0, result[1].LineNo);
         }
 
         [TestMethod()]
@@ -90,6 +99,7 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual("A", result[0].Text);
             Assert.IsFalse(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
         }
 
         [TestMethod()]
@@ -100,6 +110,7 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(1, result.Length);
             Assert.AreEqual("A", result[0].Text);
             Assert.IsTrue(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
         }
 
         [TestMethod()]
@@ -114,6 +125,9 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.IsFalse(result[0].Inverted);
             Assert.IsFalse(result[1].Inverted);
             Assert.IsFalse(result[2].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
+            Assert.AreEqual(1, result[1].LineNo);
+            Assert.AreEqual(2, result[2].LineNo);
         }
 
         [TestMethod()]
@@ -128,6 +142,9 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.IsFalse(result[0].Inverted);
             Assert.IsFalse(result[1].Inverted);
             Assert.IsFalse(result[2].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
+            Assert.AreEqual(1, result[1].LineNo);
+            Assert.AreEqual(2, result[2].LineNo);
         }
 
         [TestMethod()]
@@ -140,6 +157,8 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(" ABCDE", result[1].Text);
             Assert.IsFalse(result[0].Inverted);
             Assert.IsFalse(result[1].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
+            Assert.AreEqual(1, result[1].LineNo);
         }
 
         [TestMethod()]
@@ -154,6 +173,9 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.IsFalse(result[0].Inverted);
             Assert.IsFalse(result[1].Inverted);
             Assert.IsFalse(result[2].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
+            Assert.AreEqual(1, result[1].LineNo);
+            Assert.AreEqual(2, result[2].LineNo);
         }
 
     }

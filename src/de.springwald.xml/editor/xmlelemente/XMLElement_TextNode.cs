@@ -1,7 +1,17 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.helper;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,14 +20,14 @@ namespace de.springwald.xml.editor
     /// <summary>
     /// XML-Element zur Darstellung eines Textnodes
     /// </summary>
-    /// <remarks>
-    /// (C)2006 Daniel Springwald, Bochum Germany
-    /// Springwald Software  -  www.springwald.de
-    /// daniel@springwald.de - +49 234 298 788 46
-    /// all rights reserved
-    /// </remarks>
     public class XMLElement_TextNode : XMLElement
     {
+        private class TextLine
+        {
+            public string Text { get; set; }
+            public Rectangle Rectangle { get; set; }
+            public bool Inverted { get; set; }
+        }
 
         protected int lastFontHeight = 0;
         protected float lastCalculatedFontWidth = 0;
@@ -140,7 +150,17 @@ namespace de.springwald.xml.editor
 
             this.StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge);
 
-            _textTeile = new TextSplitHelperOld().SplitText(AktuellerInhalt, selektionStart, selektionLaenge, paintContext, this._xmlEditor.Regelwerk.AbstandYZwischenZeilen, this._xmlEditor.EditorConfig.TextNodeFont.Height, lastCalculatedFontWidth);
+            const int charMarginRight = 2;
+
+            var textParts = TextSplitHelper.SplitText(
+                text: AktuellerInhalt,
+                invertStart: selektionStart,
+                invertLength: selektionLaenge,
+                maxLength: (int)((paintContext.LimitRight - paintContext.LimitLeft) / lastCalculatedFontWidth) - charMarginRight,
+                maxLengthFirstLine: (int)((paintContext.LimitRight - paintContext.PaintPosX) / lastCalculatedFontWidth) - charMarginRight)
+                .ToArray();
+
+            _textTeile = this.GetTextLinesFromTextParts(textParts, paintContext, lastFontHeight, lastCalculatedFontWidth).ToArray();
 
             // Texthintergrund färben
             foreach (var teil in _textTeile)
@@ -155,7 +175,7 @@ namespace de.springwald.xml.editor
                 });
             }
 
-           
+
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
             int aktTextTeilStartPos = 0;
@@ -206,6 +226,32 @@ namespace de.springwald.xml.editor
                 {
                     this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY + marginY);
                 }
+            }
+        }
+
+        private IEnumerable<TextLine> GetTextLinesFromTextParts(TextSplitHelper.TextPart[] parts, PaintContext paintContext, int fontHeight, float fontWidth)
+        {
+            paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, fontHeight);
+            var x = paintContext.PaintPosX;
+            var y = paintContext.PaintPosY;
+            var actualLine = 0;
+
+            foreach(var part in parts)
+            {
+                var newLine = part.LineNo != actualLine;
+                if (newLine)
+                {
+                    y += paintContext.HoeheAktZeile;
+                    x = paintContext.LimitLeft;
+                }
+                var width = (int)(part.Text.Length * fontWidth);
+                yield return new TextLine
+                {
+                    Text = part.Text,
+                    Inverted = part.Inverted,
+                    Rectangle = new Rectangle(x, y, width, paintContext.HoeheAktZeile)
+                };
+                x += 1+ width;
             }
         }
 
