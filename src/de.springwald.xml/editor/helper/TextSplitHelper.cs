@@ -1,8 +1,17 @@
-﻿using System.Collections.Generic;
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
+using System.Collections.Generic;
 
 namespace de.springwald.xml.editor.helper
 {
-    public class TextSplitHelperNew
+    public class TextSplitHelper
     {
         public class TextPart
         {
@@ -11,17 +20,19 @@ namespace de.springwald.xml.editor.helper
             public bool Inverted { get; set; }
         }
 
-        public static IEnumerable<TextPart> SplitText(string text, int invertiertStart, int invertiertLaenge, int maxLength, int maxLengthFirstLine)
+        public static IEnumerable<TextPart> SplitText(string text, int invertStart, int invertLength, int maxLength, int maxLengthFirstLine)
         {
-            var invertiertEnd = invertiertStart + invertiertLaenge - 1;
             var usedChars = 0;
             var lastWordSpacePos = 0;
             var watchOutPos = 0;
-            var lineNo = 0;
-            var inverted = invertiertStart == 0;
-            var wasInverted = inverted;
-            var maxLengthThisLine = maxLengthFirstLine;
             bool splitHere;
+
+            var invertedEnd = invertStart + invertLength - 1;
+            var inverted = invertStart == 0;
+            var wasInverted = inverted;
+
+            var maxLengthThisLine = maxLengthFirstLine;
+            var lineNo = 0;
 
             while (watchOutPos < text.Length)
             {
@@ -30,7 +41,7 @@ namespace de.springwald.xml.editor.helper
 
                 if (inverted)
                 {
-                    if (watchOutPos == invertiertEnd)
+                    if (watchOutPos == invertedEnd)
                     {
                         //end of inverting
                         splitHere = true;
@@ -39,7 +50,7 @@ namespace de.springwald.xml.editor.helper
                 }
                 else
                 {
-                    if (watchOutPos == invertiertStart - 1)
+                    if (watchOutPos == invertStart - 1)
                     {
                         // start of inverting
                         inverted = true;
@@ -78,7 +89,11 @@ namespace de.springwald.xml.editor.helper
                         Text = partText,
                         LineNo = lineNo
                     };
-                    if (cutPos - usedChars > maxLengthThisLine) lineNo++; // start new line when needed
+                    if (cutPos - usedChars > maxLengthThisLine)
+                    {
+                        lineNo++; // start new line when needed
+                        maxLengthThisLine = maxLength;
+                    }
                     usedChars += partText.Length;
                     if (rememberLastWordSpacePos) lastWordSpacePos = usedChars;
                 }

@@ -1,4 +1,6 @@
-﻿namespace de.springwald.xml
+﻿
+
+namespace de.springwald.xml
 {
     class ElementCreator
     {

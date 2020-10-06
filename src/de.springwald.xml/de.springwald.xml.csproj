@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Company>Springwald Software, www.springwald.de</Company>
+    <Product>xml editor</Product>
+    <Authors>Daniel Springwald, daniel@springwald.de</Authors>
+    <PackageLicenseExpression>MIT Licence</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Springwald/BlazorXmlEditor</PackageProjectUrl>
+    <Copyright>(C) 2020 Daniel Springwald</Copyright>
+    <Description>A platform indepentend tag-view-style graphical xml editor</Description>
   </PropertyGroup>
 
 </Project>

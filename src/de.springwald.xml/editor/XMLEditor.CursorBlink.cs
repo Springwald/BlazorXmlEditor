@@ -1,3 +1,6 @@
+ï»¿
+
+
 using System;
 using System.Threading.Tasks;
 
@@ -5,7 +8,7 @@ namespace de.springwald.xml.editor
 {
     /// <summary>
     /// Der Teil des XMLEditors, welcher sich mit der Anzeige des Blink-Cursors
-    /// beschäftigt
+    /// beschÃ¤ftigt
     /// </summary>
     /// <remarks>
     /// (C)2006 Daniel Springwald, Herne Germany
@@ -23,7 +26,7 @@ namespace de.springwald.xml.editor
         /// <summary>Der Timer, um den Cursor blinken zu lassen</summary>
         // private Timer _timerCursorBlink;
 
-        private bool _cursorBlinkOn = true; // true=Cursor wird als nächstes als Strich gezeichnet, false=Cursor wird nicht gezeichnet
+        private bool _cursorBlinkOn = true; // true=Cursor wird als nÃ¤chstes als Strich gezeichnet, false=Cursor wird nicht gezeichnet
 
 
         /// <summary>
@@ -45,7 +48,7 @@ namespace de.springwald.xml.editor
         }
 
         /// <summary>
-        ///  true=Cursor wird als nächstes als Strich gezeichnet, false=Cursor wird nicht gezeichnet
+        ///  true=Cursor wird als nÃ¤chstes als Strich gezeichnet, false=Cursor wird nicht gezeichnet
         /// </summary>
         public bool CursorBlinkOn
         {
@@ -56,7 +59,7 @@ namespace de.springwald.xml.editor
                 {
                     if (this.NativePlatform.ControlElement.Focused) // Zeichnungssteuerelement hat Fokus
                     {
-                        _cursorBlinkOn = value; // Wunsch übernehmen
+                        _cursorBlinkOn = value; // Wunsch Ã¼bernehmen
                     }
                     else // Zeichnunssteuerelemen hat nicht den Fokus
                     {
@@ -82,7 +85,7 @@ namespace de.springwald.xml.editor
             if (_statusOhneCursor != null)
             {
 #warning Hier noch evtl. speicherprobleme checken
-                // Noch ein alter Status drin. Kann das zu Speicherproblemen führen?
+                // Noch ein alter Status drin. Kann das zu Speicherproblemen fÃ¼hren?
             }
 
             // Den Zustand ohne Cursor speichern
