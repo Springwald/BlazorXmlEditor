@@ -47,9 +47,9 @@ namespace de.springwald.xml.editor.helper
                     }
                 }
 
-                if (text[watchOutPos] == ' ')
+                if (watchOutPos+1 < text.Length &&  text[watchOutPos+1] == ' ')
                 {
-                    if (watchOutPos - usedChars >= maxLengthThisLine)
+                    if (watchOutPos - usedChars > maxLengthThisLine)
                     {
                         splitHere = true;
                     }
@@ -64,7 +64,7 @@ namespace de.springwald.xml.editor.helper
                 if (splitHere)
                 {
                     var cutPos = watchOutPos;
-                    if (cutPos - usedChars >= maxLengthThisLine && lastWordSpacePos > usedChars) cutPos = lastWordSpacePos;
+                    if (cutPos - usedChars > maxLengthThisLine && lastWordSpacePos > usedChars) cutPos = lastWordSpacePos;
                     var partText = text.Substring(usedChars, 1 + cutPos - usedChars);
                     yield return new TextPart
                     {
