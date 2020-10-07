@@ -112,8 +112,7 @@ namespace de.springwald.xmlTests.editor.helper
         {
             var result = TextSplitHelper.SplitText("OOOII IIOOO OOOOO OOOOO", invertStart: 3, invertLength: 5, maxLength: 5, maxLengthFirstLine: 5).ToArray();
             Assert.IsNotNull(result);
-            Assert.AreEqual(6, result.Length);
-
+           
             Assert.AreEqual("OOO", result[0].Text);
             Assert.IsFalse(result[0].Inverted);
             Assert.AreEqual(0, result[0].LineNo);
@@ -137,6 +136,8 @@ namespace de.springwald.xmlTests.editor.helper
             Assert.AreEqual(" OOOOO", result[5].Text);
             Assert.IsFalse(result[5].Inverted);
             Assert.AreEqual(3, result[5].LineNo);
+
+            Assert.AreEqual(6, result.Length);
         }
 
 
