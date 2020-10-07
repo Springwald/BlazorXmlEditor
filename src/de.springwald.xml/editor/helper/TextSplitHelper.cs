@@ -43,7 +43,7 @@ namespace de.springwald.xml.editor.helper
             {
                 if (text[watchOutPos] == ' ') lastPossibleSplitPos = watchOutPos;
 
-                if (watchOutPos - usedChars > maxLengthThisLine)
+                if (watchOutPos - usedChars >= maxLengthThisLine)
                 {
                     if (lastPossibleSplitPos - usedChars > 0)
                     {
