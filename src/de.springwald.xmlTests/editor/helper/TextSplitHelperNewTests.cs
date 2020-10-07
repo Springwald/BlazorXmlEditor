@@ -76,9 +76,11 @@ namespace de.springwald.xml.editor.helper.Tests
             var result = TextSplitHelper.SplitText("1234567890ABCDE", 10, 5, 1000, 1000).ToArray();
             Assert.IsNotNull(result);
             Assert.AreEqual(2, result.Length);
+
             Assert.AreEqual("1234567890", result[0].Text);
             Assert.IsFalse(result[0].Inverted);
             Assert.AreEqual(0, result[0].LineNo);
+
             Assert.AreEqual("ABCDE", result[1].Text);
             Assert.IsTrue(result[1].Inverted);
             Assert.AreEqual(0, result[1].LineNo);
@@ -90,10 +92,22 @@ namespace de.springwald.xml.editor.helper.Tests
             var result = TextSplitHelper.SplitText("OOOII IIOOO", invertStart: 3, invertLength: 5, maxLength: 5, maxLengthFirstLine: 5).ToArray();
             Assert.IsNotNull(result);
             Assert.AreEqual(4, result.Length);
-            CheckPart(result[0], "OOO", 0, false);
-            CheckPart(result[1], "II", 0, true);
-            CheckPart(result[2], " II", 1, true);
-            CheckPart(result[3], "OOO", 1, true);
+
+            Assert.AreEqual("OOO", result[0].Text);
+            Assert.IsFalse(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
+
+            Assert.AreEqual("II", result[1].Text);
+            Assert.IsTrue(result[1].Inverted);
+            Assert.AreEqual(0, result[1].LineNo);
+
+            Assert.AreEqual(" II", result[2].Text);
+            Assert.IsTrue(result[2].Inverted);
+            Assert.AreEqual(1, result[2].LineNo);
+
+            Assert.AreEqual("OOO", result[3].Text);
+            Assert.IsFalse(result[3].Inverted);
+            Assert.AreEqual(1, result[3].LineNo);
         }
 
         [TestMethod()]
@@ -192,7 +206,7 @@ namespace de.springwald.xml.editor.helper.Tests
         }
 
 
-        private void CheckPart(TextPart part, string text, int lineNo, bool inverted)
+        private void CheckPart(TextPart part, string text, int lineNo, bool inverted, TextPart[] allParts)
         {
             Assert.AreEqual(text, part.Text, "lineNo:" + lineNo);
             Assert.AreEqual(lineNo, part.LineNo, "lineNo");
