@@ -1,9 +1,6 @@
 ﻿using de.springwald.xml.editor.helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace de.springwald.xmlTests.editor.helper
 {
@@ -88,6 +85,26 @@ namespace de.springwald.xmlTests.editor.helper
             Assert.AreEqual("ABCDE", result[1].Text);
             Assert.IsTrue(result[1].Inverted);
             Assert.AreEqual(0, result[1].LineNo);
+        }
+
+        [TestMethod()]
+        public void SplitInvertedTest2()
+        {
+            var result = TextSplitHelper.SplitText("1234567890 ABCDE", 3, 7, 10, 10).ToArray();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result.Length);
+
+            Assert.AreEqual("123", result[0].Text);
+            Assert.IsFalse(result[0].Inverted);
+            Assert.AreEqual(0, result[0].LineNo);
+
+            Assert.AreEqual("4567890", result[1].Text);
+            Assert.IsTrue(result[1].Inverted);
+            Assert.AreEqual(0, result[1].LineNo);
+
+            Assert.AreEqual(" ABCDE", result[2].Text);
+            Assert.IsFalse(result[2].Inverted);
+            Assert.AreEqual(1, result[2].LineNo);
         }
 
         [TestMethod()]

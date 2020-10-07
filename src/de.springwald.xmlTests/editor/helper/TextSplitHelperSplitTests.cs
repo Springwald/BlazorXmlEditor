@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
-using static de.springwald.xml.editor.helper.TextSplitHelper;
 
 namespace de.springwald.xml.editor.helper.Tests
 {

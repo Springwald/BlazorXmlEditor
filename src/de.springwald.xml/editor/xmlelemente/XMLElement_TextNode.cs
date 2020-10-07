@@ -241,6 +241,7 @@ namespace de.springwald.xml.editor
                 var newLine = part.LineNo != actualLine;
                 if (newLine)
                 {
+                    actualLine = part.LineNo;
                     y += paintContext.HoeheAktZeile;
                     x = paintContext.LimitLeft;
                 }
@@ -251,7 +252,7 @@ namespace de.springwald.xml.editor
                     Inverted = part.Inverted,
                     Rectangle = new Rectangle(x, y, width, paintContext.HoeheAktZeile)
                 };
-                x += 1+ width;
+                x += 1 + width;
             }
         }
 

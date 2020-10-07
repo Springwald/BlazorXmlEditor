@@ -27,7 +27,7 @@ namespace de.springwald.xml.editor.helper
             if (invertLength < 0) throw new ArgumentOutOfRangeException(nameof(invertLength) + ":" + invertLength);
             if (invertStart < -1) throw new ArgumentOutOfRangeException(nameof(invertStart) + ":" + invertStart);
             if (invertStart > text.Length) throw new ArgumentOutOfRangeException(nameof(invertStart) + ":" + invertStart);
-            if (invertStart  + invertLength > text.Length) throw new ArgumentOutOfRangeException(nameof(invertStart) +"+" + nameof(invertLength) + ":" + invertStart + "+" + invertLength + ">" + text.Length);
+            if (invertStart + invertLength > text.Length) throw new ArgumentOutOfRangeException(nameof(invertStart) + "+" + nameof(invertLength) + ":" + invertStart + "+" + invertLength + ">" + text.Length);
 
             var usedChars = 0;
             var watchOutPos = 0;
@@ -48,9 +48,9 @@ namespace de.springwald.xml.editor.helper
                     if (lastPossibleSplitPos - usedChars > 0)
                     {
                         var partText = text.Substring(usedChars, lastPossibleSplitPos - usedChars);
-                        var invertedParts = PartToInvertedParts(partText, lineNo, invertStart - usedChars, invertedEnd - usedChars, inverted);
+                        var invertedParts = PartToInvertedParts(partText, lineNo, invertStart - usedChars, invertedEnd - usedChars, inverted).ToArray();
                         inverted = invertedParts.Last().Inverted;
-                        foreach (var invertedPart in invertedParts) yield return invertedPart;
+                        foreach (var invertedPart in invertedParts)                            if (invertedPart.Text != null)  yield return invertedPart;
                         lineNo++;
                         usedChars += partText.Length;
                         maxLengthThisLine = maxLength;
@@ -62,8 +62,8 @@ namespace de.springwald.xml.editor.helper
             if (usedChars < text.Length) // is there unused text left?
             {
                 var partText = text.Substring(usedChars, text.Length - usedChars);
-                var invertedParts = PartToInvertedParts(partText, lineNo, invertStart - usedChars, invertedEnd - usedChars, inverted);
-                foreach (var invertedPart in invertedParts) yield return invertedPart;
+                var invertedParts = PartToInvertedParts(partText, lineNo, invertStart - usedChars, invertedEnd - usedChars, inverted).ToArray();
+                foreach (var invertedPart in invertedParts) if (invertedPart.Text != null)  yield return invertedPart;
             }
         }
 
@@ -77,7 +77,7 @@ namespace de.springwald.xml.editor.helper
                 isInverted = true;
             }
 
-            if (invertStart > 0 &&  invertStart != invertEnd && invertStart < partText.Length)
+            if (invertStart > 0 && invertStart != invertEnd && invertStart < partText.Length)
             {
                 yield return new TextPart // the not inverted part before the inverstart
                 {
@@ -89,17 +89,30 @@ namespace de.springwald.xml.editor.helper
                 runPos = invertStart;
             }
 
-            if (invertEnd > 0 && invertEnd != invertStart && invertEnd < partText.Length)
+            if (invertEnd >= 0 && invertEnd != invertStart && invertEnd < partText.Length)
             {
                 if (!isInverted) throw new ApplicationException("is not inverted, but invertEnd set?");
-                yield return new TextPart // close the inverted part
+                var text = partText.Substring(runPos, invertEnd - runPos);
+                if (text.Length != 0)
                 {
-                    LineNo = lineNo,
-                    Inverted = true,
-                    Text = partText.Substring(runPos, invertEnd - runPos)
-                };
+                    yield return new TextPart // close the inverted part
+                    {
+                        LineNo = lineNo,
+                        Inverted = true,
+                        Text = partText.Substring(runPos, invertEnd - runPos)
+                    };
+                }
                 isInverted = false;
                 runPos = invertEnd;
+                if (runPos == partText.Length-1)
+                {
+                    yield return new TextPart // dummy return part to announce the inverted info after last part
+                    {
+                        LineNo = lineNo,
+                        Inverted = false,
+                        Text = null
+                    };
+                }
             }
 
             if (runPos < partText.Length)
@@ -111,7 +124,6 @@ namespace de.springwald.xml.editor.helper
                     Text = partText.Substring(runPos)
                 };
             }
-            
 
         }
 
