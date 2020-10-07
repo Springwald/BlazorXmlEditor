@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
+using static de.springwald.xml.editor.helper.TextSplitHelper;
 
 namespace de.springwald.xml.editor.helper.Tests
 {
@@ -81,6 +82,18 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual("ABCDE", result[1].Text);
             Assert.IsTrue(result[1].Inverted);
             Assert.AreEqual(0, result[1].LineNo);
+        }
+
+        [TestMethod()]
+        public void SplitMixInvertedAndNewLine()
+        {
+            var result = TextSplitHelper.SplitText("OOOII IIOOO", invertStart: 3, invertLength: 5, maxLength: 5, maxLengthFirstLine: 5).ToArray();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(4, result.Length);
+            CheckPart(result[0], "OOO", 0, false);
+            CheckPart(result[1], "II", 0, true);
+            CheckPart(result[2], " II", 1, true);
+            CheckPart(result[3], "OOO", 1, true);
         }
 
         [TestMethod()]
@@ -178,5 +191,12 @@ namespace de.springwald.xml.editor.helper.Tests
             Assert.AreEqual(2, result[2].LineNo);
         }
 
+
+        private void CheckPart(TextPart part, string text, int lineNo, bool inverted)
+        {
+            Assert.AreEqual(text, part.Text, "lineNo:" + lineNo);
+            Assert.AreEqual(lineNo, part.LineNo, "lineNo");
+            Assert.AreEqual(inverted, part.Inverted, "inverted");
+        }
     }
 }

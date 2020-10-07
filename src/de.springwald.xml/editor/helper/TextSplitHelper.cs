@@ -33,6 +33,7 @@ namespace de.springwald.xml.editor.helper
 
             var maxLengthThisLine = maxLengthFirstLine;
             var lineNo = 0;
+            var lengthActualLine = 0;
 
             while (watchOutPos < text.Length)
             {
@@ -41,21 +42,11 @@ namespace de.springwald.xml.editor.helper
 
                 if (inverted)
                 {
-                    if (watchOutPos == invertedEnd)
-                    {
-                        //end of inverting
-                        splitHere = true;
-                        inverted = false;
-                    }
+                    if (watchOutPos == invertedEnd) inverted = false;  //end of inverting
                 }
                 else
                 {
-                    if (watchOutPos == invertStart - 1)
-                    {
-                        // start of inverting
-                        inverted = true;
-                        splitHere = true;
-                    }
+                    if (watchOutPos == invertStart - 1) inverted = true; // start of inverting
                 }
 
                 if (watchOutPos+1 < text.Length &&  text[watchOutPos+1] == ' ')
@@ -72,11 +63,11 @@ namespace de.springwald.xml.editor.helper
 
                 if (watchOutPos == text.Length - 1) splitHere = true;
 
-                if (splitHere)
+                if (splitHere || inverted != wasInverted)
                 {
                     var cutPos = watchOutPos;
                     var rememberLastWordSpacePos = true;
-                    var newLine = (cutPos - usedChars > maxLengthThisLine);
+                    var newLine =  (lengthActualLine +  cutPos - usedChars > maxLengthThisLine);
                     if (cutPos - usedChars > maxLengthThisLine && lastWordSpacePos > usedChars)
                     {
                         cutPos = lastWordSpacePos;
@@ -94,6 +85,10 @@ namespace de.springwald.xml.editor.helper
                     {
                         lineNo++; // start new line when needed
                         maxLengthThisLine = maxLength;
+                        lengthActualLine = 0;
+                    } else
+                    {
+                        lengthActualLine += partText.Length;
                     }
                     usedChars += partText.Length;
                     if (rememberLastWordSpacePos) lastWordSpacePos = usedChars;
