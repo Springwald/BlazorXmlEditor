@@ -43,27 +43,21 @@ namespace de.springwald.xml.editor.helper
             {
                 if (text[watchOutPos] == ' ') lastPossibleSplitPos = watchOutPos;
 
-                if (watchOutPos - usedChars >= maxLengthThisLine)
+                var lineTooLong = watchOutPos - usedChars >= maxLengthThisLine;
+                var validCutPosAvailable = lastPossibleSplitPos - usedChars > 0;
+                var endOfText = watchOutPos == text.Length - 1;
+
+                if ((lineTooLong && validCutPosAvailable) || endOfText)
                 {
-                    if (lastPossibleSplitPos - usedChars > 0)
-                    {
-                        var partText = text.Substring(usedChars, lastPossibleSplitPos - usedChars);
-                        var invertedParts = PartToInvertedParts(partText, lineNo, invertStart - usedChars, invertedEnd - usedChars, inverted).ToArray();
-                        inverted = invertedParts.Last().Inverted;
-                        foreach (var invertedPart in invertedParts)                            if (invertedPart.Text != null)  yield return invertedPart;
-                        lineNo++;
-                        usedChars += partText.Length;
-                        maxLengthThisLine = maxLength;
-                    }
+                    var partText = endOfText ? text.Substring(usedChars, 1 + watchOutPos - usedChars) : text.Substring(usedChars, lastPossibleSplitPos - usedChars);
+                    var invertedParts = PartToInvertedParts(partText, lineNo, invertStart - usedChars, invertedEnd - usedChars, inverted).ToArray();
+                    inverted = invertedParts.Last().Inverted;
+                    foreach (var invertedPart in invertedParts) if (invertedPart.Text != null) yield return invertedPart;
+                    lineNo++;
+                    usedChars += partText.Length;
+                    maxLengthThisLine = maxLength;
                 }
                 watchOutPos++;
-            }
-
-            if (usedChars < text.Length) // is there unused text left?
-            {
-                var partText = text.Substring(usedChars, text.Length - usedChars);
-                var invertedParts = PartToInvertedParts(partText, lineNo, invertStart - usedChars, invertedEnd - usedChars, inverted).ToArray();
-                foreach (var invertedPart in invertedParts) if (invertedPart.Text != null)  yield return invertedPart;
             }
         }
 
@@ -104,7 +98,7 @@ namespace de.springwald.xml.editor.helper
                 }
                 isInverted = false;
                 runPos = invertEnd;
-                if (runPos == partText.Length-1)
+                if (runPos == partText.Length - 1)
                 {
                     yield return new TextPart // dummy return part to announce the inverted info after last part
                     {
