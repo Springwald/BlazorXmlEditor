@@ -1,4 +1,13 @@
-#define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
+#define klickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
@@ -12,12 +21,6 @@ namespace de.springwald.xml.editor
     /// <summary>
     /// Basic element for drawing XML editor elements
     /// </summary>
-    /// <remarks>
-    // (C)2006 Daniel Springwald, Bochum Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
     public abstract class XMLElement : IDisposable
     {
         private bool _disposed = false;
@@ -27,7 +30,7 @@ namespace de.springwald.xml.editor
 
         protected Point _cursorStrichPos;   // dort wird der Cursor in diesem Node gezeichnet, wenn es der aktuell  Node ist
 
-        protected de.springwald.xml.editor.XMLEditor _xmlEditor;
+        protected XMLEditor _xmlEditor;
         protected ArrayList _childElemente = new ArrayList();           // Die ChildElemente in diesem Steuerelement
         protected bool _wirdGeradeGezeichnet;                           // true=das Element befindet sich gerade in der Zeichnen-Phase
 
