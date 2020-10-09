@@ -4,9 +4,10 @@
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
 @using de.springwald.xml.blazor.test.Components
+@implements IDisposable
 
 <h1>move cursor demo</h1>
-<FpsCounter @ref="fpsCounter"/>
+<FpsCounter @ref="fpsCounter" />
 <p>@this.cursorPos</p>
 <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
 
@@ -33,6 +34,12 @@
         this.moveTimer.Interval = 1;
         this.moveTimer.Start();
         await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        this.moveTimer.Stop();
+        this.moveTimer.Elapsed -= MoveTimerEvent;
     }
 
     private int typingPos = 0;
@@ -68,7 +75,8 @@
             var dummy = cursorStatus.StartPos.Clone();
             await dummy.MoveRight(xmlDocument.DocumentElement, this.editorContext.XmlRules);
             await cursorStatus.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
-        } else
+        }
+        else
         {
             step--;
             if (step == 0)

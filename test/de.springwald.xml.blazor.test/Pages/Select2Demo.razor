@@ -4,6 +4,7 @@
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
 @using de.springwald.xml.blazor.test.Components
+@implements IDisposable
 
 <h1>move cursor demo</h1>
 <FpsCounter @ref="fpsCounter" />
@@ -34,6 +35,12 @@
         this.moveTimer.Interval = 1;
         this.moveTimer.Start();
         await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        this.moveTimer.Stop();
+        this.moveTimer.Elapsed -= MoveTimerEvent;
     }
 
     private int typingPos = 0;

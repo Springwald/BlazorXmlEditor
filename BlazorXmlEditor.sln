@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xml", "src\de.springwald.xml\de.springwald.xml.csproj", "{53799606-9890-40FE-8D21-7274B106201A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xml.blazor", "src\de.springwald.xml.blazor\de.springwald.xml.blazor.csproj", "{967F0EB4-EBC4-4B60-9F21-7E3449663E46}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xml.blazor.test", "test\de.springwald.xml.blazor.test\de.springwald.xml.blazor.test.csproj", "{E27C6A9D-5A8D-462F-A1B9-F6313D0FE61D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.Canvas", "src\Blazor.Canvas\Canvas\Blazor.Canvas.csproj", "{256B101F-6887-4565-9D53-E028DE9FA2EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "de.springwald.xmlTests", "src\de.springwald.xmlTests\de.springwald.xmlTests.csproj", "{58CB01E7-7355-4EF7-BA96-9F6D89B4983D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xmlTests", "src\de.springwald.xmlTests\de.springwald.xmlTests.csproj", "{58CB01E7-7355-4EF7-BA96-9F6D89B4983D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xml.rules", "src\de.springwald.xml.rules\de.springwald.xml.rules.csproj", "{AD4F6A14-8701-4E0A-9C32-17DD980BE95D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xml.editor", "src\de.springwald.xml.editor\de.springwald.xml.editor.csproj", "{853890D4-58F8-4245-875A-4A6E5766B7C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +21,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{53799606-9890-40FE-8D21-7274B106201A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{53799606-9890-40FE-8D21-7274B106201A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{53799606-9890-40FE-8D21-7274B106201A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{53799606-9890-40FE-8D21-7274B106201A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{967F0EB4-EBC4-4B60-9F21-7E3449663E46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{967F0EB4-EBC4-4B60-9F21-7E3449663E46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{967F0EB4-EBC4-4B60-9F21-7E3449663E46}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +37,14 @@ Global
 		{58CB01E7-7355-4EF7-BA96-9F6D89B4983D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58CB01E7-7355-4EF7-BA96-9F6D89B4983D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58CB01E7-7355-4EF7-BA96-9F6D89B4983D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD4F6A14-8701-4E0A-9C32-17DD980BE95D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD4F6A14-8701-4E0A-9C32-17DD980BE95D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD4F6A14-8701-4E0A-9C32-17DD980BE95D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD4F6A14-8701-4E0A-9C32-17DD980BE95D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{853890D4-58F8-4245-875A-4A6E5766B7C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{853890D4-58F8-4245-875A-4A6E5766B7C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{853890D4-58F8-4245-875A-4A6E5766B7C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{853890D4-58F8-4245-875A-4A6E5766B7C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,7 +7,7 @@
 // All rights reserved
 // Licensed under MIT License
 
-#define klickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
+#define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;

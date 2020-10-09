@@ -11,4 +11,8 @@
     <Description>A platform indepentend tag-view-style graphical xml editor</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\de.springwald.xml.rules\de.springwald.xml.rules.csproj" />
+  </ItemGroup>
+
 </Project>

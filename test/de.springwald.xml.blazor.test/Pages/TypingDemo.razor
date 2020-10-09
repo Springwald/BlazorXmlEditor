@@ -4,9 +4,10 @@
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
 @using de.springwald.xml.blazor.test.Components
+@implements IDisposable
 
 <h1>typing demo</h1>
-<FpsCounter @ref="fpsCounter"/>
+<FpsCounter @ref="fpsCounter" />
 <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
 
 @code {
@@ -31,6 +32,12 @@
         this.typingTimer.Interval = 1;
         this.typingTimer.Start();
         await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        this.typingTimer.Stop();
+        this.typingTimer.Elapsed -= TypingTimerEvent;
     }
 
     private int typingPos = 0;
@@ -66,4 +73,6 @@
         this.actualDocumentIndex++;
         this.typingTimer.Start();
     }
+
+
 }

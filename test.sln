@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xml", "src\de.springwald.xml\de.springwald.xml.csproj", "{53799606-9890-40FE-8D21-7274B106201A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xml.editor", "src\de.springwald.xml\de.springwald.xml.editor.csproj", "{53799606-9890-40FE-8D21-7274B106201A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "de.springwald.xml.blazor", "src\de.springwald.xml.blazor\de.springwald.xml.blazor.csproj", "{967F0EB4-EBC4-4B60-9F21-7E3449663E46}"
 EndProject

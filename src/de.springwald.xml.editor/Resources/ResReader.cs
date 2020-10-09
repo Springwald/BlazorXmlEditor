@@ -15,7 +15,7 @@ namespace de.springwald.xml
     /// </remarks>
 	public class ResReader
 	{
-        private static string _ressourcenDatei = "de.springwald.xml.Resources.xml";
+        private static string _ressourcenDatei = "de.springwald.xml.editor. esources.xml";
 
 
 		private  static RessourcenReader _reader = new de.springwald.toolbox.RessourcenReader(_ressourcenDatei,  Assembly.GetExecutingAssembly());
