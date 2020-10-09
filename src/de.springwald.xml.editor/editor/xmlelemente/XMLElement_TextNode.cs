@@ -58,7 +58,7 @@ namespace de.springwald.xml.editor
         {
             if (invertiert)
             {
-                if (_xmlEditor.HatFokus)
+                if (_xmlEditor.HasFocus)
                 {
                     // Inverted
                     return _farbeHintergrundInvertiert_;
@@ -80,7 +80,7 @@ namespace de.springwald.xml.editor
         {
             if (inverted)
             {
-                if (_xmlEditor.HatFokus)
+                if (_xmlEditor.HasFocus)
                 {
                     // Inverted
                     return _drawBrushInvertiert_;

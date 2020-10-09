@@ -13,14 +13,13 @@ namespace de.springwald.xml.editor.nativeplatform.events
         XmlAsyncEvent<PreviewKeyDownEventArgs> PreviewKey { get; }
 
         XmlAsyncEvent<EventArgs> Leave { get; }
+        //XmlAsyncEvent<EventArgs> BlinkInterval { get; }
 
-        XmlAsyncEvent<EventArgs> BlinkInterval { get; }
-
-        XmlAsyncEvent<EventArgs> BlinkDone { get; }
+        //XmlAsyncEvent<EventArgs> BlinkDone { get; }
 
         /// <summary>
         /// reset blink timer to start
         /// </summary>
-        void ResetBlinkInterval();
+        //void ResetBlinkInterval();
     }
 }

@@ -249,7 +249,8 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected virtual void ZeichneCursorStrich(PaintContext paintContext, IGraphics gfx)
         {
-            if (this._cursorStrichPos == null || this._xmlEditor.CursorBlinkOn == false) return;
+            if (this._cursorStrichPos == null ) return;
+            if (this._xmlEditor.CursorBlink.PaintCursor == false) return;
 
             // Cursor-Strich zeichnen
             var height = (int)(Math.Max(this._xmlEditor.EditorConfig.TextNodeFont.Height, this._xmlEditor.EditorConfig.NodeNameFont.Height) * 1.6);
@@ -325,6 +326,7 @@ namespace de.springwald.xml.editor
         protected virtual async Task WurdeAngeklickt(Point point, MausKlickAktionen aktion)
         {
             await _xmlEditor.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
+            _xmlEditor.CursorBlink.ResetBlinkPhase();
         }
 
         /// <summary>

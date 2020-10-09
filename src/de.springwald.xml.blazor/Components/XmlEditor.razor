@@ -70,14 +70,8 @@
         };
 
         this.Editor = new XMLEditor(this._editorContext.XmlRules, nativePlattform, config);
-        nativePlattform.InputEvents.BlinkInterval.Add(this.blinkDone);
 
         this._editorContext.RootNodeChanged.Add(this.RootNodeChanged);
-    }
-
-    async Task blinkDone(EventArgs e)
-    {
-        await Task.CompletedTask;
     }
 
     public void Dispose()

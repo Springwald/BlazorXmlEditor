@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using de.springwald.xml.editor.editor.cursor;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml
@@ -35,6 +37,11 @@ namespace de.springwald.xml
                     await handler(data);
                 }
             }
+        }
+
+        internal void Add(CursorBlink cursorBlink)
+        {
+            throw new NotImplementedException();
         }
 
         //public void expose() : IXmlAsyncEvent<T> {

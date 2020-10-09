@@ -1,4 +1,5 @@
 using de.springwald.xml.cursor;
+using de.springwald.xml.editor.editor.cursor;
 using de.springwald.xml.editor.nativeplatform;
 using System;
 using System.Threading.Tasks;
@@ -17,10 +18,15 @@ namespace de.springwald.xml.editor
 
     public enum XMLPaintArten { Vorberechnen, AllesNeuZeichnenOhneFehlerHighlighting, AllesNeuZeichnenMitFehlerHighlighting };
 
+
     public partial class XMLEditor : IDisposable
     {
+        internal bool HasFocus => this.NativePlatform?.ControlElement.Focused == true;
+
+
         public IEditorConfig EditorConfig { get; }
         public INativePlatform NativePlatform { get; }
+        internal CursorBlink CursorBlink { get; private set; }
 
         /// <summary>
         /// Der Inhalt des Editor-XMLs hat sich geändert
@@ -38,8 +44,40 @@ namespace de.springwald.xml.editor
             await this.Paint(limitRight: limitRight);
 
             // Nach einer Veränderung wird direkt der Cursor-Strich gezeichnet
-            CursorBlinkOn = true;
+            this.CursorBlink.Active =true;
             xmlElementeAufraeumen(); // Ggf. haben durch die Änderung XMLElemente Ihren Parent verloren etc.. Daher das Aufräumen anstoßen
+        }
+
+        /// <summary>
+        /// Der Cursor hat sich geändert
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        async Task CursorChangedEvent(EventArgs e)
+        {
+            ScrollingNotwendig();
+            if (this.NativePlatform.ControlElement != null)
+            {
+                var limitRight = this.NativePlatform.Gfx.Width;
+                await this.Paint(limitRight: limitRight);
+            }
+
+            // Nach einer Cursorbewegung wird der Cursor zunächst als Strich gezeichnet
+            this.CursorBlink.ResetBlinkPhase();
+        }
+
+        /// <summary>
+        /// Der Cursor hat sich geändert
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        async Task CursorBlinkedEvent(EventArgs e)
+        {
+            if (this.NativePlatform.ControlElement != null)
+            {
+                var limitRight = this.NativePlatform.Gfx.Width;
+                await this.Paint(limitRight: limitRight);
+            }
         }
 
         private de.springwald.xml.cursor.XMLCursor _cursor;  // Dort befindet sich der der Cursor aktuell innerhalb des XML-Dokumentes
@@ -183,19 +221,21 @@ namespace de.springwald.xml.editor
             this.EditorConfig = editorConfig;
             this.NativePlatform = nativePlatform;
             this.Regelwerk = regelwerk;
+            
 
             this.NativePlatform.ControlElement.Enabled = false; // Bis zu einer Content-Zuweisung erstmal deaktiviert */
 
             // this.NativePlatform.ControlElement.Invalidated.Add(this.Invalidated);
 
+            this.CursorBlink = new CursorBlink();
+            this.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
+
             _cursor = new XMLCursor();
-            _cursor.ChangedEvent.Add(this._cursor_ChangedEvent);
+            _cursor.ChangedEvent.Add(this.CursorChangedEvent);
 
             // Events auf das Usercontrol ansetzen, auf welchem gezeichnet werden soll
             MausEventsAnmelden();
             TastaturEventsAnmelden();
-
-            InitCursorBlink();
             InitScrolling();
         }
 
@@ -217,25 +257,7 @@ namespace de.springwald.xml.editor
             return neuElement;
         }
 
-        /// <summary>
-        /// Der Cursor hat sich geändert
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        async Task _cursor_ChangedEvent(EventArgs e)
-        {
-            ScrollingNotwendig();
 
-            if (this.NativePlatform.ControlElement != null)
-            {
-                await this.ContentChanged();
-                // await this.NativePlatform.ControlElement.Invalidated.Trigger(e);
-            }
-
-            // Nach einer Cursorbewegung wird der Cursor zunächst als Strich gezeichnet
-            CursorBlinkOn = true;
-
-        }
 
     }
 }
