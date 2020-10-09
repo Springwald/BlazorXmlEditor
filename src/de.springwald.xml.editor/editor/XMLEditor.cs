@@ -55,15 +55,15 @@ namespace de.springwald.xml.editor
         /// <param name="e"></param>
         async Task CursorChangedEvent(EventArgs e)
         {
+            // Nach einer Cursorbewegung wird der Cursor zunächst als Strich gezeichnet
+            this.CursorBlink.ResetBlinkPhase();
+
             ScrollingNotwendig();
             if (this.NativePlatform.ControlElement != null)
             {
                 var limitRight = this.NativePlatform.Gfx.Width;
                 await this.Paint(limitRight: limitRight);
             }
-
-            // Nach einer Cursorbewegung wird der Cursor zunächst als Strich gezeichnet
-            this.CursorBlink.ResetBlinkPhase();
         }
 
         /// <summary>
