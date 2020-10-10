@@ -7,38 +7,7 @@ namespace de.springwald.xml.editor.editor
 {
     public class EditorStatus : IDisposable
     {
-
         private INativePlatform nativePlatform;
-
-        internal bool HasFocus => this.nativePlatform?.ControlElement.Focused == true;
-
-        public XMLUndoHandler UndoHandler { get; internal set; }
-
-        /// <summary>
-        /// Is the current xml document treated as read-only?
-        /// </summary>
-        public bool ReadOnly { get; set; }
-
-        /// <summary>
-        /// The set of rules on which the XML processing is based
-        /// </summary>
-        public de.springwald.xml.XMLRegelwerk Regelwerk { get; }
-
-        /// <summary>
-        /// Gibt an, ob etwas für den Editor in der Zwischenablage ist
-        /// </summary>
-        public virtual bool IstEtwasInZwischenablage
-        {
-            get { return this.nativePlatform.Clipboard.ContainsText; }
-        }
-
-        /// <summary>
-        /// Gibt an, ob im Editor etwas selektiert ist
-        /// </summary>
-        public virtual bool IstEtwasSelektiert
-        {
-            get { return this.CursorOptimiert.IstEtwasSelektiert; }
-        }
 
         /// <summary>
         /// This is the topmost node to edit. You must not edit higher, even if there are parents in the DOM
@@ -47,110 +16,100 @@ namespace de.springwald.xml.editor.editor
 
         internal XMLElement RootElement { get; set; }
 
+        /// <summary>
+        /// The set of rules on which the XML processing is based
+        /// </summary>
+        public XMLRegelwerk Regelwerk { get; }
+
+        /// <summary>
+        /// Is the current xml document treated as read-only?
+        /// </summary>
+        public bool ReadOnly { get; set; }
+
+        /// <summary>
+        /// Dort befindet sich der der Cursor aktuell innerhalb des XML-Dokumentes
+        /// </summary>
+        public XMLCursor CursorRoh { get; }
+
+        /// <summary>
+        /// Dies ist die CursorPosition, optmimiert darauf, dass die StartPos auch vor der EndPos liegt
+        /// </summary>
+        public XMLCursor CursorOptimiert
+        {
+            get
+            {
+                var cursor = this.CursorRoh.Clone();
+                cursor.SelektionOptimieren().Wait();
+                return cursor;
+            }
+        }
+
+        internal bool HasFocus => this.nativePlatform?.ControlElement.Focused == true;
+
+        /// <summary>
+        /// Indicates whether something is on the clipboard for the editor
+        /// </summary>
+        public bool IstEtwasInZwischenablage => this.nativePlatform.Clipboard.ContainsText;
+
+        /// <summary>
+        /// Indicates whether something is selected in the editor
+        /// </summary>
+        public bool IstEtwasSelektiert => this.CursorOptimiert.IstEtwasSelektiert;
+
+
+        public XMLUndoHandler UndoHandler { get; internal set; }
+
+        /// <summary>
+        /// Das Name des nächstemöglichen UndoSchrittes
+        /// </summary>
+        public string UndoSchrittName => this.UndoMoeglich ? this.UndoHandler.NextUndoSnapshotName : ResReader.Reader.GetString("KeinUndoSchrittVerfuegbar");
+
+        /// <summary>
+        /// Ist nun ein Undo möglich?
+        /// </summary>
+        public bool UndoMoeglich => this.UndoHandler == null ? false : this.UndoHandler.UndoMoeglich;
+
+        /// <summary>
+        /// Specifies whether the root node is selected 
+        /// </summary>
+        public bool IstRootNodeSelektiert
+        {
+            get
+            {
+                if (this.IstEtwasSelektiert) //  Anything selected
+                {
+                    var startpos = CursorOptimiert.StartPos;
+                    if (startpos.AktNode == RootNode) // The root node is in the cursor
+                    {
+                        switch (startpos.PosAmNode)
+                        {
+                            case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
+                            case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
+                                return true; // The root node is selected
+                        }
+                    }
+                }
+                return false; // The root node is not selected
+            }
+        }
+
+        public XmlAsyncEvent<EventArgs> ContentChangedEvent = new XmlAsyncEvent<EventArgs>();
+
         public EditorStatus(INativePlatform nativePlatform, XMLRegelwerk regelwerk)
         {
             this.nativePlatform = nativePlatform;
             this.Regelwerk = regelwerk;
             this.CursorRoh = new XMLCursor();
-
         }
 
         public void Dispose()
         {
         }
 
-     
-
-   
-
-        /// <summary>
-        /// Gibt an, ob der Rootnode selektiert ist 
-        /// </summary>
-        public bool IstRootNodeSelektiert
-        {
-            get
-            {
-                if (this.IstEtwasSelektiert) // Überhaupt was selektiert
-                {
-                    XMLCursorPos startpos = CursorOptimiert.StartPos;
-                    if (startpos.AktNode == RootNode) // Der Rootnode ist im Cursor
-                    {
-                        switch (startpos.PosAmNode)
-                        {
-                            case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
-                            case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
-                                return true; // Das Rootnode ist selektiert
-                        }
-                    }
-                }
-                return false; // Der Rootnode ist nicht selektiert
-            }
-        }
-
         internal async Task FireContentChangedEvent()
         {
             await this.ContentChangedEvent.Trigger(EventArgs.Empty);
         }
-
-        public XmlAsyncEvent<EventArgs> ContentChangedEvent = new XmlAsyncEvent<EventArgs>();
-
-        /// <summary>
-        /// Dies ist die CursorPosition, optmimiert darauf, dass die StartPos auch vor der EndPos liegt
-        /// </summary>
-        public de.springwald.xml.cursor.XMLCursor CursorOptimiert
-        {
-            get
-            {
-                XMLCursor cursor = this.CursorRoh.Clone();
-                cursor.SelektionOptimieren().Wait();
-                return cursor;
-            }
-        }
-
-        /// <summary>
-        /// Dort befindet sich der der Cursor aktuell innerhalb des XML-Dokumentes
-        /// </summary>
-        public de.springwald.xml.cursor.XMLCursor CursorRoh { get; }
-
-
-
-
-        /// <summary>
-        /// Das Name des nächstemöglichen UndoSchrittes
-        /// </summary>
-        public string UndoSchrittName
-        {
-            get
-            {
-                if (UndoMoeglich)
-                {
-                    return this.UndoHandler.NextUndoSnapshotName;
-                }
-                else
-                {
-                    return ResReader.Reader.GetString("KeinUndoSchrittVerfuegbar");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Ist nun ein Undo möglich?
-        /// </summary>
-        public bool UndoMoeglich
-        {
-            get
-            {
-                if (this.UndoHandler == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return this.UndoHandler.UndoMoeglich;
-                }
-            }
-        }
-
 
         public async Task UnDo()
         {
@@ -169,6 +128,5 @@ namespace de.springwald.xml.editor.editor
                 await this.FireContentChangedEvent();
             }
         }
-
     }
 }
