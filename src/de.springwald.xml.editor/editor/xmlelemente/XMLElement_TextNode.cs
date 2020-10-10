@@ -258,7 +258,7 @@ namespace de.springwald.xml.editor
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
         /// </summary>
         /// <param name="point"></param>
-        protected override async Task WurdeAngeklickt(Point point, MausKlickAktionen aktion)
+        protected override async Task WurdeAngeklickt(Point point, MausKlickAktionen action)
         {
             // Herausfinden, an welcher Position des Textes geklickt wurde
             int posInLine = 0;
@@ -274,7 +274,7 @@ namespace de.springwald.xml.editor
                     posInLine += part.Text.Length;
                 }
             }
-            await _xmlEditor.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, posInLine, aktion);
+            await _xmlEditor.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, posInLine, action);
         }
 
         /// <summary>

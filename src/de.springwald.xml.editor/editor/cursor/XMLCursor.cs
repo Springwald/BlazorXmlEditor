@@ -164,10 +164,10 @@ namespace de.springwald.xml.cursor
         /// Setzt die Positionen des Cursors für entsprechende Mausaktionen:
         /// Bei MausDown StartUndEndpos, bei Move und Up nur die Endpos
         /// </summary>
-        /// <param name="aktion"></param>
-        public async Task CursorPosSetzenDurchMausAktion(System.Xml.XmlNode xmlNode, XMLCursorPositionen cursorPos, int posInZeile, MausKlickAktionen aktion)
+        /// <param name="action"></param>
+        public async Task CursorPosSetzenDurchMausAktion(System.Xml.XmlNode xmlNode, XMLCursorPositionen cursorPos, int posInZeile, MausKlickAktionen action)
         {
-            switch (aktion)
+            switch (action)
             {
                 case MausKlickAktionen.MouseDown:
                     // den Cursor an die neue Position setzen

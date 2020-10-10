@@ -2,7 +2,6 @@
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas
 @using de.springwald.xml.blazor.NativePlatform
-@using de.springwald.xml.blazor
 @using editor.nativeplatform.gfx
 @using de.springwald.xml.editor
 @inject IJSRuntime JSRuntime
@@ -11,7 +10,7 @@
 
 <div class="card">
     <div class="card-body">
-        <div tabindex="0" @onclick="EventOnClick" @onkeypress="EventOnKeyPress" @onkeydown="EventOnKeyDown" @ref="_canvasDivReference">
+        <div tabindex="0"  @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"  @onkeypress="EventOnKeyPress" @onkeydown="EventOnKeyDown" @ref="_canvasDivReference">
             <BECanvas Width="700" Height="500" @ref="_canvasReference">
             </BECanvas>
         </div>
@@ -97,7 +96,21 @@
         public double Left { get; set; }
     }
 
-    async void EventOnClick(MouseEventArgs e)
+    //async void EventOnClick(MouseEventArgs e)
+    //{
+    //    var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+
+    //    var x = (int)(e.ClientX - result.Left);
+    //    var y = (int)(e.ClientY - result.Top);
+
+    //    await this.nativePlattform.InputEvents.MouseDown.Trigger(new de.springwald.xml.events.MouseEventArgs
+    //    {
+    //        X = x,
+    //        Y = y
+    //    });
+    //}
+
+    async void EventOnMouseDown(MouseEventArgs e)
     {
         var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
 
@@ -105,6 +118,34 @@
         var y = (int)(e.ClientY - result.Top);
 
         await this.nativePlattform.InputEvents.MouseDown.Trigger(new de.springwald.xml.events.MouseEventArgs
+        {
+            X = x,
+            Y = y
+        });
+    }
+
+    async void EventOnMouseMove(MouseEventArgs e)
+    {
+        var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+
+        var x = (int)(e.ClientX - result.Left);
+        var y = (int)(e.ClientY - result.Top);
+
+        await this.nativePlattform.InputEvents.MouseMove.Trigger(new de.springwald.xml.events.MouseEventArgs
+        {
+            X = x,
+            Y = y
+        });
+    }
+
+    async void EventOnMouseUp(MouseEventArgs e)
+    {
+        var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+
+        var x = (int)(e.ClientX - result.Left);
+        var y = (int)(e.ClientY - result.Top);
+
+        await this.nativePlattform.InputEvents.MouseUp.Trigger(new de.springwald.xml.events.MouseEventArgs
         {
             X = x,
             Y = y
