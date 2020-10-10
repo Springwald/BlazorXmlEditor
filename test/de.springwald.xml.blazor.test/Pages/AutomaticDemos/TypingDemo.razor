@@ -62,11 +62,11 @@
         this.typingPos++;
         if (this.typingPos >= LoremIpsum.Length) this.typingPos = 0;
 
-        await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+        await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                 textNode,
                 cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
                 textNode.InnerText.Length);
-        await this.xmlEditor.Editor.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), editor.XMLEditor.UndoSnapshotSetzenOptionen.ja);
+        await this.xmlEditor.Editor.EditorActions.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), editor.editor.EditorActions.UndoSnapshotSetzenOptionen.ja);
 
         this.fpsCounter.Count();
 

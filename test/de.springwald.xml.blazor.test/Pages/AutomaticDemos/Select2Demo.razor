@@ -60,12 +60,12 @@
             var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
             var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
             var textNode = patternNode.ChildNodes[0];
-            await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                 textNode,
                 cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
                 3);
         }
-        var cursorStatus = this.xmlEditor.Editor.CursorRoh;
+        var cursorStatus = this.xmlEditor.Editor.EditorStatus.CursorRoh;
 
         if (forward)
         {

@@ -59,13 +59,13 @@
         flipFlop = !flipFlop;
         if (flipFlop)
         {
-            await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                             patternNode,
                             cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
         }
         else
         {
-            await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                             templateNode,
                             cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
         }

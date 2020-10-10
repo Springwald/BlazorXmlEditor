@@ -56,13 +56,13 @@
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
             await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
-            await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                xmlDocument.DocumentElement,
                cursor.XMLCursorPositionen.CursorVorDemNode,
                0);
         }
 
-        var cursorStatus = this.xmlEditor.Editor.CursorRoh;
+        var cursorStatus = this.xmlEditor.Editor.EditorStatus.CursorRoh;
 
         if (forward)
         {

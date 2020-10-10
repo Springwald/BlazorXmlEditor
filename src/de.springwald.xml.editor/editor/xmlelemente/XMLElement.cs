@@ -55,7 +55,7 @@ namespace de.springwald.xml.editor
             this.XMLNode = xmlNode;
             _xmlEditor = xmlEditor;
 
-            _xmlEditor.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
+            _xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
             _xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
             _xmlEditor.MouseHandler.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
             _xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
@@ -121,7 +121,7 @@ namespace de.springwald.xml.editor
                 }
 
                 var childPaintContext = paintContext.Clone();
-                childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.Regelwerk.ChildEinrueckungX;
+                childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
 
                 // Alle Child-Controls anzeigen und ggf. vorher anlegen
                 for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
@@ -153,16 +153,16 @@ namespace de.springwald.xml.editor
 
                     // An dieser Stelle sollte im Objekt ChildControl die entsprechends
                     // Instanz des XMLElement-Controls für den aktuellen XMLChildNode stehen
-                    switch (_xmlEditor.Regelwerk.DarstellungsArt(childElement.XMLNode))
+                    switch (_xmlEditor.EditorStatus.Regelwerk.DarstellungsArt(childElement.XMLNode))
                     {
                         case DarstellungsArten.EigeneZeile:
 
                             // Dieses Child-Element beginnt eine neue Zeile und wird dann in dieser gezeichnet
 
                             // Neue Zeile beginnen
-                            childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.Regelwerk.ChildEinrueckungX;
+                            childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
                             childPaintContext.PaintPosX = childPaintContext.LimitLeft;
-                            childPaintContext.PaintPosY += _xmlEditor.Regelwerk.AbstandYZwischenZeilen + paintContext.HoeheAktZeile; // Zeilenumbruch
+                            childPaintContext.PaintPosY += _xmlEditor.EditorStatus.Regelwerk.AbstandYZwischenZeilen + paintContext.HoeheAktZeile; // Zeilenumbruch
                             childPaintContext.HoeheAktZeile = 0; // noch kein Element in dieser Zeile, daher Hoehe 0
                                                                  // X-Cursor auf den Start der neuen Zeile setzen
                                                                  // Linie nach unten und dann nach rechts ins ChildElement
@@ -201,7 +201,7 @@ namespace de.springwald.xml.editor
                             if (childPaintContext.PaintPosX > paintContext.LimitRight) // Wenn die Zeile bereits zu voll ist
                             {
                                 // in nächste Zeile
-                                paintContext.PaintPosY += paintContext.HoeheAktZeile + _xmlEditor.Regelwerk.AbstandYZwischenZeilen;
+                                paintContext.PaintPosY += paintContext.HoeheAktZeile + _xmlEditor.EditorStatus.Regelwerk.AbstandYZwischenZeilen;
                                 paintContext.HoeheAktZeile = 0;
                                 paintContext.PaintPosX = paintContext.ZeilenStartX;
                             }
@@ -325,7 +325,7 @@ namespace de.springwald.xml.editor
         /// <param name="point"></param>
         protected virtual async Task WurdeAngeklickt(Point point, MausKlickAktionen aktion)
         {
-            await _xmlEditor.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
+            await _xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
             _xmlEditor.CursorBlink.ResetBlinkPhase();
         }
 
@@ -402,7 +402,7 @@ namespace de.springwald.xml.editor
             else
             {
                 // Herausfinden, ob der Node dieses Elementes betroffen ist
-                if (_xmlEditor.CursorRoh.StartPos.AktNode != this.XMLNode)
+                if (_xmlEditor.EditorStatus.CursorRoh.StartPos.AktNode != this.XMLNode)
                 {
                     return;
                 }
@@ -445,7 +445,7 @@ namespace de.springwald.xml.editor
                 if (disposing) // Dispose managed resources.
                 {
                     // Von den Events abmelden
-                    _xmlEditor.CursorRoh.ChangedEvent.Remove(this.Cursor_ChangedEvent);
+                    _xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Remove(this.Cursor_ChangedEvent);
                     _xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
                     _xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
                     _xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);

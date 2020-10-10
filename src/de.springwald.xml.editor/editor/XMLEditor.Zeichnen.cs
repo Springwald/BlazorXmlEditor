@@ -1,31 +1,28 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
+using System.Threading.Tasks;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.editor.nativeplatform.gfxobs;
-using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
 {
     /// <summary>
-    /// Die Zeichnungsfunktionen des XML-Editors
+    /// The drawing functions of the XML editor
     /// </summary>
-    /// <remarks>
-    /// (C)2006 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
     public partial class XMLEditor
     {
-        private XMLElement _rootElement;
-
-        /// <summary>
-        /// Muss in der überschriebenen OnPoint-Methode des Zeichnungssteuerelementes
-        /// aufgerufen werden
-        /// </summary>
         public async Task Paint(int limitRight)
         {
             this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = Color.White });
 
-            if (_rootElement != null)  // Wenn das 
+            if (this.EditorStatus.RootElement != null)  
             {
                 var paintContext = new PaintContext
                 {
@@ -36,8 +33,7 @@ namespace de.springwald.xml.editor
                     ZeilenStartX = 10 + ZeichnungsOffsetX,
                 };
 
-                // XML-Anzeige vorberechnen
-                var context1 = await _rootElement.Paint(paintContext.Clone(), this.NativePlatform.Gfx);
+                var context1 = await this.EditorStatus.RootElement.Paint(paintContext.Clone(), this.NativePlatform.Gfx);
                 _virtuelleBreite = context1.BisherMaxX + 50 - ZeichnungsOffsetX;
                 _virtuelleHoehe = context1.PaintPosY + 50 - ZeichnungsOffsetY;
             }

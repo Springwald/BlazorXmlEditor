@@ -44,6 +44,7 @@ namespace de.springwald.xml
             throw new NotImplementedException();
         }
 
+
         //public void expose() : IXmlAsyncEvent<T> {
         //    return this;
         //}

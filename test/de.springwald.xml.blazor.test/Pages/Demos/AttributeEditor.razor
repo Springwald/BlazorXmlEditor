@@ -40,7 +40,7 @@
         xmlDocument.LoadXml(this.documentContent);
         await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
         await Task.Delay(100);
-        await this.xmlEditor.Editor.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.FirstChild.FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 10);
+        await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.FirstChild.FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 10);
     }
 
     public void Dispose()
