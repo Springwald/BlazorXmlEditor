@@ -49,10 +49,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Der offizielle Inhalt dieses textnodes
         /// </summary>
-        private string AktuellerInhalt
-        {
-            get { return ToolboxXML.TextAusTextNodeBereinigt(XMLNode); }
-        }
+        private string AktuellerInhalt =>  ToolboxXML.TextAusTextNodeBereinigt(XMLNode); 
 
         private Color GetHintergrundFarbe(bool invertiert)
         {
@@ -257,7 +254,6 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
         /// </summary>
-        /// <param name="point"></param>
         protected override async Task WurdeAngeklickt(Point point, MausKlickAktionen action)
         {
             // Herausfinden, an welcher Position des Textes geklickt wurde

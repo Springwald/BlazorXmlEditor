@@ -9,12 +9,12 @@
 
 #define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
-using de.springwald.xml.cursor;
-using de.springwald.xml.editor.nativeplatform.gfx;
-using de.springwald.xml.events;
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using de.springwald.xml.cursor;
+using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.events;
 
 namespace de.springwald.xml.editor
 {

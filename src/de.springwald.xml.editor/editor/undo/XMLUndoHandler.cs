@@ -1,70 +1,62 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using System.Collections;
-using System.Diagnostics;
 using de.springwald.xml.cursor;
-using de.springwald.toolbox;
 
 namespace de.springwald.xml.editor
 {
-	/// <summary>
-	/// Ermöglicht das Protokollieren von Undo-Schritten und das Ausführen von
-	/// Undo und Redo
-	/// </summary>
-	/// <remarks>
-	/// (C)2006 Daniel Springwald, Herne Germany
-	/// Springwald Software  - www.springwald.de
-	/// daniel@springwald.de -   0700-SPRINGWALD
-	/// all rights reserved
-	/// </remarks>
-	public class XMLUndoHandler:IDisposable     
-	{
-        private bool _disposed = false;
-
-        private int _pos=0;           // Wo sind wir gerade in den Undo-Schritten? Bei Undo gehts rückwärts, bei Redo vorwärts
-
-        private XmlNode _rootNode;
-        private XmlDocument _dokument;
-
-        private List<XMLUndoSchritt> _undoSchritte;
-
-        private bool _interneVeraenderungLaeuft = false;
+    /// <summary>
+    /// Allows logging of undo steps and execution of undo and redo
+    /// </summary>
+    public class XMLUndoHandler : IDisposable
+    {
+        private bool disposed = false;
 
         /// <summary>
-        /// Ermittelt die vorherige Snapshotpos vor der aktuellen Pos, wenn vorhanden
+        /// Where are we in the Undo steps right now? With Undo it goes backwards, with Redo forward
+        /// </summary>
+        private int pos = 0;
+
+       
+        private XmlDocument dokument;
+        private List<XMLUndoSchritt> undoSchritte;
+
+        private bool interneVeraenderungLaeuft = false;
+
+        /// <summary>
+        /// Calculates the previous snapshot pos before the current pos, if available
         /// </summary>
         private int VorherigeSnapshotPos
         {
             get
             {
-                int lauf = _pos;
+                int lauf = pos;
                 do
                 {
-                    lauf--;                      // zum vorherigen Schritt gehen
-                } while ((lauf > 0) && (!_undoSchritte[lauf].IstSnapshot)); // Bis zum nächsten Snapshot
+                    lauf--; // go to previous step
+                } while ((lauf > 0) && (!undoSchritte[lauf].IstSnapshot)); // Until the next snapshot
                 return lauf;
             }
         }
 
-        /// <summary>
-        ///  Der Rootnode am welche alle Veränderungen protokolliert werden
-        /// </summary>
-        public System.Xml.XmlNode RootNode
-        {
-            get { return _rootNode; }
-        }
+        public XmlNode RootNode { get; }
 
         /// <summary>
-        /// Sind aktuell Undo-Schritt verfügbar
+        /// Are Undo steps currently available?
         /// </summary>
-        public bool UndoMoeglich
-        {
-            get { return (_pos > 0); }
-        }
+        public bool UndoMoeglich => this.pos > 0;
 
         /// <summary>
-        /// Der Name des nächsten UndoSchrittes (wenn per Snapshot ein Name vergeben wurde)
+        /// The name of the next undo step (if a name was assigned via snapshot)
         /// </summary>
         public string NextUndoSnapshotName
         {
@@ -74,60 +66,64 @@ namespace de.springwald.xml.editor
                 {
                     return String.Format(
                         ResReader.Reader.GetString("NameUndoSchritt"),
-                        _undoSchritte[VorherigeSnapshotPos].SnapShotName);
+                        undoSchritte[VorherigeSnapshotPos].SnapShotName);
                 }
                 else
                 {
                     return ResReader.Reader.GetString("KeinUndoSchrittVerfuegbar");
-                } 
+                }
             }
         }
 
-        /// Erzeugt einen XMLUndo-Handler, welcher alle Veränderungen ab dem angegebenen Root-Node protokolliert
+        /// <summary>
+        ///  Creates an XMLUndo handler that logs all changes starting from the specified root node
         /// </summary>
-        /// <param name="rootNode"></param>
 		public XMLUndoHandler(System.Xml.XmlNode rootNode)
-		{
-            _undoSchritte = new List<XMLUndoSchritt>();
-            _undoSchritte.Add(new XMLUndoSchritt()); // Den Grundschritt für Snapshot und Cursor einsetzen; Undo Daten hat er nicht
+        {
+            this.undoSchritte = new List<XMLUndoSchritt>();
+            this.undoSchritte.Add(new XMLUndoSchritt()); // Insert the basic step for snapshot and cursor; it does not have undo data
 
-            _rootNode = rootNode;
-            _dokument = _rootNode.OwnerDocument;
+            this.RootNode = rootNode;
+            this.dokument = this.RootNode.OwnerDocument;
 
-            // In die Kette der Veränderungen im DOM einhängen
-            _dokument.NodeChanging += new System.Xml.XmlNodeChangedEventHandler(_dokument_NodeChanging);
-            _dokument.NodeInserted += new System.Xml.XmlNodeChangedEventHandler(_dokument_NodeInserted);
-            _dokument.NodeRemoving += new System.Xml.XmlNodeChangedEventHandler(_dokument_NodeRemoving);
+            // Hook into the chain of changes in the DOM
+            this.dokument.NodeChanging += new XmlNodeChangedEventHandler(this.dokument_NodeChanging);
+            this.dokument.NodeInserted += new XmlNodeChangedEventHandler(this.dokument_NodeInserted);
+            this.dokument.NodeRemoving += new XmlNodeChangedEventHandler(this.dokument_NodeRemoving);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="snapShotName"></param>
+        public void Dispose()
+        {
+            if (this.disposed) return;
+            this.disposed = true;
+            this.dokument.NodeChanging -= new XmlNodeChangedEventHandler(this.dokument_NodeChanging);
+            this.dokument.NodeInserted -= new XmlNodeChangedEventHandler(this.dokument_NodeInserted);
+            this.dokument.NodeRemoving -= new XmlNodeChangedEventHandler(this.dokument_NodeRemoving);
+        }
+
         public void SnapshotSetzen(string snapShotName, XMLCursor cursor)
         {
-            _undoSchritte[_pos].SnapShotName = snapShotName; // Dem jetzt-Schritt den Snapshotnamen zuweisen
-            _undoSchritte[_pos].CursorVorher = cursor; // Dem jetzt-Schritt den Cursor zuweisen
+            this.undoSchritte[pos].SnapShotName = snapShotName;
+            this.undoSchritte[pos].CursorVorher = cursor;
         }
 
         /// <summary>
-        /// Den letzten Schritt rückgängig machen 
+        /// Undo the last step 
         /// </summary>
-        /// <returns>Den neuen Cursor nach erfolgreichem Undo</returns>
+        /// <returns>The new cursor after successful undo</returns>
         public XMLCursor Undo()
         {
-            if (UndoMoeglich)
+            if (this.UndoMoeglich)
             {
-                _interneVeraenderungLaeuft = true;
-
+                this.interneVeraenderungLaeuft = true;
                 do
                 {
-                    _undoSchritte[_pos].UnDo();  // Undo dieses Schrittes durchführen
-                    _pos--;                      // zum vorherigen Schritt gehen
-                } while ((_pos != 0) && (!_undoSchritte[_pos].IstSnapshot)); // Bis zum nächsten Snapshot
+                    this.undoSchritte[this.pos].UnDo();  // Undo this step
+                    this.pos--; // go to previous step
+                } while ((this.pos != 0) && (!this.undoSchritte[pos].IstSnapshot)); // Until the next snapshot
 
-                _interneVeraenderungLaeuft = false;
-                return _undoSchritte[_pos].CursorVorher; // Cursor von vorherigem Schritt für Wiederherstellung zurückgeben
+                this.interneVeraenderungLaeuft = false;
+                return this.undoSchritte[this.pos].CursorVorher; // Return cursor from previous step for restore
             }
             else
             {
@@ -135,68 +131,55 @@ namespace de.springwald.xml.editor
             }
         }
 
-        void _dokument_NodeRemoving(object sender, System.Xml.XmlNodeChangedEventArgs e)
+        private void dokument_NodeRemoving(object sender, System.Xml.XmlNodeChangedEventArgs e)
         {
-            if (_interneVeraenderungLaeuft) return;
+            if (this.interneVeraenderungLaeuft) return;
             if (e.Node is XmlAttribute)
             {
-                // Der entfernte Node war ein Attribut
-                NeuenUndoSchrittAnhaengen(new XMLUndoSchrittAttributRemoved((XmlAttribute)e.Node));
+                // The removed node was an attribute
+                this.NeuenUndoSchrittAnhaengen(new XMLUndoSchrittAttributRemoved((XmlAttribute)e.Node));
             }
             else
             {
-                // der entfernte Node war kein Attribut
-                NeuenUndoSchrittAnhaengen(new XMLUndoSchrittNodeRemoved(e.Node));
+                // the remote node was not an attribute
+                this.NeuenUndoSchrittAnhaengen(new XMLUndoSchrittNodeRemoved(e.Node));
             }
         }
 
-        void _dokument_NodeChanging(object sender, System.Xml.XmlNodeChangedEventArgs e)
+        private void dokument_NodeChanging(object sender, System.Xml.XmlNodeChangedEventArgs e)
         {
-            if (_interneVeraenderungLaeuft) return;
-            NeuenUndoSchrittAnhaengen(new XMLUndoSchrittNodeChanged(e.Node,e.OldValue));
+            if (interneVeraenderungLaeuft) return;
+            this.NeuenUndoSchrittAnhaengen(new XMLUndoSchrittNodeChanged(e.Node, e.OldValue));
         }
 
-        void _dokument_NodeInserted(object sender, System.Xml.XmlNodeChangedEventArgs e)
+        private void dokument_NodeInserted(object sender, System.Xml.XmlNodeChangedEventArgs e)
         {
-            if (_interneVeraenderungLaeuft) return;
-            NeuenUndoSchrittAnhaengen(new XMLUndoSchrittNodeInserted(e.Node, e.NewParent));
-        }
-
-        /// <summary>
-        /// Den Undo-Handler zerstören
-        /// </summary>
-        public void Dispose()
-        {
-            if (_disposed) return;
-
-            _dokument.NodeChanging -= new System.Xml.XmlNodeChangedEventHandler(_dokument_NodeChanging);
-            _dokument.NodeInserted -= new System.Xml.XmlNodeChangedEventHandler(_dokument_NodeInserted);
-            _dokument.NodeRemoving -= new System.Xml.XmlNodeChangedEventHandler(_dokument_NodeRemoving);
-            
-            _disposed = true;
+            if (interneVeraenderungLaeuft) return;
+            this.NeuenUndoSchrittAnhaengen(new XMLUndoSchrittNodeInserted(e.Node, e.NewParent));
         }
 
         /// <summary>
-        /// Nimmt einen UndoSchritt auf
+        /// Adds an Undo step
         /// </summary>
-        /// <param name="schritt"></param>
         private void NeuenUndoSchrittAnhaengen(XMLUndoSchritt neuerUndoSchritt)
         {
-            // Wenn an der aktuellen Stelle noch ReDos folgen, dann werden alle hinfällig
-            List<XMLUndoSchritt> loeschen = new List<XMLUndoSchritt>();
-            for (int i = _pos + 1; i < _undoSchritte.Count; i++)
+            // If there are still redo's following at the current position, then all redo's become obsolete
+            var loeschen = new List<XMLUndoSchritt>();
+            for (int i = pos + 1; i < this.undoSchritte.Count; i++)
             {
-                loeschen.Add(_undoSchritte[i]);
+                loeschen.Add(undoSchritte[i]);
             }
-            foreach (XMLUndoSchritt schritt in loeschen) {
-                _undoSchritte.Remove(schritt);
+            foreach (XMLUndoSchritt schritt in loeschen)
+            {
+                this.undoSchritte.Remove(schritt);
             }
 
-            // Den neuen Schritt anhängen
-            _undoSchritte.Add(neuerUndoSchritt);
-            _pos++;
-            if (_pos != _undoSchritte.Count-1) {
-                throw new Exception ("Undo-Pos sollte mit undoSchritte.Count-1 übereinstimmen. Statt dessen pos: " + _pos + ", _undoSchritte.Count -1:" + (_undoSchritte.Count -1));
+            // Append the new step
+            this.undoSchritte.Add(neuerUndoSchritt);
+            this.pos++;
+            if (this.pos != this.undoSchritte.Count - 1)
+            {
+                throw new Exception($"Undo-Pos should match with undoSteps.Count-1 Instead of this pos: {this.pos}, _undoSchritte.Count -1:{(this.undoSchritte.Count - 1)}");
             }
         }
     }

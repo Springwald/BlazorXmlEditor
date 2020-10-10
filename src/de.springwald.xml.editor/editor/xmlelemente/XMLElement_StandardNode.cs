@@ -7,12 +7,12 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.cursor;
-using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using de.springwald.xml.cursor;
+using de.springwald.xml.editor.nativeplatform.gfx;
 
 namespace de.springwald.xml.editor
 {
