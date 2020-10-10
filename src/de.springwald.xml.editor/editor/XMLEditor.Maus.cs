@@ -1,49 +1,56 @@
-using de.springwald.xml.events;
-using System.Threading.Tasks;
+//// A platform indepentend tag-view-style graphical xml editor
+//// https://github.com/Springwald/BlazorXmlEditor
+////
+//// (C) 2020 Daniel Springwald, Bochum Germany
+//// Springwald Software  -   www.springwald.de
+//// daniel@springwald.de -  +49 234 298 788 46
+//// All rights reserved
+//// Licensed under MIT License
 
-namespace de.springwald.xml.editor
-{
-    public partial class XMLEditor
-    {
-        public XmlAsyncEvent<MouseEventArgs> MouseUpEvent = new XmlAsyncEvent<MouseEventArgs>();
-        public XmlAsyncEvent<MouseEventArgs> MouseDownEvent = new XmlAsyncEvent<MouseEventArgs>();
-        public XmlAsyncEvent<MouseEventArgs> MouseDownMoveEvent = new XmlAsyncEvent<MouseEventArgs>();
+//using de.springwald.xml.events;
+//using System.Threading.Tasks;
 
-        private bool _mausIstGedrueckt = false; // Wird die Maustaste noch gehalten?
+//namespace de.springwald.xml.editor
+//{
+//    public partial class XMLEditor
+//    {
+//        public XmlAsyncEvent<MouseEventArgs> MouseUpEvent = new XmlAsyncEvent<MouseEventArgs>();
+//        public XmlAsyncEvent<MouseEventArgs> MouseDownEvent = new XmlAsyncEvent<MouseEventArgs>();
+//        public XmlAsyncEvent<MouseEventArgs> MouseDownMoveEvent = new XmlAsyncEvent<MouseEventArgs>();
 
-        private void MausEventsAnmelden()
-        {
-            this.NativePlatform.InputEvents.MouseDown.Add(this._zeichnungsSteuerelement_MouseDown);
-            this.NativePlatform.InputEvents.MouseUp.Add(this._zeichnungsSteuerelement_MouseUp);
-            this.NativePlatform.InputEvents.MouseMove.Add(this._zeichnungsSteuerelement_MouseMove);
-        }
+//        private bool mouseIsDown = false; // Wird die Maustaste noch gehalten?
 
-        /// <summary>
-        /// In das Editor-Control wurde geklickt
-        /// </summary>
-        private async Task _zeichnungsSteuerelement_MouseDown(MouseEventArgs e)
-        {
-            _mausIstGedrueckt = true;
-            await this.MouseDownEvent.Trigger(e);
-        }
+//        private void MausEventsAnmelden()
+//        {
+//            this.NativePlatform.InputEvents.MouseDown.Add(this.OnMouseDown);
+//            this.NativePlatform.InputEvents.MouseUp.Add(this.OnMouseUp);
+//            this.NativePlatform.InputEvents.MouseMove.Add(this.OnMouseMove);
+//        }
 
-        /// <summary>
-        /// Der Klick im Editor-Control wurde losgelassen
-        /// </summary>
-        async Task _zeichnungsSteuerelement_MouseUp(MouseEventArgs e)
-        {
-            _mausIstGedrueckt = false;
-            await this.MouseUpEvent.Trigger(e);
-        }
+//        /// <summary>
+//        /// The editor control was clicked
+//        /// </summary>
+//        private async Task OnMouseDown(MouseEventArgs e)
+//        {
+//            this.mouseIsDown = true;
+//            await this.MouseDownEvent.Trigger(e);
+//        }
 
-        /// <summary>
-        /// Die Maus wird bewegt
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        async Task _zeichnungsSteuerelement_MouseMove(MouseEventArgs e)
-        {
-            if (_mausIstGedrueckt) await this.MouseDownMoveEvent.Trigger(e);
-        }
-    }
-}
+//        /// <summary>
+//        /// The click in the editor control was released
+//        /// </summary>
+//        async Task OnMouseUp(MouseEventArgs e)
+//        {
+//            this.mouseIsDown = false;
+//            await this.MouseUpEvent.Trigger(e);
+//        }
+
+//        /// <summary>
+//        /// The mouse is moving
+//        /// </summary>
+//        async Task OnMouseMove(MouseEventArgs e)
+//        {
+//            if (this.mouseIsDown) await this.MouseDownMoveEvent.Trigger(e);
+//        }
+//    }
+//}

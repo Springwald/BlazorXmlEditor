@@ -56,9 +56,9 @@ namespace de.springwald.xml.editor
             _xmlEditor = xmlEditor;
 
             _xmlEditor.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
-            _xmlEditor.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
-            _xmlEditor.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
-            _xmlEditor.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
+            _xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
+            _xmlEditor.MouseHandler.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
+            _xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
             _xmlEditor.xmlElementeAufraeumenEvent += new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
         }
 
@@ -446,9 +446,9 @@ namespace de.springwald.xml.editor
                 {
                     // Von den Events abmelden
                     _xmlEditor.CursorRoh.ChangedEvent.Remove(this.Cursor_ChangedEvent);
-                    _xmlEditor.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
-                    _xmlEditor.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
-                    _xmlEditor.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
+                    _xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
+                    _xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
+                    _xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
                     _xmlEditor.xmlElementeAufraeumenEvent -= new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
 
                     // Alle Child-Elemente ebenfalls zerstören

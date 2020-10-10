@@ -1,4 +1,5 @@
 using de.springwald.xml.cursor;
+using de.springwald.xml.editor.editor;
 using de.springwald.xml.editor.editor.cursor;
 using de.springwald.xml.editor.nativeplatform;
 using System;
@@ -23,10 +24,14 @@ namespace de.springwald.xml.editor
     {
         internal bool HasFocus => this.NativePlatform?.ControlElement.Focused == true;
 
+        private bool _disposed;
 
         public IEditorConfig EditorConfig { get; }
         public INativePlatform NativePlatform { get; }
+
         internal CursorBlink CursorBlink { get; private set; }
+        internal MouseHandler MouseHandler { get; private set; }
+
 
         /// <summary>
         /// Der Inhalt des Editor-XMLs hat sich geändert
@@ -216,27 +221,44 @@ namespace de.springwald.xml.editor
         /// <param name="regelwerk">Das Regelwerk zur Darstellung des XMLs</param>
         /// <param name="zeichnungsSteuerelement">Das Usercontrol, auf welchem der Editor gezeichnet werden soll</param>
         /// <param name="rootNode">Dies ist der oberste, zu bearbeitende Node. Höher darf nicht bearbeitet werden, selbst wenn im DOM Parents vorhanden sind</param>
-        public XMLEditor(de.springwald.xml.XMLRegelwerk regelwerk, INativePlatform nativePlatform, IEditorConfig editorConfig)
+        public XMLEditor(XMLRegelwerk regelwerk, INativePlatform nativePlatform, IEditorConfig editorConfig)
         {
             this.EditorConfig = editorConfig;
             this.NativePlatform = nativePlatform;
             this.Regelwerk = regelwerk;
-            
 
             this.NativePlatform.ControlElement.Enabled = false; // Bis zu einer Content-Zuweisung erstmal deaktiviert */
-
-            // this.NativePlatform.ControlElement.Invalidated.Add(this.Invalidated);
-
-            this.CursorBlink = new CursorBlink();
-            this.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
 
             _cursor = new XMLCursor();
             _cursor.ChangedEvent.Add(this.CursorChangedEvent);
 
+            this.CursorBlink = new CursorBlink();
+            this.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
+
+            this.MouseHandler = new MouseHandler(nativePlatform);
+
             // Events auf das Usercontrol ansetzen, auf welchem gezeichnet werden soll
-            MausEventsAnmelden();
             TastaturEventsAnmelden();
             InitScrolling();
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+
+                this.xmlElementeAufraeumen();
+                _disposed = true;
+            }
+        }
+
+        /// <summary>
+        /// allen XML-Elementen Bescheid sagen, dass Sie sich aufräumen
+        /// </summary>
+        public event EventHandler xmlElementeAufraeumenEvent;
+        protected virtual void xmlElementeAufraeumen()
+        {
+            if (xmlElementeAufraeumenEvent != null) xmlElementeAufraeumenEvent(this, EventArgs.Empty);
         }
 
         //private async Task Invalidated(EventArgs data)
