@@ -1,57 +1,38 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace de.springwald.xml.editor
 {
     public class XMLUndoSchrittNodeChanged : XMLUndoSchritt
     {
-        #region SYSTEM
-        #endregion
-
-        #region PRIVATE ATTRIBUTES
-
-        private System.Xml.XmlNode _geaenderterNode;
-        private string _valueVorher;
-        //private string _valueNachher;
-
-        #endregion
-
-        #region PUBLIC ATTRIBUTES
-        #endregion
-
-        #region CONSTRUCTOR
+        private System.Xml.XmlNode changedNode;
+        private string previousValue;
 
         /// <summary>
-        /// Erzeugt einen neuen Undoschritt für das Verändern eines Node-Values
+        /// Creates a new undo step for changing a node value
         /// </summary>
-        /// <param name="eingefuegterNode">Dieser Node wurde verändert</param>
-        public XMLUndoSchrittNodeChanged(System.Xml.XmlNode geaenderterNode, string valueVorher)  : base()
+        /// <param name="changedNode">This node was changed</param>
+        public XMLUndoSchrittNodeChanged(System.Xml.XmlNode changedNode, string previousValue) : base()
         {
-            _geaenderterNode = geaenderterNode;
-            _valueVorher = valueVorher;
-            //_valueNachher = valueNachher;
-
-            if ((geaenderterNode == null))
+            this.changedNode = changedNode;
+            this.previousValue = previousValue;
+            if ((changedNode == null))
             {
-                throw new ApplicationException("Verändern des Nodes kann nicht für Undo vermerkt werden, da er NULL ist '" +
-                        _geaenderterNode.OuterXml + "'");
+                throw new ApplicationException($"Changing the node cannot be noted for Undo because it is NULL '{this.changedNode.OuterXml}'");
             }
         }
-
-        #endregion
-
-        #region PUBLIC METHODS
-
         public override void UnDo()
         {
-            // Das Verändern des Nodes rückgängig machen
-            _geaenderterNode.Value = _valueVorher;
+            // Undo the modification of the node
+            this.changedNode.Value = previousValue;
         }
-
-        #endregion
-
-        #region PRIVATE METHODS
-        #endregion
     }
 }

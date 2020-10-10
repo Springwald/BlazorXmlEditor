@@ -1,57 +1,50 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using de.springwald.xml.cursor;
 
 namespace de.springwald.xml.editor
 {
     /// <summary>
-    /// Ein einzelner Schritt in der Undo-Historie 
+    /// A single step in the undo history 
     /// </summary>
-    /// <remarks>
-    /// (C)2006 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
-    public class XMLUndoSchritt
+    public  class XMLUndoSchritt
     {
-        protected string _snapshotName;             //  Wenn dieser Schritt ein Snapshot ist, dann steht hier der Name des Snapshots
-        protected XMLCursor _cursorVorher;          // Cursor vor der Änderung
+        protected XMLCursor previousCursor;// Cursor vor der Änderung
 
         /// <summary>
-        /// Ist dieser Schritt ein benannter Snapshot?
+        /// Is this step a named snapshot?
         /// </summary>
-        public bool IstSnapshot
-        {
-            get { return ((_snapshotName != null) && (_snapshotName != "")); }
-        }
+        public bool IstSnapshot => !string.IsNullOrEmpty(this.SnapShotName);
 
         /// <summary>
-        /// Wenn dieser Schritt ein Snapshot ist, dann steht hier der Name des Snapshots
+        /// If this step is a snapshot, then here is the name of the snapshot
         /// </summary>
-        public string SnapShotName
-        {
-            get { return _snapshotName; }
-            set { _snapshotName = value; }
-        }
+        public string SnapShotName { get; set; }
 
         /// <summary>
-        /// Cursor vor der Änderung
+        /// Cursor before the change
         /// </summary>
         public XMLCursor CursorVorher
         {
-            set { _cursorVorher = value.Clone(); }
-            get { return _cursorVorher; }
+            set { previousCursor = value.Clone(); }
+            get { return previousCursor; }
         }
 
         public XMLUndoSchritt()
         {
-            _snapshotName = null;
+             this.SnapShotName = null;
         }
 
         /// <summary>
-        /// Macht diesen Undo-Schritt rückgängig
+        /// Undoes this undo step
         /// </summary>
-        public virtual void UnDo()
-        {
-        }
+        public virtual void UnDo() { }
     }
 }

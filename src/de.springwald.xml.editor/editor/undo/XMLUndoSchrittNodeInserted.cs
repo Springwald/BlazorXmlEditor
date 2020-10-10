@@ -1,62 +1,45 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace de.springwald.xml.editor
 {
     public class XMLUndoSchrittNodeInserted : XMLUndoSchritt
     {
-        #region SYSTEM
-        #endregion
-
-        #region PRIVATE ATTRIBUTES
-
-        private System.Xml.XmlNode _eingefuegterNode;
-        private System.Xml.XmlNode _parentNode;
-
-        #endregion
-
-        #region PUBLIC ATTRIBUTES
-        #endregion
-
-        #region CONSTRUCTOR
+        private System.Xml.XmlNode insertedNode;
+        private System.Xml.XmlNode parentNode;
 
         /// <summary>
-        /// Erzeugt einen neuen Undoschritt für das Einfügen eines neuen Nodes
+        /// Creates a new undo step for inserting a new node
         /// </summary>
-        /// <param name="eingefuegterNode">Dieser Node wurde eingefügt</param>
-        public XMLUndoSchrittNodeInserted(System.Xml.XmlNode eingefuegterNode, System.Xml.XmlNode parentNode)          : base()
+        /// <param name="insertedNode">This node was inserted</param>
+        public XMLUndoSchrittNodeInserted(System.Xml.XmlNode insertedNode, System.Xml.XmlNode parentNode) : base()
         {
-            _eingefuegterNode = eingefuegterNode;
-            _parentNode = parentNode;
-
-            if ((eingefuegterNode == null))
+            this.insertedNode = insertedNode;
+            this.parentNode = parentNode;
+            if ((insertedNode == null))
             {
-                throw new ApplicationException("Einfügen des Nodes kann nicht für Undo vermerkt werden, da er NULL ist '" +
-                        _eingefuegterNode.OuterXml + "'");
+                throw new ApplicationException($"Inserting the node cannot be noted for Undo because it is NULL  '{this.insertedNode.OuterXml}'");
             }
         }
-
-        #endregion
-
-        #region PUBLIC METHODS
-
         public override void UnDo()
         {
-            // Das Einfügen des Nodes rückgängig machen
-            if (_eingefuegterNode is System.Xml.XmlAttribute) // eingefügter Node war ein Attribut
+            //  Undo the insertion of the node
+            if (this.insertedNode is System.Xml.XmlAttribute) // inserted node was an attribute
             {
-                _parentNode.Attributes.Remove((System.Xml.XmlAttribute)_eingefuegterNode);
+                this.parentNode.Attributes.Remove((System.Xml.XmlAttribute)this.insertedNode);
             }
-            else // eingefügter Node war kein Attribut
+            else // inserted node was not an attribute
             {
-                _parentNode.RemoveChild(_eingefuegterNode);
+                this.parentNode.RemoveChild(insertedNode);
             }
         }
-
-        #endregion
-
-        #region PRIVATE METHODS
-        #endregion
     }
 }

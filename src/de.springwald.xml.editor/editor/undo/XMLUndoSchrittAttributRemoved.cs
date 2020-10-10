@@ -1,59 +1,38 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace de.springwald.xml.editor
 {
-    public class XMLUndoSchrittAttributRemoved:XMLUndoSchritt
+    public class XMLUndoSchrittAttributRemoved : XMLUndoSchritt
     {
-        #region SYSTEM
-        #endregion
-
-        #region PRIVATE ATTRIBUTES
-
-        private System.Xml.XmlAttribute _geloeschtesAttribut;
-
-        private System.Xml.XmlNode _ownerElement;
-
-        #endregion
-
-        #region PUBLIC ATTRIBUTES
-        #endregion
-
-        #region CONSTRUCTOR
+        private System.Xml.XmlAttribute deletedAttribute;
+        private System.Xml.XmlNode ownerElement;
 
         /// <summary>
-        /// Erzeugt einen neuen Undoschritt für das Löschen eines Nodes
+        /// Creates a new undo step to delete attributes
         /// </summary>
-        /// <param name="nodeVorDemLoeschen">Dieser Node wurde gelöscht</param>
-        public XMLUndoSchrittAttributRemoved(System.Xml.XmlAttribute attributVorDemLoeschen)
-            : base()
+        /// <param name="attributeBeforeDeleting">This attribute was deleted</param>
+        public XMLUndoSchrittAttributRemoved(System.Xml.XmlAttribute attributeBeforeDeleting) : base()
         {
-
-            _geloeschtesAttribut = attributVorDemLoeschen;
-
-            _ownerElement = attributVorDemLoeschen.OwnerElement;
-
-            if (_ownerElement == null)
+            this.deletedAttribute = attributeBeforeDeleting;
+            this.ownerElement = attributeBeforeDeleting.OwnerElement;
+            if (this.ownerElement == null)
             {
-                throw new ApplicationException("Löschen des Attributes kann nicht für Undo vermerkt werden, da es keinen Bezug hat '" +
-                        attributVorDemLoeschen.OuterXml + "'");
+                throw new ApplicationException($"Deleting the attribute cannot be noted for Undo because it has no reference: '{attributeBeforeDeleting.OuterXml}'");
             }
         }
-
-        #endregion
-
-        #region PUBLIC METHODS
-
         public override void UnDo()
         {
-            // Das Löschen des Attributes rückgängig machen
-            _ownerElement.Attributes.Append(_geloeschtesAttribut);
+            // Undo the deletion of the attribute
+            this.ownerElement.Attributes.Append(this.deletedAttribute);
         }
-
-        #endregion
-
-        #region PRIVATE METHODS
-        #endregion
     }
 }

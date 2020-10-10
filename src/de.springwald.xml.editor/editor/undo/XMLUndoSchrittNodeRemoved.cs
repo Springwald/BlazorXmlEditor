@@ -1,78 +1,57 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
 
 namespace de.springwald.xml.editor
 {
-    public class XMLUndoSchrittNodeRemoved:XMLUndoSchritt
+    public class XMLUndoSchrittNodeRemoved : XMLUndoSchritt
     {
-        #region SYSTEM
-        #endregion
-
-        #region PRIVATE ATTRIBUTES
-
-        private System.Xml.XmlNode _geloeschterNode;
-
-        private System.Xml.XmlNode _parentNode;
-        private System.Xml.XmlNode _previousSibling; 
-        private System.Xml.XmlNode _nextSibling;
-
-        #endregion
-
-        #region PUBLIC ATTRIBUTES
-        #endregion
-
-        #region CONSTRUCTOR
+        private System.Xml.XmlNode deletedNode;
+        private System.Xml.XmlNode parentNode;
+        private System.Xml.XmlNode previousSibling;
+        private System.Xml.XmlNode nextSibling;
 
         /// <summary>
         /// Erzeugt einen neuen Undoschritt für das Löschen eines Nodes
         /// </summary>
-        /// <param name="nodeVorDemLoeschen">Dieser Node wurde gelöscht</param>
-        public XMLUndoSchrittNodeRemoved(System.Xml.XmlNode nodeVorDemLoeschen) : base()
+        /// <param name="deletedNode">Dieser Node wurde gelöscht</param>
+        public XMLUndoSchrittNodeRemoved(System.Xml.XmlNode deletedNode) : base()
         {
+            this.deletedNode = deletedNode;
+            this.parentNode = deletedNode.ParentNode;
+            this.previousSibling = deletedNode.PreviousSibling;
+            this.nextSibling = deletedNode.NextSibling;
 
-            _geloeschterNode = nodeVorDemLoeschen;
-
-            _parentNode = nodeVorDemLoeschen.ParentNode;
-            _previousSibling = nodeVorDemLoeschen.PreviousSibling;
-            _nextSibling = nodeVorDemLoeschen.NextSibling;
-
-            if ((_parentNode == null) && (_previousSibling == null) && (_nextSibling == null))
+            if ((this.parentNode == null) && (this.previousSibling == null) && (this.nextSibling == null))
             {
-                throw new ApplicationException("Löschen des Nodes kann nicht für Undo vermerkt werden, da er keinen Bezug hat '" +
-                        nodeVorDemLoeschen.OuterXml + "'");
+                throw new ApplicationException($"Deleting the node cannot be noted for Undo because it has no reference '{this.deletedNode.OuterXml}'");
             }
         }
-
-        #endregion
-
-        #region PUBLIC METHODS
-
         public override void UnDo()
         {
-
-            // Das Löschen des Nodes rückgängig machen
-            if (_previousSibling != null) // Wenn es einen Vorher-Node gab
+            // Undo the deletion of the node
+            if (this.previousSibling != null) // If there was a before node
             {
-                _previousSibling.ParentNode.InsertAfter(_geloeschterNode, _previousSibling); // Node wieder hinter Vorher-Node einfügen
+                this.previousSibling.ParentNode.InsertAfter(this.deletedNode, this.previousSibling); // Insert Node again behind Prev-Node
             }
-            else  // Es gab keinen Vorher-Node
+            else  // There was no before node
             {
-                if (_nextSibling != null) // Es gab einen Nachher-Node
+                if (this.nextSibling != null) // There was an after-node
                 {
-                    _nextSibling.ParentNode.InsertBefore(_geloeschterNode, _nextSibling); // Node wieder vor dem Nachher-Node einfügen
+                    this.nextSibling.ParentNode.InsertBefore(this.deletedNode, this.nextSibling); // Insert node again before the after node
                 }
-                else // Es gab weder Vorher- noch -Nachher-Node, Parent war also bis auf den gelöschten Node leer
+                else // There was no before or after node, so Parent was empty except for the deleted node
                 {
-                    _parentNode.AppendChild(_geloeschterNode); // Den gelöschten Node wieder in den ParentNode einsetzen
+                    this.parentNode.AppendChild(this.deletedNode); // Put the deleted node back into the ParentNode
                 }
             }
         }
-
-        #endregion
-
-        #region PRIVATE METHODS
-        #endregion
     }
 }
