@@ -1,18 +1,17 @@
-﻿@using de.springwald.xml.blazor
-@using Blazor.Extensions
+﻿@using Blazor.Extensions
 @using Blazor.Extensions.Canvas
+@using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.NativePlatform
-@using editor.nativeplatform.gfx
 @using de.springwald.xml.editor
+@using editor.nativeplatform.gfx
 @inject IJSRuntime JSRuntime
 @implements IDisposable
-
 
 <div class="card">
     <div class="card-body">
         <div tabindex="0"
              @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
-             @onkeypress="EventOnKeyPress" @onkeydown="EventOnKeyDown"
+             @onkeydown="EventOnKeyDown"
              @ref="_canvasDivReference">
             <BECanvas Width="700" Height="500" @ref="_canvasReference">
             </BECanvas>
@@ -84,7 +83,6 @@
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
     {
         await this.Editor.SetRootNode(rootNode);
-        //await this.xmlEditor.Paint(new de.springwald.xml.events.PaintEventArgs() { Graphics = nativePlattform.Gfx });
     }
 
     public class BoundingClientRect
@@ -99,19 +97,7 @@
         public double Left { get; set; }
     }
 
-    //async void EventOnClick(MouseEventArgs e)
-    //{
-    //    var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
-
-    //    var x = (int)(e.ClientX - result.Left);
-    //    var y = (int)(e.ClientY - result.Top);
-
-    //    await this.nativePlattform.InputEvents.MouseDown.Trigger(new de.springwald.xml.events.MouseEventArgs
-    //    {
-    //        X = x,
-    //        Y = y
-    //    });
-    //}
+    #region key events
 
     public async void EventOnKeyDown(KeyboardEventArgs e)
     {
@@ -121,7 +107,7 @@
             AltKey = e.AltKey,
             ShiftKey = e.ShiftKey,
             Content = e.Key,
-             Key = events.Keys.undefined
+            Key = events.Keys.undefined
         };
 
         switch (e.Code)
@@ -156,14 +142,9 @@
         await this.nativePlattform.InputEvents.PreviewKey.Trigger(args);
     }
 
+    #endregion
 
-    public async void EventOnKeyPress(KeyboardEventArgs e)
-    {
-        // await this.KeyPress.Trigger(new KeyEventArgs { Key = e.Key });
-    }
-
-
-
+    #region mouse events
 
     async void EventOnMouseDown(MouseEventArgs e)
     {
@@ -206,4 +187,6 @@
             Y = y
         });
     }
+
+    #endregion
 }
