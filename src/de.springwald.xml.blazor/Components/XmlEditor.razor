@@ -11,7 +11,7 @@
     <div class="card-body">
         <div tabindex="0"
              @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
-             @onkeydown="EventOnKeyDown"
+             @onkeydown="EventOnKeyDown" @onkeydown:preventDefault
              @ref="_canvasDivReference">
             <BECanvas Width="700" Height="500" @ref="_canvasReference">
             </BECanvas>
@@ -23,10 +23,11 @@
 
     private bool initDone;
     private XmlEditorContext _editorContext;
-    public de.springwald.xml.editor.XMLEditor Editor;
     protected BECanvasComponent _canvasReference;
     protected ElementReference _canvasDivReference;
     protected BlazorNativePlatform nativePlattform;
+
+    public de.springwald.xml.editor.XMLEditor Editor;
 
     [Parameter]
     public XmlEditorContext EditorContext
@@ -78,6 +79,7 @@
     public void Dispose()
     {
         this._editorContext?.RootNodeChanged.Remove(this.RootNodeChanged);
+        this.Editor.Dispose();
     }
 
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
@@ -110,35 +112,48 @@
             Key = events.Keys.undefined
         };
 
-        switch (e.Code)
+        switch (e.Key)
         {
-            case "KeyA": args.Key = events.Keys.A; break;
-            case "KeyC": args.Key = events.Keys.C; break;
-            case "KeyS": args.Key = events.Keys.S; break;
-            case "KeyV": args.Key = events.Keys.V; break;
-            case "KeyX": args.Key = events.Keys.X; break;
-            case "KeyZ": args.Key = events.Keys.Z; break;
+            // check control keys here to prevent checking ControlLeft vs. ControlRight etc.
 
-            case "Backspace": args.Key = events.Keys.Back; break;
-            case "Delete": args.Key = events.Keys.Delete; break;
-            case "Enter": args.Key = events.Keys.Enter; break;
-            case "Escape": args.Key = events.Keys.Escape; break;
-            case "Home": args.Key = events.Keys.Home; break;
-
-            case "ArrowLeft": args.Key = events.Keys.Left; break;
-            case "ArrowRight": args.Key = events.Keys.Right; break;
-
-            case "Tab": args.Key = events.Keys.Tab; break;
-
-            case "ControlLeft":
-            case "ControlRight":
-            case "ShiftLeft":
-            case "ShiftRight":
-            case "AltLeft":
-            case "AltRight":
+            case "Control":
+            case "Shift":
+            case "Alt":
                 // skip this keydowns
                 return;
+
+            case "Home": args.Key = events.Keys.Home; break;
+            case "Enter": args.Key = events.Keys.Enter; break;
+
+            default:
+
+                // check other keys in detail by key code
+
+                switch (e.Code)
+                {
+                    case "KeyA": args.Key = events.Keys.A; break;
+                    case "KeyC": args.Key = events.Keys.C; break;
+                    case "KeyS": args.Key = events.Keys.S; break;
+                    case "KeyV": args.Key = events.Keys.V; break;
+                    case "KeyX": args.Key = events.Keys.X; break;
+                    case "KeyZ": args.Key = events.Keys.Z; break;
+
+                    case "Backspace": args.Key = events.Keys.Back; break;
+                    case "Delete": args.Key = events.Keys.Delete; break;
+                    case "Escape": args.Key = events.Keys.Escape; break;
+
+                    case "ArrowLeft": args.Key = events.Keys.Left; break;
+                    case "ArrowRight": args.Key = events.Keys.Right; break;
+
+                    case "Tab":
+                        args.Key = events.Keys.Tab;
+                        break;
+                }
+                break;
         }
+
+
+
 
         await this.nativePlattform.InputEvents.PreviewKey.Trigger(args);
     }

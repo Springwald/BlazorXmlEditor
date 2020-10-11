@@ -18,7 +18,7 @@ namespace de.springwald.xml.editor.editor
 {
     internal class KeyboardHandler : IDisposable
     {
-        private bool _naechstesLostFokusVerhindern = false; // Damit beim TAB das Verlassen des Fokus ignoriert wird
+        private bool _naechstesLostFokusVerhindern = false; // So that leaving the focus is ignored on TAB
         private INativePlatform nativePlatform;
         private EditorActions actions;
         private EditorStatus editorStatus;
@@ -59,29 +59,29 @@ namespace de.springwald.xml.editor.editor
                 {
                     // >>> special character keys >>>
 
-                    case (Keys.A): // STRG-A -> Alles markieren
+                    case (Keys.A): // CTRL-A -> select all
                         if (e.CtrlKey) await this.actions.AktionAllesMarkieren();
                         break;
 
-                    case (Keys.C): // STRG-C -> Kopieren
+                    case (Keys.C): // CTRL-C -> copy
                         if (e.CtrlKey) await this.actions.AktionCopyToClipboard();
                         break;
 
-                    case (Keys.V): // STRG-V -> Einfügen
+                    case (Keys.V): // CTRL-V -> paste
                         if (e.CtrlKey)  await this.actions.AktionPasteFromClipboard(UndoSnapshotSetzenOptionen.ja);
                         break;
 
-                    case (Keys.X): // STRG-X -> Ausschneiden
+                    case (Keys.X): // CTRL-X -> cut
                         if (e.CtrlKey) await this.actions.AktionCutToClipboard(UndoSnapshotSetzenOptionen.ja);
                         break;
 
-                    case (Keys.Z): //STRG-Z -> UnDo
+                    case (Keys.Z): //CTRL-Z -> UnDo
                         if (e.CtrlKey) await this.actions.Undo();
                         break;
 
                     // >>>> cursor keys
 
-                    case Keys.Left: // Cursor ein Char nach links
+                    case Keys.Left: // move cursor to left
                         if (e.ShiftKey)
                         {
                             await this.editorStatus.CursorRoh.EndPos.MoveLeft(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
@@ -92,9 +92,10 @@ namespace de.springwald.xml.editor.editor
                             await dummy.MoveLeft(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
                             await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
                         }
+                        useKeyContent = false;
                         break;
 
-                    case Keys.Right: // Cursor ein Char nach rechts
+                    case Keys.Right: // move cursor to right
                         if (e.ShiftKey)
                         {
                             await this.editorStatus.CursorRoh.EndPos.MoveRight(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
@@ -105,19 +106,22 @@ namespace de.springwald.xml.editor.editor
                             await dummy.MoveRight(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
                             await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
                         }
+                        useKeyContent = false;
                         break;
 
                     // >>>> command keys
 
                     case (Keys.Home): // Pos1 
                         await this.actions.AktionCursorAufPos1();
+                        useKeyContent = false;
                         break;
 
-                    case Keys.Enter: // Enter macht spezielle Dinge, z.B. ein neues Tag gleicher Art beginnen etc.
+                    case Keys.Enter: // Enter does special things, e.g. start a new day of the same kind etc.
                         this.actions.AktionenEnterGedrueckt();
+                        useKeyContent = false;
                         break;
 
-                    case Keys.Tab: // Tab springt in das nächste Tag
+                    case Keys.Tab: // Tab jumps to the next day
                         System.Xml.XmlNode node = this.editorStatus.CursorRoh.StartPos.AktNode;
                         bool abbruch = false;
                         if (node.FirstChild != null)
@@ -138,7 +142,7 @@ namespace de.springwald.xml.editor.editor
                                 }
                                 else
                                 {
-                                    // Hm, wohin könnte TAB denn *noch* gehen? 
+                                    // Hm, where could TAB *still* go? 
                                     abbruch = true;
                                 }
                             }
@@ -147,10 +151,11 @@ namespace de.springwald.xml.editor.editor
                         {
                             await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(node, XMLCursorPositionen.CursorInDemLeeremNode);
                         }
-                        _naechstesLostFokusVerhindern = true; // Damit beim TAB das Verlassen des Fokus ignoriert wird
+                        _naechstesLostFokusVerhindern = true; // So that leaving the focus is ignored on TAB
+                        useKeyContent = false;
                         break;
 
-                    case Keys.Back:  // Backspace-Taste
+                    case Keys.Back:  
                         if (this.editorStatus.CursorRoh.IstEtwasSelektiert)
                         {
                             await this.actions.AktionDelete(UndoSnapshotSetzenOptionen.ja);
@@ -159,9 +164,10 @@ namespace de.springwald.xml.editor.editor
                         {
                             await this.actions.AktionNodeOderZeichenVorDerCursorPosLoeschen(this.editorStatus.CursorRoh.StartPos, UndoSnapshotSetzenOptionen.ja);
                         }
+                        useKeyContent = false;
                         break;
 
-                    case Keys.Delete:                   // entfernen-Taste
+                    case Keys.Delete:          
                         if (this.editorStatus.CursorRoh.IstEtwasSelektiert)
                         {
                             await this.actions.AktionDelete(UndoSnapshotSetzenOptionen.ja);
@@ -170,6 +176,7 @@ namespace de.springwald.xml.editor.editor
                         {
                             await this.actions.AktionNodeOderZeichenHinterCursorPosLoeschen(this.editorStatus.CursorRoh.StartPos, UndoSnapshotSetzenOptionen.ja);
                         }
+                        useKeyContent = false;
                         break;
 
                     case Keys.Escape:
