@@ -4,8 +4,8 @@ using System.Text;
 
 namespace de.springwald.xml.events
 {
-    public class KeyPressEventArgs
-    {
-        public object KeyChar { get; set; }
-    }
+    //public class KeyPressEventArgs
+    //{
+    //    public object KeyChar { get; set; }
+    //}
 }

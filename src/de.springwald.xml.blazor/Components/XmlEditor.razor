@@ -10,7 +10,10 @@
 
 <div class="card">
     <div class="card-body">
-        <div tabindex="0"  @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"  @onkeypress="EventOnKeyPress" @onkeydown="EventOnKeyDown" @ref="_canvasDivReference">
+        <div tabindex="0"  
+             @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"  
+             @onkeypress="EventOnKeyPress" @onkeydown="EventOnKeyDown" 
+             @ref="_canvasDivReference">
             <BECanvas Width="700" Height="500" @ref="_canvasReference">
             </BECanvas>
         </div>
@@ -110,6 +113,18 @@
     //    });
     //}
 
+
+    public async void EventOnKeyPress(KeyboardEventArgs e)
+    {
+        // await this.KeyPress.Trigger(new KeyEventArgs { Key = e.Key });
+    }
+
+    public async void EventOnKeyDown(KeyboardEventArgs e)
+    {
+        await this.nativePlattform.InputEvents.PreviewKey.Trigger(new de.springwald.xml.events.KeyEventArgs { Key = de.springwald.xml.events.Keys.A });
+    }
+
+
     async void EventOnMouseDown(MouseEventArgs e)
     {
         var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
@@ -151,21 +166,4 @@
             Y = y
         });
     }
-
-    async void EventOnKeyPress(KeyboardEventArgs e)
-    {
-
-        await this.nativePlattform.InputEvents.KeyPress.Trigger(new de.springwald.xml.events.KeyPressEventArgs { KeyChar = e.Key });
-    }
-
-    async void EventOnKeyDown(KeyboardEventArgs e)
-    {
-
-        await this.nativePlattform.InputEvents.PreviewKey.Trigger(new de.springwald.xml.events.PreviewKeyDownEventArgs { KeyData = de.springwald.xml.events.Keys.A });
-    }
-
-    //async void EventOnKeyUp(KeyboardEventArgs e)
-    //{
-    //    await this.nativePlattform.InputEvents.KeyPress.Trigger(new de.springwald.xml.events.KeyPressEventArgs { KeyChar = e.Key });
-    //}
 }

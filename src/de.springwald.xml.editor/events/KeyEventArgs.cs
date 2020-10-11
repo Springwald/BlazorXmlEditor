@@ -11,5 +11,8 @@ namespace de.springwald.xml.events
 {
     public class KeyEventArgs
     {
+        public Keys Key { get; set; }
+
+
     }
 }

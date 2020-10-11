@@ -1,10 +1,15 @@
-﻿using de.springwald.xml.events;
+﻿
+
 using System;
 using System.Timers;
+using Microsoft.AspNetCore.Components.Web;
+
+using de.springwald.xml.events;
+using de.springwald.xml.editor.nativeplatform.events;
 
 namespace de.springwald.xml.blazor.NativePlatform
 {
-    public class BlazorInputEvents : de.springwald.xml.editor.nativeplatform.events.IInputEvents, IDisposable
+    public class BlazorInputEvents : IInputEvents, IDisposable
     {
         private Timer timer;
 
@@ -13,21 +18,27 @@ namespace de.springwald.xml.blazor.NativePlatform
             this.SetUpTimer();
         }
 
-        public XmlAsyncEvent<MouseEventArgs> MouseDown { get; } = new XmlAsyncEvent<MouseEventArgs>();
+        public XmlAsyncEvent<events.MouseEventArgs> MouseDown { get; } = new XmlAsyncEvent<events.MouseEventArgs>();
 
-        public XmlAsyncEvent<MouseEventArgs> MouseUp { get; } = new XmlAsyncEvent<MouseEventArgs>();
+        public XmlAsyncEvent<events.MouseEventArgs> MouseUp { get; } = new XmlAsyncEvent<events.MouseEventArgs>();
 
-        public XmlAsyncEvent<MouseEventArgs> MouseMove { get; } = new XmlAsyncEvent<MouseEventArgs>();
+        public XmlAsyncEvent<events.MouseEventArgs> MouseMove { get; } = new XmlAsyncEvent<events.MouseEventArgs>();
 
-        public XmlAsyncEvent<KeyPressEventArgs> KeyPress { get; } = new XmlAsyncEvent<KeyPressEventArgs>();
+        public XmlAsyncEvent<KeyEventArgs> KeyPress { get; } = new XmlAsyncEvent<KeyEventArgs>();
 
-        public XmlAsyncEvent<PreviewKeyDownEventArgs> PreviewKey { get; } = new XmlAsyncEvent<PreviewKeyDownEventArgs>();
+        public XmlAsyncEvent<KeyEventArgs> PreviewKey { get; } = new XmlAsyncEvent<KeyEventArgs>();
 
         public XmlAsyncEvent<EventArgs> Leave { get; } = new XmlAsyncEvent<EventArgs>();
 
         public XmlAsyncEvent<EventArgs> BlinkInterval { get; } = new XmlAsyncEvent<EventArgs>();
 
         public XmlAsyncEvent<EventArgs> BlinkDone { get; } = new XmlAsyncEvent<EventArgs>();
+
+
+        //async void EventOnKeyUp(KeyboardEventArgs e)
+        //{
+        //    await this.nativePlattform.InputEvents.KeyPress.Trigger(new de.springwald.xml.events.KeyPressEventArgs { KeyChar = e.Key });
+        //}
 
         public void Dispose()
         {

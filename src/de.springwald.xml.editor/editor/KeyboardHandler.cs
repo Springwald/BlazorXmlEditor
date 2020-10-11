@@ -24,7 +24,7 @@ namespace de.springwald.xml.editor.editor
         private EditorActions actions;
         private EditorStatus editorStatus;
         public XmlAsyncEvent<KeyEventArgs> KeyDownEvent = new XmlAsyncEvent<KeyEventArgs>();
-        public XmlAsyncEvent<KeyPressEventArgs> KeyPressEvent = new XmlAsyncEvent<KeyPressEventArgs>();
+        public XmlAsyncEvent<KeyEventArgs> KeyPressEvent = new XmlAsyncEvent<KeyEventArgs>();
 
         public KeyboardHandler(INativePlatform nativePlatform, EditorStatus editorStatus, EditorActions actions)
         {
@@ -43,7 +43,7 @@ namespace de.springwald.xml.editor.editor
             this.nativePlatform.InputEvents.KeyPress.Remove(this.zeichnungsSteuerelement_KeyPress);
         }
 
-        public async Task zeichnungsSteuerelement_PreviewKeyDown(PreviewKeyDownEventArgs e)
+        public async Task zeichnungsSteuerelement_PreviewKeyDown(KeyEventArgs e)
         {
             //if (Regelwerk.PreviewKeyDown(e, out _naechsteTasteBeiKeyPressAlsTextAufnehmen, this))
             //{
@@ -57,7 +57,7 @@ namespace de.springwald.xml.editor.editor
 
                 XMLCursorPos dummy;
 
-                switch (e.KeyData)
+                switch (e.Key)
                 {
 
                     case Keys.Enter: // Enter macht spezielle Dinge, z.B. ein neues Tag gleicher Art beginnen etc.
@@ -186,11 +186,11 @@ namespace de.springwald.xml.editor.editor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public async Task zeichnungsSteuerelement_KeyPress(KeyPressEventArgs e)
+        public async Task zeichnungsSteuerelement_KeyPress(KeyEventArgs e)
         {
             if (_naechsteTasteBeiKeyPressAlsTextAufnehmen)
             {
-                await this.actions.AktionTextAnCursorPosEinfuegen(e.KeyChar.ToString(), UndoSnapshotSetzenOptionen.ja);
+                // await this.actions.AktionTextAnCursorPosEinfuegen(e.KeyChar.ToString(), UndoSnapshotSetzenOptionen.ja);
             }
             _naechsteTasteBeiKeyPressAlsTextAufnehmen = false;
         }
