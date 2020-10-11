@@ -75,6 +75,10 @@ namespace de.springwald.xml.editor.editor
                         if (e.CtrlKey) await this.actions.AktionCutToClipboard(UndoSnapshotSetzenOptionen.ja);
                         break;
 
+                    case (Keys.Y): //CTRL-Y -> ReDo (not implemented yet)
+                        if (e.CtrlKey) {  }
+                        break;
+
                     case (Keys.Z): //CTRL-Z -> UnDo
                         if (e.CtrlKey) await this.actions.Undo();
                         break;

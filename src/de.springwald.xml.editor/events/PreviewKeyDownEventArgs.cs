@@ -8,19 +8,21 @@ namespace de.springwald.xml.events
     {
         undefined,
         Enter,
-        S,
-        Left,
-        A,
-        X,
-        C,
-        V,
         Home,
-        Z,
+        Left,
+        Right,
         Delete,
         Escape,
-        Right,
         Tab,
         Back,
+        A,
+        C,
+        S,
+        V,
+        X,
+        Y,
+        Z,
+        
     }
 
     public class PreviewKeyDownEventArgs
