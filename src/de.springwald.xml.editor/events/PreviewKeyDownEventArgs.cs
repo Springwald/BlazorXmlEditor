@@ -6,11 +6,10 @@ namespace de.springwald.xml.events
 {
     public enum Keys
     {
+        undefined,
         Enter,
-        Control,
         S,
         Left,
-        Shift,
         A,
         X,
         C,

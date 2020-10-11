@@ -10,9 +10,9 @@
 
 <div class="card">
     <div class="card-body">
-        <div tabindex="0"  
-             @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"  
-             @onkeypress="EventOnKeyPress" @onkeydown="EventOnKeyDown" 
+        <div tabindex="0"
+             @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
+             @onkeypress="EventOnKeyPress" @onkeydown="EventOnKeyDown"
              @ref="_canvasDivReference">
             <BECanvas Width="700" Height="500" @ref="_canvasReference">
             </BECanvas>
@@ -53,7 +53,7 @@
         if (firstRender)
         {
             this.nativePlattform = new BlazorNativePlatform(_canvasReference);
-            await this.nativePlattform.SetSize(700, 500-10);
+            await this.nativePlattform.SetSize(700, 500 - 10);
             if (this.EditorContext != null) this.Init();
         }
         await base.OnAfterRenderAsync(firstRender);
@@ -66,7 +66,7 @@
 
         var config = new EditorConfig
         {
-            NodeNameFont = new Font(names: new [] { "Verdana", "Geneva", "sans-serif" }, height: 13, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
+            NodeNameFont = new Font(names: new[] { "Verdana", "Geneva", "sans-serif" }, height: 13, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
             NodeAttributeFont = new Font(names: new[] { "Verdana", "Geneva", "sans-serif" }, height: 12, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
             TextNodeFont = new Font(names: new[] { "Lucida Console", "Monaco", "monospace" }, height: 14, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: true)
         };
@@ -113,16 +113,56 @@
     //    });
     //}
 
+    public async void EventOnKeyDown(KeyboardEventArgs e)
+    {
+        var args = new de.springwald.xml.events.KeyEventArgs
+        {
+            CtrlKey = e.CtrlKey,
+            AltKey = e.AltKey,
+            ShiftKey = e.ShiftKey,
+            Content = e.Key,
+             Key = events.Keys.undefined
+        };
+
+        switch (e.Code)
+        {
+            case "KeyA": args.Key = events.Keys.A; break;
+            case "KeyC": args.Key = events.Keys.C; break;
+            case "KeyS": args.Key = events.Keys.S; break;
+            case "KeyV": args.Key = events.Keys.V; break;
+            case "KeyX": args.Key = events.Keys.X; break;
+            case "KeyZ": args.Key = events.Keys.Z; break;
+
+            case "Backspace": args.Key = events.Keys.Back; break;
+            case "Delete": args.Key = events.Keys.Delete; break;
+            case "Enter": args.Key = events.Keys.Enter; break;
+            case "Escape": args.Key = events.Keys.Escape; break;
+            case "Home": args.Key = events.Keys.Home; break;
+
+            case "ArrowLeft": args.Key = events.Keys.Left; break;
+            case "ArrowRight": args.Key = events.Keys.Right; break;
+
+            case "Tab": args.Key = events.Keys.Tab; break;
+
+            case "Control":
+            case "ShiftLeft":
+            case "ShiftRight":
+            case "AltLeft":
+            case "AltRight":
+                // skip this keydowns
+                return;
+        }
+
+        await this.nativePlattform.InputEvents.PreviewKey.Trigger(args);
+    }
+
 
     public async void EventOnKeyPress(KeyboardEventArgs e)
     {
         // await this.KeyPress.Trigger(new KeyEventArgs { Key = e.Key });
     }
 
-    public async void EventOnKeyDown(KeyboardEventArgs e)
-    {
-        await this.nativePlattform.InputEvents.PreviewKey.Trigger(new de.springwald.xml.events.KeyEventArgs { Key = de.springwald.xml.events.Keys.A });
-    }
+
 
 
     async void EventOnMouseDown(MouseEventArgs e)

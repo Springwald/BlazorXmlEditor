@@ -53,8 +53,8 @@ namespace de.springwald.xml.editor
             this.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
 
             this.MouseHandler = new MouseHandler(nativePlatform);
-            this.KeyboardHandler = new KeyboardHandler(nativePlatform, this.EditorStatus, this.EditorActions);
             this.EditorActions = new EditorActions(nativePlatform, this.EditorStatus);
+            this.KeyboardHandler = new KeyboardHandler(nativePlatform, this.EditorStatus, this.EditorActions);
 
             InitScrolling();
         }

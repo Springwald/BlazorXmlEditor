@@ -59,11 +59,12 @@ namespace de.springwald.xml.editor.editor
 
                 switch (e.Key)
                 {
+                   
 
                     case Keys.Enter: // Enter macht spezielle Dinge, z.B. ein neues Tag gleicher Art beginnen etc.
-                    case (Keys.Enter | Keys.Shift):
-                        this.actions.AktionenEnterGedrueckt();
-                        break;
+                    //case (Keys.Enter | Keys.Shift):
+                    //    this.actions.AktionenEnterGedrueckt();
+                    //    break;
 
                     case Keys.Tab: // Tab springt in das nächste Tag
                         System.Xml.XmlNode node = this.editorStatus.CursorRoh.StartPos.AktNode;
@@ -118,16 +119,22 @@ namespace de.springwald.xml.editor.editor
                     //    AktionCopyToClipboard();
                     //    break;
 
-                    case (Keys.V | Keys.Control): // STRG-V -> Einfügen
-                        await this.actions.AktionPasteFromClipboard(UndoSnapshotSetzenOptionen.ja);
+                    case (Keys.V): // STRG-V -> Einfügen
+                        if (e.CtrlKey)
+                        {
+                            await this.actions.AktionPasteFromClipboard(UndoSnapshotSetzenOptionen.ja);
+                        }
                         break;
 
                     //case (Keys.Home): // Pos1 
                     //    AktionCursorAufPos1();
                     //    break;
 
-                    case (Keys.Z | Keys.Control): //STRG-Z -> UnDo
-                        // await this.actions.UnDo();
+                    case (Keys.Z ): //STRG-Z -> UnDo
+                        if (e.CtrlKey)
+                        {
+                             // await this.actions.UnDo();
+                        }
                         break;
 
                     case Keys.Left: // Cursor ein Char nach links
@@ -165,15 +172,16 @@ namespace de.springwald.xml.editor.editor
                     //        await AktionNodeOderZeichenHinterCursorPosLoeschen(_cursor.StartPos, UndoSnapshotSetzenOptionen.ja);
                     //    }
                     //    break;
+                    //case Keys.Control:
+                    //case Keys.Escape:
+                    //    // Bei diesen Tasten passiert nichts
+                    //    break;
 
-                    case Keys.Control:
-                    case Keys.Escape:
-                        // Bei diesen Tasten passiert nichts
-                        break;
-
+                    case Keys.undefined:
                     default:
                         // Die restlichen Tasten werden beim KeyPress als Text übernommen
-                        _naechsteTasteBeiKeyPressAlsTextAufnehmen = true;
+                        // _naechsteTasteBeiKeyPressAlsTextAufnehmen = true;
+                        await this.actions.AktionTextAnCursorPosEinfuegen(e.Content, UndoSnapshotSetzenOptionen.ja);
                         break;
 
                 }
