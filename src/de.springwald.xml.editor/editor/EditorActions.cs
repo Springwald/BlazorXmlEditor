@@ -1,8 +1,17 @@
-﻿using de.springwald.xml.cursor;
-using de.springwald.xml.editor.nativeplatform;
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
 using System.Threading.Tasks;
 using System.Xml;
+using de.springwald.xml.cursor;
+using de.springwald.xml.editor.nativeplatform;
 
 namespace de.springwald.xml.editor.editor
 {
@@ -10,7 +19,6 @@ namespace de.springwald.xml.editor.editor
     {
         private INativePlatform nativePlatform;
         private EditorStatus editorStatus;
-       
 
         public enum UndoSnapshotSetzenOptionen { ja, nein };
 
@@ -23,8 +31,7 @@ namespace de.springwald.xml.editor.editor
             {
                 if (this.editorStatus.ReadOnly)
                 {
-                    // Datei ist schreibgeschützt
-                    return false;
+                    return false; // document is read only
                 }
                 else
                 {
@@ -37,8 +44,6 @@ namespace de.springwald.xml.editor.editor
         {
             throw new NotImplementedException();
         }
-
-
 
         public EditorActions(INativePlatform nativePlatform, EditorStatus editorStatus)
         {

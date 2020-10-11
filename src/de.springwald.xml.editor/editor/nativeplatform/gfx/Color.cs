@@ -1,4 +1,13 @@
-﻿namespace de.springwald.xml.editor.nativeplatform.gfx
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
+namespace de.springwald.xml.editor.nativeplatform.gfx
 {
     public class Color
     {
@@ -38,7 +47,6 @@
         {
             if (actColor.A == 255) return $"#{actColor.R:X2}{actColor.G:X2}{actColor.B:X2}";
             return $"#{actColor.R:X2}{actColor.G:X2}{actColor.B:X2}{actColor.A:X2}";
-            // return "#" + Color.R.ToString("X4") + IntToHex(actColor.G, 2) + IntToHex(actColor.B, 2);
         }
 
         public override bool Equals(object obj)

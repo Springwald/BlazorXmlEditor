@@ -5,11 +5,6 @@ namespace de.springwald.xml.dtd
     /// Ein einzelnes DTD-Attribut aus einer DTD
     /// </summary>
     /// <remarks>
-    /// (C)2005 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
     public class DTDAttribut
     {
         public enum PflichtArten { Pflicht, Optional, Konstante };

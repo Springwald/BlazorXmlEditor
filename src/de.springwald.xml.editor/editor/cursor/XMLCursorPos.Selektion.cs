@@ -1,34 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace de.springwald.xml.cursor
 {
     public partial class XMLCursorPos
     {
-
-        #region SYSTEM
-
-        #endregion
-
-        #region PRIVATE ATTRIBUTES
-
-        #endregion
-
-        #region PUBLIC ATTRIBUTES
-
-        #endregion
-
-        #region CONSTRUCTOR
-        #endregion
-
-        #region PUBLIC METHODS
-
         /// <summary>
         /// Findet heraus, ob der Node oder einer seiner Parent-Nodes selektiert ist
         /// </summary>
-        /// <param name="Node"></param>
-        /// <returns></returns>
         public bool IstNodeInnerhalbDerSelektion(System.Xml.XmlNode node)
         {
             if (_aktNode == null) // es ist gar kein Node selektiert
@@ -56,14 +33,5 @@ namespace de.springwald.xml.cursor
                 }
             }
         }
-
-        #endregion
-
-        #region PRIVATE METHODS
-
-        #endregion
-
-
-      
     }
 }

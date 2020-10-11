@@ -1,10 +1,10 @@
+using System;
+using System.Linq;
 using de.springwald.xml.cursor;
 using de.springwald.xml.dtd;
 using de.springwald.xml.dtd.pruefer;
 using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
-using System;
-using System.Linq;
 
 namespace de.springwald.xml
 {
@@ -17,22 +17,12 @@ namespace de.springwald.xml
     /// <summary>
     /// Die Beschreibung der Regeln für Anlage und Abhängigkeiten der ucXMLElemente.
     /// </summary>
-    /// <remarks>
-    /// Schön wäre es, wenn hier später einmal ein DTD-Import möglich ist
-    /// </remarks>
-    /// <remarks>
-    /// (C)2005 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
-
     public class XMLRegelwerk
     {
 
         private DTD _dtd;                   // Wenn eine DTD zugewiesen ist, dann steht diese hier
         private DTDPruefer _dtdPruefer;
-        private de.springwald.xml.dtd.DTDNodeEditCheck _checker;
+        private DTDNodeEditCheck _checker;
 
         /// <summary>Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können</summary>
         protected XMLElementGruppenListe _elementGruppen;
@@ -40,7 +30,7 @@ namespace de.springwald.xml
         /// <summary>
         /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
         /// </summary>
-        public de.springwald.xml.dtd.pruefer.DTDPruefer DTDPruefer
+        public DTDPruefer DTDPruefer
         {
             get
             {
@@ -59,7 +49,7 @@ namespace de.springwald.xml
         /// <summary>
         /// Wenn eine DTD zugewiesen ist, dann steht diese hier
         /// </summary>
-        public de.springwald.xml.dtd.DTD DTD
+        public DTD DTD
         {
             get { return _dtd; }
         }
@@ -103,9 +93,7 @@ namespace de.springwald.xml
             }
         }
 
-
-
-        public XMLRegelwerk(de.springwald.xml.dtd.DTD dtd)
+        public XMLRegelwerk(DTD dtd)
         {
             _dtd = dtd;
         }
@@ -132,8 +120,6 @@ namespace de.springwald.xml
                 return Color.FromArgb(245, 245, 255);
             }
         }
-
-
 
         /// <summary>
         /// In welcher Art soll der übergebene Node gezeichnet werden?
@@ -231,9 +217,6 @@ namespace de.springwald.xml
             //string[] s = {"","node1","node2"}; // Freie Eingabe oder Node1 oder Node2 erlaubt
 
         }
-
-
-
 
 
         /// <summary>

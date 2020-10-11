@@ -1,3 +1,12 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System.Collections;
 
 namespace de.springwald.xml.editor
@@ -8,10 +17,6 @@ namespace de.springwald.xml.editor
     /// </summary>
     public class XMLElementGruppe
     {
-        #region SYSTEM
-        #endregion
-
-        #region PRIVATE ATTRIBUTES
 
         /// <summary>Diese Elementnamen sind in der Gruppe zulässig</summary>
         private Hashtable _elemente;
@@ -21,10 +26,6 @@ namespace de.springwald.xml.editor
 
         /// <summary>Ist diese Gruppe beim Start erstmal zusammen geklappt?</summary>
         private bool _standardMaessigZusammengeklappt;
-
-        #endregion
-
-        #region PUBLIC ATTRIBUTES
 
         /// <summary>Der anzeigbare Titel dieser Gruppe</summary>
         public string Titel
@@ -38,10 +39,6 @@ namespace de.springwald.xml.editor
             get { return _standardMaessigZusammengeklappt; }
         }
 
-        #endregion
-
-        #region CONSTRUCTOR
-
         /// <summary>
         /// Stellt eine neue Instanz einer Sortierungs-Gruppe bereit
         /// </summary>
@@ -53,10 +50,6 @@ namespace de.springwald.xml.editor
             _elemente = new Hashtable();
             _standardMaessigZusammengeklappt = standardMaessigZusammengeklappt;
         }
-
-        #endregion
-
-        #region PUBLIC METHODS
 
         /// <summary>
         /// Nimmt ein Element in die Liste der in dieser Gruppe verfügbaren Elemente auf
@@ -76,10 +69,5 @@ namespace de.springwald.xml.editor
         {
             return _elemente.ContainsKey(name.ToLower());
         }
-
-        #endregion
-
-        #region PRIVATE METHODS
-        #endregion
     }
 }

@@ -8,7 +8,6 @@
 // Licensed under MIT License
 
 using System;
-using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor.editor.cursor
 {

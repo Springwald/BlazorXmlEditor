@@ -7,17 +7,7 @@ namespace de.springwald.xml.editor
     /// </summary>
     public class XMLElementGruppenListe
     {
-        #region SYSTEM
-
-        #endregion
-
-        #region PRIVATE ATTRIBUTES
-
         private ArrayList _gruppen;
-
-        #endregion
-
-        #region PUBLIC ATTRIBUTES
 
         /// <summary>
         /// Die Anzahl Gruppen
@@ -42,20 +32,15 @@ namespace de.springwald.xml.editor
             }
         }
 
-        #endregion
 
-        #region CONSTRUCTOR
 
         public XMLElementGruppenListe()
         {
             _gruppen = new ArrayList();
         }
 
-        #endregion
 
-        #region PUBLIC METHODS
 
-        #region IDisposable Member
 
         public void Dispose()
         {
@@ -63,7 +48,6 @@ namespace de.springwald.xml.editor
             _gruppen = null;
         }
 
-        #endregion
 
         public void Add(XMLElementGruppe gruppe)
         {
@@ -78,10 +62,6 @@ namespace de.springwald.xml.editor
             _gruppen.Remove(gruppe);
         }
 
-        #endregion
 
-        #region PRIVATE METHODS
-
-        #endregion
     }
 }

@@ -1,6 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
 
 namespace de.springwald.xml.editor
 {
@@ -8,12 +13,7 @@ namespace de.springwald.xml.editor
     /// Stellt Informationen über die aktuellen Zeichenpositionen der aktuellen XML-Zeile und des nächsten
     /// Fließtext-Elementes bereit
     /// </summary>
-    /// <remarks>
-    // (C)2020 Daniel Springwald, Bochum Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
+
     public class PaintContext
     {
         public readonly int LayerTagBackground = 1;

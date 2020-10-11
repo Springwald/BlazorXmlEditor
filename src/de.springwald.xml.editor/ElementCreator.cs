@@ -1,4 +1,11 @@
-﻿
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
 
 namespace de.springwald.xml
 {
@@ -18,7 +25,7 @@ namespace de.springwald.xml
         /// </summary>
         /// <param name="XMLNode">Der anzuzeigende Node</param>
         /// <returns></returns>
-        public editor.XMLElement createPaintElementForNode(System.Xml.XmlNode xmlNode) //, de.springwald.xml.XMLEditorPaintPos paintPos ) 
+        public editor.XMLElement CreatePaintElementForNode(System.Xml.XmlNode xmlNode) //, de.springwald.xml.XMLEditorPaintPos paintPos ) 
         {
             if (xmlNode is System.Xml.XmlElement)
             {

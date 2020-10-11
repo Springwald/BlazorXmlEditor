@@ -1,3 +1,12 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
 using System.Collections;
 using System.Xml.XPath;
@@ -7,32 +16,8 @@ namespace de.springwald.xml
     /// <summary>
     /// Hilferoutinen für XML-Verarbeitung
     /// </summary>
-    /// <remarks>
-    /// (C)2006 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
     public class ToolboxXML
     {
-
-        #region SYSTEM
-
-        #endregion
-
-        #region PRIVATE ATTRIBUTES
-
-        #endregion
-
-        #region PUBLIC ATTRIBUTES
-
-        #endregion
-
-        #region CONSTRUCTOR
-        #endregion
-
-        #region PUBLIC METHODS
-
         /// <summary>
         /// Findet heraus, ob die beiden Nodes in Reihenfolge nacheinander stehen 
         /// </summary>
@@ -159,11 +144,5 @@ namespace de.springwald.xml
             }
 
         }
-
-        #endregion
-
-        #region PRIVATE METHODS
-
-        #endregion
     }
 }

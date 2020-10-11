@@ -130,7 +130,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         internal XMLElement CreateElement(System.Xml.XmlNode xmlNode)
         {
-            return new ElementCreator(this).createPaintElementForNode(xmlNode);
+            return new ElementCreator(this).CreatePaintElementForNode(xmlNode);
         }
 
         private async Task OnContentChanged(EventArgs e)

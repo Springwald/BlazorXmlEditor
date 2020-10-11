@@ -1,23 +1,22 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.cursor
 {
-
     public enum XMLCursorPositionen { CursorVorDemNode, CursorAufNodeSelbstVorderesTag, CursorAufNodeSelbstHinteresTag, CursorInDemLeeremNode, CursorInnerhalbDesTextNodes, CursorHinterDemNode };
 
     public enum MausKlickAktionen { MouseDown, MouseDownMove, MouseUp };
 
-    /// <summary>
-    /// Zusammenfassung für XMLCursor.
-    /// </summary>
-    /// <remarks>
-    /// (C)2006 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
-    public partial class XMLCursor
+    public partial class XMLCursor: IDisposable
     {
         /// <summary>
         /// Event definieren, wenn sich der Cursor geändert hat
@@ -40,7 +39,15 @@ namespace de.springwald.xml.cursor
             EndPos = new XMLCursorPos();
             StartPos = new XMLCursorPos();
             this.ChangedEvent = new XmlAsyncEvent<EventArgs>();
-            this.UnterEventsAnmelden();
+
+            EndPos.PosChangedEvent.Add(this.endPos_ChangedEvent);
+            StartPos.PosChangedEvent.Add(this.startPos_ChangedEvent);
+        }
+
+        public void Dispose()
+        {
+            EndPos.PosChangedEvent.Remove(this.endPos_ChangedEvent);
+            StartPos.PosChangedEvent.Remove(this.startPos_ChangedEvent);
         }
 
         /// <summary>
@@ -190,13 +197,6 @@ namespace de.springwald.xml.cursor
         public async Task CursorPosSetzenDurchMausAktion(System.Xml.XmlNode xmlNode, XMLCursorPositionen cursorPos, MausKlickAktionen aktion)
         {
             await CursorPosSetzenDurchMausAktion(xmlNode, cursorPos, 0, aktion);
-        }
-
-
-        private void UnterEventsAnmelden()
-        {
-            EndPos.PosChangedEvent.Add(this.endPos_ChangedEvent);
-            StartPos.PosChangedEvent.Add(this.startPos_ChangedEvent);
         }
 
         private async Task endPos_ChangedEvent(EventArgs e)
