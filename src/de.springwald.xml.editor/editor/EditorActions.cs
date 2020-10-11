@@ -178,6 +178,11 @@ namespace de.springwald.xml.editor.editor
 #warning To Do!
         }
 
+        internal async Task Undo()
+        {
+            await Task.CompletedTask;
+        }
+
         /// <summary>
         /// Ersetzt den Root-Node des Editors durch den Inhalt der Zwischenablage
         /// </summary>
@@ -597,7 +602,7 @@ namespace de.springwald.xml.editor.editor
             return node;
         }
 
-
+        
 
     
     }

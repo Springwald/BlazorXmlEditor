@@ -18,7 +18,6 @@ namespace de.springwald.xml.editor.editor
 {
     internal class KeyboardHandler : IDisposable
     {
-        private bool _naechsteTasteBeiKeyPressAlsTextAufnehmen = true;
         private bool _naechstesLostFokusVerhindern = false; // Damit beim TAB das Verlassen des Fokus ignoriert wird
         private INativePlatform nativePlatform;
         private EditorActions actions;
@@ -52,19 +51,71 @@ namespace de.springwald.xml.editor.editor
             //else
             {
                 // Dieser Tastendruck wurde nicht vom Regelwerk verarbeitet
-
-                _naechsteTasteBeiKeyPressAlsTextAufnehmen = false;
+                var useKeyContent = e.CtrlKey == false;
 
                 XMLCursorPos dummy;
 
                 switch (e.Key)
                 {
-                   
+                    // >>> special character keys >>>
+
+                    case (Keys.A): // STRG-A -> Alles markieren
+                        if (e.CtrlKey) await this.actions.AktionAllesMarkieren();
+                        break;
+
+                    case (Keys.C): // STRG-C -> Kopieren
+                        if (e.CtrlKey) await this.actions.AktionCopyToClipboard();
+                        break;
+
+                    case (Keys.V): // STRG-V -> Einfügen
+                        if (e.CtrlKey)  await this.actions.AktionPasteFromClipboard(UndoSnapshotSetzenOptionen.ja);
+                        break;
+
+                    case (Keys.X): // STRG-X -> Ausschneiden
+                        if (e.CtrlKey) await this.actions.AktionCutToClipboard(UndoSnapshotSetzenOptionen.ja);
+                        break;
+
+                    case (Keys.Z): //STRG-Z -> UnDo
+                        if (e.CtrlKey) await this.actions.Undo();
+                        break;
+
+                    // >>>> cursor keys
+
+                    case Keys.Left: // Cursor ein Char nach links
+                        if (e.ShiftKey)
+                        {
+                            await this.editorStatus.CursorRoh.EndPos.MoveLeft(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
+                        }
+                        else
+                        {
+                            dummy = this.editorStatus.CursorRoh.StartPos.Clone();
+                            await dummy.MoveLeft(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
+                            await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
+                        }
+                        break;
+
+                    case Keys.Right: // Cursor ein Char nach rechts
+                        if (e.ShiftKey)
+                        {
+                            await this.editorStatus.CursorRoh.EndPos.MoveRight(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
+                        }
+                        else
+                        {
+                            dummy = this.editorStatus.CursorRoh.StartPos.Clone();
+                            await dummy.MoveRight(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
+                            await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
+                        }
+                        break;
+
+                    // >>>> command keys
+
+                    case (Keys.Home): // Pos1 
+                        await this.actions.AktionCursorAufPos1();
+                        break;
 
                     case Keys.Enter: // Enter macht spezielle Dinge, z.B. ein neues Tag gleicher Art beginnen etc.
-                    //case (Keys.Enter | Keys.Shift):
-                    //    this.actions.AktionenEnterGedrueckt();
-                    //    break;
+                        this.actions.AktionenEnterGedrueckt();
+                        break;
 
                     case Keys.Tab: // Tab springt in das nächste Tag
                         System.Xml.XmlNode node = this.editorStatus.CursorRoh.StartPos.AktNode;
@@ -99,58 +150,7 @@ namespace de.springwald.xml.editor.editor
                         _naechstesLostFokusVerhindern = true; // Damit beim TAB das Verlassen des Fokus ignoriert wird
                         break;
 
-                    //case (Keys.Left | Keys.Shift):  // CursorEndPos ein Char nach links
-                    //    await _cursor.EndPos.MoveLeft(_rootNode, Regelwerk);
-                    //    break;
-
-                    //case (Keys.Right | Keys.Shift): // CursorEnd ein Char nach rechts
-                    //    await _cursor.EndPos.MoveRight(_rootNode, Regelwerk);
-                    //    break;
-
-                    //case (Keys.A | Keys.Control): // STRG-A -> Alles markieren
-                    //    await AktionAllesMarkieren();
-                    //    break;
-
-                    //case (Keys.X | Keys.Control): // STRG-X -> Ausschneiden
-                    //    AktionCutToClipboard(UndoSnapshotSetzenOptionen.ja);
-                    //    break;
-
-                    //case (Keys.C | Keys.Control): // STRG-C -> Kopieren
-                    //    AktionCopyToClipboard();
-                    //    break;
-
-                    case (Keys.V): // STRG-V -> Einfügen
-                        if (e.CtrlKey)
-                        {
-                            await this.actions.AktionPasteFromClipboard(UndoSnapshotSetzenOptionen.ja);
-                        }
-                        break;
-
-                    //case (Keys.Home): // Pos1 
-                    //    AktionCursorAufPos1();
-                    //    break;
-
-                    case (Keys.Z ): //STRG-Z -> UnDo
-                        if (e.CtrlKey)
-                        {
-                             // await this.actions.UnDo();
-                        }
-                        break;
-
-                    case Keys.Left: // Cursor ein Char nach links
-                        dummy = this.editorStatus.CursorRoh.StartPos.Clone();
-                        await dummy.MoveLeft(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
-                        await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
-                        break;
-
-                    case Keys.Right: // Cursor ein Char nach rechts
-                        dummy = this.editorStatus.CursorRoh.StartPos.Clone();
-                        await dummy.MoveRight(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
-                        await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
-                        break;
-
                     case Keys.Back:  // Backspace-Taste
-                                     // case (Keys.Back | Keys.Shift):    // Shift-Backspace-Taste
                         if (this.editorStatus.CursorRoh.IstEtwasSelektiert)
                         {
                             await this.actions.AktionDelete(UndoSnapshotSetzenOptionen.ja);
@@ -161,29 +161,28 @@ namespace de.springwald.xml.editor.editor
                         }
                         break;
 
-                    //case Keys.Delete:                   // entfernen-Taste
-                    //// case (Keys.Delete | Keys.Shift):    // Shift-Entfernen-Taste
-                    //    if (_cursor.IstEtwasSelektiert)
-                    //    {
-                    //        await AktionDelete(UndoSnapshotSetzenOptionen.ja);
-                    //    }
-                    //    else
-                    //    {
-                    //        await AktionNodeOderZeichenHinterCursorPosLoeschen(_cursor.StartPos, UndoSnapshotSetzenOptionen.ja);
-                    //    }
-                    //    break;
-                    //case Keys.Control:
-                    //case Keys.Escape:
-                    //    // Bei diesen Tasten passiert nichts
-                    //    break;
-
-                    case Keys.undefined:
-                    default:
-                        // Die restlichen Tasten werden beim KeyPress als Text übernommen
-                        // _naechsteTasteBeiKeyPressAlsTextAufnehmen = true;
-                        await this.actions.AktionTextAnCursorPosEinfuegen(e.Content, UndoSnapshotSetzenOptionen.ja);
+                    case Keys.Delete:                   // entfernen-Taste
+                        if (this.editorStatus.CursorRoh.IstEtwasSelektiert)
+                        {
+                            await this.actions.AktionDelete(UndoSnapshotSetzenOptionen.ja);
+                        }
+                        else
+                        {
+                            await this.actions.AktionNodeOderZeichenHinterCursorPosLoeschen(this.editorStatus.CursorRoh.StartPos, UndoSnapshotSetzenOptionen.ja);
+                        }
                         break;
 
+                    case Keys.Escape:
+                    case Keys.undefined:
+                    default:
+                        useKeyContent = true;
+                        break;
+
+                }
+
+                if (useKeyContent)
+                {
+                    await this.actions.AktionTextAnCursorPosEinfuegen(e.Content, UndoSnapshotSetzenOptionen.ja);
                 }
             }
         }
@@ -196,11 +195,11 @@ namespace de.springwald.xml.editor.editor
         /// <param name="e"></param>
         public async Task zeichnungsSteuerelement_KeyPress(KeyEventArgs e)
         {
-            if (_naechsteTasteBeiKeyPressAlsTextAufnehmen)
-            {
-                // await this.actions.AktionTextAnCursorPosEinfuegen(e.KeyChar.ToString(), UndoSnapshotSetzenOptionen.ja);
-            }
-            _naechsteTasteBeiKeyPressAlsTextAufnehmen = false;
+            //if (_naechsteTasteBeiKeyPressAlsTextAufnehmen)
+            //{
+            //    // await this.actions.AktionTextAnCursorPosEinfuegen(e.KeyChar.ToString(), UndoSnapshotSetzenOptionen.ja);
+            //}
+            //_naechsteTasteBeiKeyPressAlsTextAufnehmen = false;
         }
 
         /// <summary>
