@@ -23,14 +23,13 @@
     private int actualDocumentIndex = 0;
     private System.Xml.XmlDocument xmlDocument;
 
+    private int typingPos = 0;
+    private System.Xml.XmlNode textNode;
+
     protected override async Task OnInitializedAsync()
     {
-        var demoDtd = DemoDtd.LoadDemoDtd();
-        this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
-        this.typingTimer = new Timer();
-        this.typingTimer.Elapsed += TypingTimerEvent;
-        this.typingTimer.Interval = 1;
-        this.typingTimer.Start();
+        this.LoadXml();
+        await this.InitTypingTimer();
         await base.OnInitializedAsync();
     }
 
@@ -40,24 +39,31 @@
         this.typingTimer.Elapsed -= TypingTimerEvent;
     }
 
-    private int typingPos = 0;
-    private System.Xml.XmlNode patternNode;
-    private System.Xml.XmlNode templateNode;
-    private System.Xml.XmlNode textNode;
+    private void LoadXml()
+    {
+        var demoDtd = DemoDtd.LoadDemoDtd();
+        this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
+        this.xmlDocument = new System.Xml.XmlDocument();
+        xmlDocument.LoadXml(this.documentContent);
+    }
+
+    private async Task InitTypingTimer()
+    {
+        await Task.Delay(100);
+        await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
+        var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
+        var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
+        this.textNode = patternNode.ChildNodes[0];
+
+        this.typingTimer = new Timer();
+        this.typingTimer.Elapsed += TypingTimerEvent;
+        this.typingTimer.Interval = 1;
+        this.typingTimer.Start();
+    }
 
     private async void TypingTimerEvent(Object source, System.Timers.ElapsedEventArgs e)
     {
         this.typingTimer.Stop();
-
-        if (this.xmlDocument == null)
-        {
-            this.xmlDocument = new System.Xml.XmlDocument();
-            xmlDocument.LoadXml(this.documentContent);
-            await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
-            patternNode = xmlDocument.DocumentElement.ChildNodes[0];
-            templateNode = xmlDocument.DocumentElement.ChildNodes[1];
-            textNode = patternNode.ChildNodes[0];
-        }
 
         this.typingPos++;
         if (this.typingPos >= LoremIpsum.Length) this.typingPos = 0;
@@ -71,8 +77,7 @@
         this.fpsCounter.Count();
 
         this.actualDocumentIndex++;
+
         this.typingTimer.Start();
     }
-
-
 }

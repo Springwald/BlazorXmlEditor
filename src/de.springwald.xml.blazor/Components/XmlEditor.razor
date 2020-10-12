@@ -58,11 +58,6 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -90,8 +85,6 @@
         await this.nativePlattform.SetSize(this.canvasWidth, this.canvasHeight - 10);
     }
 
-
-
     private void Init()
     {
         if (this.initDone) return;
@@ -118,6 +111,8 @@
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
     {
         await this.Editor.SetRootNode(rootNode);
+        await this.CheckResized();
+        StateHasChanged();
     }
 
     public class BoundingClientRect

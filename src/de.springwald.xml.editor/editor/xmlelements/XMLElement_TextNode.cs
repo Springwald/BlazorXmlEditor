@@ -95,6 +95,10 @@ namespace de.springwald.xml.editor
             }
         }
 
+        protected override object PaintedValue =>  this.AktuellerInhalt;
+
+        protected override string PaintedAttributes => null;
+
         /// <summary>
         /// Bei diesen Zeichen im Text wird umbrochen
         /// </summary>
@@ -112,6 +116,8 @@ namespace de.springwald.xml.editor
 
         public override int LineHeight => this._xmlEditor.EditorConfig.TextNodeFont.Height;
 
+ 
+
         public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
             FarbenSetzen(); // Farben bereitstellen
@@ -125,7 +131,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         ///  Draws the graphic of the current node
         /// </summary>
-        protected override async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx)
+        protected override async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             if (lastFontHeight != this._xmlEditor.EditorConfig.TextNodeFont.Height)
             {

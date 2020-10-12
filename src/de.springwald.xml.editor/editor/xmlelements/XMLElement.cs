@@ -74,6 +74,8 @@ namespace de.springwald.xml.editor
         protected abstract object PaintedValue { get; }
         protected abstract string PaintedAttributes { get; }
         protected XmlElementPaintCacheData lastPaintedData;
+        private PaintContext lastUnterNodesPaintContext;
+        private PaintContext lastNodeZeichnenAbschlussPaintContext;
         private PaintContext lastPaintContextResult;
         private bool notPaintedBecauseOfCached;
 
@@ -112,24 +114,38 @@ namespace de.springwald.xml.editor
                     break;
             }
 
+            if (toPaint) MausklickBereicheBufferLeeren();
+            _cursorStrichPos = null; // new Point(paintContext.PaintPosX, paintContext.PaintPosY);
+
+            // Alles zeichnen
+            this._wirdGeradeGezeichnet = true;
             if (toPaint)
             {
-                MausklickBereicheBufferLeeren();
-                _cursorStrichPos = null; // new Point(paintContext.PaintPosX, paintContext.PaintPosY);
+                await NodeZeichnenStart(paintContext, gfx, paintMode);
+                this.lastUnterNodesPaintContext = paintContext;
+            } else
+            {
+                paintContext = this.lastUnterNodesPaintContext;
+            }
 
-                // Alles zeichnen
-                this._wirdGeradeGezeichnet = true;
-                await NodeZeichnenStart(paintContext, gfx);
-                await UnternodesZeichnen(paintContext, gfx);
-                await NodeZeichnenAbschluss(paintContext, gfx);
-                this._wirdGeradeGezeichnet = false;
+            await UnternodesZeichnen(paintContext, gfx, paintMode);
+
+            if (toPaint ||
+                (this.lastNodeZeichnenAbschlussPaintContext == null 
+                || this.lastNodeZeichnenAbschlussPaintContext.PaintPosX != paintContext.PaintPosX 
+                || this.lastNodeZeichnenAbschlussPaintContext.PaintPosY != paintContext.PaintPosY))
+            {
+                this.lastNodeZeichnenAbschlussPaintContext = paintContext;
+                await NodeZeichnenAbschluss(paintContext, gfx, paintMode);
+            } 
+
+            this._wirdGeradeGezeichnet = false;
 
 #if klickbereicheRotAnzeigen
             KlickbereicheAnzeigen(paintContext, gfx);
 #endif
-                this.lastPaintContextResult = paintContext.Clone();
-                this.lastPaintedData = paintData;
-            }
+            this.lastPaintContextResult = paintContext.Clone();
+            this.lastPaintedData = paintData;
 
             return this.lastPaintContextResult;
         }
@@ -137,7 +153,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected virtual async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx)
+        protected virtual async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
 
 
@@ -152,7 +168,7 @@ namespace de.springwald.xml.editor
         /// <param name="nachDiesemNodeNeuZeichnenErzwingen">Alle Nodes nach diesem Childnode müssen
         /// noch gezeichnet werden. Das tritt zum Beispiel ein, wenn sich der Inhalt eines Childnodes
         /// geändert hat und nun alles folgende z.B. wegen Verschiebung neu gezeichnet werden muss.</param>
-        protected virtual async Task UnternodesZeichnen(PaintContext paintContext, IGraphics gfx)
+        protected virtual async Task UnternodesZeichnen(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             if (this.XMLNode is System.Xml.XmlText) // es handelt sich um einen Textnode 
             {
@@ -237,7 +253,7 @@ namespace de.springwald.xml.editor
                                 Y2 = childPaintContext.PaintPosY + childElement.LineHeight / 2
                             });
 
-                            childPaintContext = await childElement.Paint(childPaintContext, gfx);
+                            childPaintContext = await childElement.Paint(childPaintContext, gfx, paintMode);
                             break;
 
 
@@ -257,7 +273,7 @@ namespace de.springwald.xml.editor
                                 // das Child rechts daneben setzen	
                             }
 
-                            childPaintContext = await childElement.Paint(childPaintContext, gfx);
+                            childPaintContext = await childElement.Paint(childPaintContext, gfx, paintMode);
                             break;
 
 
@@ -285,7 +301,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet den Abschluss des aktuellen Nodes (z.B. einen schließenden Haken)
         /// </summary>
-        protected virtual async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
+        protected virtual async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             this.ZeichneCursorStrich(paintContext, gfx);
             await Task.CompletedTask;

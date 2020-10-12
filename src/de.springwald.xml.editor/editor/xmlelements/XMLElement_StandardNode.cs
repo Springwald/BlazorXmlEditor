@@ -47,6 +47,10 @@ namespace de.springwald.xml.editor
         private int attributeInnerMarginY => Math.Max(1, (this._xmlEditor.EditorConfig.NodeNameFont.Height - this._xmlEditor.EditorConfig.NodeAttributeFont.Height) / 2);
         private int attributeHeight => this._xmlEditor.EditorConfig.NodeAttributeFont.Height + attributeInnerMarginY * 2;
 
+        protected override object PaintedValue => null;
+
+        protected override string PaintedAttributes => GetAttributeString();
+
         public override int LineHeight => tagHeight;
 
         public XMLElement_StandardNode(System.Xml.XmlNode xmlNode, de.springwald.xml.editor.XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
@@ -56,7 +60,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected override async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx)
+        protected override async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
@@ -200,7 +204,7 @@ namespace de.springwald.xml.editor
             paintContext.PaintPosX += attributeBreite + innerMarginX;
         }
 
-        protected override async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
+        protected override async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             // Falls der Cursor hinter dem letzten Child dieses Nodes steht, dann
             // den Cursor auch dahin zeichnen
@@ -280,7 +284,7 @@ namespace de.springwald.xml.editor
                 _pfeilBereichRechts = new Rectangle(0, 0, 0, 0);
                 _tagBereichRechts = new Rectangle(0, 0, 0, 0);
             }
-            await base.NodeZeichnenAbschluss(paintContext, gfx);
+            await base.NodeZeichnenAbschluss(paintContext, gfx, paintMode);
         }
 
         private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
