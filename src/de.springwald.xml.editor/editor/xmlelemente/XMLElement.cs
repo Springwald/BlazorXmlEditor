@@ -13,6 +13,7 @@ using System;
 using System.Collections;
 using System.Threading.Tasks;
 using de.springwald.xml.cursor;
+using de.springwald.xml.editor.editor.xmlelemente;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 
@@ -23,6 +24,13 @@ namespace de.springwald.xml.editor
     /// </summary>
     public abstract class XMLElement : IDisposable
     {
+        public enum PaintModes
+        {
+            ForcePaint,
+            OnlyWhenChanged,
+            OnlyWhenNotChanged
+        }
+
         private bool _disposed = false;
 
         /*private Color _backgroundColorNeutral_ = Color.White;
@@ -45,6 +53,8 @@ namespace de.springwald.xml.editor
 
         public abstract int LineHeight { get; }
 
+
+
         /// <summary>
         /// Konstruktor des xmlElementes
         /// </summary>
@@ -61,30 +71,67 @@ namespace de.springwald.xml.editor
             _xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
             _xmlEditor.XmlElementeAufraeumenEvent += new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
         }
+        protected abstract object PaintedValue { get; }
+        protected abstract string PaintedAttributes { get; }
+        protected XmlElementPaintCacheData lastPaintedData;
+        private PaintContext lastPaintContextResult;
+        private bool notPaintedBecauseOfCached;
 
         /// <summary>
         /// Zeichnet das XML-Element auf den Bildschirm
         /// </summary>
-        public virtual async Task<PaintContext> Paint(PaintContext paintContext, IGraphics gfx)
+        public virtual async Task<PaintContext> Paint(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             if (this._disposed) return paintContext;
             if (this.XMLNode == null) return paintContext;
             if (this._xmlEditor == null) return paintContext;
 
-            MausklickBereicheBufferLeeren();
-            _cursorStrichPos = null; // new Point(paintContext.PaintPosX, paintContext.PaintPosY);
+            var paintData = new XmlElementPaintCacheData
+            {
+                PaintPosX = paintContext.PaintPosX,
+                PaintPosY = paintContext.PaintPosY,
+                Attributes = this.PaintedAttributes,
+                Value = this.PaintedValue
+            };
 
-            // Alles zeichnen
-            this._wirdGeradeGezeichnet = true;
-            await NodeZeichnenStart(paintContext, gfx);
-            await UnternodesZeichnen(paintContext, gfx);
-            await NodeZeichnenAbschluss(paintContext, gfx);
-            this._wirdGeradeGezeichnet = false;
+            var toPaint = false;
+            switch (paintMode)
+            {
+                case PaintModes.ForcePaint:
+                    toPaint = true;
+                    this.notPaintedBecauseOfCached = false;
+                    break;
+
+                case PaintModes.OnlyWhenChanged:
+                    toPaint = paintData.Changed(this.lastPaintedData);
+                    this.notPaintedBecauseOfCached = !toPaint;
+                    break;
+
+                case PaintModes.OnlyWhenNotChanged:
+                    if (notPaintedBecauseOfCached) toPaint = true;
+                    break;
+            }
+
+            if (toPaint)
+            {
+                MausklickBereicheBufferLeeren();
+                _cursorStrichPos = null; // new Point(paintContext.PaintPosX, paintContext.PaintPosY);
+
+                // Alles zeichnen
+                this._wirdGeradeGezeichnet = true;
+                await NodeZeichnenStart(paintContext, gfx);
+                await UnternodesZeichnen(paintContext, gfx);
+                await NodeZeichnenAbschluss(paintContext, gfx);
+                this._wirdGeradeGezeichnet = false;
 
 #if klickbereicheRotAnzeigen
             KlickbereicheAnzeigen(paintContext, gfx);
 #endif
-            return paintContext;
+                this.lastPaintContextResult = paintContext.Clone();
+                this.lastPaintedData = paintData;
+            }
+
+            return this.lastPaintContextResult;
         }
 
         /// <summary>
@@ -249,7 +296,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected virtual void ZeichneCursorStrich(PaintContext paintContext, IGraphics gfx)
         {
-            if (this._cursorStrichPos == null ) return;
+            if (this._cursorStrichPos == null) return;
             if (this._xmlEditor.CursorBlink.PaintCursor == false) return;
 
             // Cursor-Strich zeichnen

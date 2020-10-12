@@ -16,6 +16,7 @@ namespace de.springwald.xml.editor
 
     public class PaintContext
     {
+        public readonly int LayerClearBackground = 0;
         public readonly int LayerTagBackground = 1;
         public readonly int LayerAttributeBackground = 2;
         public readonly int LayerTagBorder = 3;
