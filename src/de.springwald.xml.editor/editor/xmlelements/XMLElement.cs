@@ -105,6 +105,7 @@ namespace de.springwald.xml.editor
                     break;
 
                 case PaintModes.OnlyWhenChanged:
+                    var l = lastPaintedData;
                     toPaint = paintData.Changed(this.lastPaintedData);
                     this.notPaintedBecauseOfCached = !toPaint;
                     break;

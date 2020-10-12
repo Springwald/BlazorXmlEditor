@@ -166,17 +166,17 @@ namespace de.springwald.xml.editor
             textParts = this.GetTextLinesFromTextParts(textPartsRaw, paintContext, lastFontHeight, lastCalculatedFontWidth).ToArray();
 
             // Texthintergrund färben
-            foreach (var part in textParts)
-            {
-                // Hintergrund füllen
-                gfx.AddJob(new JobDrawRectangle
-                {
-                    Layer = paintContext.LayerTagBackground,
-                    Batchable = true,
-                    FillColor = GetHintergrundFarbe(part.Inverted),
-                    Rectangle = part.Rectangle
-                });
-            }
+            //foreach (var part in textParts)
+            //{
+            //    // Hintergrund füllen
+            //    gfx.AddJob(new JobDrawRectangle
+            //    {
+            //        Layer = paintContext.LayerTagBackground,
+            //        Batchable = true,
+            //        FillColor = GetHintergrundFarbe(part.Inverted),
+            //        Rectangle = part.Rectangle
+            //    });
+            //}
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
             int actualTextPartStartPos = 0;
