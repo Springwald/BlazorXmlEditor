@@ -234,7 +234,7 @@ namespace de.springwald.xml.editor
                                                                  // Linie nach unten
                             gfx.AddJob(new JobDrawLine
                             {
-                                Layer = paintContext.LayerTagBorder,
+                                Layer = GfxJob.Layers.TagBorder,
                                 Batchable = true,
                                 Color = Color.LightGray,
                                 X1 = paintContext.LimitLeft,
@@ -246,7 +246,7 @@ namespace de.springwald.xml.editor
                             // Linie nach rechts mit Pfeil auf ChildElement
                             gfx.AddJob(new JobDrawLine
                             {
-                                Layer = paintContext.LayerTagBorder,
+                                Layer = GfxJob.Layers.TagBorder,
                                 Batchable = true,
                                 Color = Color.LightGray,
                                 X1 = paintContext.LimitLeft,
@@ -320,7 +320,7 @@ namespace de.springwald.xml.editor
             {
                 gfx.AddJob(new JobDrawRectangle
                 {
-                    Layer = paintContext.LayerClearBackground,
+                    Layer = GfxJob.Layers.ClearBackground,
                     Batchable = true,
                     FillColor = unPaintColors[unPaintColor],
                     Rectangle = rechteck
@@ -342,7 +342,7 @@ namespace de.springwald.xml.editor
             gfx.AddJob(new JobDrawLine
             {
                 Batchable = true,
-                Layer = paintContext.LayerCursor,
+                Layer = GfxJob.Layers.Cursor,
                 Color = Color.Black,
                 LineWidth = 2,
                 X1 = _cursorStrichPos.X,
@@ -365,7 +365,7 @@ namespace de.springwald.xml.editor
             {
                 gfx.AddJob(new JobDrawRectangle
                 {
-                    Layer = paintContext.LayerClickAreas,
+                    Layer = GfxJob.Layers.ClickAreas,
                     Batchable = true,
                     BorderColor = Color.Red,
                     Rectangle = rechteck

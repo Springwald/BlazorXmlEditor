@@ -11,6 +11,17 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 {
     public abstract class GfxJob
     {
+        public enum Layers
+        {
+            ClearBackground = 1,
+            TagBackground = 5,
+            AttributeBackground = 10,
+            TagBorder = 15,
+            ClickAreas = 20,
+            Cursor = 25,
+            Text = 50
+        }
+
         public enum JobTypes
         {
             Clear,
@@ -20,7 +31,7 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
             DrawString
         }
 
-        public int Layer { get; set; }
+        public Layers Layer { get; set; }
         public bool Batchable { get; set; }
         public abstract JobTypes JobType { get; }
         public abstract string SortKey { get; }

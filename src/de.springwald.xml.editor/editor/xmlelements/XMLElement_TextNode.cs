@@ -195,7 +195,7 @@ namespace de.springwald.xml.editor
                 gfx.AddJob(new JobDrawString
                 {
                     Batchable = false,
-                    Layer = paintContext.LayerText,
+                    Layer = GfxJob.Layers.Text,
                     Text = part.Text,
                     Color = GetZeichenFarbe(part.Inverted),
                     X = part.Rectangle.X,

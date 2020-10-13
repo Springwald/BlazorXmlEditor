@@ -93,7 +93,7 @@ namespace de.springwald.xml.editor
                 + (attributeTextWidth == 0 ? 0 : innerMarginX + attributeTextWidth) // attributes
                 + innerMarginX; // margin to right border
 
-            zeichneRahmenNachGroesse(paintContext.LayerTagBackground, startX, paintContext.PaintPosY, borderWidth, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+            zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, startX, paintContext.PaintPosY, borderWidth, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
 
             paintContext.PaintPosX += innerMarginX;  // margin to left border
 
@@ -101,7 +101,7 @@ namespace de.springwald.xml.editor
             gfx.AddJob(new JobDrawString
             {
                 Batchable = false,
-                Layer = paintContext.LayerText,
+                Layer = GfxJob.Layers.Text,
                 Text = this.XMLNode.Name,
                 Color = _farbeNodeNameSchrift,
                 X = paintContext.PaintPosX,
@@ -126,7 +126,7 @@ namespace de.springwald.xml.editor
                 gfx.AddJob(new JobDrawPolygon
                 {
                     Batchable = true,
-                    Layer = paintContext.LayerTagBorder,
+                    Layer = GfxJob.Layers.TagBorder,
                     FillColor = _farbeRahmenRand,
                     Points = new[] { point1, point2, point3 }
                 });
@@ -183,7 +183,7 @@ namespace de.springwald.xml.editor
             var attributeBreite = await this.GetAttributeTextWidth(attributeString, gfx);
 
             // draw a frame around the attributes
-            zeichneRahmenNachGroesse(paintContext.LayerAttributeBackground,
+            zeichneRahmenNachGroesse(GfxJob.Layers.AttributeBackground,
                 paintContext.PaintPosX, paintContext.PaintPosY + attributeMarginY,
                 attributeBreite, attributeHeight, 2,
               _farbeAttributeHintergrund, _farbeAttributeRand, gfx);
@@ -192,7 +192,7 @@ namespace de.springwald.xml.editor
             gfx.AddJob(new JobDrawString
             {
                 Batchable = false,
-                Layer = paintContext.LayerText,
+                Layer = GfxJob.Layers.Text,
                 Text = attributeString.ToString(),
                 Color = _farbeAttributeSchrift,
                 X = paintContext.PaintPosX,
@@ -235,7 +235,7 @@ namespace de.springwald.xml.editor
                 gfx.AddJob(new JobDrawPolygon
                 {
                     Batchable = true,
-                    Layer = paintContext.LayerTagBorder,
+                    Layer = GfxJob.Layers.TagBorder,
                     FillColor = _farbeRahmenRand,
                     Points = new[] { point1, point2, point3 }
                 });
@@ -245,14 +245,14 @@ namespace de.springwald.xml.editor
                 paintContext.PaintPosX += innerMarginX + 1; // Zeichnungscursor hinter den Pfeil setzen
 
                 // ## RAHMEN für schließenden Node  zeichnen ###
-                zeichneRahmenNachGroesse(paintContext.LayerTagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+                zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
                 paintContext.PaintPosX += innerMarginX; // Abstand zwischen Rahmen und Schrift
 
                 // ## Name für schließenden Node zeichnen ###
                 gfx.AddJob(new JobDrawString
                 {
                     Batchable = false,
-                    Layer = paintContext.LayerText,
+                    Layer = GfxJob.Layers.Text,
                     Text = this.XMLNode.Name,
                     Color = _farbeNodeNameSchrift,
                     X = paintContext.PaintPosX,
@@ -316,7 +316,7 @@ namespace de.springwald.xml.editor
         /// <param name="y2"></param>
         /// <param name="fuellFarbe"></param>
         /// <param name="rahmenFarbe"></param>
-        private void zeichneRahmenNachKoordinaten(int layer, int x1, int y1, int x2, int y2, int rundung, Color fuellFarbe, Color rahmenFarbe, IGraphics gfx)
+        private void zeichneRahmenNachKoordinaten(GfxJob.Layers layer, int x1, int y1, int x2, int y2, int rundung, Color fuellFarbe, Color rahmenFarbe, IGraphics gfx)
         {
             Point[] points = new[] {
                 new Point(x1 + rundung, y1),
@@ -350,7 +350,7 @@ namespace de.springwald.xml.editor
         /// <param name="fuellFarbe"></param>
         /// <param name="rahmenFarbe"></param>
         /// <param name="e"></param>
-        private void zeichneRahmenNachGroesse(int layer, int x, int y, int breite, int hoehe, int rundung, Color fuellFarbe, Color rahmenFarbe, IGraphics gfx)
+        private void zeichneRahmenNachGroesse(GfxJob.Layers layer, int x, int y, int breite, int hoehe, int rundung, Color fuellFarbe, Color rahmenFarbe, IGraphics gfx)
         {
             this.zeichneRahmenNachKoordinaten(layer, x, y, x + breite, y + hoehe, rundung, fuellFarbe, rahmenFarbe, gfx);
         }
