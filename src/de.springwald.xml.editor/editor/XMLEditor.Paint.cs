@@ -40,7 +40,7 @@ namespace de.springwald.xml.editor
                     ZeilenStartX = 10 + ZeichnungsOffsetX,
                 };
 
-                var context1 = await this.EditorStatus.RootElement.Paint(paintContext.Clone(), this.NativePlatform.Gfx, count == 0 ? XMLElement.PaintModes.ForcePaint : XMLElement.PaintModes.OnlyWhenChanged);
+                var context1 = await this.EditorStatus.RootElement.Paint(paintContext.Clone(), this.NativePlatform.Gfx, count == 0 ? XMLElement.PaintModes.ForcePaint : XMLElement.PaintModes.ForcePaint);
                 _virtuelleBreite = context1.BisherMaxX + 50 - ZeichnungsOffsetX;
                 _virtuelleHoehe = context1.PaintPosY + 50 - ZeichnungsOffsetY;
             }

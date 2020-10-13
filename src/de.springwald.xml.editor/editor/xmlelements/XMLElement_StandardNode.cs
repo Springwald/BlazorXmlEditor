@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.events;
 
 namespace de.springwald.xml.editor
 {
@@ -53,14 +54,145 @@ namespace de.springwald.xml.editor
 
         public override int LineHeight => tagHeight;
 
-        public XMLElement_StandardNode(System.Xml.XmlNode xmlNode, de.springwald.xml.editor.XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
+        public XMLElement_StandardNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
+        }
+
+        protected override async Task PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        {
+            await this.NodeZeichnenStart(paintContext, gfx, paintMode);
+            await this.PaintSubNodes(paintContext, gfx, paintMode);
+            await this.NodeZeichnenAbschluss(paintContext, gfx);
+        }
+
+        protected async Task PaintSubNodes(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        {
+            // es handelt sich um keinen Textnode
+            XMLElement childElement;            // Das zu zeichnende XML-Child
+
+            if (this.XMLNode == null)
+            {
+                throw new ApplicationException("UnternodesZeichnen:XMLNode ist leer");
+            }
+
+            var childPaintContext = paintContext.Clone();
+            childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
+
+            // Alle Child-Controls anzeigen und ggf. vorher anlegen
+            for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
+            {
+                if (childLauf >= _childElemente.Count)
+                {   // Wenn noch nicht so viele ChildControls angelegt sind, wie
+                    // es ChildXMLNodes gibt
+                    childElement = this._xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
+                    _childElemente.Add(childElement);
+                }
+                else
+                {   // es gibt schon ein Control an dieser Stelle
+                    childElement = (XMLElement)_childElemente[childLauf];
+
+                    if (childElement == null)
+                    {
+                        throw new ApplicationException($"UnternodesZeichnen:childElement ist leer: outerxml:{this.XMLNode.OuterXml} >> innerxml {this.XMLNode.InnerXml}");
+                    }
+
+                    // prüfen, ob es auch den selben XML-Node vertritt
+                    if (childElement.XMLNode != this.XMLNode.ChildNodes[childLauf])
+                    {   // Das ChildControl enthält nicht den selben ChildNode, also 
+                        // löschen und neu machen
+                        childElement.Dispose(); // altes Löschen
+                        childElement = this._xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
+                        _childElemente[childLauf] = childElement; // durch Neues ersetzen
+                    }
+                }
+
+                // An dieser Stelle sollte im Objekt ChildControl die entsprechends
+                // Instanz des XMLElement-Controls für den aktuellen XMLChildNode stehen
+                switch (_xmlEditor.EditorStatus.Regelwerk.DarstellungsArt(childElement.XMLNode))
+                {
+                    case DarstellungsArten.EigeneZeile:
+
+                        // Dieses Child-Element beginnt eine neue Zeile und wird dann in dieser gezeichnet
+
+                        // Neue Zeile beginnen
+                        childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
+                        childPaintContext.PaintPosX = childPaintContext.LimitLeft;
+                        childPaintContext.PaintPosY += _xmlEditor.EditorStatus.Regelwerk.AbstandYZwischenZeilen + paintContext.HoeheAktZeile; // Zeilenumbruch
+                        childPaintContext.HoeheAktZeile = 0; // noch kein Element in dieser Zeile, daher Hoehe 0
+                                                             // X-Cursor auf den Start der neuen Zeile setzen
+                                                             // Linie nach unten und dann nach rechts ins ChildElement
+                                                             // Linie nach unten
+                        gfx.AddJob(new JobDrawLine
+                        {
+                            Layer = GfxJob.Layers.TagBorder,
+                            Batchable = true,
+                            Color = Color.LightGray,
+                            X1 = paintContext.LimitLeft,
+                            Y1 = paintContext.PaintPosY + this.LineHeight / 2,
+                            X2 = paintContext.LimitLeft,
+                            Y2 = childPaintContext.PaintPosY + childElement.LineHeight / 2
+                        });
+
+                        // Linie nach rechts mit Pfeil auf ChildElement
+                        gfx.AddJob(new JobDrawLine
+                        {
+                            Layer = GfxJob.Layers.TagBorder,
+                            Batchable = true,
+                            Color = Color.LightGray,
+                            X1 = paintContext.LimitLeft,
+                            Y1 = childPaintContext.PaintPosY + childElement.LineHeight / 2,
+                            X2 = childPaintContext.LimitLeft,
+                            Y2 = childPaintContext.PaintPosY + childElement.LineHeight / 2
+                        });
+
+                        childPaintContext = await childElement.Paint(childPaintContext, gfx, paintMode);
+                        break;
+
+
+                    case DarstellungsArten.Fliesselement:
+                        // Dieses Child ist ein Fliesselement; es fügt sich in die selbe Zeile
+                        // ein, wie das vorherige Element und beginnt keine neue Zeile, 
+                        // es sei denn, die aktuelle Zeile ist bereits zu lang
+                        if (childPaintContext.PaintPosX > paintContext.LimitRight) // Wenn die Zeile bereits zu voll ist
+                        {
+                            // in nächste Zeile
+                            paintContext.PaintPosY += paintContext.HoeheAktZeile + _xmlEditor.EditorStatus.Regelwerk.AbstandYZwischenZeilen;
+                            paintContext.HoeheAktZeile = 0;
+                            paintContext.PaintPosX = paintContext.ZeilenStartX;
+                        }
+                        else // es passt noch etwas in diese Zeile
+                        {
+                            // das Child rechts daneben setzen	
+                        }
+
+                        childPaintContext = await childElement.Paint(childPaintContext, gfx, paintMode);
+                        break;
+
+
+                    default:
+                        MessageBox.Show("undefiniert");
+                        break;
+                }
+
+                // Sollten wir mehr ChildControls als XMLChildNodes haben, dann diese
+                // am Ende der ChildControlListe löschen
+                while (this.XMLNode.ChildNodes.Count < _childElemente.Count)
+                {
+                    childElement = (XMLElement)_childElemente[_childElemente.Count - 1];
+                    _childElemente.Remove(_childElemente[_childElemente.Count - 1]);
+                    childElement.Dispose();
+                    _childElemente.TrimToSize();
+                }
+
+                paintContext.PaintPosX = childPaintContext.PaintPosX;
+                paintContext.PaintPosY = childPaintContext.PaintPosY;
+            }
         }
 
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected override async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
@@ -204,7 +336,7 @@ namespace de.springwald.xml.editor
             paintContext.PaintPosX += attributeBreite + innerMarginX;
         }
 
-        protected override async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
         {
             // Falls der Cursor hinter dem letzten Child dieses Nodes steht, dann
             // den Cursor auch dahin zeichnen
@@ -284,7 +416,6 @@ namespace de.springwald.xml.editor
                 _pfeilBereichRechts = new Rectangle(0, 0, 0, 0);
                 _tagBereichRechts = new Rectangle(0, 0, 0, 0);
             }
-            await base.NodeZeichnenAbschluss(paintContext, gfx, paintMode);
         }
 
         private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
@@ -442,5 +573,7 @@ namespace de.springwald.xml.editor
             //    }
             //}
         }
+
+
     }
 }

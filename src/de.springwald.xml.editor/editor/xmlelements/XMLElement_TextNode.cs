@@ -42,10 +42,6 @@ namespace de.springwald.xml.editor
 
         private TextLine[] textParts;  // Buffer of the single, drawn lines. Each corresponds to a click area
 
-        //#region UnPaint-Werte
-        //private string _lastPaintAktuellerInhalt; // der zuletzt in diesem Node gezeichnete Inhalt
-        //#endregion
-
         /// <summary>
         /// Der offizielle Inhalt dieses textnodes
         /// </summary>
@@ -126,10 +122,7 @@ namespace de.springwald.xml.editor
             base.Dispose(disposing);
         }
 
-        /// <summary>
-        ///  Draws the graphic of the current node
-        /// </summary>
-        protected override async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected override async Task PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             if (lastFontHeight != this._xmlEditor.EditorConfig.TextNodeFont.Height)
             {
@@ -163,7 +156,7 @@ namespace de.springwald.xml.editor
 
             textParts = this.GetTextLinesFromTextParts(textPartsRaw, paintContext, lastFontHeight, lastCalculatedFontWidth).ToArray();
 
-    
+
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
             int actualTextPartStartPos = 0;
@@ -216,6 +209,8 @@ namespace de.springwald.xml.editor
                 }
             }
         }
+
+  
 
         private IEnumerable<TextLine> GetTextLinesFromTextParts(TextSplitHelper.TextPart[] parts, PaintContext paintContext, int fontHeight, float fontWidth)
         {
@@ -437,5 +432,7 @@ namespace de.springwald.xml.editor
                 }
             }
         }
+
+     
     }
 }
