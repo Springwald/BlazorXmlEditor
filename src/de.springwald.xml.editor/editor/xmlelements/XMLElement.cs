@@ -53,14 +53,12 @@ namespace de.springwald.xml.editor
 
         public abstract int LineHeight { get; }
 
-
-
         /// <summary>
         /// Konstruktor des xmlElementes
         /// </summary>
         /// <param name="xmlNode">Der zu zeichnende XML-Node</param>
         /// <param name="xmlEditor">Der Editor, für welchen der Node gezeichnet werden soll</param>
-        public XMLElement(System.Xml.XmlNode xmlNode, de.springwald.xml.editor.XMLEditor xmlEditor) //, de.springwald.xml.XMLEditorPaintPos paintPos)
+        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) //, de.springwald.xml.XMLEditorPaintPos paintPos)
         {
             this.XMLNode = xmlNode;
             _xmlEditor = xmlEditor;
@@ -140,7 +138,7 @@ namespace de.springwald.xml.editor
                 || this.lastNodeZeichnenAbschlussPaintContext.PaintPosY != paintContext.PaintPosY))
             {
                 this.lastNodeZeichnenAbschlussPaintContext = paintContext;
-                await NodeZeichnenAbschluss(paintContext, gfx, paintMode);
+                await NodeZeichnenAbschluss(paintContext, gfx,  paintMode);
             }
 
             this._wirdGeradeGezeichnet = false;
@@ -305,14 +303,14 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected virtual async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
-            this.ZeichneCursorStrich(paintContext, gfx);
+            this.ZeichneCursorStrich(gfx);
             await Task.CompletedTask;
         }
 
         private Color[] unPaintColors = new[] { Color.Blue, Color.DarkBlue, Color.Gray, Color.Red, Color.White };
         private int unPaintColor = 0;
 
-        protected virtual void UnPaint(IGraphics gfx, PaintContext paintContext)
+        protected virtual void UnPaint(IGraphics gfx,PaintContext paintContext)
         {
             unPaintColor++;
             if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
@@ -331,7 +329,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet den senkrechten Cursorstrich
         /// </summary>
-        protected virtual void ZeichneCursorStrich(PaintContext paintContext, IGraphics gfx)
+        protected virtual void ZeichneCursorStrich(IGraphics gfx)
         {
             if (this._cursorStrichPos == null) return;
             if (this._xmlEditor.CursorBlink.PaintCursor == false) return;
@@ -359,7 +357,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// zeichnet die per Maus klickbaren Bereiche
         /// </summary>
-        private void KlickbereicheAnzeigen(PaintContext paintContext, IGraphics gfx)
+        private void KlickbereicheAnzeigen(IGraphics gfx)
         {
             foreach (Rectangle rechteck in this._klickBereiche)
             {
