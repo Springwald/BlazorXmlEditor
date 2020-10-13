@@ -122,7 +122,7 @@ namespace de.springwald.xml.editor
             base.Dispose(disposing);
         }
 
-        protected override async Task PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected override async Task<PaintContext> PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode,  bool justCalculate)
         {
             if (lastFontHeight != this._xmlEditor.EditorConfig.TextNodeFont.Height)
             {
@@ -208,6 +208,8 @@ namespace de.springwald.xml.editor
                     this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY + marginY);
                 }
             }
+
+            return paintContext.Clone();
         }
 
   

@@ -58,14 +58,15 @@ namespace de.springwald.xml.editor
         {
         }
 
-        protected override async Task PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected override async Task<PaintContext> PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode, bool justCalculate)
         {
-            await this.NodeZeichnenStart(paintContext, gfx, paintMode);
-            await this.PaintSubNodes(paintContext, gfx, paintMode);
+            await this.NodeZeichnenStart(paintContext, gfx, justCalculate);
+            await this.PaintSubNodes(paintContext, gfx, paintMode, justCalculate);
             await this.NodeZeichnenAbschluss(paintContext, gfx);
+            return paintContext.Clone();
         }
 
-        protected async Task PaintSubNodes(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected async Task PaintSubNodes(PaintContext paintContext, IGraphics gfx, PaintModes paintMode, bool justCalculate)
         {
             // es handelt sich um keinen Textnode
             XMLElement childElement;            // Das zu zeichnende XML-Child
@@ -192,7 +193,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx, bool justCalculate)
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;

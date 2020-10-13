@@ -16,8 +16,6 @@ namespace de.springwald.xml.editor
 
     public class PaintContext
     {
-
-
         public int LimitLeft { get; set; }
         public int LimitRight { get; set; }
 

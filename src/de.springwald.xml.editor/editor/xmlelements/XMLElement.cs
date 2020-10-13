@@ -71,10 +71,6 @@ namespace de.springwald.xml.editor
         protected abstract object PaintedValue { get; }
         protected abstract string PaintedAttributes { get; }
         protected XmlElementPaintCacheData lastPaintedData;
-        private PaintContext lastUnterNodesPaintContext;
-        private PaintContext lastNodeZeichnenAbschlussPaintContext;
-        private PaintContext lastPaintContextResult;
-        private bool notPaintedBecauseOfCached;
 
         /// <summary>
         /// Zeichnet das XML-Element auf den Bildschirm
@@ -98,17 +94,14 @@ namespace de.springwald.xml.editor
             {
                 case PaintModes.ForcePaint:
                     toPaint = true;
-                    this.notPaintedBecauseOfCached = false;
                     break;
 
                 case PaintModes.OnlyWhenChanged:
                     toPaint = paintData.Changed(this.lastPaintedData);
-                    this.notPaintedBecauseOfCached = !toPaint;
                     break;
 
                 case PaintModes.OnlyWhenNotChanged:
-                    if (notPaintedBecauseOfCached) toPaint = true;
-                    this.notPaintedBecauseOfCached = false;
+                    throw new NotImplementedException();
                     break;
             }
 
@@ -119,36 +112,21 @@ namespace de.springwald.xml.editor
             {
                 this.UnPaint(gfx, paintContext);
                 this.MausklickBereicheBufferLeeren();
-                this.lastUnterNodesPaintContext = paintContext;
             }
-            else
-            {
-                paintContext = this.lastUnterNodesPaintContext;
-            }
-
-            await PaintNodeContent(paintContext, gfx, paintMode);
-
-            //if (toPaint ||
-            //    (this.lastNodeZeichnenAbschlussPaintContext == null
-            //    || this.lastNodeZeichnenAbschlussPaintContext.PaintPosX != paintContext.PaintPosX
-            //    || this.lastNodeZeichnenAbschlussPaintContext.PaintPosY != paintContext.PaintPosY))
-            //{
-            //    this.lastNodeZeichnenAbschlussPaintContext = paintContext;
-            //    await NodeZeichnenAbschluss(paintContext, gfx);
-            //}
+            
+            paintContext = await PaintNodeContent(paintContext, gfx, paintMode, justCalculate: false);
 
 #if klickbereicheRotAnzeigen
             KlickbereicheAnzeigen(paintContext, gfx);
 #endif
-            this.lastPaintContextResult = paintContext.Clone();
             this.lastPaintedData = paintData;
 
             this.ZeichneCursorStrich(gfx);
 
-            return this.lastPaintContextResult;
+            return paintContext;
         }
 
-        protected abstract Task PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode);
+        protected abstract Task<PaintContext> PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode, bool justCalculate);
 
         private Color[] unPaintColors = new[] { Color.Blue, Color.DarkBlue, Color.Gray, Color.Red, Color.White };
         private int unPaintColor = 0;
@@ -221,7 +199,6 @@ namespace de.springwald.xml.editor
         {
             if (_klickBereiche.Length != 0) _klickBereiche = new Rectangle[] { };
         }
-
 
         /// <summary>
         /// Der Editor hat darum gebeten, dass alle Elemente, welche nicht mehr verwendet werden, entladen werden

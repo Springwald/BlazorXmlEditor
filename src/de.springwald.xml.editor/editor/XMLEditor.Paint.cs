@@ -7,8 +7,6 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.editor.nativeplatform.gfx;
-using de.springwald.xml.editor.nativeplatform.gfxobs;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
