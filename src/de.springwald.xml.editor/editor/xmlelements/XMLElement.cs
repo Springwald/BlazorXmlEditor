@@ -33,56 +33,45 @@ namespace de.springwald.xml.editor
 
         private bool _disposed = false;
 
-        /*private Color _backgroundColorNeutral_ = Color.White;
-		private Color _backgroundColorSelected_ = Color.LightBlue;*/
-
-        protected Point _cursorStrichPos;   // dort wird der Cursor in diesem Node gezeichnet, wenn es der aktuell  Node ist
-
-        protected XMLEditor _xmlEditor;
+        protected Point cursorPaintPos;  // there the cursor is drawn in this node, if it is the current node
+        protected XMLEditor xmlEditor;
 
         protected EditorConfig Config { get; }
 
         protected ArrayList _childElemente = new ArrayList();           // Die ChildElemente in diesem Steuerelement
-
         protected Rectangle[] _klickBereiche = new Rectangle[] { }; // Die von diesem Element klickbaren Bereiche z.B. für Mausklicktests etc.
 
         /// <summary>
-        /// Der mit diesem Element anzuzeigende XMLNode
+        /// The XMLNode to be displayed with this element
         /// </summary>
         public System.Xml.XmlNode XMLNode { get; }
 
-        //public de.springwald.xml.editor.XMLEditorPaintPos PaintPos { get; set; }
-
-        /// <summary>
-        /// Konstruktor des xmlElementes
-        /// </summary>
-        /// <param name="xmlNode">Der zu zeichnende XML-Node</param>
-        /// <param name="xmlEditor">Der Editor, für welchen der Node gezeichnet werden soll</param>
-        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) //, de.springwald.xml.XMLEditorPaintPos paintPos)
+        /// <param name="xmlNode">The XML-Node to be drawn</param>
+        /// <param name="xmlEditor">The editor for which the node is to be drawn</param>
+        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor)
         {
             this.XMLNode = xmlNode;
-            this._xmlEditor = xmlEditor;
+            this.xmlEditor = xmlEditor;
             this.Config = xmlEditor.EditorConfig;
 
-
-            _xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
-            _xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
-            _xmlEditor.MouseHandler.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
-            _xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
-            _xmlEditor.XmlElementeAufraeumenEvent += new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
+            this.xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
+            this.xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
+            this.xmlEditor.MouseHandler.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
+            this.xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
+            this.xmlEditor.XmlElementeAufraeumenEvent += new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
         }
         protected abstract object PaintedValue { get; }
         protected abstract string PaintedAttributes { get; }
         protected XmlElementPaintCacheData lastPaintedData;
 
         /// <summary>
-        /// Zeichnet das XML-Element auf den Bildschirm
+        /// Draws the XML element on the screen
         /// </summary>
         public virtual async Task<PaintContext> Paint(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             if (this._disposed) return paintContext;
             if (this.XMLNode == null) return paintContext;
-            if (this._xmlEditor == null) return paintContext;
+            if (this.xmlEditor == null) return paintContext;
 
             var paintData = new XmlElementPaintCacheData
             {
@@ -92,38 +81,37 @@ namespace de.springwald.xml.editor
                 Value = this.PaintedValue
             };
 
-            var toPaint = false;
+            var justCalculate = false;
             switch (paintMode)
             {
                 case PaintModes.ForcePaint:
-                    toPaint = true;
+                    justCalculate = false;
                     break;
 
                 case PaintModes.OnlyWhenChanged:
-                    toPaint = paintData.Changed(this.lastPaintedData);
+                    justCalculate = !paintData.Changed(this.lastPaintedData);
                     break;
 
                 case PaintModes.OnlyWhenNotChanged:
                     throw new NotImplementedException();
             }
 
-            _cursorStrichPos = null; // new Point(paintContext.PaintPosX, paintContext.PaintPosY);
+            this.cursorPaintPos = null;
 
-            // Alles zeichnen
-            if (toPaint)
+            if (!justCalculate)
             {
                 this.UnPaint(gfx, paintContext);
                 this.MausklickBereicheBufferLeeren();
             }
             
-            paintContext = await PaintNodeContent(paintContext, gfx, paintMode, justCalculate: false);
+            paintContext = await PaintNodeContent(paintContext, gfx, paintMode, justCalculate: justCalculate);
 
 #if klickbereicheRotAnzeigen
             KlickbereicheAnzeigen(paintContext, gfx);
 #endif
             this.lastPaintedData = paintData;
 
-            this.ZeichneCursorStrich(gfx);
+            this.PaintCursor(gfx);
 
             return paintContext;
         }
@@ -132,7 +120,6 @@ namespace de.springwald.xml.editor
 
         private Color[] unPaintColors = new[] { Color.Blue, Color.DarkBlue, Color.Gray, Color.Red, Color.White };
         private int unPaintColor = 0;
-
         protected virtual void UnPaint(IGraphics gfx,PaintContext paintContext)
         {
             unPaintColor++;
@@ -150,15 +137,14 @@ namespace de.springwald.xml.editor
         }
 
         /// <summary>
-        /// Zeichnet den senkrechten Cursorstrich
+        /// Draws the vertical cursor line
         /// </summary>
-        protected virtual void ZeichneCursorStrich(IGraphics gfx)
+        protected virtual void PaintCursor(IGraphics gfx)
         {
-            if (this._cursorStrichPos == null) return;
-            if (this._xmlEditor.CursorBlink.PaintCursor == false) return;
+            if (this.cursorPaintPos == null) return;
+            if (this.xmlEditor.CursorBlink.PaintCursor == false) return;
 
-            // Cursor-Strich zeichnen
-            var height = (int)(Math.Max(this._xmlEditor.EditorConfig.TextNodeFont.Height, this._xmlEditor.EditorConfig.NodeNameFont.Height) * 1.6);
+            var height = (int)(Math.Max(this.xmlEditor.EditorConfig.TextNodeFont.Height, this.xmlEditor.EditorConfig.NodeNameFont.Height) * 1.6);
             var margin = height / 5;
             gfx.AddJob(new JobDrawLine
             {
@@ -166,23 +152,22 @@ namespace de.springwald.xml.editor
                 Layer = GfxJob.Layers.Cursor,
                 Color = Color.Black,
                 LineWidth = 2,
-                X1 = _cursorStrichPos.X,
-                Y1 = _cursorStrichPos.Y + margin,
-                X2 = _cursorStrichPos.X,
-                Y2 = _cursorStrichPos.Y + height - margin
+                X1 = cursorPaintPos.X,
+                Y1 = cursorPaintPos.Y + margin,
+                X2 = cursorPaintPos.X,
+                Y2 = cursorPaintPos.Y + height - margin
             });
 
-            // merken, wo gerade der Cursor gezeichnet wird, damit dorthin gescrollt werden kann,
-            // wenn der Cursor aus dem sichtbaren Bereich bewegt wird
-            _xmlEditor.AktScrollingCursorPos = _cursorStrichPos;
+            // remember where the cursor is currently drawn, so that you can scroll there when the cursor is moved out of the visible area
+            xmlEditor.AktScrollingCursorPos = cursorPaintPos;
         }
 
         /// <summary>
-        /// zeichnet die per Maus klickbaren Bereiche
+        /// draws the mouse clickable areas
         /// </summary>
         private void KlickbereicheAnzeigen(IGraphics gfx)
         {
-            foreach (Rectangle rechteck in this._klickBereiche)
+            foreach (var rechteck in this._klickBereiche)
             {
                 gfx.AddJob(new JobDrawRectangle
                 {
@@ -195,7 +180,7 @@ namespace de.springwald.xml.editor
         }
 
         /// <summary>
-        /// leert den Buffer der Mausklick-flächen vor dem Berechnen zum neu-füllen
+        /// empties the buffer of the mouse click areas before calculating to refill
         /// </summary>
         private void MausklickBereicheBufferLeeren()
         {
@@ -229,8 +214,8 @@ namespace de.springwald.xml.editor
         /// <param name="point"></param>
         protected virtual async Task WurdeAngeklickt(Point point, MausKlickAktionen aktion)
         {
-            await _xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
-            _xmlEditor.CursorBlink.ResetBlinkPhase();
+            await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
+            xmlEditor.CursorBlink.ResetBlinkPhase();
         }
 
         /// <summary>
@@ -306,7 +291,7 @@ namespace de.springwald.xml.editor
             else
             {
                 // Herausfinden, ob der Node dieses Elementes betroffen ist
-                if (_xmlEditor.EditorStatus.CursorRoh.StartPos.AktNode != this.XMLNode)
+                if (xmlEditor.EditorStatus.CursorRoh.StartPos.AktNode != this.XMLNode)
                 {
                     return;
                 }
@@ -349,11 +334,11 @@ namespace de.springwald.xml.editor
                 if (disposing) // Dispose managed resources.
                 {
                     // Von den Events abmelden
-                    _xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Remove(this.Cursor_ChangedEvent);
-                    _xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
-                    _xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
-                    _xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
-                    _xmlEditor.XmlElementeAufraeumenEvent -= new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
+                    xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Remove(this.Cursor_ChangedEvent);
+                    xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
+                    xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
+                    xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
+                    xmlEditor.XmlElementeAufraeumenEvent -= new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
 
                     // Alle Child-Elemente ebenfalls zerstören
                     foreach (XMLElement element in this._childElemente)
@@ -362,7 +347,7 @@ namespace de.springwald.xml.editor
                     }
 
                     // Referenzen lösen
-                    this._xmlEditor = null;
+                    this.xmlEditor = null;
                 }
             }
             _disposed = true;

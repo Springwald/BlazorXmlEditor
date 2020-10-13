@@ -7,6 +7,8 @@
 // All rights reserved
 // Licensed under MIT License
 
+using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.editor.nativeplatform.gfxobs;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
@@ -16,15 +18,22 @@ namespace de.springwald.xml.editor
     /// </summary>
     public partial class XMLEditor
     {
-        private int count = -1;
+        private bool sizeChangedSinceLastPaint = true;
+
+        public void SizeHasChanged ()
+        {
+            this.sizeChangedSinceLastPaint = true;
+        }
 
         public async Task Paint(int limitRight)
         {
-            count++;
-            if (count > 3)
+            var paintMode = XMLElement.PaintModes.OnlyWhenChanged;
+
+            if (this.sizeChangedSinceLastPaint)
             {
-                count = 0;
-                // this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = Color.Red });
+                this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = Color.Red });
+                this.sizeChangedSinceLastPaint = false;
+                paintMode = XMLElement.PaintModes.ForcePaint;
             }
 
             if (this.EditorStatus.RootElement != null)
@@ -38,7 +47,7 @@ namespace de.springwald.xml.editor
                     ZeilenStartX = 10 + ZeichnungsOffsetX,
                 };
 
-                var context1 = await this.EditorStatus.RootElement.Paint(paintContext.Clone(), this.NativePlatform.Gfx, count == 0 ? XMLElement.PaintModes.ForcePaint : XMLElement.PaintModes.ForcePaint);
+                var context1 = await this.EditorStatus.RootElement.Paint(paintContext.Clone(), this.NativePlatform.Gfx, paintMode);
                 _virtuelleBreite = context1.BisherMaxX + 50 - ZeichnungsOffsetX;
                 _virtuelleHoehe = context1.PaintPosY + 50 - ZeichnungsOffsetY;
             }

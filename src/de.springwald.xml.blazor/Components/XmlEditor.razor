@@ -65,7 +65,7 @@
             this.nativePlattform = new BlazorNativePlatform(_canvasReference);
             this.resizedTimer = new Timer();
             this.resizedTimer.Elapsed += CheckResizedEvent;
-            this.resizedTimer.Interval = 1000;
+            this.resizedTimer.Interval = 500;
             this.resizedTimer.Start();
             if (this.EditorContext != null) this.Init();
         }
@@ -80,9 +80,14 @@
     private async Task CheckResized()
     {
         var size = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
-        this.canvasWidth = (int)size.Width;
-        this.canvasHeight = (int)size.Height;
-        await this.nativePlattform.SetSize(this.canvasWidth, this.canvasHeight - 10);
+        if (size.Width != this.canvasWidth || size.Height != this.canvasHeight)
+        {
+            this.canvasWidth = (int)size.Width;
+            this.canvasHeight = (int)size.Height;
+            await this.nativePlattform.SetSize(this.canvasWidth, this.canvasHeight - 10);
+            this.Editor.SizeHasChanged();
+            this.StateHasChanged();
+        }
     }
 
     private void Init()

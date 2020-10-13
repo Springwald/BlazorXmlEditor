@@ -56,7 +56,7 @@ namespace de.springwald.xml.editor
         {
             await this.NodeZeichnenStart(paintContext, gfx, justCalculate);
             await this.PaintSubNodes(paintContext, gfx, paintMode, justCalculate);
-            await this.NodeZeichnenAbschluss(paintContext, gfx);
+            await this.NodeZeichnenAbschluss(paintContext, gfx, justCalculate);
             return paintContext.Clone();
         }
 
@@ -71,7 +71,7 @@ namespace de.springwald.xml.editor
             }
 
             var childPaintContext = paintContext.Clone();
-            childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
+            childPaintContext.LimitLeft = paintContext.LimitLeft + xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
 
             // Alle Child-Controls anzeigen und ggf. vorher anlegen
             for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
@@ -79,7 +79,7 @@ namespace de.springwald.xml.editor
                 if (childLauf >= _childElemente.Count)
                 {   // Wenn noch nicht so viele ChildControls angelegt sind, wie
                     // es ChildXMLNodes gibt
-                    childElement = this._xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
+                    childElement = this.xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
                     _childElemente.Add(childElement);
                 }
                 else
@@ -96,23 +96,23 @@ namespace de.springwald.xml.editor
                     {   // Das ChildControl enthält nicht den selben ChildNode, also 
                         // löschen und neu machen
                         childElement.Dispose(); // altes Löschen
-                        childElement = this._xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
+                        childElement = this.xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
                         _childElemente[childLauf] = childElement; // durch Neues ersetzen
                     }
                 }
 
                 // An dieser Stelle sollte im Objekt ChildControl die entsprechends
                 // Instanz des XMLElement-Controls für den aktuellen XMLChildNode stehen
-                switch (_xmlEditor.EditorStatus.Regelwerk.DarstellungsArt(childElement.XMLNode))
+                switch (xmlEditor.EditorStatus.Regelwerk.DarstellungsArt(childElement.XMLNode))
                 {
                     case DarstellungsArten.EigeneZeile:
 
                         // Dieses Child-Element beginnt eine neue Zeile und wird dann in dieser gezeichnet
 
                         // Neue Zeile beginnen
-                        childPaintContext.LimitLeft = paintContext.LimitLeft + _xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
+                        childPaintContext.LimitLeft = paintContext.LimitLeft + xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
                         childPaintContext.PaintPosX = childPaintContext.LimitLeft;
-                        childPaintContext.PaintPosY += _xmlEditor.EditorStatus.Regelwerk.AbstandYZwischenZeilen + paintContext.HoeheAktZeile; // Zeilenumbruch
+                        childPaintContext.PaintPosY += xmlEditor.EditorStatus.Regelwerk.AbstandYZwischenZeilen + paintContext.HoeheAktZeile; // Zeilenumbruch
                         childPaintContext.HoeheAktZeile = 0; // noch kein Element in dieser Zeile, daher Hoehe 0
                                                              // X-Cursor auf den Start der neuen Zeile setzen
                                                              // Linie nach unten und dann nach rechts ins ChildElement
@@ -151,7 +151,7 @@ namespace de.springwald.xml.editor
                         if (childPaintContext.PaintPosX > paintContext.LimitRight) // Wenn die Zeile bereits zu voll ist
                         {
                             // in nächste Zeile
-                            paintContext.PaintPosY += paintContext.HoeheAktZeile + _xmlEditor.EditorStatus.Regelwerk.AbstandYZwischenZeilen;
+                            paintContext.PaintPosY += paintContext.HoeheAktZeile + xmlEditor.EditorStatus.Regelwerk.AbstandYZwischenZeilen;
                             paintContext.HoeheAktZeile = 0;
                             paintContext.PaintPosX = paintContext.ZeilenStartX;
                         }
@@ -193,21 +193,24 @@ namespace de.springwald.xml.editor
             var startY = paintContext.PaintPosY;
 
             // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
-            if (_xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+            if (!justCalculate)
             {
-                if (_xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
+                if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
                 {
-                    // Position für Cursor-Strich vermerken
-                    this._cursorStrichPos = new Point(paintContext.PaintPosX + 1, paintContext.PaintPosY);
+                    if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
+                    {
+                        // Position für Cursor-Strich vermerken
+                        this.cursorPaintPos = new Point(paintContext.PaintPosX + 1, paintContext.PaintPosY);
+                    }
                 }
-            }
 
-            this.DefineColors();
+                this.DefineColors();
+            }
 
             // ### Write the name of the node ###
 
             // Pre-calculate the width of the node name
-            int nodeNameTextWidth = (int)(await this._xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont));
+            int nodeNameTextWidth = (int)(await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, xmlEditor.EditorConfig.NodeNameFont));
 
             // Pre-calculate the width of the attribute string
             var attributeString = this.GetAttributeString();
@@ -220,7 +223,10 @@ namespace de.springwald.xml.editor
                 + (attributeTextWidth == 0 ? 0 : innerMarginX + attributeTextWidth) // attributes
                 + innerMarginX; // margin to right border
 
-            zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, startX, paintContext.PaintPosY, borderWidth, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+            if (!justCalculate)
+            {
+                zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, startX, paintContext.PaintPosY, borderWidth, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+            }
 
             paintContext.PaintPosX += innerMarginX;  // margin to left border
 
@@ -233,19 +239,19 @@ namespace de.springwald.xml.editor
                 Color = _farbeNodeNameSchrift,
                 X = paintContext.PaintPosX,
                 Y = paintContext.PaintPosY + this.Config.InnerMarginY,
-                Font = _xmlEditor.EditorConfig.NodeNameFont
+                Font = xmlEditor.EditorConfig.NodeNameFont
             });
 
             paintContext.PaintPosX += nodeNameTextWidth + innerMarginX;
 
             // draw the attributes
-            await AttributeZeichnen(paintContext, attributeString, gfx);
+            await AttributeZeichnen(paintContext, attributeString, gfx, justCalculate);
 
             // standard distance + one pixel to the right, otherwise we draw on the frame line
             paintContext.PaintPosX += 1;
 
             // if necessary draw the continuing arrow at the end of the frame 
-            if (_xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
+            if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
                 var point1 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + this.Config.InnerMarginY);
                 var point2 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + this.Config.TagHeight / 2);
@@ -268,12 +274,12 @@ namespace de.springwald.xml.editor
             }
 
             // If the cursor is inside the empty node, then draw the cursor there
-            if (_xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+            if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
             {
-                if (_xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode)
+                if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode)
                 {
                     // set position for cursor line
-                    this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
+                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
             }
 
@@ -285,15 +291,15 @@ namespace de.springwald.xml.editor
             this._klickBereiche = this._klickBereiche.Append(_tagBereichLinks).ToArray();
 
             // If there is no closing tag, the cursor line at "behind the node" is drawn directly after the first and only tag
-            if (!_xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
+            if (!xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
                 // If the cursor is behind the node, then also draw the cursor there
-                if (_xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+                if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
                 {
-                    if (_xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
+                    if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
                     {
                         // set position for cursor line
-                        this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
+                        this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                     }
                 }
             }
@@ -303,35 +309,38 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Draws the attributes 
         /// </summary>
-        private async Task AttributeZeichnen(PaintContext paintContext, string attributeString, IGraphics gfx)
+        private async Task AttributeZeichnen(PaintContext paintContext, string attributeString, IGraphics gfx, bool justCalculate)
         {
             if (string.IsNullOrWhiteSpace(attributeString)) return;
 
             var attributeBreite = await this.GetAttributeTextWidth(attributeString, gfx);
 
-            // draw a frame around the attributes
-            zeichneRahmenNachGroesse(GfxJob.Layers.AttributeBackground,
-                paintContext.PaintPosX, paintContext.PaintPosY + attributeMarginY,
-                attributeBreite, attributeHeight, 2,
-              _farbeAttributeHintergrund, _farbeAttributeRand, gfx);
-
-            // Draw attributes
-            gfx.AddJob(new JobDrawString
+            if (!justCalculate)
             {
-                Batchable = false,
-                Layer = GfxJob.Layers.Text,
-                Text = attributeString.ToString(),
-                Color = _farbeAttributeSchrift,
-                X = paintContext.PaintPosX,
-                Y = paintContext.PaintPosY + attributeMarginY + attributeInnerMarginY + 1,
-                Font = _xmlEditor.EditorConfig.NodeAttributeFont
-            });
+                // draw a frame around the attributes
+                zeichneRahmenNachGroesse(GfxJob.Layers.AttributeBackground,
+                    paintContext.PaintPosX, paintContext.PaintPosY + attributeMarginY,
+                    attributeBreite, attributeHeight, 2,
+                  _farbeAttributeHintergrund, _farbeAttributeRand, gfx);
+
+                // Draw attributes
+                gfx.AddJob(new JobDrawString
+                {
+                    Batchable = false,
+                    Layer = GfxJob.Layers.Text,
+                    Text = attributeString.ToString(),
+                    Color = _farbeAttributeSchrift,
+                    X = paintContext.PaintPosX,
+                    Y = paintContext.PaintPosY + attributeMarginY + attributeInnerMarginY + 1,
+                    Font = xmlEditor.EditorConfig.NodeAttributeFont
+                });
+            }
 
             // Set character cursor behind the attributes
             paintContext.PaintPosX += attributeBreite + innerMarginX;
         }
 
-        protected async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
+        protected async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx, bool justCalculate)
         {
             // Falls der Cursor hinter dem letzten Child dieses Nodes steht, dann
             // den Cursor auch dahin zeichnen
@@ -340,15 +349,15 @@ namespace de.springwald.xml.editor
             //	e.Graphics.DrawLine (new Pen(Color.Black,1),_paintPos.PosX, _paintPos.PosY+2 ,_paintPos.PosX, _paintPos.PosY + 2 +_drawFontNodeName.Height);
             //}
 
-            if (_xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
+            if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
                 // Die Breite vorausberechnen
-                int schriftBreite = (int)(await gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, _xmlEditor.EditorConfig.NodeNameFont));
+                int schriftBreite = (int)(await gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, xmlEditor.EditorConfig.NodeNameFont));
 
                 var esteemedWidth = schriftBreite + innerMarginX * 3;
                 if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight && paintContext.PaintPosX != paintContext.LimitLeft)
                 {
-                    paintContext.PaintPosX = paintContext.LimitLeft + _xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
+                    paintContext.PaintPosX = paintContext.LimitLeft + xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
                     paintContext.PaintPosY += paintContext.HoeheAktZeile;
                 }
 
@@ -356,36 +365,45 @@ namespace de.springwald.xml.editor
 
                 // vor dem Noderahmen einen Pfeil nach links zeichnen
                 // Pfeil nach links
-                Point point1 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + this.Config.InnerMarginY);
-                Point point2 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + this.Config.TagHeight - this.Config.InnerMarginY);
-                Point point3 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + this.Config.TagHeight / 2);
-                gfx.AddJob(new JobDrawPolygon
+                if (!justCalculate)
                 {
-                    Batchable = true,
-                    Layer = GfxJob.Layers.TagBorder,
-                    FillColor = _farbeRahmenRand,
-                    Points = new[] { point1, point2, point3 }
-                });
+                    Point point1 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + this.Config.InnerMarginY);
+                    Point point2 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + this.Config.TagHeight - this.Config.InnerMarginY);
+                    Point point3 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + this.Config.TagHeight / 2);
+                    gfx.AddJob(new JobDrawPolygon
+                    {
+                        Batchable = true,
+                        Layer = GfxJob.Layers.TagBorder,
+                        FillColor = _farbeRahmenRand,
+                        Points = new[] { point1, point2, point3 }
+                    });
+                }
 
                 // Den rechten Pfeilbereich merken
                 _pfeilBereichRechts = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, this.Config.TagHeight);
                 paintContext.PaintPosX += innerMarginX + 1; // Zeichnungscursor hinter den Pfeil setzen
 
                 // ## RAHMEN für schließenden Node  zeichnen ###
-                zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+                if (!justCalculate)
+                {
+                    zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+                }
                 paintContext.PaintPosX += innerMarginX; // Abstand zwischen Rahmen und Schrift
 
-                // ## Name für schließenden Node zeichnen ###
-                gfx.AddJob(new JobDrawString
+                if (!justCalculate)
                 {
-                    Batchable = false,
-                    Layer = GfxJob.Layers.Text,
-                    Text = this.XMLNode.Name,
-                    Color = _farbeNodeNameSchrift,
-                    X = paintContext.PaintPosX,
-                    Y = paintContext.PaintPosY + this.Config.InnerMarginY,
-                    Font = _xmlEditor.EditorConfig.NodeNameFont
-                });
+                    // ## Name für schließenden Node zeichnen ###
+                    gfx.AddJob(new JobDrawString
+                    {
+                        Batchable = false,
+                        Layer = GfxJob.Layers.Text,
+                        Text = this.XMLNode.Name,
+                        Color = _farbeNodeNameSchrift,
+                        X = paintContext.PaintPosX,
+                        Y = paintContext.PaintPosY + this.Config.InnerMarginY,
+                        Font = xmlEditor.EditorConfig.NodeNameFont
+                    });
+                }
 
                 paintContext.PaintPosX += schriftBreite + innerMarginX; // Distance between font and frame
 
@@ -397,11 +415,14 @@ namespace de.springwald.xml.editor
                 this._klickBereiche = this._klickBereiche.Append(_tagBereichRechts).ToArray(); // original:  _klickBereiche.Add(_tagBereichRechts);
 
                 // If the cursor is behind the node, then also draw the cursor there
-                if (_xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+                if (!justCalculate)
                 {
-                    if (_xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
+                    if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
                     {
-                        this._cursorStrichPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
+                        if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
+                        {
+                            this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
+                        }
                     }
                 }
                 paintContext.BisherMaxX = System.Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
@@ -416,7 +437,7 @@ namespace de.springwald.xml.editor
         private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
         {
             if (string.IsNullOrEmpty(attributeString)) return 0;
-            return (int)await gfx.MeasureDisplayStringWidthAsync(attributeString, this._xmlEditor.EditorConfig.NodeAttributeFont);
+            return (int)await gfx.MeasureDisplayStringWidthAsync(attributeString, this.xmlEditor.EditorConfig.NodeAttributeFont);
         }
 
         private string GetAttributeString()
@@ -492,13 +513,13 @@ namespace de.springwald.xml.editor
                 if (this.XMLNode.ChildNodes.Count > 0) // Children vorhanden
                 {
                     // vor das erste Child setzen
-                    await _xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.FirstChild, XMLCursorPositionen.CursorVorDemNode, aktion);
+                    await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.FirstChild, XMLCursorPositionen.CursorVorDemNode, aktion);
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
-                    await _xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInDemLeeremNode, aktion);
+                    await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInDemLeeremNode, aktion);
                     return;
                 }
             }
@@ -508,26 +529,26 @@ namespace de.springwald.xml.editor
                 if (this.XMLNode.ChildNodes.Count > 0) // Children vorhanden
                 {
                     // vor das erste Child setzen
-                    await _xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.LastChild, XMLCursorPositionen.CursorHinterDemNode, aktion);
+                    await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.LastChild, XMLCursorPositionen.CursorHinterDemNode, aktion);
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
-                    await _xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInDemLeeremNode, aktion);
+                    await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInDemLeeremNode, aktion);
                     return;
                 }
             }
 
             if (_tagBereichLinks.Contains(point)) // er wurde auf das linke Tag geklickt
             {
-                await _xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
+                await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
                 return;
             }
 
             if (_tagBereichRechts.Contains(point)) // er wurde auf das rechte Tag geklickt
             {
-                await _xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstHinteresTag, aktion);
+                await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstHinteresTag, aktion);
                 return;
             }
             await base.WurdeAngeklickt(point, aktion); // Nicht auf Pfeil geklickt, dann Event weiterreichen an Base-Klasse
@@ -538,10 +559,10 @@ namespace de.springwald.xml.editor
         /// </summary>
         private void DefineColors()
         {
-            if (this._xmlEditor.EditorStatus.CursorOptimiert.IstNodeInnerhalbDerSelektion(this.XMLNode))
+            if (this.xmlEditor.EditorStatus.CursorOptimiert.IstNodeInnerhalbDerSelektion(this.XMLNode))
             {
                 // Selektiert
-                _farbeRahmenHintergrund = _xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode, true);
+                _farbeRahmenHintergrund = xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode, true);
                 _farbeNodeNameSchrift = Color.White;
                 _farbeAttributeHintergrund = Color.Transparent;
                 _farbeAttributeSchrift = Color.White;
@@ -549,7 +570,7 @@ namespace de.springwald.xml.editor
             else
             {
                 // nicht selektiert
-                _farbeRahmenHintergrund = _xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode, false);
+                _farbeRahmenHintergrund = xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode, false);
                 _farbeNodeNameSchrift = Color.Black;
                 _farbeAttributeHintergrund = Color.White;// Color.FromArgb(225, 225, 225);
                 _farbeAttributeSchrift = Color.Black;

@@ -6,7 +6,8 @@ using de.springwald.xml.editor.nativeplatform.gfx;
 //using Excubo.Blazor.Canvas;
 using System.Threading.Tasks;
 
-namespace de.springwald.xml.blazor.NativePlatform { 
+namespace de.springwald.xml.blazor.NativePlatform
+{
     public class BlazorNativePlatform : INativePlatform
     {
         public IClipboard Clipboard { get; }
@@ -47,6 +48,9 @@ namespace de.springwald.xml.blazor.NativePlatform {
 
         }
 
-        public async  Task SetSize(int width, int height) {  await  this.Gfx.SetSize(width, height); }
+        public async Task SetSize(int width, int height)
+        {
+            await this.Gfx.SetSize(width, height);
+        }
     }
 }
