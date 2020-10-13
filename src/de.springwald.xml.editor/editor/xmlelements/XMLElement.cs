@@ -39,6 +39,9 @@ namespace de.springwald.xml.editor
         protected Point _cursorStrichPos;   // dort wird der Cursor in diesem Node gezeichnet, wenn es der aktuell  Node ist
 
         protected XMLEditor _xmlEditor;
+
+        protected EditorConfig Config { get; }
+
         protected ArrayList _childElemente = new ArrayList();           // Die ChildElemente in diesem Steuerelement
 
         protected Rectangle[] _klickBereiche = new Rectangle[] { }; // Die von diesem Element klickbaren Bereiche z.B. für Mausklicktests etc.
@@ -50,8 +53,6 @@ namespace de.springwald.xml.editor
 
         //public de.springwald.xml.editor.XMLEditorPaintPos PaintPos { get; set; }
 
-        public abstract int LineHeight { get; }
-
         /// <summary>
         /// Konstruktor des xmlElementes
         /// </summary>
@@ -60,7 +61,9 @@ namespace de.springwald.xml.editor
         public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) //, de.springwald.xml.XMLEditorPaintPos paintPos)
         {
             this.XMLNode = xmlNode;
-            _xmlEditor = xmlEditor;
+            this._xmlEditor = xmlEditor;
+            this.Config = xmlEditor.EditorConfig;
+
 
             _xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
             _xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
@@ -102,7 +105,6 @@ namespace de.springwald.xml.editor
 
                 case PaintModes.OnlyWhenNotChanged:
                     throw new NotImplementedException();
-                    break;
             }
 
             _cursorStrichPos = null; // new Point(paintContext.PaintPosX, paintContext.PaintPosY);

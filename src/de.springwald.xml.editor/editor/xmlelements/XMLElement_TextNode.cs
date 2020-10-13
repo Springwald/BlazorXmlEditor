@@ -110,8 +110,6 @@ namespace de.springwald.xml.editor
         /// </summary>
         public char[] ZeichenZumAusruecken { get; set; }
 
-        public override int LineHeight => this._xmlEditor.EditorConfig.TextNodeFont.Height;
-
         public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
             FarbenSetzen(); // Farben bereitstellen

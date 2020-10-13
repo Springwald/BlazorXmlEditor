@@ -37,22 +37,16 @@ namespace de.springwald.xml.editor
 
         private const int _rundung = 3;             // Diese Rundung hat der Rahmen
 
-        private int innerMarginX => (this._xmlEditor.EditorConfig.NodeNameFont.Height) / 2;
+        private int innerMarginX => (this.Config.NodeNameFont.Height) / 2;
 
-        private int innerMarginY => Math.Max(1, this._xmlEditor.EditorConfig.NodeNameFont.Height / 3);
+        private int attributeMarginY => (this.Config.TagHeight - attributeHeight - attributeInnerMarginY) / 2;
 
-        private int tagHeight => this._xmlEditor.EditorConfig.NodeNameFont.Height + innerMarginY * 2;
-
-        private int attributeMarginY => (tagHeight - attributeHeight - attributeInnerMarginY) / 2;
-
-        private int attributeInnerMarginY => Math.Max(1, (this._xmlEditor.EditorConfig.NodeNameFont.Height - this._xmlEditor.EditorConfig.NodeAttributeFont.Height) / 2);
-        private int attributeHeight => this._xmlEditor.EditorConfig.NodeAttributeFont.Height + attributeInnerMarginY * 2;
+        private int attributeInnerMarginY => Math.Max(1, (this.Config.NodeNameFont.Height - this.Config.NodeAttributeFont.Height) / 2);
+        private int attributeHeight => this.Config.NodeAttributeFont.Height + attributeInnerMarginY * 2;
 
         protected override object PaintedValue => null;
 
         protected override string PaintedAttributes => GetAttributeString();
-
-        public override int LineHeight => tagHeight;
 
         public XMLElement_StandardNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
@@ -129,9 +123,9 @@ namespace de.springwald.xml.editor
                             Batchable = true,
                             Color = Color.LightGray,
                             X1 = paintContext.LimitLeft,
-                            Y1 = paintContext.PaintPosY + this.LineHeight / 2,
+                            Y1 = paintContext.PaintPosY + this.Config.MinLineHeight / 2,
                             X2 = paintContext.LimitLeft,
-                            Y2 = childPaintContext.PaintPosY + childElement.LineHeight / 2
+                            Y2 = childPaintContext.PaintPosY + this.Config.MinLineHeight / 2
                         });
 
                         // Linie nach rechts mit Pfeil auf ChildElement
@@ -141,9 +135,9 @@ namespace de.springwald.xml.editor
                             Batchable = true,
                             Color = Color.LightGray,
                             X1 = paintContext.LimitLeft,
-                            Y1 = childPaintContext.PaintPosY + childElement.LineHeight / 2,
+                            Y1 = childPaintContext.PaintPosY + this.Config.MinLineHeight / 2,
                             X2 = childPaintContext.LimitLeft,
-                            Y2 = childPaintContext.PaintPosY + childElement.LineHeight / 2
+                            Y2 = childPaintContext.PaintPosY + this.Config.MinLineHeight / 2
                         });
 
                         childPaintContext = await childElement.Paint(childPaintContext, gfx, paintMode);
@@ -226,7 +220,7 @@ namespace de.springwald.xml.editor
                 + (attributeTextWidth == 0 ? 0 : innerMarginX + attributeTextWidth) // attributes
                 + innerMarginX; // margin to right border
 
-            zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, startX, paintContext.PaintPosY, borderWidth, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+            zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, startX, paintContext.PaintPosY, borderWidth, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
 
             paintContext.PaintPosX += innerMarginX;  // margin to left border
 
@@ -238,7 +232,7 @@ namespace de.springwald.xml.editor
                 Text = this.XMLNode.Name,
                 Color = _farbeNodeNameSchrift,
                 X = paintContext.PaintPosX,
-                Y = paintContext.PaintPosY + innerMarginY,
+                Y = paintContext.PaintPosY + this.Config.InnerMarginY,
                 Font = _xmlEditor.EditorConfig.NodeNameFont
             });
 
@@ -253,9 +247,9 @@ namespace de.springwald.xml.editor
             // if necessary draw the continuing arrow at the end of the frame 
             if (_xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
-                var point1 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + innerMarginY);
-                var point2 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + tagHeight / 2);
-                var point3 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + tagHeight - innerMarginY);
+                var point1 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + this.Config.InnerMarginY);
+                var point2 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + this.Config.TagHeight / 2);
+                var point3 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + this.Config.TagHeight - this.Config.InnerMarginY);
                 gfx.AddJob(new JobDrawPolygon
                 {
                     Batchable = true,
@@ -265,7 +259,7 @@ namespace de.springwald.xml.editor
                 });
 
                 // Remember the right arrow area
-                _pfeilBereichLinks = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, tagHeight);
+                _pfeilBereichLinks = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, this.Config.TagHeight);
                 paintContext.PaintPosX += innerMarginX;
             }
             else
@@ -283,10 +277,10 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, tagHeight); // See how high the current line is
+            paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, this.Config.TagHeight); // See how high the current line is
 
             // Remember where the mouse areas are
-            _tagBereichLinks = new Rectangle(startX, startY, paintContext.PaintPosX - startX, tagHeight);
+            _tagBereichLinks = new Rectangle(startX, startY, paintContext.PaintPosX - startX, this.Config.TagHeight);
 
             this._klickBereiche = this._klickBereiche.Append(_tagBereichLinks).ToArray();
 
@@ -362,9 +356,9 @@ namespace de.springwald.xml.editor
 
                 // vor dem Noderahmen einen Pfeil nach links zeichnen
                 // Pfeil nach links
-                Point point1 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + innerMarginY);
-                Point point2 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + tagHeight - innerMarginY);
-                Point point3 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + tagHeight / 2);
+                Point point1 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + this.Config.InnerMarginY);
+                Point point2 = new Point(paintContext.PaintPosX + innerMarginX, paintContext.PaintPosY + this.Config.TagHeight - this.Config.InnerMarginY);
+                Point point3 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + this.Config.TagHeight / 2);
                 gfx.AddJob(new JobDrawPolygon
                 {
                     Batchable = true,
@@ -374,11 +368,11 @@ namespace de.springwald.xml.editor
                 });
 
                 // Den rechten Pfeilbereich merken
-                _pfeilBereichRechts = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, tagHeight);
+                _pfeilBereichRechts = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, this.Config.TagHeight);
                 paintContext.PaintPosX += innerMarginX + 1; // Zeichnungscursor hinter den Pfeil setzen
 
                 // ## RAHMEN für schließenden Node  zeichnen ###
-                zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, tagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+                zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
                 paintContext.PaintPosX += innerMarginX; // Abstand zwischen Rahmen und Schrift
 
                 // ## Name für schließenden Node zeichnen ###
@@ -389,7 +383,7 @@ namespace de.springwald.xml.editor
                     Text = this.XMLNode.Name,
                     Color = _farbeNodeNameSchrift,
                     X = paintContext.PaintPosX,
-                    Y = paintContext.PaintPosY + innerMarginY,
+                    Y = paintContext.PaintPosY + this.Config.InnerMarginY,
                     Font = _xmlEditor.EditorConfig.NodeNameFont
                 });
 
@@ -399,7 +393,7 @@ namespace de.springwald.xml.editor
                 paintContext.PaintPosX++;
 
                 // Remember where the mouse areas are
-                _tagBereichRechts = new Rectangle(startX, paintContext.PaintPosY, paintContext.PaintPosX - startX, tagHeight);
+                _tagBereichRechts = new Rectangle(startX, paintContext.PaintPosY, paintContext.PaintPosX - startX, this.Config.TagHeight);
                 this._klickBereiche = this._klickBereiche.Append(_tagBereichRechts).ToArray(); // original:  _klickBereiche.Add(_tagBereichRechts);
 
                 // If the cursor is behind the node, then also draw the cursor there

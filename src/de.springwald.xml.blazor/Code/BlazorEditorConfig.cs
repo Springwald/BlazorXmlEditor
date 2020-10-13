@@ -6,13 +6,13 @@ using System.Text;
 
 namespace de.springwald.xml.blazor
 {
-    public class EditorConfig : IEditorConfig
+    public class BlazorEditorConfig : EditorConfig
     {
         private Font textNodeFont;
 
-        public Font NodeNameFont { get; set; }
-        public Font NodeAttributeFont { get; set; }
-        public Font TextNodeFont
+        public override Font NodeNameFont { get; set; }
+        public override Font NodeAttributeFont { get; set; }
+        public override Font TextNodeFont
         {
             get => this.textNodeFont; set
             {

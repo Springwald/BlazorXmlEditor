@@ -24,7 +24,7 @@ namespace de.springwald.xml.editor
         internal KeyboardHandler KeyboardHandler { get; }
 
         public EditorActions EditorActions { get; }
-        public IEditorConfig EditorConfig { get; }
+        public EditorConfig EditorConfig { get; }
         public INativePlatform NativePlatform { get; }
         public EditorStatus EditorStatus { get; }
 
@@ -39,7 +39,7 @@ namespace de.springwald.xml.editor
         /// <param name="regelwerk">Das Regelwerk zur Darstellung des XMLs</param>
         /// <param name="zeichnungsSteuerelement">Das Usercontrol, auf welchem der Editor gezeichnet werden soll</param>
         /// <param name="rootNode">Dies ist der oberste, zu bearbeitende Node. Höher darf nicht bearbeitet werden, selbst wenn im DOM Parents vorhanden sind</param>
-        public XMLEditor(XMLRegelwerk regelwerk, INativePlatform nativePlatform, IEditorConfig editorConfig)
+        public XMLEditor(XMLRegelwerk regelwerk, INativePlatform nativePlatform, EditorConfig editorConfig)
         {
             this.EditorConfig = editorConfig;
             this.NativePlatform = nativePlatform;
