@@ -115,16 +115,19 @@ namespace de.springwald.xml.editor
                     break;
             }
 
-            if (toPaint) MausklickBereicheBufferLeeren();
+
             _cursorStrichPos = null; // new Point(paintContext.PaintPosX, paintContext.PaintPosY);
 
             // Alles zeichnen
             this._wirdGeradeGezeichnet = true;
             if (toPaint)
             {
+                this.UnPaint(gfx, paintContext);
+                this.MausklickBereicheBufferLeeren();
                 await NodeZeichnenStart(paintContext, gfx, paintMode);
                 this.lastUnterNodesPaintContext = paintContext;
-            } else
+            }
+            else
             {
                 paintContext = this.lastUnterNodesPaintContext;
             }
@@ -132,13 +135,13 @@ namespace de.springwald.xml.editor
             await UnternodesZeichnen(paintContext, gfx, paintMode);
 
             if (toPaint ||
-                (this.lastNodeZeichnenAbschlussPaintContext == null 
-                || this.lastNodeZeichnenAbschlussPaintContext.PaintPosX != paintContext.PaintPosX 
+                (this.lastNodeZeichnenAbschlussPaintContext == null
+                || this.lastNodeZeichnenAbschlussPaintContext.PaintPosX != paintContext.PaintPosX
                 || this.lastNodeZeichnenAbschlussPaintContext.PaintPosY != paintContext.PaintPosY))
             {
                 this.lastNodeZeichnenAbschlussPaintContext = paintContext;
                 await NodeZeichnenAbschluss(paintContext, gfx, paintMode);
-            } 
+            }
 
             this._wirdGeradeGezeichnet = false;
 
@@ -156,8 +159,6 @@ namespace de.springwald.xml.editor
         /// </summary>
         protected virtual async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
-
-
             await Task.CompletedTask; // to prevent warning because of empty async method
                                       // vermerken, wie hoch die Zeile bisher ist
                                       //this._hoeheAktuelleZeile = 0;
@@ -306,6 +307,25 @@ namespace de.springwald.xml.editor
         {
             this.ZeichneCursorStrich(paintContext, gfx);
             await Task.CompletedTask;
+        }
+
+        private Color[] unPaintColors = new[] { Color.Blue, Color.DarkBlue, Color.Gray, Color.Red, Color.White };
+        private int unPaintColor = 0;
+
+        protected virtual void UnPaint(IGraphics gfx, PaintContext paintContext)
+        {
+            unPaintColor++;
+            if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
+            foreach (Rectangle rechteck in this._klickBereiche)
+            {
+                gfx.AddJob(new JobDrawRectangle
+                {
+                    Layer = paintContext.LayerClearBackground,
+                    Batchable = true,
+                    FillColor = unPaintColors[unPaintColor],
+                    Rectangle = rechteck
+                });
+            }
         }
 
         /// <summary>

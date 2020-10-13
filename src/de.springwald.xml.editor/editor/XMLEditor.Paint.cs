@@ -26,7 +26,7 @@ namespace de.springwald.xml.editor
             if (count > 3)
             {
                 count = 0;
-                this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = Color.Red });
+                // this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = Color.Red });
             }
 
             if (this.EditorStatus.RootElement != null)

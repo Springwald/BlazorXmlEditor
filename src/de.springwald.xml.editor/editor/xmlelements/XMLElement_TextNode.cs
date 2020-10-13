@@ -116,8 +116,6 @@ namespace de.springwald.xml.editor
 
         public override int LineHeight => this._xmlEditor.EditorConfig.TextNodeFont.Height;
 
- 
-
         public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
             FarbenSetzen(); // Farben bereitstellen
@@ -165,18 +163,7 @@ namespace de.springwald.xml.editor
 
             textParts = this.GetTextLinesFromTextParts(textPartsRaw, paintContext, lastFontHeight, lastCalculatedFontWidth).ToArray();
 
-            // Texthintergrund färben
-            //foreach (var part in textParts)
-            //{
-            //    // Hintergrund füllen
-            //    gfx.AddJob(new JobDrawRectangle
-            //    {
-            //        Layer = paintContext.LayerTagBackground,
-            //        Batchable = true,
-            //        FillColor = GetHintergrundFarbe(part.Inverted),
-            //        Rectangle = part.Rectangle
-            //    });
-            //}
+    
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
             int actualTextPartStartPos = 0;
@@ -255,6 +242,23 @@ namespace de.springwald.xml.editor
                 };
                 x += 1 + width;
             }
+        }
+
+        protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
+        {
+            // Texthintergrund färben
+            //foreach (var part in textParts)
+            //{
+            //    // Hintergrund füllen
+            //    gfx.AddJob(new JobDrawRectangle
+            //    {
+            //        Layer = paintContext.LayerTagBackground,
+            //        Batchable = true,
+            //        FillColor = GetHintergrundFarbe(part.Inverted),
+            //        Rectangle = part.Rectangle
+            //    });
+            //}
+            base.UnPaint(gfx, paintContext);
         }
 
         /// <summary>
