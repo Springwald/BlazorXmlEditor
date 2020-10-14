@@ -9,13 +9,12 @@
 
 #define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
+using de.springwald.xml.cursor;
+using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.events;
 using System;
 using System.Collections;
 using System.Threading.Tasks;
-using de.springwald.xml.cursor;
-using de.springwald.xml.editor.editor.xmlelemente;
-using de.springwald.xml.editor.nativeplatform.gfx;
-using de.springwald.xml.events;
 
 namespace de.springwald.xml.editor
 {
@@ -26,20 +25,17 @@ namespace de.springwald.xml.editor
     {
         public enum PaintModes
         {
-            ForcePaint,
-            OnlyWhenChanged,
-            OnlyWhenNotChanged
+            ForcePaintNoUnPaintNeeded,
+            ForcePaintAndUnpaintBefore,
+            OnlyPaintWhenChanged
         }
 
         private bool _disposed = false;
 
         protected Point cursorPaintPos;  // there the cursor is drawn in this node, if it is the current node
         protected XMLEditor xmlEditor;
-
         protected EditorConfig Config { get; }
-
         protected ArrayList _childElemente = new ArrayList();           // Die ChildElemente in diesem Steuerelement
-        protected Rectangle[] _klickBereiche = new Rectangle[] { }; // Die von diesem Element klickbaren Bereiche z.B. für Mausklicktests etc.
 
         /// <summary>
         /// The XMLNode to be displayed with this element
@@ -60,9 +56,10 @@ namespace de.springwald.xml.editor
             this.xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
             this.xmlEditor.XmlElementeAufraeumenEvent += new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
         }
-        protected abstract object PaintedValue { get; }
-        protected abstract string PaintedAttributes { get; }
-        protected XmlElementPaintCacheData lastPaintedData;
+
+        protected abstract bool LastPaintStillUpToDate(PaintContext paintContext);
+
+        protected PaintContext lastPaintedContextAfterContentPaint;
 
         /// <summary>
         /// Draws the XML element on the screen
@@ -73,68 +70,41 @@ namespace de.springwald.xml.editor
             if (this.XMLNode == null) return paintContext;
             if (this.xmlEditor == null) return paintContext;
 
-            var paintData = new XmlElementPaintCacheData
-            {
-                PaintPosX = paintContext.PaintPosX,
-                PaintPosY = paintContext.PaintPosY,
-                Attributes = this.PaintedAttributes,
-                Value = this.PaintedValue
-            };
-
-            var justCalculate = false;
             switch (paintMode)
             {
-                case PaintModes.ForcePaint:
-                    justCalculate = false;
+                case PaintModes.ForcePaintNoUnPaintNeeded:
+                    this.lastPaintedContextAfterContentPaint = null;
                     break;
 
-                case PaintModes.OnlyWhenChanged:
-                    justCalculate = !paintData.Changed(this.lastPaintedData);
+                case PaintModes.ForcePaintAndUnpaintBefore:
+                    this.lastPaintedContextAfterContentPaint = null;
+                    this.UnPaint(gfx, paintContext);
                     break;
 
-                case PaintModes.OnlyWhenNotChanged:
-                    throw new NotImplementedException();
+                case PaintModes.OnlyPaintWhenChanged:
+                    if (!this.LastPaintStillUpToDate(paintContext))
+                    {
+                        this.lastPaintedContextAfterContentPaint = null;
+                        this.UnPaint(gfx, paintContext);
+                    }
+                    break;
             }
 
-            this.cursorPaintPos = null;
 
-            if (!justCalculate)
-            {
-                this.UnPaint(gfx, paintContext);
-                this.MausklickBereicheBufferLeeren();
-            }
-            
-            paintContext = await PaintNodeContent(paintContext, gfx, paintMode, justCalculate: justCalculate);
+            paintContext = await PaintNodeContent(paintContext, gfx, paintMode);
+            if (this.cursorPaintPos != null) this.PaintCursor(gfx);
 
 #if klickbereicheRotAnzeigen
             KlickbereicheAnzeigen(paintContext, gfx);
 #endif
-            this.lastPaintedData = paintData;
-
-            this.PaintCursor(gfx);
-
             return paintContext;
         }
 
-        protected abstract Task<PaintContext> PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode, bool justCalculate);
+        protected abstract Task<PaintContext> PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode);
 
-        private Color[] unPaintColors = new[] { Color.Blue, Color.DarkBlue, Color.Gray, Color.Red, Color.White };
-        private int unPaintColor = 0;
-        protected virtual void UnPaint(IGraphics gfx,PaintContext paintContext)
-        {
-            unPaintColor++;
-            if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
-            foreach (Rectangle rechteck in this._klickBereiche)
-            {
-                gfx.AddJob(new JobDrawRectangle
-                {
-                    Layer = GfxJob.Layers.ClearBackground,
-                    Batchable = true,
-                    FillColor = unPaintColors[unPaintColor],
-                    Rectangle = rechteck
-                });
-            }
-        }
+        protected abstract void UnPaint(IGraphics gfx, PaintContext paintContext);
+
+        protected abstract bool IsClickPosInsideNode(Point pos);
 
         /// <summary>
         /// Draws the vertical cursor line
@@ -165,27 +135,20 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// draws the mouse clickable areas
         /// </summary>
-        private void KlickbereicheAnzeigen(IGraphics gfx)
-        {
-            foreach (var rechteck in this._klickBereiche)
-            {
-                gfx.AddJob(new JobDrawRectangle
-                {
-                    Layer = GfxJob.Layers.ClickAreas,
-                    Batchable = true,
-                    BorderColor = Color.Red,
-                    Rectangle = rechteck
-                });
-            }
-        }
+        //private void KlickbereicheAnzeigen(IGraphics gfx)
+        //{
+        //    foreach (var rechteck in this._klickBereiche)
+        //    {
+        //        gfx.AddJob(new JobDrawRectangle
+        //        {
+        //            Layer = GfxJob.Layers.ClickAreas,
+        //            Batchable = true,
+        //            BorderColor = Color.Red,
+        //            Rectangle = rechteck
+        //        });
+        //    }
+        //}
 
-        /// <summary>
-        /// empties the buffer of the mouse click areas before calculating to refill
-        /// </summary>
-        private void MausklickBereicheBufferLeeren()
-        {
-            if (_klickBereiche.Length != 0) _klickBereiche = new Rectangle[] { };
-        }
 
         /// <summary>
         /// Der Editor hat darum gebeten, dass alle Elemente, welche nicht mehr verwendet werden, entladen werden
@@ -225,16 +188,13 @@ namespace de.springwald.xml.editor
         /// <param name="e"></param>
         private async Task _xmlEditor_MouseDownEvent(MouseEventArgs e)
         {
-            Point point = new Point(e.X, e.Y);
+            var point = new Point(e.X, e.Y);
 
             // Prüfen, ob der Mausklick überhaupt auf diesem Node geschehen ist
-            foreach (Rectangle rechteck in this._klickBereiche)
+            if (this.IsClickPosInsideNode(point))
             {
-                if (rechteck.Contains(point)) // Wenn der Klick in einem der Mausklickbereiche war
-                {
-                    await WurdeAngeklickt(point, MausKlickAktionen.MouseDown);  // An Mausklick-Methode weitergeben
-                    return;
-                }
+                await WurdeAngeklickt(point, MausKlickAktionen.MouseDown);  // An Mausklick-Methode weitergeben
+                return;
             }
         }
 
@@ -248,13 +208,10 @@ namespace de.springwald.xml.editor
             Point point = new Point(e.X, e.Y);
 
             // Prüfen, ob der MausUpüberhaupt auf diesem Node geschehen ist
-            foreach (Rectangle rechteck in this._klickBereiche)
+            if (this.IsClickPosInsideNode(point))
             {
-                if (rechteck.Contains(point)) // Wenn der Up in einem der Mausklickbereiche war
-                {
-                    await WurdeAngeklickt(point, MausKlickAktionen.MouseUp);  // An MausUp-Methode weitergeben
-                    return;
-                }
+                await WurdeAngeklickt(point, MausKlickAktionen.MouseUp);  // An MausUp-Methode weitergeben
+                return;
             }
         }
 
@@ -268,15 +225,11 @@ namespace de.springwald.xml.editor
             Point point = new Point(e.X, e.Y);
 
             // Prüfen, ob der MausUpüberhaupt auf diesem Node geschehen ist
-            foreach (Rectangle rechteck in this._klickBereiche)
+            if (this.IsClickPosInsideNode(point))
             {
-                if (rechteck.Contains(point)) // Wenn der Up in einem der Mausklickbereiche war
-                {
-                    await WurdeAngeklickt(point, MausKlickAktionen.MouseDownMove);  // An MausUp-Methode weitergeben
-                    return;
-                }
+                await WurdeAngeklickt(point, MausKlickAktionen.MouseDownMove);  // An MausUp-Methode weitergeben
+                return;
             }
-
         }
 
         /// <summary>

@@ -9,6 +9,7 @@
 
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.editor.nativeplatform.gfxobs;
+using System;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
@@ -27,13 +28,13 @@ namespace de.springwald.xml.editor
 
         public async Task Paint(int limitRight)
         {
-            var paintMode = XMLElement.PaintModes.OnlyWhenChanged;
+            var paintMode = XMLElement.PaintModes.OnlyPaintWhenChanged;
 
             if (this.sizeChangedSinceLastPaint)
             {
-                this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = Color.Red });
+                this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = Color.White });
                 this.sizeChangedSinceLastPaint = false;
-                paintMode = XMLElement.PaintModes.ForcePaint;
+                paintMode = XMLElement.PaintModes.ForcePaintNoUnPaintNeeded;
             }
 
             if (this.EditorStatus.RootElement != null)
