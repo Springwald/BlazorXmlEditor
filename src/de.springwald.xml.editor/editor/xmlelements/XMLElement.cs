@@ -170,16 +170,10 @@ namespace de.springwald.xml.editor
             }
         }
 
-
         /// <summary>
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
         /// </summary>
-        /// <param name="point"></param>
-        protected virtual async Task WurdeAngeklickt(Point point, MausKlickAktionen aktion)
-        {
-            await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
-            xmlEditor.CursorBlink.ResetBlinkPhase();
-        }
+        protected abstract Task WurdeAngeklickt(Point point, MausKlickAktionen aktion);
 
         /// <summary>
         /// Ein Mausklick ist eingegangen

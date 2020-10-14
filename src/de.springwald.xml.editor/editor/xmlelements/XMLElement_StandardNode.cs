@@ -540,7 +540,10 @@ namespace de.springwald.xml.editor
                 await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstHinteresTag, aktion);
                 return;
             }
-            await base.WurdeAngeklickt(point, aktion); // Nicht auf Pfeil geklickt, dann Event weiterreichen an Base-Klasse
+
+            // Nicht auf Pfeil geklickt, dann Event weiterreichen an Base-Klasse
+            await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
+            xmlEditor.CursorBlink.ResetBlinkPhase();
         }
 
         /// <summary>

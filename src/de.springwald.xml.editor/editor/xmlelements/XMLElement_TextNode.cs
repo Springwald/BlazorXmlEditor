@@ -98,7 +98,8 @@ namespace de.springwald.xml.editor
 
         protected override bool IsClickPosInsideNode(Point pos)
         {
-            return false;
+            if (this.textParts == null) return false;
+            return this.textParts.Where(t => t.Rectangle.Contains(pos)).Any();
         }
 
         protected override async Task<PaintContext> PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
@@ -166,8 +167,17 @@ namespace de.springwald.xml.editor
                     // Merken, wo im Text wir uns gerade befinden
                     actualTextPartStartPos += part.Text.Length;
 
-                    // für die Klickbereiche merken, wohin dieser Textteil gezeichnet wird 
-                    // this._klickBereiche = this._klickBereiche.Append(new Rectangle(part.Rectangle.X, part.Rectangle.Y, part.Rectangle.Width, paintContext.HoeheAktZeile)).ToArray(); // original:  this._klickBereiche.Add(textTeil.Rechteck);
+                    // draw the inverted background
+                    if (part.Inverted)
+                    {
+                        gfx.AddJob(new JobDrawRectangle
+                        {
+                            Batchable = true,
+                            Layer = GfxJob.Layers.TagBackground,
+                            Rectangle = part.Rectangle,
+                            FillColor = GetHintergrundFarbe(invertiert: true),
+                        });
+                    } 
 
                     // draw the text
                     gfx.AddJob(new JobDrawString
@@ -203,7 +213,7 @@ namespace de.springwald.xml.editor
         private Color[] unPaintColors = new[] { Color.Blue, Color.DarkBlue, Color.Gray, Color.Red, Color.White };
         private int unPaintColor = 0;
 
-        protected override  void UnPaint(IGraphics gfx, PaintContext paintContext)
+        protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
         {
             unPaintColor++;
             if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
