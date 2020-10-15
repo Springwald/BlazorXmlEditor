@@ -30,10 +30,10 @@ namespace de.springwald.xml.editor
         private Color _farbeAttributeRand;
         private Color _farbeAttributeSchrift;
 
-        private Rectangle areaArrowClosingTag;       // Der Klickbereich des linken Pfeiles
+        private Rectangle areaArrowOpenTag;       // Der Klickbereich des linken Pfeiles
         private Rectangle areaArrowStartTag;		// Der Klickbereich des rechten Pfeiles
-        private Rectangle areaClosingTag;         // Der Klickbereich des linken Tags
-        private Rectangle areaStartTag;        // Der Klickbereich des rechten Tags
+        private Rectangle areaStartTag;         // Der Klickbereich des linken Tags
+        private Rectangle areaCloseTag;        // Der Klickbereich des rechten Tags
 
         protected List<XMLElement> childElements = new List<XMLElement>();   // Die ChildElemente in diesem Steuerelement
 
@@ -136,16 +136,15 @@ namespace de.springwald.xml.editor
 
         private void UnPaintNodeStart(IGraphics gfx)
         {
-            return;
             this.ResetLastPaintPosCacheAttributes();
-            this.UnPaintRectangle(gfx,this.areaStartTag);
-            this.UnPaintRectangle(gfx, this.areaArrowStartTag);
+            this.UnPaintRectangle(gfx, this.areaStartTag);
+            this.UnPaintRectangle(gfx, this.areaArrowOpenTag); 
         }
 
         private void UnPaintNodeAbschluss(IGraphics gfx)
         {
-            this.UnPaintRectangle(gfx, this.areaClosingTag);
-            this.UnPaintRectangle(gfx, this.areaArrowClosingTag);
+            this.UnPaintRectangle(gfx, this.areaCloseTag);
+            this.UnPaintRectangle(gfx, this.areaArrowStartTag);
         }
 
         protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
@@ -321,12 +320,12 @@ namespace de.springwald.xml.editor
                 });
 
                 // Remember the right arrow area
-                areaArrowClosingTag = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, this.Config.TagHeight);
+                areaArrowOpenTag = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, this.Config.TagHeight);
                 paintContext.PaintPosX += innerMarginX;
             }
             else
             {
-                areaArrowClosingTag = new Rectangle(0, 0, 0, 0);
+                areaArrowOpenTag = new Rectangle(0, 0, 0, 0);
             }
 
             // If the cursor is inside the empty node, then draw the cursor there
@@ -342,7 +341,7 @@ namespace de.springwald.xml.editor
             paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, this.Config.TagHeight); // See how high the current line is
 
             // Remember where the mouse areas are
-            areaClosingTag = new Rectangle(startX, startY, paintContext.PaintPosX - startX, this.Config.TagHeight);
+            areaStartTag = new Rectangle(startX, startY, paintContext.PaintPosX - startX, this.Config.TagHeight);
 
             // this._klickBereiche = this._klickBereiche.Append(_tagBereichLinks).ToArray();
 
@@ -457,7 +456,7 @@ namespace de.springwald.xml.editor
                 paintContext.PaintPosX++;
 
                 // Remember where the mouse areas are
-                areaStartTag = new Rectangle(startX, paintContext.PaintPosY, paintContext.PaintPosX - startX, this.Config.TagHeight);
+                areaCloseTag = new Rectangle(startX, paintContext.PaintPosY, paintContext.PaintPosX - startX, this.Config.TagHeight);
                 //this._klickBereiche = this._klickBereiche.Append(_tagBereichRechts).ToArray(); // original:  _klickBereiche.Add(_tagBereichRechts);
 
                 // If the cursor is behind the node, then also draw the cursor there
@@ -473,7 +472,7 @@ namespace de.springwald.xml.editor
             else
             {
                 areaArrowStartTag = new Rectangle(0, 0, 0, 0);
-                areaStartTag = new Rectangle(0, 0, 0, 0);
+                areaCloseTag = new Rectangle(0, 0, 0, 0);
             }
             return paintContext;
         }
@@ -551,7 +550,7 @@ namespace de.springwald.xml.editor
         /// <param name="point"></param>
         protected override async Task WurdeAngeklickt(Point point, MausKlickAktionen aktion)
         {
-            if (areaArrowClosingTag.Contains(point)) // es wurde auf den rechten, schließenden Pfeil geklickt
+            if (areaArrowOpenTag.Contains(point)) // es wurde auf den rechten, schließenden Pfeil geklickt
             {
                 if (this.XMLNode.ChildNodes.Count > 0) // Children vorhanden
                 {
@@ -583,13 +582,13 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            if (areaClosingTag.Contains(point)) // er wurde auf das linke Tag geklickt
+            if (areaStartTag.Contains(point)) // er wurde auf das linke Tag geklickt
             {
                 await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
                 return;
             }
 
-            if (areaStartTag.Contains(point)) // er wurde auf das rechte Tag geklickt
+            if (areaCloseTag.Contains(point)) // er wurde auf das rechte Tag geklickt
             {
                 await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstHinteresTag, aktion);
                 return;

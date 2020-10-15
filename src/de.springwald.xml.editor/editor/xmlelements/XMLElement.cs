@@ -177,9 +177,10 @@ namespace de.springwald.xml.editor
                 {
                     Layer = GfxJob.Layers.ClearBackground,
                     Batchable = true,
+                    // FillColor = Color.Red, // debug color
                     FillColor = this.xmlEditor.NativePlatform.ControlElement.BackColor,
                     Rectangle = rectangle
-                });
+                }) ;
             }
         }
 
