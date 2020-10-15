@@ -13,8 +13,6 @@ using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
@@ -37,7 +35,6 @@ namespace de.springwald.xml.editor
         protected XMLEditor xmlEditor;
         protected EditorConfig Config { get; }
   
-
         /// <summary>
         /// The XMLNode to be displayed with this element
         /// </summary>

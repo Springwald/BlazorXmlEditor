@@ -20,7 +20,7 @@ namespace de.springwald.xml.editor
     /// <summary>
     /// Draws a standard node for the editor
     /// </summary>
-    public class XMLElement_StandardNode : XMLElement
+    public partial class XMLElement_StandardNode : XMLElement
     {
         private Color _farbeRahmenHintergrund;
         private Color _farbeRahmenRand;
@@ -46,8 +46,11 @@ namespace de.springwald.xml.editor
         private int attributeInnerMarginY => Math.Max(1, (this.Config.NodeNameFont.Height - this.Config.NodeAttributeFont.Height) / 2);
         private int attributeHeight => this.Config.NodeAttributeFont.Height + attributeInnerMarginY * 2;
 
+
         private int lastPaintNodeAbschlussX;
         private int lastPaintNodeAbschlussY;
+        private PaintContext lastAfterStartNodePaintContext;
+        private PaintContext lastAfterClosingNodePaintContext;
 
         public XMLElement_StandardNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
@@ -65,7 +68,22 @@ namespace de.springwald.xml.editor
 
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
-            paintContext = await this.NodeZeichnenStart(paintContext, gfx);
+            this.DefineColors();
+            this.CreateChildElementsIfNeeded();
+
+            var lastPaintStillUpToDate = this.LastPaintStillUpToDate(paintContext);
+            this.SaveLastPaintPosCacheAttributes(paintContext);
+
+            if (lastPaintStillUpToDate && this.lastAfterStartNodePaintContext != null)
+            {
+                paintContext = lastAfterStartNodePaintContext.Clone();
+            } 
+            else
+            {
+                paintContext = await this.NodeZeichnenStart(paintContext, gfx);
+                this.lastAfterStartNodePaintContext = paintContext.Clone();
+            }
+
             paintContext = await this.PaintSubNodes(paintContext, gfx, paintMode);
 
             if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
@@ -88,11 +106,14 @@ namespace de.springwald.xml.editor
                             lastPaintNodeAbschlussX = paintContext.PaintPosX;
                             lastPaintNodeAbschlussY = paintContext.PaintPosY;
                             paintContext = await this.NodeZeichnenAbschluss(paintContext, gfx);
+                            this.lastAfterClosingNodePaintContext = paintContext.Clone();
+                        } else
+                        {
+                            paintContext = this.lastAfterClosingNodePaintContext;
                         }
                         break;
                 }
             }
-            
             return paintContext.Clone();
         }
 
@@ -101,10 +122,6 @@ namespace de.springwald.xml.editor
             return false;
         }
 
-        protected override bool LastPaintStillUpToDate(PaintContext paintContext)
-        {
-            return false;
-        }
 
         protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
         {
@@ -130,10 +147,8 @@ namespace de.springwald.xml.editor
                 throw new ApplicationException("UnternodesZeichnen:XMLNode ist leer");
             }
 
-            this.CreateChildElementsIfNeeded();
-
             var childPaintContext = paintContext.Clone();
-            childPaintContext.LimitLeft+= xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
+            childPaintContext.LimitLeft = paintContext.LimitLeft + xmlEditor.EditorStatus.Regelwerk.ChildEinrueckungX;
 
             for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
             {
@@ -154,28 +169,34 @@ namespace de.springwald.xml.editor
                                                              // X-Cursor auf den Start der neuen Zeile setzen
                                                              // Linie nach unten und dann nach rechts ins ChildElement
                                                              // Linie nach unten
-                        gfx.AddJob(new JobDrawLine
-                        {
-                            Layer = GfxJob.Layers.TagBorder,
-                            Batchable = true,
-                            Color = Color.LightGray,
-                            X1 = paintContext.LimitLeft,
-                            Y1 = paintContext.PaintPosY + this.Config.MinLineHeight / 2,
-                            X2 = paintContext.LimitLeft,
-                            Y2 = childPaintContext.PaintPosY + this.Config.MinLineHeight / 2
-                        });
 
-                        // Linie nach rechts mit Pfeil auf ChildElement
-                        gfx.AddJob(new JobDrawLine
+                        const bool paintLines = false;
+
+                        if (paintLines)
                         {
-                            Layer = GfxJob.Layers.TagBorder,
-                            Batchable = true,
-                            Color = Color.LightGray,
-                            X1 = paintContext.LimitLeft,
-                            Y1 = childPaintContext.PaintPosY + this.Config.MinLineHeight / 2,
-                            X2 = childPaintContext.LimitLeft,
-                            Y2 = childPaintContext.PaintPosY + this.Config.MinLineHeight / 2
-                        });
+                            gfx.AddJob(new JobDrawLine
+                            {
+                                Layer = GfxJob.Layers.TagBorder,
+                                Batchable = true,
+                                Color = Color.LightGray,
+                                X1 = paintContext.LimitLeft,
+                                Y1 = paintContext.PaintPosY + this.Config.MinLineHeight / 2,
+                                X2 = paintContext.LimitLeft,
+                                Y2 = childPaintContext.PaintPosY + this.Config.MinLineHeight / 2
+                            });
+
+                            // Linie nach rechts mit Pfeil auf ChildElement
+                            gfx.AddJob(new JobDrawLine
+                            {
+                                Layer = GfxJob.Layers.TagBorder,
+                                Batchable = true,
+                                Color = Color.LightGray,
+                                X1 = paintContext.LimitLeft,
+                                Y1 = childPaintContext.PaintPosY + this.Config.MinLineHeight / 2,
+                                X2 = childPaintContext.LimitLeft,
+                                Y2 = childPaintContext.PaintPosY + this.Config.MinLineHeight / 2
+                            });
+                        }
 
                         childPaintContext = await childElement.Paint(childPaintContext, gfx, paintMode);
                         break;
@@ -221,36 +242,7 @@ namespace de.springwald.xml.editor
             return paintContext;
         }
 
-        private void CreateChildElementsIfNeeded()
-        {
-            // Alle Child-Controls anzeigen und ggf. vorher anlegen
-            for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
-            {
-                if (childLauf >= childElements.Count)
-                {   // Wenn noch nicht so viele ChildControls angelegt sind, wie
-                    // es ChildXMLNodes gibt
-                    var childElement = this.xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
-                    childElements.Add(childElement);
-                }
-                else
-                {   // es gibt schon ein Control an dieser Stelle
-                    var childElement = (XMLElement)childElements[childLauf];
-
-                    if (childElement == null)
-                    {
-                        throw new ApplicationException($"UnternodesZeichnen:childElement ist leer: outerxml:{this.XMLNode.OuterXml} >> innerxml {this.XMLNode.InnerXml}");
-                    }
-
-                    // prüfen, ob es auch den selben XML-Node vertritt
-                    if (childElement.XMLNode != this.XMLNode.ChildNodes[childLauf])
-                    {   // Das ChildControl enthält nicht den selben ChildNode, also 
-                        // löschen und neu machen
-                        childElement.Dispose(); // altes Löschen
-                        childElements[childLauf] = this.xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
-                    }
-                }
-            }
-        }
+     
 
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
@@ -270,8 +262,6 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            this.DefineColors();
-
             // ### Write the name of the node ###
 
             // Pre-calculate the width of the node name
@@ -279,6 +269,7 @@ namespace de.springwald.xml.editor
 
             // Pre-calculate the width of the attribute string
             var attributeString = this.GetAttributeString();
+            this.lastAttributeString = attributeString;
             var attributeTextWidth = await this.GetAttributeTextWidth(attributeString, gfx);
 
             // draw tag start border
@@ -640,6 +631,37 @@ namespace de.springwald.xml.editor
             //        _farbeRahmenRand = Color.Red;
             //    }
             //}
+        }
+
+        private void CreateChildElementsIfNeeded()
+        {
+            // Alle Child-Controls anzeigen und ggf. vorher anlegen
+            for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
+            {
+                if (childLauf >= childElements.Count)
+                {   // Wenn noch nicht so viele ChildControls angelegt sind, wie
+                    // es ChildXMLNodes gibt
+                    var childElement = this.xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
+                    childElements.Add(childElement);
+                }
+                else
+                {   // es gibt schon ein Control an dieser Stelle
+                    var childElement = (XMLElement)childElements[childLauf];
+
+                    if (childElement == null)
+                    {
+                        throw new ApplicationException($"UnternodesZeichnen:childElement ist leer: outerxml:{this.XMLNode.OuterXml} >> innerxml {this.XMLNode.InnerXml}");
+                    }
+
+                    // prüfen, ob es auch den selben XML-Node vertritt
+                    if (childElement.XMLNode != this.XMLNode.ChildNodes[childLauf])
+                    {   // Das ChildControl enthält nicht den selben ChildNode, also 
+                        // löschen und neu machen
+                        childElement.Dispose(); // altes Löschen
+                        childElements[childLauf] = this.xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
+                    }
+                }
+            }
         }
 
 

@@ -204,8 +204,7 @@ namespace de.springwald.xml.editor
                     }
                 }
 
-                paintContext = paintContext.Clone();
-                this.lastPaintedContextAfterContentPaint = paintContext;
+                this.lastPaintedContextAfterContentPaint = paintContext.Clone();
                 return paintContext.Clone();
             }
         }
