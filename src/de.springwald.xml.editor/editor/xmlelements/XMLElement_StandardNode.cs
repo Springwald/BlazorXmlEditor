@@ -30,10 +30,10 @@ namespace de.springwald.xml.editor
         private Color _farbeAttributeRand;
         private Color _farbeAttributeSchrift;
 
-        private Rectangle _pfeilBereichLinks;       // Der Klickbereich des linken Pfeiles
-        private Rectangle _pfeilBereichRechts;		// Der Klickbereich des rechten Pfeiles
-        private Rectangle _tagBereichLinks;         // Der Klickbereich des linken Tags
-        private Rectangle _tagBereichRechts;        // Der Klickbereich des rechten Tags
+        private Rectangle areaArrowClosingTag;       // Der Klickbereich des linken Pfeiles
+        private Rectangle areaArrowStartTag;		// Der Klickbereich des rechten Pfeiles
+        private Rectangle areaClosingTag;         // Der Klickbereich des linken Tags
+        private Rectangle areaStartTag;        // Der Klickbereich des rechten Tags
 
         private const int _rundung = 3;             // Diese Rundung hat der Rahmen
 
@@ -48,11 +48,37 @@ namespace de.springwald.xml.editor
         {
         }
 
+        private int lastPaintNodeAbschlussX;
+        private int lastPaintNodeAbschlussY;
+
         protected override async Task<PaintContext> PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
-            await this.NodeZeichnenStart(paintContext, gfx);
-            await this.PaintSubNodes(paintContext, gfx, paintMode);
-            await this.NodeZeichnenAbschluss(paintContext, gfx);
+            paintContext =  await this.NodeZeichnenStart(paintContext, gfx);
+            paintContext = await this.PaintSubNodes(paintContext, gfx, paintMode);
+
+            if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
+            {
+                switch (paintMode)
+                {
+                    case PaintModes.ForcePaintNoUnPaintNeeded:
+                        paintContext = await this.NodeZeichnenAbschluss(paintContext, gfx);
+                        break;
+
+                    case PaintModes.ForcePaintAndUnpaintBefore:
+                        this.UnPaintNodeAbschluss();
+                        paintContext = await this.NodeZeichnenAbschluss(paintContext, gfx);
+                        break;
+
+                    case PaintModes.OnlyPaintWhenChanged:
+                        if (lastPaintNodeAbschlussX != paintContext.PaintPosX || lastPaintNodeAbschlussY != paintContext.PaintPosY)
+                        {
+                            this.UnPaintNodeAbschluss();
+                            paintContext = await this.NodeZeichnenAbschluss(paintContext, gfx);
+                        }
+                        break;
+                }
+            }
+
             return paintContext.Clone();
         }
 
@@ -68,9 +94,24 @@ namespace de.springwald.xml.editor
 
         protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
         {
+            this.UnPaintNodeStart();
+            if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
+            {
+                this.UnPaintNodeAbschluss();
+            }
         }
 
-        protected async Task PaintSubNodes(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        private void UnPaintNodeAbschluss()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void UnPaintNodeStart()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             // es handelt sich um keinen Textnode
             XMLElement childElement;            // Das zu zeichnende XML-Child
@@ -191,13 +232,16 @@ namespace de.springwald.xml.editor
 
                 paintContext.PaintPosX = childPaintContext.PaintPosX;
                 paintContext.PaintPosY = childPaintContext.PaintPosY;
+
+                return paintContext;
             }
+            return paintContext;
         }
 
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected async Task NodeZeichnenStart(PaintContext paintContext, IGraphics gfx)
+        protected async Task<PaintContext> NodeZeichnenStart(PaintContext paintContext, IGraphics gfx)
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
@@ -269,12 +313,12 @@ namespace de.springwald.xml.editor
                 });
 
                 // Remember the right arrow area
-                _pfeilBereichLinks = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, this.Config.TagHeight);
+                areaArrowClosingTag = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, this.Config.TagHeight);
                 paintContext.PaintPosX += innerMarginX;
             }
             else
             {
-                _pfeilBereichLinks = new Rectangle(0, 0, 0, 0);
+                areaArrowClosingTag = new Rectangle(0, 0, 0, 0);
             }
 
             // If the cursor is inside the empty node, then draw the cursor there
@@ -290,7 +334,7 @@ namespace de.springwald.xml.editor
             paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, this.Config.TagHeight); // See how high the current line is
 
             // Remember where the mouse areas are
-            _tagBereichLinks = new Rectangle(startX, startY, paintContext.PaintPosX - startX, this.Config.TagHeight);
+            areaClosingTag = new Rectangle(startX, startY, paintContext.PaintPosX - startX, this.Config.TagHeight);
 
             // this._klickBereiche = this._klickBereiche.Append(_tagBereichLinks).ToArray();
 
@@ -308,6 +352,8 @@ namespace de.springwald.xml.editor
                 }
             }
             paintContext.BisherMaxX = System.Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
+
+            return paintContext;
         }
 
         /// <summary>
@@ -341,7 +387,7 @@ namespace de.springwald.xml.editor
             paintContext.PaintPosX += attributeBreite + innerMarginX;
         }
 
-        protected async Task NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
+        protected async Task<PaintContext> NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
         {
             // Falls der Cursor hinter dem letzten Child dieses Nodes steht, dann
             // den Cursor auch dahin zeichnen
@@ -378,7 +424,7 @@ namespace de.springwald.xml.editor
                 });
 
                 // Den rechten Pfeilbereich merken
-                _pfeilBereichRechts = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, this.Config.TagHeight);
+                areaArrowStartTag = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, innerMarginX, this.Config.TagHeight);
                 paintContext.PaintPosX += innerMarginX + 1; // Zeichnungscursor hinter den Pfeil setzen
 
                 // ## RAHMEN für schließenden Node  zeichnen ###
@@ -403,7 +449,7 @@ namespace de.springwald.xml.editor
                 paintContext.PaintPosX++;
 
                 // Remember where the mouse areas are
-                _tagBereichRechts = new Rectangle(startX, paintContext.PaintPosY, paintContext.PaintPosX - startX, this.Config.TagHeight);
+                areaStartTag = new Rectangle(startX, paintContext.PaintPosY, paintContext.PaintPosX - startX, this.Config.TagHeight);
                 //this._klickBereiche = this._klickBereiche.Append(_tagBereichRechts).ToArray(); // original:  _klickBereiche.Add(_tagBereichRechts);
 
                 // If the cursor is behind the node, then also draw the cursor there
@@ -418,11 +464,11 @@ namespace de.springwald.xml.editor
             }
             else
             {
-                _pfeilBereichRechts = new Rectangle(0, 0, 0, 0);
-                _tagBereichRechts = new Rectangle(0, 0, 0, 0);
+                areaArrowStartTag = new Rectangle(0, 0, 0, 0);
+                areaStartTag = new Rectangle(0, 0, 0, 0);
             }
+            return paintContext;
         }
-
         private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
         {
             if (string.IsNullOrEmpty(attributeString)) return 0;
@@ -497,7 +543,7 @@ namespace de.springwald.xml.editor
         /// <param name="point"></param>
         protected override async Task WurdeAngeklickt(Point point, MausKlickAktionen aktion)
         {
-            if (_pfeilBereichLinks.Contains(point)) // es wurde auf den rechten, schließenden Pfeil geklickt
+            if (areaArrowClosingTag.Contains(point)) // es wurde auf den rechten, schließenden Pfeil geklickt
             {
                 if (this.XMLNode.ChildNodes.Count > 0) // Children vorhanden
                 {
@@ -513,7 +559,7 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            if (_pfeilBereichRechts.Contains(point)) // er wurde auf den linken, öffnenden Pfeil geklickt
+            if (areaArrowStartTag.Contains(point)) // er wurde auf den linken, öffnenden Pfeil geklickt
             {
                 if (this.XMLNode.ChildNodes.Count > 0) // Children vorhanden
                 {
@@ -529,13 +575,13 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            if (_tagBereichLinks.Contains(point)) // er wurde auf das linke Tag geklickt
+            if (areaClosingTag.Contains(point)) // er wurde auf das linke Tag geklickt
             {
                 await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
                 return;
             }
 
-            if (_tagBereichRechts.Contains(point)) // er wurde auf das rechte Tag geklickt
+            if (areaStartTag.Contains(point)) // er wurde auf das rechte Tag geklickt
             {
                 await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstHinteresTag, aktion);
                 return;
@@ -582,6 +628,6 @@ namespace de.springwald.xml.editor
             //}
         }
 
-      
+
     }
 }
