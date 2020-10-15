@@ -9,7 +9,6 @@ namespace de.springwald.xml.editor
         private int lastPaintPosY;
         private int lastPaintPosX;
         private int lastPaintLimitRight;
-        private string lastPaintContent;
         private int lastPaintTextFontHeight;
         private string lastAttributeString;
 
@@ -22,6 +21,11 @@ namespace de.springwald.xml.editor
             if (this.lastAttributeString != this.GetAttributeString()) return false;
             if (this.Config.TextNodeFont.Height != this.lastPaintTextFontHeight) return false;
             return true;
+        }
+
+        private void ResetLastPaintPosCacheAttributes ()
+        {
+            this.lastPaintPosY = int.MinValue;
         }
 
         private void SaveLastPaintPosCacheAttributes(PaintContext paintContext)

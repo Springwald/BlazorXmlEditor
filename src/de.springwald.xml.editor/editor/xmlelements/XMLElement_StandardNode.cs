@@ -77,7 +77,7 @@ namespace de.springwald.xml.editor
             if (lastPaintStillUpToDate && this.lastAfterStartNodePaintContext != null)
             {
                 paintContext = lastAfterStartNodePaintContext.Clone();
-            } 
+            }
             else
             {
                 paintContext = await this.NodeZeichnenStart(paintContext, gfx);
@@ -95,19 +95,20 @@ namespace de.springwald.xml.editor
                         break;
 
                     case PaintModes.ForcePaintAndUnpaintBefore:
-                        this.UnPaintNodeAbschluss();
+                        this.UnPaintNodeAbschluss(gfx);
                         paintContext = await this.NodeZeichnenAbschluss(paintContext, gfx);
                         break;
 
                     case PaintModes.OnlyPaintWhenChanged:
                         if (lastPaintNodeAbschlussX != paintContext.PaintPosX || lastPaintNodeAbschlussY != paintContext.PaintPosY)
                         {
-                            this.UnPaintNodeAbschluss();
+                            this.UnPaintNodeAbschluss(gfx);
                             lastPaintNodeAbschlussX = paintContext.PaintPosX;
                             lastPaintNodeAbschlussY = paintContext.PaintPosY;
                             paintContext = await this.NodeZeichnenAbschluss(paintContext, gfx);
                             this.lastAfterClosingNodePaintContext = paintContext.Clone();
-                        } else
+                        }
+                        else
                         {
                             paintContext = this.lastAfterClosingNodePaintContext;
                         }
@@ -125,19 +126,26 @@ namespace de.springwald.xml.editor
 
         protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
         {
-            this.UnPaintNodeStart();
+            this.ResetLastPaintPosCacheAttributes();
+            this.UnPaintNodeStart(gfx);
             if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
-                this.UnPaintNodeAbschluss();
+                this.UnPaintNodeAbschluss(gfx);
             }
         }
 
-        private void UnPaintNodeAbschluss()
+        private void UnPaintNodeStart(IGraphics gfx)
         {
+            return;
+            this.ResetLastPaintPosCacheAttributes();
+            this.UnPaintRectangle(gfx,this.areaStartTag);
+            this.UnPaintRectangle(gfx, this.areaArrowStartTag);
         }
 
-        private void UnPaintNodeStart()
+        private void UnPaintNodeAbschluss(IGraphics gfx)
         {
+            this.UnPaintRectangle(gfx, this.areaClosingTag);
+            this.UnPaintRectangle(gfx, this.areaArrowClosingTag);
         }
 
         protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
@@ -169,7 +177,6 @@ namespace de.springwald.xml.editor
                                                              // X-Cursor auf den Start der neuen Zeile setzen
                                                              // Linie nach unten und dann nach rechts ins ChildElement
                                                              // Linie nach unten
-
                         const bool paintLines = false;
 
                         if (paintLines)
@@ -200,7 +207,6 @@ namespace de.springwald.xml.editor
 
                         childPaintContext = await childElement.Paint(childPaintContext, gfx, paintMode);
                         break;
-
 
                     case DarstellungsArten.Fliesselement:
                         // Dieses Child ist ein Fliesselement; es fügt sich in die selbe Zeile
@@ -238,11 +244,8 @@ namespace de.springwald.xml.editor
                 childElements.Remove(childElements[childElements.Count - 1]);
                 deleteChildElement.Dispose();
             }
-
             return paintContext;
         }
-
-     
 
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes

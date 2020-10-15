@@ -32,7 +32,7 @@ namespace de.springwald.xml.editor
 
             if (this.sizeChangedSinceLastPaint)
             {
-                this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = Color.White });
+                this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = this.NativePlatform.ControlElement.BackColor });
                 this.sizeChangedSinceLastPaint = false;
                 paintMode = XMLElement.PaintModes.ForcePaintNoUnPaintNeeded;
             }

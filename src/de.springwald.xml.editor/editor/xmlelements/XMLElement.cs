@@ -167,6 +167,22 @@ namespace de.springwald.xml.editor
             }
         }
 
+        protected void UnPaintRectangle(IGraphics gfx, Rectangle rectangle)
+        {
+            if (rectangle != null)
+            {
+                rectangle = new Rectangle(rectangle.X-1, rectangle.Y - 1, rectangle.Width + 2, rectangle.Height + 2);
+
+                gfx.AddJob(new JobDrawRectangle
+                {
+                    Layer = GfxJob.Layers.ClearBackground,
+                    Batchable = true,
+                    FillColor = this.xmlEditor.NativePlatform.ControlElement.BackColor,
+                    Rectangle = rectangle
+                });
+            }
+        }
+
         /// <summary>
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
         /// </summary>

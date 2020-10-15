@@ -214,18 +214,21 @@ namespace de.springwald.xml.editor
 
         protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
         {
-            unPaintColor++;
-            if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
+            //unPaintColor++;
+            //if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
             foreach (var textPart in this.textParts)
             {
-                gfx.AddJob(new JobDrawRectangle
-                {
-                    Layer = GfxJob.Layers.ClearBackground,
-                    Batchable = true,
-                    FillColor = unPaintColors[unPaintColor],
-                    Rectangle = textPart.Rectangle
-                });
+                //gfx.AddJob(new JobDrawRectangle
+                //{
+                //    Layer = GfxJob.Layers.ClearBackground,
+                //    Batchable = true,
+                //    FillColor = unPaintColors[unPaintColor],
+                //    Rectangle = textPart.Rectangle
+                    
+                //});
+                base.UnPaintRectangle(gfx, textPart.Rectangle);
             }
+            
         }
 
         private IEnumerable<TextLine> GetTextLinesFromTextParts(TextSplitHelper.TextPart[] parts, PaintContext paintContext, int fontHeight, float fontWidth)
