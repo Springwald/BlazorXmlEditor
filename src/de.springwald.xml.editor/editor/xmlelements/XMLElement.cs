@@ -14,6 +14,7 @@ using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
@@ -35,7 +36,7 @@ namespace de.springwald.xml.editor
         protected Point cursorPaintPos;  // there the cursor is drawn in this node, if it is the current node
         protected XMLEditor xmlEditor;
         protected EditorConfig Config { get; }
-        protected ArrayList _childElemente = new ArrayList();           // Die ChildElemente in diesem Steuerelement
+  
 
         /// <summary>
         /// The XMLNode to be displayed with this element
@@ -90,8 +91,7 @@ namespace de.springwald.xml.editor
                     break;
             }
 
-
-            paintContext = await PaintNodeContent(paintContext, gfx, paintMode);
+            paintContext = await PaintInternal(paintContext, gfx, paintMode);
             if (this.cursorPaintPos != null) this.PaintCursor(gfx);
 
 #if klickbereicheRotAnzeigen
@@ -100,7 +100,7 @@ namespace de.springwald.xml.editor
             return paintContext;
         }
 
-        protected abstract Task<PaintContext> PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode);
+        protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, IGraphics gfx, PaintModes paintMode);
 
         protected abstract void UnPaint(IGraphics gfx, PaintContext paintContext);
 
@@ -287,11 +287,7 @@ namespace de.springwald.xml.editor
                     xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
                     xmlEditor.XmlElementeAufraeumenEvent -= new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
 
-                    // Alle Child-Elemente ebenfalls zerstören
-                    foreach (XMLElement element in this._childElemente)
-                    {
-                        if (element != null) element.Dispose();
-                    }
+                   
 
                     // Referenzen lösen
                     this.xmlEditor = null;

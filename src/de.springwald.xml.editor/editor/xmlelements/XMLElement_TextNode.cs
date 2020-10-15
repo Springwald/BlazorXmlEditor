@@ -102,7 +102,7 @@ namespace de.springwald.xml.editor
             return this.textParts.Where(t => t.Rectangle.Contains(pos)).Any();
         }
 
-        protected override async Task<PaintContext> PaintNodeContent(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
         {
             if (this.lastPaintedContextAfterContentPaint != null)
             {
