@@ -138,7 +138,7 @@ namespace de.springwald.xml.editor
         {
             this.ResetLastPaintPosCacheAttributes();
             this.UnPaintRectangle(gfx, this.areaStartTag);
-            this.UnPaintRectangle(gfx, this.areaArrowOpenTag); 
+            this.UnPaintRectangle(gfx, this.areaArrowOpenTag);
         }
 
         private void UnPaintNodeAbschluss(IGraphics gfx)
@@ -267,21 +267,14 @@ namespace de.springwald.xml.editor
             // ### Write the name of the node ###
 
             // Pre-calculate the width of the node name
+
             int nodeNameTextWidth = (int)(await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, xmlEditor.EditorConfig.NodeNameFont));
+            //
+            // Console.WriteLine(">>>>>>>>>>>>>>" + this.XMLNode.Name + ":" + xmlEditor.EditorConfig.NodeNameFont.Height + "=" + nodeNameTextWidth);
 
             // Pre-calculate the width of the attribute string
             var attributeString = this.GetAttributeString();
             this.lastAttributeString = attributeString;
-            var attributeTextWidth = await this.GetAttributeTextWidth(attributeString, gfx);
-
-            // draw tag start border
-            var borderWidth =
-                innerMarginX // margin to left border
-                + nodeNameTextWidth // node name
-                + (attributeTextWidth == 0 ? 0 : innerMarginX + attributeTextWidth) // attributes
-                + innerMarginX; // margin to right border
-
-            zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, startX, paintContext.PaintPosY, borderWidth, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
 
             paintContext.PaintPosX += innerMarginX;  // margin to left border
 
@@ -290,7 +283,7 @@ namespace de.springwald.xml.editor
             {
                 Batchable = false,
                 Layer = GfxJob.Layers.Text,
-                Text = this.XMLNode.Name,
+                Text = nodeNameTextWidth.ToString(), //this.XMLNode.Name,
                 Color = _farbeNodeNameSchrift,
                 X = paintContext.PaintPosX,
                 Y = paintContext.PaintPosY + this.Config.InnerMarginY,
@@ -300,10 +293,14 @@ namespace de.springwald.xml.editor
             paintContext.PaintPosX += nodeNameTextWidth + innerMarginX;
 
             // draw the attributes
-            await AttributeZeichnen(paintContext, attributeString, gfx);
+            paintContext = await AttributeZeichnen(paintContext, attributeString, gfx);
 
             // standard distance + one pixel to the right, otherwise we draw on the frame line
             paintContext.PaintPosX += 1;
+
+            var borderWidth = paintContext.PaintPosX - startX;
+
+            zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, startX, paintContext.PaintPosY, borderWidth, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
 
             // if necessary draw the continuing arrow at the end of the frame 
             if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
@@ -325,7 +322,7 @@ namespace de.springwald.xml.editor
             }
             else
             {
-                areaArrowOpenTag = new Rectangle(0, 0, 0, 0);
+                areaArrowOpenTag = null;
             }
 
             // If the cursor is inside the empty node, then draw the cursor there
@@ -366,9 +363,11 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Draws the attributes 
         /// </summary>
-        private async Task AttributeZeichnen(PaintContext paintContext, string attributeString, IGraphics gfx)
+        private async Task<PaintContext> AttributeZeichnen(PaintContext paintContext, string attributeString, IGraphics gfx)
         {
-            if (string.IsNullOrWhiteSpace(attributeString)) return;
+            paintContext = paintContext.Clone();
+
+            if (string.IsNullOrWhiteSpace(attributeString)) return paintContext;
 
             var attributeBreite = await this.GetAttributeTextWidth(attributeString, gfx);
 
@@ -391,7 +390,9 @@ namespace de.springwald.xml.editor
             });
 
             // Set character cursor behind the attributes
-            paintContext.PaintPosX += attributeBreite + innerMarginX;
+            paintContext.PaintPosX += 500; // attributeBreite + innerMarginX;
+
+            return paintContext;
         }
 
         protected async Task<PaintContext> NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
@@ -478,6 +479,7 @@ namespace de.springwald.xml.editor
         }
         private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
         {
+            return 500;
             if (string.IsNullOrEmpty(attributeString)) return 0;
             return (int)await gfx.MeasureDisplayStringWidthAsync(attributeString, this.xmlEditor.EditorConfig.NodeAttributeFont);
         }

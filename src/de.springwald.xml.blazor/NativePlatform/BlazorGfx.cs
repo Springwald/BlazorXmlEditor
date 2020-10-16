@@ -43,9 +43,18 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
+        private bool firstMeasure = true;
+
         public async Task<float> MeasureDisplayStringWidthAsync(string text, Font font)
         {
             await this.EndBatch();
+            if (this.firstMeasure)
+            {
+                // Workaround for wrong measure results when calling the MeasureDisplayStringWidthAsync first time
+                this.firstMeasure = false;
+                // await Task.Delay(100);
+                await (await this.GetContext()).DrawStringAsync("abc", font, Color.White, -1000,-1000);
+            }
             return await (await this.GetContext()).MeasureDisplayStringWidthAsync(text, font);
         }
 

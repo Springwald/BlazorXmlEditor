@@ -25,4 +25,9 @@
 	  <ProjectReference Include="..\de.springwald.xml.editor\de.springwald.xml.editor.csproj" />
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <Folder Include="Services\" />
+	</ItemGroup>
+
 </Project>

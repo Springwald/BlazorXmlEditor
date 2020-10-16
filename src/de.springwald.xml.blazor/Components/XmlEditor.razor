@@ -5,6 +5,8 @@
 @using de.springwald.xml.blazor.NativePlatform
 @using de.springwald.xml.editor
 @using editor.nativeplatform.gfx
+@using Microsoft.JSInterop;
+@using de.springwald.xml.blazor.Code;
 @inject IJSRuntime JSRuntime
 @implements IDisposable
 
@@ -28,8 +30,6 @@
 
 @code {
 
-    private bool initDone;
-    private XmlEditorContext _editorContext;
     private bool showContextMenu;
 
     protected BECanvasComponent _canvasReference;
@@ -41,82 +41,44 @@
 
     public de.springwald.xml.editor.XMLEditor Editor;
 
-    private Timer resizedTimer;
-
-
     [Parameter]
-    public XmlEditorContext EditorContext
-    {
-        set
-        {
-            this._editorContext = value;
-            if (value != null && this.nativePlattform != null) this.Init();
-        }
-        get
-        {
-            return this._editorContext;
-        }
-    }
+    public XmlEditorContext EditorContext { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             this.nativePlattform = new BlazorNativePlatform(_canvasReference);
-            this.resizedTimer = new Timer();
-            this.resizedTimer.Elapsed += CheckResizedEvent;
-            this.resizedTimer.Interval = 500;
-            this.resizedTimer.Start();
-            if (this.EditorContext != null) this.Init();
+            this.Init();
+            await JSRuntime.InvokeVoidAsync("browserResize.registerResizeCallback");
+            BrowserResize.OnResize += this.Resized;
         }
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async void CheckResizedEvent(Object source, System.Timers.ElapsedEventArgs e)
-    {
-        await this.CheckResized();
-    }
-
-    private async Task CheckResized()
-    {
-        var size = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
-        if (size.Width != this.canvasWidth || size.Height != this.canvasHeight)
-        {
-            this.canvasWidth = (int)size.Width;
-            this.canvasHeight = (int)size.Height;
-            await this.nativePlattform.SetSize(this.canvasWidth, this.canvasHeight - 10);
-            this.Editor.SizeHasChanged();
-            this.StateHasChanged();
-        }
-    }
-
     private void Init()
     {
-        if (this.initDone) return;
-        this.initDone = true;
-
         var config = new BlazorEditorConfig
         {
             NodeNameFont = new Font(names: new[] { "Verdana", "Geneva", "sans-serif" }, height: 13, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
             NodeAttributeFont = new Font(names: new[] { "Verdana", "Geneva", "sans-serif" }, height: 12, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
             TextNodeFont = new Font(names: new[] { "Lucida Console", "Monaco", "monospace" }, height: 14, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: true)
         };
-
-        this.Editor = new XMLEditor(this._editorContext.XmlRules, nativePlattform, config);
-
-        this._editorContext.RootNodeChanged.Add(this.RootNodeChanged);
+        this.EditorContext.RootNodeChanged.Add(this.RootNodeChanged);
+        this.Editor = new XMLEditor(this.EditorContext.XmlRules, nativePlattform, config);
     }
 
     public void Dispose()
     {
-        this._editorContext?.RootNodeChanged.Remove(this.RootNodeChanged);
+        BrowserResize.OnResize -= this.Resized;
+        this.EditorContext?.RootNodeChanged.Remove(this.RootNodeChanged);
         this.Editor.Dispose();
     }
 
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
     {
         await this.Editor.SetRootNode(rootNode);
-        await this.CheckResized();
+        await this.Resized();
         StateHasChanged();
     }
 
@@ -130,6 +92,20 @@
         public double Right { get; set; }
         public double Bottom { get; set; }
         public double Left { get; set; }
+    }
+
+    private async Task Resized()
+    {
+        var size = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        if (size == null) return;
+        if (size.Width != this.canvasWidth || size.Height != this.canvasHeight)
+        {
+            this.canvasWidth = (int)size.Width;
+            this.canvasHeight = (int)size.Height;
+            await this.nativePlattform.SetSize(this.canvasWidth, this.canvasHeight - 10);
+            this.Editor.SizeHasChanged();
+            this.StateHasChanged();
+        }
     }
 
     #region key events
@@ -241,4 +217,5 @@
     }
 
     #endregion
+
 }
