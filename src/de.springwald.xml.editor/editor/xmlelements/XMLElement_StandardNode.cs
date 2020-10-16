@@ -338,7 +338,7 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, this.Config.TagHeight); // See how high the current line is
+            paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, this.Config.MinLineHeight); // See how high the current line is
 
             // Remember where the mouse areas are
             areaStartTag = new Rectangle(startX, startY, paintContext.PaintPosX - startX, this.Config.TagHeight);

@@ -117,7 +117,7 @@ namespace de.springwald.xml.editor
                     lastFontHeight = this.xmlEditor.EditorConfig.TextNodeFont.Height;
                     lastCalculatedFontWidth = await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("W", this.xmlEditor.EditorConfig.TextNodeFont);
                 }
-                paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.xmlEditor.EditorConfig.TextNodeFont.Height);
+                paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.xmlEditor.EditorConfig.MinLineHeight);
 
                 int marginY = (paintContext.HoeheAktZeile - this.xmlEditor.EditorConfig.TextNodeFont.Height) / 2;
 
@@ -233,7 +233,7 @@ namespace de.springwald.xml.editor
 
         private IEnumerable<TextLine> GetTextLinesFromTextParts(TextSplitHelper.TextPart[] parts, PaintContext paintContext, int fontHeight, float fontWidth)
         {
-            paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, fontHeight);
+            paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.Config.MinLineHeight);
             var x = paintContext.PaintPosX;
             var y = paintContext.PaintPosY;
             var actualLine = 0;

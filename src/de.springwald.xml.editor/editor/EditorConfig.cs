@@ -24,6 +24,6 @@ namespace de.springwald.xml.editor
 
         public int InnerMarginY => Math.Max(1, this.NodeNameFont.Height / 3);
 
-        public int MinLineHeight => this.TagHeight;
+        public int MinLineHeight => this.TagHeight + 2;
     }
 }
