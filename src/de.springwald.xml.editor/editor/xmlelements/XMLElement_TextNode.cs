@@ -30,7 +30,7 @@ namespace de.springwald.xml.editor
         }
 
         protected int lastFontHeight = 0;
-        protected float lastCalculatedFontWidth = 0;
+        protected double lastCalculatedFontWidth = 0;
 
         protected Color _farbeHintergrund_;
         protected Color _farbeHintergrundInvertiert_;
@@ -231,7 +231,7 @@ namespace de.springwald.xml.editor
             
         }
 
-        private IEnumerable<TextLine> GetTextLinesFromTextParts(TextSplitHelper.TextPart[] parts, PaintContext paintContext, int fontHeight, float fontWidth)
+        private IEnumerable<TextLine> GetTextLinesFromTextParts(TextSplitHelper.TextPart[] parts, PaintContext paintContext, int fontHeight, double fontWidth)
         {
             paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.Config.MinLineHeight);
             var x = paintContext.PaintPosX;

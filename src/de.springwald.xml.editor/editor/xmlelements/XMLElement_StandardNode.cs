@@ -283,7 +283,7 @@ namespace de.springwald.xml.editor
             {
                 Batchable = false,
                 Layer = GfxJob.Layers.Text,
-                Text = nodeNameTextWidth.ToString(), //this.XMLNode.Name,
+                Text = this.XMLNode.Name,
                 Color = _farbeNodeNameSchrift,
                 X = paintContext.PaintPosX,
                 Y = paintContext.PaintPosY + this.Config.InnerMarginY,
@@ -390,7 +390,7 @@ namespace de.springwald.xml.editor
             });
 
             // Set character cursor behind the attributes
-            paintContext.PaintPosX += 500; // attributeBreite + innerMarginX;
+            paintContext.PaintPosX += attributeBreite + innerMarginX;
 
             return paintContext;
         }
@@ -479,7 +479,6 @@ namespace de.springwald.xml.editor
         }
         private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
         {
-            return 500;
             if (string.IsNullOrEmpty(attributeString)) return 0;
             return (int)await gfx.MeasureDisplayStringWidthAsync(attributeString, this.xmlEditor.EditorConfig.NodeAttributeFont);
         }

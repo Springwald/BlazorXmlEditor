@@ -27,6 +27,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task StartBatch()
         {
+            this.actualFont = null;
             this.IsInBatch = true;
             await this.ctx.BeginBatchAsync();
         }
@@ -36,6 +37,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             if (!this.IsInBatch) return;
             this.IsInBatch = false;
             await this.ctx.EndBatchAsync();
+            this.actualFont = null;
         }
 
         internal async Task SetStrokeColor(Color color)
@@ -65,16 +67,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
-        internal async Task SetFont(Font font)
-        {
-            if (this.actualFont == null)
-            {
-                await this.ctx.SetTextAlignAsync(TextAlign.Left);
-                await this.ctx.SetTextBaselineAsync(TextBaseline.Top);
-            }
-            if (font != this.actualFont) await SetFontFormat(font);
-            this.actualFont = font;
-        }
+
 
         internal async Task DrawLineAsync(Color color, float lineWidth, int x1, int y1, int x2, int y2)
         {
@@ -109,11 +102,11 @@ namespace de.springwald.xml.blazor.NativePlatform
             await ctx.FillTextAsync(text, x, y);
         }
 
-        internal async Task<float> MeasureDisplayStringWidthAsync(string text, Font font)
+        internal async Task<double> MeasureDisplayStringWidthAsync(string text, Font font)
         {
             await this.SetFont(font);
             var size = await ctx.MeasureTextAsync(text);
-            return (float)size.Width;
+            return (double)size.Width;
         }
 
         internal async Task DrawPolygonAsync(Color fillColor, Color borderColor, float borderWidth , Point[] points)
@@ -154,13 +147,31 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
+        internal async Task SetFont(Font font)
+        {
+            if (this.actualFont == null)
+            {
+                await this.ctx.SetTextAlignAsync(TextAlign.Left);
+                await this.ctx.SetTextBaselineAsync(TextBaseline.Top);
+            }
+            await this.SetFontFormat(font);
+        }
+
         private async Task SetFontFormat(Font font)
+        {
+            var fontString = GetFontString(font);
+            await ctx.SetFontAsync(fontString); 
+        }
+
+        /// <summary>
+        /// e.g. '48px serif';
+        /// </summary>
+        private string GetFontString(Font font)
         {
             switch (font.Unit)
             {
                 case Font.GraphicsUnit.Pixel:
-                    await ctx.SetFontAsync($"{font.Height}px {FontHtmlString(font)}"); // e.g. '48px serif';
-                    break;
+                    return  $"normal normal {font.Height}px {FontHtmlString(font)}";
                 default: throw new ArgumentOutOfRangeException($"{nameof(font.Unit)}:{font.Unit.ToString()}");
             }
         }

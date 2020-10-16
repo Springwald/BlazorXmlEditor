@@ -22,7 +22,7 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         
         Task PaintJobs();
 
-        Task<float> MeasureDisplayStringWidthAsync(string text, Font drawFont);
+        Task<double> MeasureDisplayStringWidthAsync(string text, Font drawFont);
     }
 }
 

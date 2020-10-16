@@ -1,6 +1,5 @@
 ﻿@using Blazor.Extensions
 @using Blazor.Extensions.Canvas
-@using System.Timers
 @using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.NativePlatform
 @using de.springwald.xml.editor
@@ -49,14 +48,14 @@
         if (firstRender)
         {
             this.nativePlattform = new BlazorNativePlatform(_canvasReference);
-            this.Init();
+            await this.Init();
             await JSRuntime.InvokeVoidAsync("browserResize.registerResizeCallback");
             BrowserResize.OnResize += this.Resized;
         }
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private void Init()
+    private async Task Init()
     {
         var config = new BlazorEditorConfig
         {
@@ -66,6 +65,7 @@
         };
         this.EditorContext.RootNodeChanged.Add(this.RootNodeChanged);
         this.Editor = new XMLEditor(this.EditorContext.XmlRules, nativePlattform, config);
+        await Task.CompletedTask;
     }
 
     public void Dispose()
