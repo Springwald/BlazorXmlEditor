@@ -14,6 +14,8 @@ namespace de.springwald.xml.cursor
 {
     public partial class XMLCursorPos
     {
+
+
         /// <summary>
         /// Event definieren, wenn sich der Cursor geändert hat
         /// </summary>

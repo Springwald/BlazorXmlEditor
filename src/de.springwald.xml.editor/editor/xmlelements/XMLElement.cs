@@ -62,7 +62,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Draws the XML element on the screen
         /// </summary>
-        public virtual async Task<PaintContext> Paint(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        public virtual async Task<PaintContext> Paint(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
             if (this._disposed) return paintContext;
             if (this.XMLNode == null) return paintContext;
@@ -88,7 +88,7 @@ namespace de.springwald.xml.editor
                     break;
             }
 
-            paintContext = await PaintInternal(paintContext, gfx, paintMode);
+            paintContext = await PaintInternal(paintContext, cursor, gfx, paintMode);
             if (this.cursorPaintPos != null) this.PaintCursor(gfx);
 
 #if klickbereicheRotAnzeigen
@@ -97,7 +97,7 @@ namespace de.springwald.xml.editor
             return paintContext;
         }
 
-        protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, IGraphics gfx, PaintModes paintMode);
+        protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode);
 
         protected abstract void UnPaint(IGraphics gfx, PaintContext paintContext);
 
@@ -300,8 +300,6 @@ namespace de.springwald.xml.editor
                     xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
                     xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
                     xmlEditor.XmlElementeAufraeumenEvent -= new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
-
-                   
 
                     // Referenzen lösen
                     this.xmlEditor = null;

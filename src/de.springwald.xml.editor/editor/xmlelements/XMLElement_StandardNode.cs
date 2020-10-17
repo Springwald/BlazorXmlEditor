@@ -51,6 +51,7 @@ namespace de.springwald.xml.editor
         private int lastPaintNodeAbschlussY;
         private PaintContext lastAfterStartNodePaintContext;
         private PaintContext lastAfterClosingNodePaintContext;
+        private XMLCursor lastPaintCursor;
 
         public XMLElement_StandardNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
@@ -66,9 +67,9 @@ namespace de.springwald.xml.editor
             base.Dispose(disposing);
         }
 
-        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
-            this.DefineColors();
+            this.DefineColors(cursor);
             this.CreateChildElementsIfNeeded();
 
             var lastPaintStillUpToDate = this.LastPaintStillUpToDate(paintContext);
@@ -80,23 +81,23 @@ namespace de.springwald.xml.editor
             }
             else
             {
-                paintContext = await this.NodeZeichnenStart(paintContext, gfx);
+                paintContext = await this.NodeZeichnenStart(paintContext, cursor, gfx);
                 this.lastAfterStartNodePaintContext = paintContext.Clone();
             }
 
-            paintContext = await this.PaintSubNodes(paintContext, gfx, paintMode);
+            paintContext = await this.PaintSubNodes(paintContext, cursor, gfx, paintMode);
 
             if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
                 switch (paintMode)
                 {
                     case PaintModes.ForcePaintNoUnPaintNeeded:
-                        paintContext = await this.NodeZeichnenAbschluss(paintContext, gfx);
+                        paintContext = await this.NodeZeichnenAbschluss(paintContext, cursor, gfx);
                         break;
 
                     case PaintModes.ForcePaintAndUnpaintBefore:
                         this.UnPaintNodeAbschluss(gfx);
-                        paintContext = await this.NodeZeichnenAbschluss(paintContext, gfx);
+                        paintContext = await this.NodeZeichnenAbschluss(paintContext, cursor, gfx);
                         break;
 
                     case PaintModes.OnlyPaintWhenChanged:
@@ -105,7 +106,7 @@ namespace de.springwald.xml.editor
                             this.UnPaintNodeAbschluss(gfx);
                             lastPaintNodeAbschlussX = paintContext.PaintPosX;
                             lastPaintNodeAbschlussY = paintContext.PaintPosY;
-                            paintContext = await this.NodeZeichnenAbschluss(paintContext, gfx);
+                            paintContext = await this.NodeZeichnenAbschluss(paintContext,  cursor, gfx);
                             this.lastAfterClosingNodePaintContext = paintContext.Clone();
                         }
                         else
@@ -115,6 +116,11 @@ namespace de.springwald.xml.editor
                         break;
                 }
             }
+
+            if (!cursor.Equals(this.lastPaintCursor)) {
+                this.lastPaintCursor = cursor.Clone();
+            }
+
             return paintContext.Clone();
         }
 
@@ -147,7 +153,7 @@ namespace de.springwald.xml.editor
             this.UnPaintRectangle(gfx, this.areaArrowStartTag);
         }
 
-        protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, IGraphics gfx, PaintModes paintMode)
+        protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
             if (this.XMLNode == null)
             {
@@ -204,7 +210,7 @@ namespace de.springwald.xml.editor
                             });
                         }
 
-                        childPaintContext = await childElement.Paint(childPaintContext, gfx, paintMode);
+                        childPaintContext = await childElement.Paint(childPaintContext, cursor, gfx, paintMode);
                         break;
 
                     case DarstellungsArten.Fliesselement:
@@ -223,7 +229,7 @@ namespace de.springwald.xml.editor
                             // das Child rechts daneben setzen	
                         }
 
-                        childPaintContext = await childElement.Paint(childPaintContext, gfx, paintMode);
+                        childPaintContext = await childElement.Paint(childPaintContext, cursor, gfx, paintMode);
                         break;
 
 
@@ -249,15 +255,15 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected async Task<PaintContext> NodeZeichnenStart(PaintContext paintContext, IGraphics gfx)
+        protected async Task<PaintContext> NodeZeichnenStart(PaintContext paintContext, XMLCursor cursor, IGraphics gfx)
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
 
             // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
-            if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+            if (cursor.StartPos.AktNode == this.XMLNode)
             {
-                if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
+                if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
                 {
                     // Position für Cursor-Strich vermerken
                     this.cursorPaintPos = new Point(paintContext.PaintPosX + 1, paintContext.PaintPosY);
@@ -326,9 +332,9 @@ namespace de.springwald.xml.editor
             }
 
             // If the cursor is inside the empty node, then draw the cursor there
-            if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+            if (cursor.StartPos.AktNode == this.XMLNode)
             {
-                if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode)
+                if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode)
                 {
                     // set position for cursor line
                     this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
@@ -346,9 +352,9 @@ namespace de.springwald.xml.editor
             if (!xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
                 // If the cursor is behind the node, then also draw the cursor there
-                if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+                if (cursor.StartPos.AktNode == this.XMLNode)
                 {
-                    if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
+                    if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
                     {
                         // set position for cursor line
                         this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
@@ -395,7 +401,7 @@ namespace de.springwald.xml.editor
             return paintContext;
         }
 
-        protected async Task<PaintContext> NodeZeichnenAbschluss(PaintContext paintContext, IGraphics gfx)
+        protected async Task<PaintContext> NodeZeichnenAbschluss(PaintContext paintContext, XMLCursor cursor, IGraphics gfx)
         {
             // Falls der Cursor hinter dem letzten Child dieses Nodes steht, dann
             // den Cursor auch dahin zeichnen
@@ -461,9 +467,9 @@ namespace de.springwald.xml.editor
                 //this._klickBereiche = this._klickBereiche.Append(_tagBereichRechts).ToArray(); // original:  _klickBereiche.Add(_tagBereichRechts);
 
                 // If the cursor is behind the node, then also draw the cursor there
-                if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.AktNode == this.XMLNode)
+                if (cursor.StartPos.AktNode == this.XMLNode)
                 {
-                    if (xmlEditor.EditorStatus.CursorOptimiert.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
+                    if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
                     {
                         this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                     }
@@ -603,9 +609,9 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Vertauscht die Vorder- und Hintergrundfarben, um den Node selektiert darstellen zu können
         /// </summary>
-        private void DefineColors()
+        private void DefineColors(XMLCursor cursor)
         {
-            if (this.xmlEditor.EditorStatus.CursorOptimiert.IstNodeInnerhalbDerSelektion(this.XMLNode))
+            if (cursor.IstNodeInnerhalbDerSelektion(this.XMLNode))
             {
                 // Selektiert
                 _farbeRahmenHintergrund = xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode, true);

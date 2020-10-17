@@ -50,6 +50,12 @@ namespace de.springwald.xml.cursor
             StartPos.PosChangedEvent.Remove(this.startPos_ChangedEvent);
         }
 
+
+        public bool Equals(XMLCursor second)
+        {
+            return second != null && this.StartPos.Equals(second.StartPos) && this.EndPos.Equals(second.EndPos);
+        }
+
         /// <summary>
         /// Erzeugt eine Kopie dieses Cursors
         /// </summary>
