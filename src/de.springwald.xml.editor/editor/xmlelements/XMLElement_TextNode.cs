@@ -127,9 +127,7 @@ namespace de.springwald.xml.editor
                     break;
             }
 
-            if (this.lastPaintData == null) this.lastPaintContextResult = null;
-
-            if (this.lastPaintContextResult != null)
+            if (this.lastPaintData != null && this.lastPaintContextResult != null)
             {
                 return this.lastPaintContextResult.Clone();
             }
@@ -154,8 +152,6 @@ namespace de.springwald.xml.editor
                         this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                     }
                 }
-
-               
 
                 const int charMarginRight = 2;
 
