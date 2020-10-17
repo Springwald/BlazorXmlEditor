@@ -55,10 +55,6 @@ namespace de.springwald.xml.editor
             this.xmlEditor.XmlElementeAufraeumenEvent += new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
         }
 
-        protected abstract bool LastPaintStillUpToDate(PaintContext paintContext);
-
-        protected PaintContext lastPaintedContextAfterContentPaint;
-
         /// <summary>
         /// Draws the XML element on the screen
         /// </summary>
@@ -68,25 +64,7 @@ namespace de.springwald.xml.editor
             if (this.XMLNode == null) return paintContext;
             if (this.xmlEditor == null) return paintContext;
 
-            switch (paintMode)
-            {
-                case PaintModes.ForcePaintNoUnPaintNeeded:
-                    this.lastPaintedContextAfterContentPaint = null;
-                    break;
 
-                case PaintModes.ForcePaintAndUnpaintBefore:
-                    this.lastPaintedContextAfterContentPaint = null;
-                    this.UnPaint(gfx, paintContext);
-                    break;
-
-                case PaintModes.OnlyPaintWhenChanged:
-                    if (!this.LastPaintStillUpToDate(paintContext))
-                    {
-                        this.lastPaintedContextAfterContentPaint = null;
-                        this.UnPaint(gfx, paintContext);
-                    }
-                    break;
-            }
 
             paintContext = await PaintInternal(paintContext, cursor, gfx, paintMode);
             if (this.cursorPaintPos != null) this.PaintCursor(gfx);

@@ -75,6 +75,25 @@ namespace de.springwald.xml.editor
             var lastPaintStillUpToDate = this.LastPaintStillUpToDate(paintContext);
             this.SaveLastPaintPosCacheAttributes(paintContext);
 
+            switch (paintMode)
+            {
+                case PaintModes.ForcePaintNoUnPaintNeeded:
+                    lastPaintStillUpToDate = false;
+                    break;
+
+                case PaintModes.ForcePaintAndUnpaintBefore:
+                    lastPaintStillUpToDate = false;
+                    this.UnPaint(gfx, paintContext);
+                    break;
+
+                case PaintModes.OnlyPaintWhenChanged:
+                    if (lastPaintStillUpToDate == false) 
+                    {
+                        this.UnPaint(gfx, paintContext);
+                    }
+                    break;
+            }
+
             if (lastPaintStillUpToDate && this.lastAfterStartNodePaintContext != null)
             {
                 paintContext = lastAfterStartNodePaintContext.Clone();

@@ -1,31 +1,26 @@
-﻿namespace de.springwald.xml.editor
+﻿using de.springwald.xml.editor.editor.xmlelements.Caching;
+using de.springwald.xml.editor.nativeplatform.gfx;
+
+namespace de.springwald.xml.editor
 {
     public partial class XMLElement_TextNode
     {
-        private int lastPaintPosY;
-        private int lastPaintPosX;
-        private int lastPaintLimitRight;
-        private string lastPaintContent;
-        private int lastPaintTextFontHeight;
+        private LastPaintingDataText lastPaintData;
+        private PaintContext lastPaintContextResult;
 
-        protected override bool LastPaintStillUpToDate(PaintContext paintContext)
+        private LastPaintingDataText CalculateActualPaintData(PaintContext paintContext, Point cursorPaintPos, int selectionStart, int selectionLength)
         {
-            if (paintContext.PaintPosY != this.lastPaintPosY) return false;
-            if (paintContext.PaintPosX != this.lastPaintPosX) return false;
-            if (paintContext.LimitRight != this.lastPaintLimitRight) return false;
-            if (this.AktuellerInhalt != this.lastPaintContent) return false;
-            if (this.Config.TextNodeFont.Height != this.lastPaintTextFontHeight) return false;
-            return true;
+            return new LastPaintingDataText
+            {
+                LastPaintPosY = paintContext.PaintPosY,
+                LastPaintPosX = paintContext.PaintPosX,
+                LastPaintLimitRight = paintContext.LimitRight,
+                LastPaintContent = this.AktuellerInhalt,
+                LastPaintTextFontHeight = this.Config.TextNodeFont.Height,
+                CursorPaintPos = cursorPaintPos,
+                SelectionStart = selectionStart,
+                SelectionLength = selectionLength,
+            };
         }
-
-        private void SaveLastPaintPosCacheAttributes(PaintContext paintContext)
-        {
-            this.lastPaintPosY =  paintContext.PaintPosY;
-            this.lastPaintPosX = paintContext.PaintPosX;
-            this.lastPaintLimitRight = paintContext.LimitRight;
-            this.lastPaintContent = this.AktuellerInhalt;
-            this.lastPaintTextFontHeight = this.Config.TextNodeFont.Height;
-        }
-
     }
 }

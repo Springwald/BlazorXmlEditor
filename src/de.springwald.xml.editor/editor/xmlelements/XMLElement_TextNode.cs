@@ -8,6 +8,7 @@
 // Licensed under MIT License
 
 using de.springwald.xml.cursor;
+using de.springwald.xml.editor.editor.xmlelements.Caching;
 using de.springwald.xml.editor.helper;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
@@ -104,13 +105,37 @@ namespace de.springwald.xml.editor
 
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
-            if (this.lastPaintedContextAfterContentPaint != null)
+            this.StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge, cursor);
+            var actualPaintData = CalculateActualPaintData(paintContext, null, selektionStart, selektionLaenge);
+
+            switch (paintMode)
             {
-                return this.lastPaintedContextAfterContentPaint.Clone();
+                case PaintModes.ForcePaintNoUnPaintNeeded:
+                    this.lastPaintData = null;
+                    break;
+
+                case PaintModes.ForcePaintAndUnpaintBefore:
+                    this.lastPaintData = null;
+                    this.UnPaint(gfx, paintContext);
+                    break;
+
+                case PaintModes.OnlyPaintWhenChanged:
+                    if (!actualPaintData.Equals(lastPaintData)) {
+                        this.lastPaintData = null;
+                        this.UnPaint(gfx, paintContext);
+                    }
+                    break;
+            }
+
+            if (this.lastPaintData == null) this.lastPaintContextResult = null;
+
+            if (this.lastPaintContextResult != null)
+            {
+                return this.lastPaintContextResult.Clone();
             }
             else
             {
-                this.SaveLastPaintPosCacheAttributes(paintContext);
+                this.lastPaintData = actualPaintData;
 
                 if (lastFontHeight != this.xmlEditor.EditorConfig.TextNodeFont.Height)
                 {
@@ -130,7 +155,7 @@ namespace de.springwald.xml.editor
                     }
                 }
 
-                this.StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge, cursor);
+               
 
                 const int charMarginRight = 2;
 
@@ -204,7 +229,7 @@ namespace de.springwald.xml.editor
                     }
                 }
 
-                this.lastPaintedContextAfterContentPaint = paintContext.Clone();
+                this.lastPaintContextResult = paintContext.Clone();
                 return paintContext.Clone();
             }
         }

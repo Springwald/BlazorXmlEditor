@@ -13,7 +13,7 @@ namespace de.springwald.xml.editor
         private string lastAttributeString;
 
 
-        protected override bool LastPaintStillUpToDate(PaintContext paintContext)
+        protected bool LastPaintStillUpToDate(PaintContext paintContext)
         {
             if (paintContext.PaintPosY != this.lastPaintPosY) return false;
             if (paintContext.PaintPosX != this.lastPaintPosX) return false;
