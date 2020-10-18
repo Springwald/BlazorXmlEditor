@@ -1,10 +1,18 @@
-﻿using de.springwald.xml.editor.nativeplatform.gfx;
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
+using de.springwald.xml.editor.nativeplatform.gfx;
 
 namespace de.springwald.xml.editor.editor.xmlelements.StandardNode
 {
     internal class StandardNodeTagPaint
     {
-
         internal static void DrawNodeBodyBySize(GfxJob.Layers layer, int x, int y, int width, int height, int cornerRadius, Color fillColor, Color borderColor, IGraphics gfx)
         {
             DrawNodeBodyByCoordinates(layer, x, y, x + width, y + height, cornerRadius, fillColor, borderColor, gfx);

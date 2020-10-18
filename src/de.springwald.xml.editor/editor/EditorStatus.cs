@@ -62,6 +62,7 @@ namespace de.springwald.xml.editor.editor
         /// Indicates whether something is selected in the editor
         /// </summary>
         public bool IstEtwasSelektiert => this.CursorOptimiert.IstEtwasSelektiert;
+
         public XMLUndoHandler UndoHandler { get; internal set; }
 
         /// <summary>

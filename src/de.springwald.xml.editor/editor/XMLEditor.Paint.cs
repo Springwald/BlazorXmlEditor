@@ -7,9 +7,7 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.editor.nativeplatform.gfxobs;
-using System;
 using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
@@ -21,7 +19,7 @@ namespace de.springwald.xml.editor
     {
         private bool sizeChangedSinceLastPaint = true;
 
-        public void SizeHasChanged ()
+        public void SizeHasChanged()
         {
             this.sizeChangedSinceLastPaint = true;
         }

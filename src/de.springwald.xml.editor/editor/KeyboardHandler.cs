@@ -21,15 +21,16 @@ namespace de.springwald.xml.editor.editor
         private bool _naechstesLostFokusVerhindern = false; // So that leaving the focus is ignored on TAB
         private INativePlatform nativePlatform;
         private EditorActions actions;
-        private EditorStatus editorStatus;
+        private EditorStatus editorState;
+
         public XmlAsyncEvent<KeyEventArgs> KeyDownEvent = new XmlAsyncEvent<KeyEventArgs>();
         public XmlAsyncEvent<KeyEventArgs> KeyPressEvent = new XmlAsyncEvent<KeyEventArgs>();
 
-        public KeyboardHandler(INativePlatform nativePlatform, EditorStatus editorStatus, EditorActions actions)
+        public KeyboardHandler(INativePlatform nativePlatform, EditorStatus editorState, EditorActions actions)
         {
             this.nativePlatform = nativePlatform;
             this.actions = actions;
-            this.editorStatus = editorStatus;
+            this.editorState = editorState;
             this.nativePlatform.InputEvents.Leave.Add(this.zeichnungsSteuerelement_Leave);
             this.nativePlatform.InputEvents.PreviewKey.Add(this.zeichnungsSteuerelement_PreviewKeyDown);
             this.nativePlatform.InputEvents.KeyPress.Add(this.zeichnungsSteuerelement_KeyPress);
@@ -88,13 +89,13 @@ namespace de.springwald.xml.editor.editor
                     case Keys.Left: // move cursor to left
                         if (e.ShiftKey)
                         {
-                            await this.editorStatus.CursorRoh.EndPos.MoveLeft(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
+                            await this.editorState.CursorRoh.EndPos.MoveLeft(this.editorState.RootNode, this.editorState.Regelwerk);
                         }
                         else
                         {
-                            dummy = this.editorStatus.CursorRoh.StartPos.Clone();
-                            await dummy.MoveLeft(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
-                            await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
+                            dummy = this.editorState.CursorRoh.StartPos.Clone();
+                            await dummy.MoveLeft(this.editorState.RootNode, this.editorState.Regelwerk);
+                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
                         }
                         useKeyContent = false;
                         break;
@@ -102,13 +103,13 @@ namespace de.springwald.xml.editor.editor
                     case Keys.Right: // move cursor to right
                         if (e.ShiftKey)
                         {
-                            await this.editorStatus.CursorRoh.EndPos.MoveRight(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
+                            await this.editorState.CursorRoh.EndPos.MoveRight(this.editorState.RootNode, this.editorState.Regelwerk);
                         }
                         else
                         {
-                            dummy = this.editorStatus.CursorRoh.StartPos.Clone();
-                            await dummy.MoveRight(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
-                            await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
+                            dummy = this.editorState.CursorRoh.StartPos.Clone();
+                            await dummy.MoveRight(this.editorState.RootNode, this.editorState.Regelwerk);
+                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
                         }
                         useKeyContent = false;
                         break;
@@ -126,7 +127,7 @@ namespace de.springwald.xml.editor.editor
                         break;
 
                     case Keys.Tab: // Tab jumps to the next day
-                        System.Xml.XmlNode node = this.editorStatus.CursorRoh.StartPos.AktNode;
+                        System.Xml.XmlNode node = this.editorState.CursorRoh.StartPos.AktNode;
                         bool abbruch = false;
                         if (node.FirstChild != null)
                         {
@@ -153,32 +154,32 @@ namespace de.springwald.xml.editor.editor
                         }
                         if (!abbruch)
                         {
-                            await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(node, XMLCursorPositionen.CursorInDemLeeremNode);
+                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(node, XMLCursorPositionen.CursorInDemLeeremNode);
                         }
                         _naechstesLostFokusVerhindern = true; // So that leaving the focus is ignored on TAB
                         useKeyContent = false;
                         break;
 
                     case Keys.Back:  
-                        if (this.editorStatus.CursorRoh.IstEtwasSelektiert)
+                        if (this.editorState.CursorRoh.IstEtwasSelektiert)
                         {
                             await this.actions.AktionDelete(UndoSnapshotSetzenOptionen.ja);
                         }
                         else
                         {
-                            await this.actions.AktionNodeOderZeichenVorDerCursorPosLoeschen(this.editorStatus.CursorRoh.StartPos, UndoSnapshotSetzenOptionen.ja);
+                            await this.actions.AktionNodeOderZeichenVorDerCursorPosLoeschen(this.editorState.CursorRoh.StartPos, UndoSnapshotSetzenOptionen.ja);
                         }
                         useKeyContent = false;
                         break;
 
                     case Keys.Delete:          
-                        if (this.editorStatus.CursorRoh.IstEtwasSelektiert)
+                        if (this.editorState.CursorRoh.IstEtwasSelektiert)
                         {
                             await this.actions.AktionDelete(UndoSnapshotSetzenOptionen.ja);
                         }
                         else
                         {
-                            await this.actions.AktionNodeOderZeichenHinterCursorPosLoeschen(this.editorStatus.CursorRoh.StartPos, UndoSnapshotSetzenOptionen.ja);
+                            await this.actions.AktionNodeOderZeichenHinterCursorPosLoeschen(this.editorState.CursorRoh.StartPos, UndoSnapshotSetzenOptionen.ja);
                         }
                         useKeyContent = false;
                         break;

@@ -7,13 +7,14 @@
 // All rights reserved
 // Licensed under MIT License
 
-#define XXklickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
+#define klickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
 
+using System;
+using System.Threading.Tasks;
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
-using System;
-using System.Threading.Tasks;
+
 
 namespace de.springwald.xml.editor
 {
@@ -33,7 +34,7 @@ namespace de.springwald.xml.editor
 
         protected Point cursorPaintPos;  // there the cursor is drawn in this node, if it is the current node
         protected XMLEditor xmlEditor;
-        protected EditorConfig Config { get; }
+        protected EditorConfig config { get; }
   
         /// <summary>
         /// The XMLNode to be displayed with this element
@@ -46,13 +47,13 @@ namespace de.springwald.xml.editor
         {
             this.XMLNode = xmlNode;
             this.xmlEditor = xmlEditor;
-            this.Config = xmlEditor.EditorConfig;
+            this.config = xmlEditor.EditorConfig;
 
             this.xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
             this.xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
             this.xmlEditor.MouseHandler.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
             this.xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
-            this.xmlEditor.XmlElementeAufraeumenEvent += new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
+            this.xmlEditor.CleanUpXmlElementsEvent += new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
         }
 
         /// <summary>
@@ -64,14 +65,8 @@ namespace de.springwald.xml.editor
             if (this.XMLNode == null) return paintContext;
             if (this.xmlEditor == null) return paintContext;
 
-
-
             paintContext = await PaintInternal(paintContext, cursor, gfx, paintMode);
             if (this.cursorPaintPos != null) this.PaintCursor(gfx);
-
-#if klickbereicheRotAnzeigen
-            KlickbereicheAnzeigen(paintContext, gfx);
-#endif
             return paintContext;
         }
 
@@ -108,24 +103,6 @@ namespace de.springwald.xml.editor
         }
 
         /// <summary>
-        /// draws the mouse clickable areas
-        /// </summary>
-        //private void KlickbereicheAnzeigen(IGraphics gfx)
-        //{
-        //    foreach (var rechteck in this._klickBereiche)
-        //    {
-        //        gfx.AddJob(new JobDrawRectangle
-        //        {
-        //            Layer = GfxJob.Layers.ClickAreas,
-        //            Batchable = true,
-        //            BorderColor = Color.Red,
-        //            Rectangle = rechteck
-        //        });
-        //    }
-        //}
-
-
-        /// <summary>
         /// Der Editor hat darum gebeten, dass alle Elemente, welche nicht mehr verwendet werden, entladen werden
         /// </summary>
         /// <param name="sender"></param>
@@ -150,7 +127,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
         /// </summary>
-        protected abstract Task WurdeAngeklickt(Point point, MausKlickAktionen aktion);
+        protected abstract Task WurdeAngeklickt(Point point, MausKlickAktionen mouseAction);
 
         /// <summary>
         /// Ein Mausklick ist eingegangen
@@ -176,7 +153,7 @@ namespace de.springwald.xml.editor
         /// <param name="e"></param>
         async Task _xmlEditor_MouseUpEvent(MouseEventArgs e)
         {
-            Point point = new Point(e.X, e.Y);
+            var point = new Point(e.X, e.Y);
 
             // Prüfen, ob der MausUpüberhaupt auf diesem Node geschehen ist
             if (this.IsClickPosInsideNode(point))
@@ -193,7 +170,7 @@ namespace de.springwald.xml.editor
         /// <param name="e"></param>
         async Task _xmlEditor_MouseDownMoveEvent(MouseEventArgs e)
         {
-            Point point = new Point(e.X, e.Y);
+            var point = new Point(e.X, e.Y);
 
             // Prüfen, ob der MausUpüberhaupt auf diesem Node geschehen ist
             if (this.IsClickPosInsideNode(point))
@@ -262,7 +239,7 @@ namespace de.springwald.xml.editor
                     xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
                     xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
                     xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
-                    xmlEditor.XmlElementeAufraeumenEvent -= new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
+                    xmlEditor.CleanUpXmlElementsEvent -= new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
 
                     // Referenzen lösen
                     this.xmlEditor = null;

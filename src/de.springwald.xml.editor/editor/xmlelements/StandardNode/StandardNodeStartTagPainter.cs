@@ -1,8 +1,17 @@
-﻿using de.springwald.xml.editor.editor.xmlelements.StandardNode;
-using de.springwald.xml.editor.nativeplatform.gfx;
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using de.springwald.xml.editor.editor.xmlelements.StandardNode;
+using de.springwald.xml.editor.nativeplatform.gfx;
 
 namespace de.springwald.xml.editor.editor.xmlelements
 {
@@ -12,6 +21,7 @@ namespace de.springwald.xml.editor.editor.xmlelements
         private StandardNodeDimensionsAndColor dimensions;
         private XmlNode node;
         private bool isClosingTagVisible;
+
         private string lastAttributeString;
         private PaintContext lastPaintContextResult;
         private bool lastPaintWasSelected;
@@ -35,7 +45,7 @@ namespace de.springwald.xml.editor.editor.xmlelements
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
-            var attributeString = this.GetAttributeString();
+            var attributesString = this.GetAttributesString();
 
             if (alreadyUnpainted) this.lastPaintContextResult = null;
 
@@ -50,7 +60,7 @@ namespace de.springwald.xml.editor.editor.xmlelements
                 this.lastPaintX == startX &&
                 this.lastPaintY == startY &&
                 this.lastPaintWasSelected == isSelected &&
-                this.lastAttributeString == attributeString)
+                this.lastAttributeString == attributesString)
             {
                 return lastPaintContextResult.Clone();
             }
@@ -60,7 +70,7 @@ namespace de.springwald.xml.editor.editor.xmlelements
             this.lastPaintX = startX;
             this.lastPaintY = startY;
             this.lastPaintWasSelected = isSelected;
-            this.lastAttributeString = attributeString;
+            this.lastAttributeString = attributesString;
 
             paintContext.PaintPosX += this.dimensions.InnerMarginX;  // margin to left border
 
@@ -79,7 +89,7 @@ namespace de.springwald.xml.editor.editor.xmlelements
             paintContext.PaintPosX += nodeNameTextWidth + this.dimensions.InnerMarginX;
 
             // draw the attributes
-            paintContext = await PaintAttributes(paintContext, attributeString, isSelected, gfx);
+            paintContext = await this.PaintAttributes(paintContext, attributesString, isSelected, gfx);
 
             // standard distance + one pixel to the right, otherwise we draw on the frame line
             paintContext.PaintPosX += 1;
@@ -91,7 +101,7 @@ namespace de.springwald.xml.editor.editor.xmlelements
                 startX, paintContext.PaintPosY,
                 borderWidth, this.config.TagHeight,
                 this.dimensions.CornerRadius,
-                 isSelected ? this.dimensions.BackgroundColor.InvertedColor : this.dimensions.BackgroundColor,
+                isSelected ? this.dimensions.BackgroundColor.InvertedColor : this.dimensions.BackgroundColor,
                 isSelected ? this.config.ColorNodeTagBorder.InvertedColor : this.config.ColorNodeTagBorder,
                 gfx);
 
@@ -135,35 +145,34 @@ namespace de.springwald.xml.editor.editor.xmlelements
             gfx.UnPaintRectangle(this.AreaTag);
         }
 
-        public string GetAttributeString()
+        private string GetAttributesString()
         {
-            var attribute = this.node.Attributes; // Attribs auf Kurznamen umlegen
-            if (attribute == null) return null;
-            if (attribute.Count == 0) return null;
+            var attributes = this.node.Attributes; 
+            if (attributes == null || attributes.Count == 0) return null;
             var attributeString = new StringBuilder();
-            for (int attribLauf = 0; attribLauf < attribute.Count; attribLauf++)
+            for (int i = 0; i < attributes.Count; i++)
             {
-                attributeString.AppendFormat(" {0}=\"{1}\"", attribute[attribLauf].Name, attribute[attribLauf].Value);
+                attributeString.AppendFormat($" {attributes[i].Name}=\"{attributes[i].Value}\"");
             }
             return attributeString.ToString();
         }
 
-        private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
+        private async Task<int> GetAttributeTextWidth(string attributesString, IGraphics gfx)
         {
-            if (string.IsNullOrEmpty(attributeString)) return 0;
-            return (int)await gfx.MeasureDisplayStringWidthAsync(attributeString, this.config.FontNodeAttribute);
+            if (string.IsNullOrEmpty(attributesString)) return 0;
+            return (int)await gfx.MeasureDisplayStringWidthAsync(attributesString, this.config.FontNodeAttribute);
         }
 
         /// <summary>
         /// Draws the attributes 
         /// </summary>
-        private async Task<PaintContext> PaintAttributes(PaintContext paintContext, string attributeString, bool isSelected, IGraphics gfx)
+        private async Task<PaintContext> PaintAttributes(PaintContext paintContext, string attributesString, bool isSelected, IGraphics gfx)
         {
             paintContext = paintContext.Clone();
 
-            if (string.IsNullOrWhiteSpace(attributeString)) return paintContext;
+            if (string.IsNullOrWhiteSpace(attributesString)) return paintContext;
 
-            var attributeWidth = await this.GetAttributeTextWidth(attributeString, gfx);
+            var attributeWidth = await this.GetAttributeTextWidth(attributesString, gfx);
 
             // draw a frame around the attributes
             StandardNodeTagPaint.DrawNodeBodyBySize(GfxJob.Layers.AttributeBackground,
@@ -178,7 +187,7 @@ namespace de.springwald.xml.editor.editor.xmlelements
             {
                 Batchable = false,
                 Layer = GfxJob.Layers.Text,
-                Text = attributeString.ToString(),
+                Text = attributesString.ToString(),
                 Color = isSelected ? this.config.ColorText.InvertedColor : this.config.ColorText,
                 X = paintContext.PaintPosX,
                 Y = paintContext.PaintPosY + this.dimensions.AttributeMarginY + this.dimensions.AttributeInnerMarginY + 1,

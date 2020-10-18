@@ -7,8 +7,6 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.editor.nativeplatform.gfx;
-
 namespace de.springwald.xml.editor.editor.xmlelements.TextNode
 {
     /// <summary>
@@ -23,7 +21,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
         protected override void SetColors()
         {
             base.SetColors();
-            this.colorBackground = this.Config.ColorCommentTextBackground;
+            this.colorBackground = this.config.ColorCommentTextBackground;
         }
     }
 }

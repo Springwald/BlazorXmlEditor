@@ -18,7 +18,6 @@ namespace de.springwald.xml.editor
     public partial class XMLEditor : IDisposable
     {
         private bool _disposed;
-
         internal CursorBlink CursorBlink { get; }
         internal MouseHandler MouseHandler { get; }
         internal KeyboardHandler KeyboardHandler { get; }
@@ -31,7 +30,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// let all XML elements know that you are cleaning up
         /// </summary>
-        public event EventHandler XmlElementeAufraeumenEvent;
+        public event EventHandler CleanUpXmlElementsEvent;
 
         /// <summary>
         /// Stellt einen XML-Editor bereit
@@ -63,7 +62,7 @@ namespace de.springwald.xml.editor
         {
             if (!_disposed)
             {
-                this.xmlElementeAufraeumen();
+                this.CleanUpXmlElements();
                 this.EditorStatus.CursorRoh.ChangedEvent.Remove(this.CursorChangedEvent);
                 this.CursorBlink.Dispose();
                 this.MouseHandler.Dispose();
@@ -138,7 +137,7 @@ namespace de.springwald.xml.editor
             var limitRight = this.NativePlatform.Gfx.Width;
             await this.Paint(limitRight: limitRight);
             this.CursorBlink.Active = true;  // After a change, the cursor line is drawn directly
-            this.xmlElementeAufraeumen(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
+            this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
         }
 
         private async Task CursorBlinkedEvent(EventArgs e)
@@ -163,9 +162,9 @@ namespace de.springwald.xml.editor
             }
         }
 
-        private void xmlElementeAufraeumen()
+        private void CleanUpXmlElements()
         {
-            this.XmlElementeAufraeumenEvent?.Invoke(this, EventArgs.Empty);
+            this.CleanUpXmlElementsEvent?.Invoke(this, EventArgs.Empty);
         }
     }
 }

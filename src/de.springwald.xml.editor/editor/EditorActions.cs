@@ -25,7 +25,7 @@ namespace de.springwald.xml.editor.editor
         /// <summary>
         /// Sind überhaupt irgendwelche Aktionen möglich?
         /// </summary>
-        private bool AktionenMoeglich
+        private bool ActionsAllowed
         {
             get
             {
@@ -55,10 +55,10 @@ namespace de.springwald.xml.editor.editor
         /// Fuegt den Zwischenablageinhalt an die aktuelle CursorPos ein
         /// </summary>
         /// <returns></returns>
-        public virtual async Task<bool> AktionPasteFromClipboard(UndoSnapshotSetzenOptionen undoSnapshotSetzen)
+        public virtual async Task<bool> AktionPasteFromClipboard(UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
 
-            if (!AktionenMoeglich) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
             string text = "";
 
@@ -71,7 +71,7 @@ namespace de.springwald.xml.editor.editor
 
                     if (this.editorStatus.IstRootNodeSelektiert) // Der Rootnode ist selektiert und soll daher durch den Clipboard-Inhalt ersetzt werden
                     {
-                        return await AktionRootNodeDurchClipboardInhaltErsetzen(undoSnapshotSetzen);
+                        return await AktionRootNodeDurchClipboardInhaltErsetzen(setUnDoSnapshot);
                     }
                     else // etwas anderes als der Rootnode soll ersetzt werden
                     {
@@ -93,7 +93,7 @@ namespace de.springwald.xml.editor.editor
                         }
                     }
 
-                    if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+                    if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
                     {
                         this.editorStatus.UndoHandler.SnapshotSetzen(
                             ResReader.Reader.GetString("AktionEinfuegen"),
@@ -110,27 +110,27 @@ namespace de.springwald.xml.editor.editor
                     text = text.Replace("\n", " ");
                     text = text.Replace("\t", " ");
 
-                    string inhalt = String.Format("<paste>{0}</paste>", text);
+                    string content = String.Format("<paste>{0}</paste>", text);
 
                     // den XML-Reader erzeugen
-                    XmlTextReader reader = new XmlTextReader(inhalt, System.Xml.XmlNodeType.Element, null);
+                    var reader = new XmlTextReader(content, XmlNodeType.Element, null);
                     reader.MoveToContent(); //Move to the cd element node.
 
                     // Den virtuellen Paste-Node erstellen
-                    System.Xml.XmlNode pasteNode = this.editorStatus.RootNode.OwnerDocument.ReadNode(reader);
+                    var pasteNode = this.editorStatus.RootNode.OwnerDocument.ReadNode(reader);
 
                     // Nun alle Children des virtuellen Paste-Node nacheinander an der CursorPos einfügen
                     endPos = startPos.Clone(); // Vor dem Einfügen sind start- und endPos gleich
-                    foreach (System.Xml.XmlNode node in pasteNode.ChildNodes)
+                    foreach (XmlNode node in pasteNode.ChildNodes)
                     {
-                        if (node is System.Xml.XmlText) // Einen Text einfügen
+                        if (node is XmlText) // Einen Text einfügen
                         {
-                            var einfuegeResult = await endPos.TextEinfuegen(node.Clone().Value, this.editorStatus.Regelwerk);
-                            if (einfuegeResult.ErsatzNode != null)
+                            var pasteResult = await endPos.TextEinfuegen(node.Clone().Value, this.editorStatus.Regelwerk);
+                            if (pasteResult.ErsatzNode != null)
                             {
                                 // Text konnte nicht eingefügt werden, da aus der Texteingabe eine Node-Eingabe umgewandelt
                                 // wurde. Beispiel: Im AIML-Template wird * gedrückt, und dort statt dessen ein <star> eingefügt
-                                await endPos.InsertXMLNode(einfuegeResult.ErsatzNode.Clone(), this.editorStatus.Regelwerk, true);
+                                await endPos.InsertXMLNode(pasteResult.ErsatzNode.Clone(), this.editorStatus.Regelwerk, true);
                             }
                         }
                         else // Einen Node einfügen
@@ -186,9 +186,9 @@ namespace de.springwald.xml.editor.editor
         /// <summary>
         /// Ersetzt den Root-Node des Editors durch den Inhalt der Zwischenablage
         /// </summary>
-        private async Task<bool> AktionRootNodeDurchClipboardInhaltErsetzen(UndoSnapshotSetzenOptionen undoSnapshotSetzen)
+        private async Task<bool> AktionRootNodeDurchClipboardInhaltErsetzen(UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
-            if (!AktionenMoeglich) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
             string text = "";
 
@@ -197,18 +197,18 @@ namespace de.springwald.xml.editor.editor
 
                 // den XML-Reader erzeugen
                 text = this.nativePlatform.Clipboard.GetText();
-                XmlTextReader reader = new XmlTextReader(text, System.Xml.XmlNodeType.Element, null);
+                var reader = new XmlTextReader(text, System.Xml.XmlNodeType.Element, null);
                 reader.MoveToContent(); //Move to the cd element node.
 
                 // Aus das Zwischenablage einen neuen Rootnode erstellen, dem wir dann die Kinder klauen können
-                System.Xml.XmlNode pasteNode = this.editorStatus.RootNode.OwnerDocument.ReadNode(reader);
+                var pasteNode = this.editorStatus.RootNode.OwnerDocument.ReadNode(reader);
 
                 if (pasteNode.Name != this.editorStatus.RootNode.Name)
                 { // Der Node in der Zwischenablage und der aktuelle Rootnode haben nicht den selben Namen
                     return false; // Nicht erlaubt
                 }
 
-                if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+                if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
                 {
                     this.editorStatus.UndoHandler.SnapshotSetzen(
                         ResReader.Reader.GetString("RootNodedurchZwischenablageersetzen"),
@@ -221,11 +221,11 @@ namespace de.springwald.xml.editor.editor
                 // Alle Attribute des Clipboard-Root-Nodes in den richtigen Root-Node übernehmen
                 while (pasteNode.Attributes.Count > 0)
                 {
-                    XmlAttribute attrib = pasteNode.Attributes.Remove(pasteNode.Attributes[0]); // von Clipboard-Rootnode entfernen
+                    var attrib = pasteNode.Attributes.Remove(pasteNode.Attributes[0]); // von Clipboard-Rootnode entfernen
                     this.editorStatus.RootNode.Attributes.Append(attrib); // an richtigen Rootnode packen
                 }
 
-                XMLCursorPos startPos = new XMLCursorPos();
+                var startPos = new XMLCursorPos();
                 startPos.CursorSetzenOhneChangeEvent(this.editorStatus.RootNode, XMLCursorPositionen.CursorInDemLeeremNode);
                 XMLCursorPos endPos;
 
@@ -233,7 +233,7 @@ namespace de.springwald.xml.editor.editor
                 endPos = startPos.Clone(); // Vor dem Einfügen sind start- und endPos gleich
                 while (pasteNode.ChildNodes.Count > 0)
                 {
-                    XmlNode child = pasteNode.RemoveChild(pasteNode.FirstChild);
+                    var child = pasteNode.RemoveChild(pasteNode.FirstChild);
                     this.editorStatus.RootNode.AppendChild(child);
                 }
 
@@ -256,10 +256,10 @@ namespace de.springwald.xml.editor.editor
         /// <returns></returns>
         public virtual async Task<bool> AktionCopyToClipboard()
         {
-            if (!AktionenMoeglich) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
-            string inhalt = await this.editorStatus.CursorRoh.GetSelektionAlsString();
-            if (string.IsNullOrEmpty(inhalt)) // Nix selektiert
+            var content = await this.editorStatus.CursorRoh.GetSelektionAlsString();
+            if (string.IsNullOrEmpty(content)) // Nix selektiert
             {
                 return false;
             }
@@ -268,7 +268,7 @@ namespace de.springwald.xml.editor.editor
                 try
                 {
                     this.nativePlatform.Clipboard.Clear();
-                    this.nativePlatform.Clipboard.SetText(inhalt); // Selektion als Text in die Zwischenablage kopieren
+                    this.nativePlatform.Clipboard.SetText(content); // Selektion als Text in die Zwischenablage kopieren
                 }
                 catch (Exception)
                 {
@@ -320,10 +320,10 @@ namespace de.springwald.xml.editor.editor
         /// Schneidet die aktuelle Selektion aus und schiebt sie in die Zwischenablage
         /// </summary>
         /// <returns></returns>
-        public virtual async Task<bool> AktionCutToClipboard(UndoSnapshotSetzenOptionen undoSnapshotSetzen)
+        public virtual async Task<bool> AktionCutToClipboard(UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
 
-            if (!AktionenMoeglich) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
             if (this.editorStatus.CursorOptimiert.StartPos.AktNode == this.editorStatus.RootNode)
             {
@@ -357,28 +357,28 @@ namespace de.springwald.xml.editor.editor
         /// </summary>
         /// <returns>true, wenn erfolgreich gelöscht</returns>
         /// <param name="rootNodeLoeschenZulassig">Falls der Rootnode selektiert ist, muss hier TRUE angegeben werden, damit dessen Löschung zulässig ist</param>
-        /// <param name="undoSnapshotSetzen"></param>
+        /// <param name="setUnDoSnapshot"></param>
         /// <returns></returns>
-        public virtual async Task<bool> AktionDelete(UndoSnapshotSetzenOptionen undoSnapshotSetzen)
+        public virtual async Task<bool> AktionDelete(UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
-            if (!AktionenMoeglich) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
             if (this.editorStatus.IstRootNodeSelektiert) return false; // Der Root-Node soll gelöscht werden:  Nicht erlaubt
 
-            if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+            if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
             {
                 this.editorStatus.UndoHandler.SnapshotSetzen(
                     ResReader.Reader.GetString("AktionLoeschen"),
                     this.editorStatus.CursorRoh);
             }
 
-            XMLCursor optimized = this.editorStatus.CursorRoh;
+            var optimized = this.editorStatus.CursorRoh;
             await optimized.SelektionOptimieren();
 
-            var loeschResult = await optimized.SelektionLoeschen();
-            if (loeschResult.Success)
+            var deleteResult = await optimized.SelektionLoeschen();
+            if (deleteResult.Success)
             {
-                await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(loeschResult.NeueCursorPosNachLoeschen.AktNode, loeschResult.NeueCursorPosNachLoeschen.PosAmNode, loeschResult.NeueCursorPosNachLoeschen.PosImTextnode);
+                await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode);
                 await this.editorStatus.FireContentChangedEvent();
                 return true;
             }
@@ -392,21 +392,21 @@ namespace de.springwald.xml.editor.editor
         /// Fügt an der angegebenen Cursor-Pos Text ein
         /// </summary>
         /// <returns></returns>
-        public virtual async Task<bool> AktionTextAnCursorPosEinfuegen(string einfuegeText, UndoSnapshotSetzenOptionen undoSnapshotSetzen)
+        public virtual async Task<bool> AktionTextAnCursorPosEinfuegen(string insertText, UndoSnapshotSetzenOptionen setUnDoSnapShot)
         {
 
-            if (!AktionenMoeglich) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
-            if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+            if (setUnDoSnapShot == UndoSnapshotSetzenOptionen.ja)
             {
                 this.editorStatus.UndoHandler.SnapshotSetzen(
                     String.Format(
                         ResReader.Reader.GetString("AktionSchreiben"),
-                        einfuegeText),
+                        insertText),
                     this.editorStatus.CursorRoh);
             }
 
-            await this.editorStatus.CursorRoh.TextEinfuegen(einfuegeText, this.editorStatus.Regelwerk);
+            await this.editorStatus.CursorRoh.TextEinfuegen(insertText, this.editorStatus.Regelwerk);
             await this.editorStatus.FireContentChangedEvent();
             return true;
         }
@@ -415,20 +415,20 @@ namespace de.springwald.xml.editor.editor
         /// Setzt den Inhalt eines Attributes in einem Node
         /// </summary>
         /// <param name="node"></param>
-        /// <param name="wert"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        public virtual async Task<bool> AktionAttributWertInNodeSetzen(System.Xml.XmlNode node, string attributName, string wert, UndoSnapshotSetzenOptionen undoSnapshotSetzen)
+        public virtual async Task<bool> AktionAttributWertInNodeSetzen(XmlNode node, string attributName, string value, UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
 
-            if (!AktionenMoeglich) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
-            System.Xml.XmlAttribute xmlAttrib = node.Attributes[attributName];
+            var xmlAttrib = node.Attributes[attributName];
 
-            if (wert == "") // Kein Inhalt, Attribut löschen, wenn vorhanden
+            if (string.IsNullOrEmpty(value)) // Kein Inhalt, Attribut löschen, wenn vorhanden
             {
                 if (xmlAttrib != null)  // Attribut gibts -> löschen
                 {
-                    if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+                    if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
                     {
                         this.editorStatus.UndoHandler.SnapshotSetzen(
                             string.Format(
@@ -444,35 +444,35 @@ namespace de.springwald.xml.editor.editor
             {
                 if (xmlAttrib == null)  // Attribut gibts noch nicht -> neu anlegen
                 {
-                    if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+                    if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
                     {
                         this.editorStatus.UndoHandler.SnapshotSetzen(
                             String.Format(
                                 ResReader.Reader.GetString("AktionAttributValueGeaendert"),
                                 attributName,
                                 node.Name,
-                                wert),
+                                value),
                             this.editorStatus.CursorRoh);
                     }
                     xmlAttrib = node.OwnerDocument.CreateAttribute(attributName);
                     node.Attributes.Append(xmlAttrib);
-                    xmlAttrib.Value = wert; // Inhalt in Attribut schreiben
+                    xmlAttrib.Value = value; // Inhalt in Attribut schreiben
                 }
                 else
                 {
-                    if (xmlAttrib.Value != wert)
+                    if (xmlAttrib.Value != value)
                     {
-                        if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+                        if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
                         {
                             this.editorStatus.UndoHandler.SnapshotSetzen(
                                  String.Format(
                                      ResReader.Reader.GetString("AktionAttributValueGeaendert"),
                                      attributName,
                                      node.Name,
-                                     wert),
+                                     value),
                                  this.editorStatus.CursorRoh);
                         }
-                        xmlAttrib.Value = wert; // Inhalt in Attribut schreiben
+                        xmlAttrib.Value = value; // Inhalt in Attribut schreiben
                     }
                 }
             }
@@ -484,33 +484,33 @@ namespace de.springwald.xml.editor.editor
         /// Den Node oder das Zeichen vor dem Cursor löschen
         /// </summary>
         /// <param name="position"></param>
-        public async Task<bool> AktionNodeOderZeichenVorDerCursorPosLoeschen(XMLCursorPos position, UndoSnapshotSetzenOptionen undoSnapshotSetzen)
+        public async Task<bool> AktionNodeOderZeichenVorDerCursorPosLoeschen(XMLCursorPos position, UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
 
-            if (!AktionenMoeglich) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
             // Den Cursor eine Pos nach links
-            XMLCursor loeschbereich = new XMLCursor();
-            loeschbereich.StartPos.CursorSetzenOhneChangeEvent(position.AktNode, position.PosAmNode, position.PosImTextnode);
-            XMLCursorPos endPos = loeschbereich.StartPos.Clone();
+            var deleteArea = new XMLCursor();
+            deleteArea.StartPos.CursorSetzenOhneChangeEvent(position.AktNode, position.PosAmNode, position.PosImTextnode);
+            var endPos = deleteArea.StartPos.Clone();
             await endPos.MoveLeft(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
-            loeschbereich.EndPos.CursorSetzenOhneChangeEvent(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
-            await loeschbereich.SelektionOptimieren();
+            deleteArea.EndPos.CursorSetzenOhneChangeEvent(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
+            await deleteArea.SelektionOptimieren();
 
-            if (loeschbereich.StartPos.AktNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
+            if (deleteArea.StartPos.AktNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
 
-            if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+            if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
             {
                 this.editorStatus.UndoHandler.SnapshotSetzen(
                     ResReader.Reader.GetString("AktionLoeschen"),
                     this.editorStatus.CursorRoh);
             }
 
-            var loeschResult = await loeschbereich.SelektionLoeschen();
-            if (loeschResult.Success)
+            var deleteResult = await deleteArea.SelektionLoeschen();
+            if (deleteResult.Success)
             {
                 // Nach erfolgreichem Löschen wird hier die neue CursorPos zurückgeholt
-                await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(loeschResult.NeueCursorPosNachLoeschen.AktNode, loeschResult.NeueCursorPosNachLoeschen.PosAmNode, loeschResult.NeueCursorPosNachLoeschen.PosImTextnode);
+                await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode);
                 await this.editorStatus.FireContentChangedEvent(); // Bescheid sagen, dass der Inhalt des XMLs sich geändert hat
                 return true;
             }
@@ -524,31 +524,31 @@ namespace de.springwald.xml.editor.editor
         /// Den Node oder das Zeichen hinter dem Cursor löschen
         /// </summary>
         /// <param name="position"></param>
-        public async Task<bool> AktionNodeOderZeichenHinterCursorPosLoeschen(XMLCursorPos position, UndoSnapshotSetzenOptionen undoSnapshotSetzen)
+        public async Task<bool> AktionNodeOderZeichenHinterCursorPosLoeschen(XMLCursorPos position, UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
-            if (!AktionenMoeglich) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
-            if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+            if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
             {
                 this.editorStatus.UndoHandler.SnapshotSetzen(
                      ResReader.Reader.GetString("AktionLoeschen"),
                      this.editorStatus.CursorRoh);
             }
 
-            XMLCursor loeschbereich = new XMLCursor();
-            loeschbereich.StartPos.CursorSetzenOhneChangeEvent(position.AktNode, position.PosAmNode, position.PosImTextnode);
-            XMLCursorPos endPos = loeschbereich.StartPos.Clone();
+            var deleteArea = new XMLCursor();
+            deleteArea.StartPos.CursorSetzenOhneChangeEvent(position.AktNode, position.PosAmNode, position.PosImTextnode);
+            var endPos = deleteArea.StartPos.Clone();
             await endPos.MoveRight(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
-            loeschbereich.EndPos.CursorSetzenOhneChangeEvent(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
-            await loeschbereich.SelektionOptimieren();
+            deleteArea.EndPos.CursorSetzenOhneChangeEvent(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
+            await deleteArea.SelektionOptimieren();
 
-            if (loeschbereich.StartPos.AktNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
+            if (deleteArea.StartPos.AktNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
 
-            var loeschResult = await loeschbereich.SelektionLoeschen();
-            if (loeschResult.Success)
+            var deleteResult = await deleteArea.SelektionLoeschen();
+            if (deleteResult.Success)
             {
                 // Nach erfolgreichem Löschen wird hier die neue CursorPos zurückgeholt
-                this.editorStatus.CursorRoh.BeideCursorPosSetzenOhneChangeEvent(loeschResult.NeueCursorPosNachLoeschen.AktNode, loeschResult.NeueCursorPosNachLoeschen.PosAmNode, loeschResult.NeueCursorPosNachLoeschen.PosImTextnode);
+                this.editorStatus.CursorRoh.BeideCursorPosSetzenOhneChangeEvent(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode);
                 await this.editorStatus.CursorRoh.ErzwingeChanged();	// Weil der Cursor nach dem löschen des folgenden Zeichen nachher exakt noch an der
                 // selben Stelle steht, wird kein automatischer Change-Event ausgeführt, sondern muss
                 // hier manuell erzwungen werden
@@ -566,19 +566,19 @@ namespace de.springwald.xml.editor.editor
         /// </summary>
         /// <param name="nodeName">Solch ein Node soll erzeugt werden</param>
         /// <returns>Der neu erzeugte Node</returns>
-        public virtual async Task<System.Xml.XmlNode> AktionNeuesElementAnAktCursorPosEinfuegen(string nodeName, UndoSnapshotSetzenOptionen undoSnapshotSetzen, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
+        public virtual async Task<System.Xml.XmlNode> AktionNeuesElementAnAktCursorPosEinfuegen(string nodeName, UndoSnapshotSetzenOptionen setUnDoSnapshot, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
         {
-            if (!AktionenMoeglich) return null; // Wenn gar keine Aktionen zulässig sind, abbrechen
+            if (!this.ActionsAllowed) return null; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
-            System.Xml.XmlNode node;
+            XmlNode node;
 
-            if (nodeName == "")
+            if (string.IsNullOrEmpty(nodeName))
             {
                 // "Es wurde kein Nodename angegeben (xml.InsertNewElementAnCursorPos"
                 throw new ApplicationException(ResReader.Reader.GetString("KeinNodeNameAngegeben"));
             }
 
-            if (undoSnapshotSetzen == UndoSnapshotSetzenOptionen.ja)
+            if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
             {
                 this.editorStatus.UndoHandler.SnapshotSetzen(String.Format(
                     ResReader.Reader.GetString("AktionInsertNode"),

@@ -1,4 +1,13 @@
-﻿using de.springwald.xml.editor.nativeplatform.gfx;
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
+using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
 
 namespace de.springwald.xml.editor.editor.xmlelements.StandardNode
@@ -35,10 +44,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.StandardNode
             this.CornerRadius = (this.config.TagHeight - this.AttributeHeight - AttributeInnerMarginY) / 2;
             this.AttributeMarginY = (this.config.TagHeight - this.AttributeHeight - AttributeInnerMarginY) / 2;
             this.InnerMarginX = this.config.FontNodeName.Height / 2;
-
-           
         }
-
 
     }
 }

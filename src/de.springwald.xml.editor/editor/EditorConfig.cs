@@ -7,8 +7,9 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
+using de.springwald.xml.editor.nativeplatform.gfx;
+
 
 namespace de.springwald.xml.editor
 {
@@ -31,9 +32,9 @@ namespace de.springwald.xml.editor
 
         public int InnerMarginY => Math.Max(1, this.FontNodeName.Height / 3);
 
-        public int  ChildEinrueckungX => (int)(this.FontNodeName.Height * 1.5);
+        public int  ChildIndentX => (int)(this.FontNodeName.Height * 1.5);
 
-        public int AbstandYZwischenZeilen => (int)(Math.Max(1, this.FontNodeName.Height * 0.2));
+        public int SpaceYBetweenLines => (int)(Math.Max(1, this.FontNodeName.Height * 0.2));
 
         public int MinLineHeight => this.TagHeight + 2;
     }

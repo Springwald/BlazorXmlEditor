@@ -28,13 +28,15 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
 
         protected int lastFontHeight = 0;
         protected double lastCalculatedFontWidth = 0;
+        private LastPaintingDataText lastPaintData;
+        private PaintContext lastPaintContextResult;
 
         private TextPart[] textParts;  // Buffer of the single, drawn lines. Each corresponds to a click area
 
         /// <summary>
         /// Der offizielle Inhalt dieses textnodes
         /// </summary>
-        private string AktuellerInhalt => ToolboxXML.TextAusTextNodeBereinigt(XMLNode);
+        //private string ActualText => 
 
         public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
@@ -43,8 +45,8 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
 
         protected virtual void SetColors()
         {
-            this.colorText = this.Config.ColorText;
-            this.colorBackground = this.Config.ColorBackground;
+            this.colorText = this.config.ColorText;
+            this.colorBackground = this.config.ColorBackground;
         }
 
         protected override bool IsClickPosInsideNode(Point pos)
@@ -55,8 +57,9 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
 
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
-            this.StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge, cursor);
-            var actualPaintData = CalculateActualPaintData(paintContext, null, selektionStart, selektionLaenge);
+            var actualText = ToolboxXML.TextAusTextNodeBereinigt(XMLNode);
+            this.CalculateStartAndEndOfSelection(actualText, out int selektionStart, out int selektionLaenge, cursor);
+            var actualPaintData = LastPaintingDataText.CalculateActualPaintData(paintContext, this.XMLNode, actualText, this.config.FontTextNode.Height, cursor, selektionStart, selektionLaenge);
 
             var alreadyUnpainted = false;
 
@@ -74,10 +77,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                     break;
 
                 case PaintModes.OnlyPaintWhenChanged:
-                    if (!actualPaintData.Equals(lastPaintData))
-                    {
-                        this.lastPaintData = null;
-                    }
+                    if (!actualPaintData.Equals(lastPaintData)) this.lastPaintData = null;
                     break;
             }
 
@@ -85,6 +85,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
             {
                 return this.lastPaintContextResult.Clone();
             }
+
             this.lastPaintData = actualPaintData;
             this.cursorPaintPos = null;
 
@@ -93,6 +94,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                 lastFontHeight = this.xmlEditor.EditorConfig.FontTextNode.Height;
                 lastCalculatedFontWidth = await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("W", this.xmlEditor.EditorConfig.FontTextNode);
             }
+
             paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.xmlEditor.EditorConfig.MinLineHeight);
 
             int marginY = (paintContext.HoeheAktZeile - this.xmlEditor.EditorConfig.FontTextNode.Height) / 2;
@@ -109,7 +111,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
             const int charMarginRight = 2;
 
             var textPartsRaw = TextSplitHelper.SplitText(
-                text: AktuellerInhalt,
+                text: actualText,
                 invertStart: selektionStart,
                 invertLength: selektionLaenge,
                 maxLength: (int)((paintContext.LimitRight - paintContext.LimitLeft) / lastCalculatedFontWidth) - charMarginRight,
@@ -132,7 +134,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                     // draw the inverted background
                     if (!alreadyUnpainted && oldPart != null) gfx.UnPaintRectangle(oldPart.Rectangle);
 
-                    if (newPart.Inverted || this.colorBackground != this.Config.ColorBackground)
+                    if (newPart.Inverted || this.colorBackground != this.config.ColorBackground)
                     {
                         gfx.AddJob(new JobDrawRectangle
                         {
@@ -141,7 +143,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                             Rectangle = newPart.Rectangle,
                             FillColor = newPart.Inverted ? this.colorBackground.InvertedColor : this.colorBackground,
                         });
-                    } 
+                    }
 
                     // draw the text
                     gfx.AddJob(new JobDrawString
@@ -193,7 +195,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
 
         private IEnumerable<TextPart> GetTextLinesFromTextParts(TextSplitHelper.TextPartRaw[] parts, PaintContext paintContext, XMLCursor cursor, int fontHeight, double fontWidth)
         {
-            paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.Config.MinLineHeight);
+            paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.config.MinLineHeight);
             var x = paintContext.PaintPosX;
             var y = paintContext.PaintPosY;
             var actualLine = 0;
@@ -236,7 +238,6 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                 x += 1 + width;
                 yield return textPart;
                 actualTextPartStartPos += part.Text.Length;
-
             }
         }
 
@@ -267,7 +268,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
         /// </summary>
         /// <param name="selectionStart"></param>
         /// <param name="selektionEnde"></param>
-        private void StartUndEndeDerSelektionBestimmen(out int selectionStart, out int selectionEnd, XMLCursor cursor)
+        private void CalculateStartAndEndOfSelection(string actualText, out int selectionStart, out int selectionEnd, XMLCursor cursor)
         {
             selectionStart = -1;
             selectionEnd = 0;
@@ -279,7 +280,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                     case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag: // Das Node selbst ist als Startnode selektiert
                     case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
                         selectionStart = 0;
-                        selectionEnd = AktuellerInhalt.Length;
+                        selectionEnd = actualText.Length;
                         break;
 
                     case XMLCursorPositionen.CursorHinterDemNode:
@@ -308,7 +309,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                                 case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag: // Startnode liegt vor dem Node, Endnode dahiner: alles ist selektiert
                                 case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
                                 case XMLCursorPositionen.CursorHinterDemNode:
-                                    selectionEnd = Math.Max(0, AktuellerInhalt.Length - selectionStart);
+                                    selectionEnd = Math.Max(0, actualText.Length - selectionStart);
                                     break;
 
                                 case XMLCursorPositionen.CursorInDemLeeremNode:
@@ -332,12 +333,12 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                         {
                             if (cursor.EndPos.AktNode.ParentNode == cursor.StartPos.AktNode.ParentNode) // Wenn Start und Ende zwar verschieden, aber direkt im selben Parent stecken
                             {
-                                selectionEnd = Math.Max(0, AktuellerInhalt.Length - selectionStart); // Nur den selektierten Teil selektieren
+                                selectionEnd = Math.Max(0, actualText.Length - selectionStart); // Nur den selektierten Teil selektieren
                             }
                             else // Start und Ende unterschiedlich und unterschiedliche Parents
                             {
                                 selectionStart = 0;
-                                selectionEnd = AktuellerInhalt.Length;   // Ganzen Textnode selektieren
+                                selectionEnd = actualText.Length;   // Ganzen Textnode selektieren
                             }
                         }
                         break;
@@ -356,7 +357,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                         case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag: // Startnode liegt vor dem Node, Endnode dahiner: alles ist selektiert
                         case XMLCursorPositionen.CursorHinterDemNode:
                             selectionStart = 0;
-                            selectionEnd = AktuellerInhalt.Length;
+                            selectionEnd = actualText.Length;
                             break;
 
                         case XMLCursorPositionen.CursorInDemLeeremNode:
@@ -373,7 +374,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                             else // Start und Ende unterschiedlich und unterschiedliche Parents
                             {
                                 selectionStart = 0;
-                                selectionEnd = AktuellerInhalt.Length;   // Ganzen Textnode selektieren
+                                selectionEnd = actualText.Length;   // Ganzen Textnode selektieren
                             }
                             break;
 
@@ -391,7 +392,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                     if (xmlEditor.EditorStatus.CursorOptimiert.IstNodeInnerhalbDerSelektion(this.XMLNode))
                     {
                         selectionStart = 0;
-                        selectionEnd = AktuellerInhalt.Length;   // Ganzen Textnode selektieren
+                        selectionEnd = actualText.Length;   // Ganzen Textnode selektieren
                     }
                 }
             }

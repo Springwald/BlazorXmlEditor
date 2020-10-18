@@ -1,7 +1,16 @@
-﻿using de.springwald.xml.editor.editor.xmlelements.StandardNode;
-using de.springwald.xml.editor.nativeplatform.gfx;
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System.Threading.Tasks;
 using System.Xml;
+using de.springwald.xml.editor.editor.xmlelements.StandardNode;
+using de.springwald.xml.editor.nativeplatform.gfx;
 
 namespace de.springwald.xml.editor.editor.xmlelements
 {
@@ -61,7 +70,7 @@ namespace de.springwald.xml.editor.editor.xmlelements
             var esteemedWidth = this.nodeNameTextWidth + this.dimensions.InnerMarginX * 3;
             if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight && paintContext.PaintPosX != paintContext.LimitLeft)
             {
-                paintContext.PaintPosX = paintContext.LimitLeft + this.config.ChildEinrueckungX;
+                paintContext.PaintPosX = paintContext.LimitLeft + this.config.ChildIndentX;
                 paintContext.PaintPosY += paintContext.HoeheAktZeile;
             }
 
@@ -118,8 +127,6 @@ namespace de.springwald.xml.editor.editor.xmlelements
             this.lastPaintContextResult = paintContext.Clone();
             return paintContext;
         }
-
-
 
         public void Unpaint(IGraphics gfx)
         {
