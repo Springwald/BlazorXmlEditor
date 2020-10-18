@@ -14,8 +14,6 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public bool Focused => true;
 
-        public Color BackColor => Color.White;
-
         public XmlAsyncEvent<EventArgs> Invalidated { get; } = new XmlAsyncEvent<EventArgs>();
 
     }

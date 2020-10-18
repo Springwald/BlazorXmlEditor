@@ -19,6 +19,8 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         Task SetSize(int width, int height);
 
         void AddJob(GfxJob job);
+
+        void UnPaintRectangle(Rectangle rectangle);
         
         Task PaintJobs();
 

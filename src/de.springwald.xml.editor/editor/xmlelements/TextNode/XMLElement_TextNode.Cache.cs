@@ -1,7 +1,7 @@
 ﻿using de.springwald.xml.editor.editor.xmlelements.Caching;
 using de.springwald.xml.editor.nativeplatform.gfx;
 
-namespace de.springwald.xml.editor
+namespace de.springwald.xml.editor.editor.xmlelements.TextNode
 {
     public partial class XMLElement_TextNode
     {
@@ -16,7 +16,7 @@ namespace de.springwald.xml.editor
                 LastPaintPosX = paintContext.PaintPosX,
                 LastPaintLimitRight = paintContext.LimitRight,
                 LastPaintContent = this.AktuellerInhalt,
-                LastPaintTextFontHeight = this.Config.TextNodeFont.Height,
+                LastPaintTextFontHeight = this.Config.FontTextNode.Height,
                 SelectionStart = selectionStart,
                 SelectionLength = selectionLength,
             };

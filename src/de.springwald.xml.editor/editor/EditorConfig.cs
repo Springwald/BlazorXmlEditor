@@ -14,20 +14,22 @@ namespace de.springwald.xml.editor
 {
     public abstract class EditorConfig
     {
-        public abstract Font NodeNameFont { get; set; }
+        public abstract Font FontNodeName { get; set; }
 
-        public abstract Font NodeAttributeFont { get; set; }
+        public abstract Font FontNodeAttribute { get; set; }
 
-        public abstract Font TextNodeFont { get; set; }
+        public abstract Font FontTextNode { get; set; }
 
-        public Color TextColor { get; set; } = Color.Black;
-        public Color NodeTagBorderColor { get; set; } = Color.Gray;
-        public Color NodeTagBackgroundColor { get; set; } = Color.LightGray;
+        public Color ColorBackground { get; set; } = Color.White;
+        public Color ColorText { get; set; } = Color.Black;
+        public Color ColorNodeTagBorder { get; set; } = Color.Gray;
+        public Color ColorNodeTagBackground { get; set; } = Color.LightGray;
+        public Color ColorNodeAttributeBackground { get; set; } = Color.White;
+        public Color ColorCommentTextBackground { get; set; } = Color.LightGray;
 
+        public int TagHeight => this.FontNodeName.Height + this.InnerMarginY * 2;
 
-        public int TagHeight => this.NodeNameFont.Height + this.InnerMarginY * 2;
-
-        public int InnerMarginY => Math.Max(1, this.NodeNameFont.Height / 3);
+        public int InnerMarginY => Math.Max(1, this.FontNodeName.Height / 3);
 
         public int MinLineHeight => this.TagHeight + 2;
     }

@@ -19,7 +19,7 @@ namespace de.springwald.xml.editor
             if (paintContext.PaintPosX != this.lastPaintPosX) return false;
             if (paintContext.LimitRight != this.lastPaintLimitRight) return false;
             if (this.lastAttributeString != this.GetAttributeString()) return false;
-            if (this.Config.TextNodeFont.Height != this.lastPaintTextFontHeight) return false;
+            if (this.Config.FontTextNode.Height != this.lastPaintTextFontHeight) return false;
             return true;
         }
 
@@ -34,7 +34,7 @@ namespace de.springwald.xml.editor
             this.lastPaintPosX = paintContext.PaintPosX;
             this.lastPaintLimitRight = paintContext.LimitRight;
             this.lastAttributeString = this.GetAttributeString();
-            this.lastPaintTextFontHeight = this.Config.TextNodeFont.Height;
+            this.lastPaintTextFontHeight = this.Config.FontTextNode.Height;
         }
     }
 }

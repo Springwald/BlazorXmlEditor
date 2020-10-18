@@ -89,7 +89,7 @@ namespace de.springwald.xml.editor
             if (this.cursorPaintPos == null) return;
             if (this.xmlEditor.CursorBlink.PaintCursor == false) return;
 
-            var height = (int)(Math.Max(this.xmlEditor.EditorConfig.TextNodeFont.Height, this.xmlEditor.EditorConfig.NodeNameFont.Height) * 1.6);
+            var height = (int)(Math.Max(this.xmlEditor.EditorConfig.FontTextNode.Height, this.xmlEditor.EditorConfig.FontNodeName.Height) * 1.6);
             var margin = height / 5;
             gfx.AddJob(new JobDrawLine
             {
@@ -145,28 +145,7 @@ namespace de.springwald.xml.editor
             }
         }
 
-        private Color[] unPaintColors = new[] { Color.Blue, Color.DarkBlue, Color.Gray, Color.Red, Color.White };
-        private int unPaintColor = 0;
-
-        protected void UnPaintRectangle(IGraphics gfx, Rectangle rectangle)
-        {
-            if (rectangle != null)
-            {
-                rectangle = new Rectangle(rectangle.X-1, rectangle.Y - 1, rectangle.Width + 2, rectangle.Height + 2);
-
-                unPaintColor++;
-                if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
-                var fillColor = unPaintColors[unPaintColor]; // this.xmlEditor.NativePlatform.ControlElement.BackColor,
-
-                gfx.AddJob(new JobDrawRectangle
-                {
-                    Layer = GfxJob.Layers.ClearBackground,
-                    Batchable = true,
-                    FillColor = fillColor,
-                    Rectangle = rectangle
-                }) ;
-            }
-        }
+      
 
         /// <summary>
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde

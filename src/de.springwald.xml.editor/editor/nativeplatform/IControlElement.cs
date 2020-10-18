@@ -14,6 +14,5 @@ namespace de.springwald.xml.editor.nativeplatform
     public interface IControlElement
     {
         bool Enabled { get; set; }
-        Color BackColor { get; }
     }
 }

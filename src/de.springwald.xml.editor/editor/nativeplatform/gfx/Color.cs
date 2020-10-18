@@ -37,9 +37,15 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
             this.A = a;
         }
 
-        public Color InvertedColor()
+        private Color invertedColor;
+
+        public Color InvertedColor
         {
-            return new Color(r: (byte)(255 - this.R), g: (byte)(255 - this.G), b: (byte)(255 - this.B), a: this.A);
+            get
+            {
+                if (this.invertedColor == null) this.invertedColor =  new Color(r: (byte)(255 - this.R), g: (byte)(255 - this.G), b: (byte)(255 - this.B), a: this.A);
+                return this.invertedColor;
+            }
         }
 
         public static Color FromArgb(byte r, byte g, byte b)

@@ -1,4 +1,5 @@
 ﻿using Blazor.Extensions;
+using de.springwald.xml.editor.editor.nativeplatform.gfx.Jobs;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,6 +51,11 @@ namespace de.springwald.xml.blazor.NativePlatform
             return await (await this.GetContext()).MeasureDisplayStringWidthAsync(text, font);
         }
 
+        public void UnPaintRectangle(Rectangle rectangle)
+        {
+            if (rectangle != null) this.AddJob(new JobUnpaintRectangle { Rectangle = rectangle });
+        }
+
         public void AddJob(GfxJob job)
         {
             this.jobs.Add(job);
@@ -93,5 +99,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
             return this.contextCache;
         }
+
+      
     }
 }

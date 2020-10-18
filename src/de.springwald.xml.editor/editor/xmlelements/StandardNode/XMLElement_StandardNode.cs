@@ -22,14 +22,6 @@ namespace de.springwald.xml.editor
     /// </summary>
     public partial class XMLElement_StandardNode : XMLElement
     {
-        private Color _farbeRahmenHintergrund;
-        private Color _farbeRahmenRand;
-        private Color _farbeNodeNameSchrift;
-
-        private Color _farbeAttributeHintergrund;
-        private Color _farbeAttributeRand;
-        private Color _farbeAttributeSchrift;
-
         private Rectangle areaArrowOpenTag;       // Der Klickbereich des linken Pfeiles
         private Rectangle areaArrowStartTag;		// Der Klickbereich des rechten Pfeiles
         private Rectangle areaStartTag;         // Der Klickbereich des linken Tags
@@ -39,12 +31,12 @@ namespace de.springwald.xml.editor
 
         private const int _rundung = 3;             // Diese Rundung hat der Rahmen
 
-        private int innerMarginX => (this.Config.NodeNameFont.Height) / 2;
+        private int innerMarginX => (this.Config.FontNodeName.Height) / 2;
 
         private int attributeMarginY => (this.Config.TagHeight - attributeHeight - attributeInnerMarginY) / 2;
 
-        private int attributeInnerMarginY => Math.Max(1, (this.Config.NodeNameFont.Height - this.Config.NodeAttributeFont.Height) / 2);
-        private int attributeHeight => this.Config.NodeAttributeFont.Height + attributeInnerMarginY * 2;
+        private int attributeInnerMarginY => Math.Max(1, (this.Config.FontNodeName.Height - this.Config.FontNodeAttribute.Height) / 2);
+        private int attributeHeight => this.Config.FontNodeAttribute.Height + attributeInnerMarginY * 2;
 
 
         private int lastPaintNodeAbschlussX;
@@ -53,8 +45,11 @@ namespace de.springwald.xml.editor
         private PaintContext lastAfterClosingNodePaintContext;
         private XMLCursor lastPaintCursor;
 
+        private Color colorTagBackground;
+
         public XMLElement_StandardNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
+            this.colorTagBackground = xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode,selektiert:false);
         }
 
         protected override void Dispose(bool disposing)
@@ -69,7 +64,9 @@ namespace de.springwald.xml.editor
 
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
-            this.DefineColors(cursor);
+
+            var isSelected = cursor.IstNodeInnerhalbDerSelektion(this.XMLNode);
+
             this.CreateChildElementsIfNeeded();
 
             var lastPaintStillUpToDate = this.LastPaintStillUpToDate(paintContext);
@@ -100,7 +97,7 @@ namespace de.springwald.xml.editor
             }
             else
             {
-                paintContext = await this.NodeZeichnenStart(paintContext, cursor, gfx);
+                paintContext = await this.NodeZeichnenStart(paintContext, cursor, isSelected, gfx);
                 this.lastAfterStartNodePaintContext = paintContext.Clone();
             }
 
@@ -111,12 +108,12 @@ namespace de.springwald.xml.editor
                 switch (paintMode)
                 {
                     case PaintModes.ForcePaintNoUnPaintNeeded:
-                        paintContext = await this.NodeZeichnenAbschluss(paintContext, cursor, gfx);
+                        paintContext = await this.NodeZeichnenAbschluss(paintContext, cursor, isSelected, gfx);
                         break;
 
                     case PaintModes.ForcePaintAndUnpaintBefore:
                         this.UnPaintNodeAbschluss(gfx);
-                        paintContext = await this.NodeZeichnenAbschluss(paintContext, cursor, gfx);
+                        paintContext = await this.NodeZeichnenAbschluss(paintContext, cursor, isSelected,gfx);
                         break;
 
                     case PaintModes.OnlyPaintWhenChanged:
@@ -125,7 +122,7 @@ namespace de.springwald.xml.editor
                             this.UnPaintNodeAbschluss(gfx);
                             lastPaintNodeAbschlussX = paintContext.PaintPosX;
                             lastPaintNodeAbschlussY = paintContext.PaintPosY;
-                            paintContext = await this.NodeZeichnenAbschluss(paintContext,  cursor, gfx);
+                            paintContext = await this.NodeZeichnenAbschluss(paintContext,  cursor, isSelected, gfx);
                             this.lastAfterClosingNodePaintContext = paintContext.Clone();
                         }
                         else
@@ -162,14 +159,14 @@ namespace de.springwald.xml.editor
         private void UnPaintNodeStart(IGraphics gfx)
         {
             this.ResetLastPaintPosCacheAttributes();
-            this.UnPaintRectangle(gfx, this.areaStartTag);
-            this.UnPaintRectangle(gfx, this.areaArrowOpenTag);
+            gfx.UnPaintRectangle(this.areaStartTag);
+            gfx.UnPaintRectangle(this.areaArrowOpenTag);
         }
 
         private void UnPaintNodeAbschluss(IGraphics gfx)
         {
-            this.UnPaintRectangle(gfx, this.areaCloseTag);
-            this.UnPaintRectangle(gfx, this.areaArrowStartTag);
+            gfx.UnPaintRectangle(this.areaCloseTag);
+            gfx.UnPaintRectangle(this.areaArrowStartTag);
         }
 
         protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
@@ -274,7 +271,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Zeichnet die Grafik des aktuellen Nodes
         /// </summary>
-        protected async Task<PaintContext> NodeZeichnenStart(PaintContext paintContext, XMLCursor cursor, IGraphics gfx)
+        protected async Task<PaintContext> NodeZeichnenStart(PaintContext paintContext, XMLCursor cursor, bool isSelected, IGraphics gfx)
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
@@ -293,7 +290,7 @@ namespace de.springwald.xml.editor
 
             // Pre-calculate the width of the node name
 
-            int nodeNameTextWidth = (int)(await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, xmlEditor.EditorConfig.NodeNameFont));
+            int nodeNameTextWidth = (int)(await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, xmlEditor.EditorConfig.FontNodeName));
             //
             // Console.WriteLine(">>>>>>>>>>>>>>" + this.XMLNode.Name + ":" + xmlEditor.EditorConfig.NodeNameFont.Height + "=" + nodeNameTextWidth);
 
@@ -309,23 +306,30 @@ namespace de.springwald.xml.editor
                 Batchable = false,
                 Layer = GfxJob.Layers.Text,
                 Text = this.XMLNode.Name,
-                Color = _farbeNodeNameSchrift,
+                Color = isSelected ?  this.Config.ColorText.InvertedColor : this.Config.ColorText,
                 X = paintContext.PaintPosX,
                 Y = paintContext.PaintPosY + this.Config.InnerMarginY,
-                Font = xmlEditor.EditorConfig.NodeNameFont
+                Font = xmlEditor.EditorConfig.FontNodeName
             });
 
             paintContext.PaintPosX += nodeNameTextWidth + innerMarginX;
 
             // draw the attributes
-            paintContext = await AttributeZeichnen(paintContext, attributeString, gfx);
+            paintContext = await AttributeZeichnen(paintContext, attributeString, isSelected, gfx);
 
             // standard distance + one pixel to the right, otherwise we draw on the frame line
             paintContext.PaintPosX += 1;
 
             var borderWidth = paintContext.PaintPosX - startX;
 
-            zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, startX, paintContext.PaintPosY, borderWidth, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+            zeichneRahmenNachGroesse(
+                GfxJob.Layers.TagBackground, 
+                startX, paintContext.PaintPosY, 
+                borderWidth, this.Config.TagHeight, 
+                _rundung,
+                 isSelected ? this.colorTagBackground.InvertedColor : this.colorTagBackground,
+                isSelected ? this.Config.ColorNodeTagBorder.InvertedColor : this.Config.ColorNodeTagBorder,
+                gfx);
 
             // if necessary draw the continuing arrow at the end of the frame 
             if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
@@ -337,7 +341,7 @@ namespace de.springwald.xml.editor
                 {
                     Batchable = true,
                     Layer = GfxJob.Layers.TagBorder,
-                    FillColor = _farbeRahmenRand,
+                    FillColor = isSelected ? this.Config.ColorNodeTagBorder.InvertedColor : this.Config.ColorNodeTagBorder,
                     Points = new[] { point1, point2, point3 }
                 });
 
@@ -388,7 +392,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Draws the attributes 
         /// </summary>
-        private async Task<PaintContext> AttributeZeichnen(PaintContext paintContext, string attributeString, IGraphics gfx)
+        private async Task<PaintContext> AttributeZeichnen(PaintContext paintContext, string attributeString, bool isSelected, IGraphics gfx)
         {
             paintContext = paintContext.Clone();
 
@@ -400,7 +404,9 @@ namespace de.springwald.xml.editor
             zeichneRahmenNachGroesse(GfxJob.Layers.AttributeBackground,
                 paintContext.PaintPosX, paintContext.PaintPosY + attributeMarginY,
                 attributeBreite, attributeHeight, 2,
-              _farbeAttributeHintergrund, _farbeAttributeRand, gfx);
+                isSelected ? this.Config.ColorNodeAttributeBackground.InvertedColor : this.Config.ColorNodeAttributeBackground,
+                isSelected ? this.Config.ColorNodeTagBorder.InvertedColor : this.Config.ColorNodeTagBorder,
+                gfx);
 
             // Draw attributes
             gfx.AddJob(new JobDrawString
@@ -408,10 +414,10 @@ namespace de.springwald.xml.editor
                 Batchable = false,
                 Layer = GfxJob.Layers.Text,
                 Text = attributeString.ToString(),
-                Color = _farbeAttributeSchrift,
+                Color = isSelected ? this.Config.ColorText.InvertedColor : this.Config.ColorText,
                 X = paintContext.PaintPosX,
                 Y = paintContext.PaintPosY + attributeMarginY + attributeInnerMarginY + 1,
-                Font = xmlEditor.EditorConfig.NodeAttributeFont
+                Font = xmlEditor.EditorConfig.FontNodeAttribute
             });
 
             // Set character cursor behind the attributes
@@ -420,7 +426,7 @@ namespace de.springwald.xml.editor
             return paintContext;
         }
 
-        protected async Task<PaintContext> NodeZeichnenAbschluss(PaintContext paintContext, XMLCursor cursor, IGraphics gfx)
+        protected async Task<PaintContext> NodeZeichnenAbschluss(PaintContext paintContext, XMLCursor cursor, bool isSelected , IGraphics gfx)
         {
             // Falls der Cursor hinter dem letzten Child dieses Nodes steht, dann
             // den Cursor auch dahin zeichnen
@@ -432,7 +438,7 @@ namespace de.springwald.xml.editor
             if (xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(this.XMLNode))
             {
                 // Die Breite vorausberechnen
-                int schriftBreite = (int)(await gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, xmlEditor.EditorConfig.NodeNameFont));
+                int schriftBreite = (int)(await gfx.MeasureDisplayStringWidthAsync(this.XMLNode.Name, xmlEditor.EditorConfig.FontNodeName));
 
                 var esteemedWidth = schriftBreite + innerMarginX * 3;
                 if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight && paintContext.PaintPosX != paintContext.LimitLeft)
@@ -452,7 +458,7 @@ namespace de.springwald.xml.editor
                 {
                     Batchable = true,
                     Layer = GfxJob.Layers.TagBorder,
-                    FillColor = _farbeRahmenRand,
+                    FillColor = isSelected ? this.Config.ColorNodeTagBorder.InvertedColor: this.Config.ColorNodeTagBorder,
                     Points = new[] { point1, point2, point3 }
                 });
 
@@ -461,7 +467,13 @@ namespace de.springwald.xml.editor
                 paintContext.PaintPosX += innerMarginX + 1; // Zeichnungscursor hinter den Pfeil setzen
 
                 // ## RAHMEN für schließenden Node  zeichnen ###
-                zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, paintContext.PaintPosX, paintContext.PaintPosY, schriftBreite + innerMarginX * 2, this.Config.TagHeight, _rundung, _farbeRahmenHintergrund, _farbeRahmenRand, gfx);
+                zeichneRahmenNachGroesse(GfxJob.Layers.TagBackground, 
+                    paintContext.PaintPosX, paintContext.PaintPosY, 
+                    schriftBreite + innerMarginX * 2, this.Config.TagHeight, _rundung,
+                    isSelected ? this.colorTagBackground.InvertedColor : this.colorTagBackground,
+                    isSelected ? this.Config.ColorNodeTagBorder.InvertedColor : this.Config.ColorNodeTagBorder,
+                    gfx);
+
                 paintContext.PaintPosX += innerMarginX; // Abstand zwischen Rahmen und Schrift
 
                 // ## Name für schließenden Node zeichnen ###
@@ -470,10 +482,10 @@ namespace de.springwald.xml.editor
                     Batchable = false,
                     Layer = GfxJob.Layers.Text,
                     Text = this.XMLNode.Name,
-                    Color = _farbeNodeNameSchrift,
+                    Color = isSelected ? this.Config.ColorText.InvertedColor : this.Config.ColorText,
                     X = paintContext.PaintPosX,
                     Y = paintContext.PaintPosY + this.Config.InnerMarginY,
-                    Font = xmlEditor.EditorConfig.NodeNameFont
+                    Font = xmlEditor.EditorConfig.FontNodeName
                 });
 
                 paintContext.PaintPosX += schriftBreite + innerMarginX; // Distance between font and frame
@@ -505,7 +517,7 @@ namespace de.springwald.xml.editor
         private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
         {
             if (string.IsNullOrEmpty(attributeString)) return 0;
-            return (int)await gfx.MeasureDisplayStringWidthAsync(attributeString, this.xmlEditor.EditorConfig.NodeAttributeFont);
+            return (int)await gfx.MeasureDisplayStringWidthAsync(attributeString, this.xmlEditor.EditorConfig.FontNodeAttribute);
         }
 
         private string GetAttributeString()
@@ -623,42 +635,6 @@ namespace de.springwald.xml.editor
             // Nicht auf Pfeil geklickt, dann Event weiterreichen an Base-Klasse
             await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, aktion);
             xmlEditor.CursorBlink.ResetBlinkPhase();
-        }
-
-        /// <summary>
-        /// Vertauscht die Vorder- und Hintergrundfarben, um den Node selektiert darstellen zu können
-        /// </summary>
-        private void DefineColors(XMLCursor cursor)
-        {
-            if (cursor.IstNodeInnerhalbDerSelektion(this.XMLNode))
-            {
-                // Selektiert
-                _farbeRahmenHintergrund = xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode, true);
-                _farbeNodeNameSchrift = Color.White;
-                _farbeAttributeHintergrund = Color.Transparent;
-                _farbeAttributeSchrift = Color.White;
-            }
-            else
-            {
-                // nicht selektiert
-                _farbeRahmenHintergrund = xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode, false);
-                _farbeNodeNameSchrift = Color.Black;
-                _farbeAttributeHintergrund = Color.White;// Color.FromArgb(225, 225, 225);
-                _farbeAttributeSchrift = Color.Black;
-            }
-            _farbeAttributeRand = Color.FromArgb(225, 225, 225);
-            _farbeRahmenRand = Color.FromArgb(100, 100, 150);
-
-            //if (paintArt == XMLPaintArten.AllesNeuZeichnenMitFehlerHighlighting)
-            //{
-            //    // Wenn der Node laut DTD defekt ist, dann Farben überschreiben
-            //    if (!this._xmlEditor.Regelwerk.DTDPruefer.IstXmlNodeOk(this.XMLNode, false))
-            //    {
-            //        _farbeNodeNameSchrift = Color.Red;
-            //        _farbePfeil = Color.Red;
-            //        _farbeRahmenRand = Color.Red;
-            //    }
-            //}
         }
 
         private void CreateChildElementsIfNeeded()

@@ -25,6 +25,7 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         public enum JobTypes
         {
             Clear,
+            UnPaintRectangle,
             DrawLine,
             DrawPolygon,
             DrawRectangle,

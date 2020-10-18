@@ -7,6 +7,8 @@
 // All rights reserved
 // Licensed under MIT License
 
+using de.springwald.xml.editor.editor.xmlelements.TextNode;
+
 namespace de.springwald.xml
 {
     class ElementCreator
@@ -36,9 +38,9 @@ namespace de.springwald.xml
                 //}
             }
 
-            if (xmlNode is System.Xml.XmlText) return new editor.XMLElement_TextNode(xmlNode, this.xmlEditor);
+            if (xmlNode is System.Xml.XmlText) return new XMLElement_TextNode(xmlNode, this.xmlEditor);
 
-            if (xmlNode is System.Xml.XmlComment) return new editor.XMLElement_Kommentar(xmlNode, this.xmlEditor);
+            if (xmlNode is System.Xml.XmlComment) return new XMLElement_Kommentar(xmlNode, this.xmlEditor);
 
             return new editor.XMLElement_StandardNode(xmlNode, this.xmlEditor);
         }

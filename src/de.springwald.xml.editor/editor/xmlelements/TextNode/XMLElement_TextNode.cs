@@ -16,28 +16,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace de.springwald.xml.editor
+namespace de.springwald.xml.editor.editor.xmlelements.TextNode
 {
     /// <summary>
     /// XML element for displaying a text node
     /// </summary>
     public partial class XMLElement_TextNode : XMLElement
     {
-        private class TextLine
-        {
-            public string Text { get; set; }
-            public Rectangle Rectangle { get; set; }
-            public bool Inverted { get; set; }
-        }
+
+        protected Color colorText;
+        protected Color colorBackground;
 
         protected int lastFontHeight = 0;
         protected double lastCalculatedFontWidth = 0;
-
-        protected Color _farbeHintergrund_;
-        protected Color _farbeHintergrundInvertiert_;
-
-        protected Color _drawBrush_;
-        protected Color _drawBrushInvertiert_;
 
         private TextLine[] textParts;  // Buffer of the single, drawn lines. Each corresponds to a click area
 
@@ -46,37 +37,15 @@ namespace de.springwald.xml.editor
         /// </summary>
         private string AktuellerInhalt => ToolboxXML.TextAusTextNodeBereinigt(XMLNode);
 
-        private Color GetHintergrundFarbe(bool invertiert)
-        {
-            if (invertiert)
-            {
-                    // Inverted
-                    return _farbeHintergrundInvertiert_;
-            }
-            else
-            {
-                // Fill background normally
-                return _farbeHintergrund_;
-            }
-        }
-
-        private Color GetZeichenFarbe(bool inverted)
-        {
-            if (inverted)
-            {
-                    // Inverted
-                    return _drawBrushInvertiert_;
-            }
-            else
-            {
-                //  normal 
-                return _drawBrush_;
-            }
-        }
-
         public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
         {
-            FarbenSetzen(); // Farben bereitstellen
+            this.SetColors();
+        }
+
+        protected virtual void SetColors()
+        {
+            this.colorText = this.Config.ColorText;
+            this.colorBackground = this.Config.ColorBackground;
         }
 
         protected override bool IsClickPosInsideNode(Point pos)
@@ -117,14 +86,14 @@ namespace de.springwald.xml.editor
             {
                 this.lastPaintData = actualPaintData;
 
-                if (lastFontHeight != this.xmlEditor.EditorConfig.TextNodeFont.Height)
+                if (lastFontHeight != this.xmlEditor.EditorConfig.FontTextNode.Height)
                 {
-                    lastFontHeight = this.xmlEditor.EditorConfig.TextNodeFont.Height;
-                    lastCalculatedFontWidth = await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("W", this.xmlEditor.EditorConfig.TextNodeFont);
+                    lastFontHeight = this.xmlEditor.EditorConfig.FontTextNode.Height;
+                    lastCalculatedFontWidth = await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("W", this.xmlEditor.EditorConfig.FontTextNode);
                 }
                 paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.xmlEditor.EditorConfig.MinLineHeight);
 
-                int marginY = (paintContext.HoeheAktZeile - this.xmlEditor.EditorConfig.TextNodeFont.Height) / 2;
+                int marginY = (paintContext.HoeheAktZeile - this.xmlEditor.EditorConfig.FontTextNode.Height) / 2;
 
                 // ggf. den Cursorstrich vor dem Node berechnen
                 if (this.XMLNode == cursor.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
@@ -178,9 +147,9 @@ namespace de.springwald.xml.editor
                             Batchable = true,
                             Layer = GfxJob.Layers.TagBackground,
                             Rectangle = part.Rectangle,
-                            FillColor = GetHintergrundFarbe(invertiert: true),
+                            FillColor = part.Inverted ? this.colorBackground.InvertedColor : this.colorBackground,
                         });
-                    } 
+                    }
 
                     // draw the text
                     gfx.AddJob(new JobDrawString
@@ -188,11 +157,11 @@ namespace de.springwald.xml.editor
                         Batchable = false,
                         Layer = GfxJob.Layers.Text,
                         Text = part.Text,
-                        Color = GetZeichenFarbe(part.Inverted),
+                        Color = part.Inverted ? this.colorText.InvertedColor : this.colorText,
                         X = part.Rectangle.X,
                         Y = part.Rectangle.Y + marginY,
-                        Font = xmlEditor.EditorConfig.TextNodeFont
-                    });
+                        Font = xmlEditor.EditorConfig.FontTextNode
+                    }); ;
                     paintContext.PaintPosY = part.Rectangle.Y;
                     paintContext.PaintPosX = part.Rectangle.X + part.Rectangle.Width;
                     paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
@@ -223,9 +192,9 @@ namespace de.springwald.xml.editor
                 //    Batchable = true,
                 //    FillColor = unPaintColors[unPaintColor],
                 //    Rectangle = textPart.Rectangle
-                    
+
                 //});
-                base.UnPaintRectangle(gfx, textPart.Rectangle);
+                gfx.UnPaintRectangle(textPart.Rectangle);
             }
         }
 
@@ -276,24 +245,6 @@ namespace de.springwald.xml.editor
                 }
             }
             await xmlEditor.EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, posInLine, action);
-        }
-
-        /// <summary>
-        /// Vertauscht die Vorder- und Hintergrundfarben, um den Node selektiert darstellen zu können
-        /// </summary>
-        protected virtual void FarbenSetzen()
-        {
-            // Die Farben für "nicht invertiert" definieren
-            _farbeHintergrund_ = this.xmlEditor.NativePlatform.ControlElement.BackColor;
-            _drawBrush_ = Color.Black;  // Schrift-Pinsel bereitstellen;
-
-            // Die Farben für "invertiert" definieren
-            _farbeHintergrundInvertiert_ = Color.DarkBlue;
-            _drawBrushInvertiert_ = Color.White;    // Schrift-Pinsel bereitstellen;
-
-            // Die Farben für schwach "invertiert" definieren
-            _farbeHintergrundInvertiertOhneFokus_ = Color.Gray;
-            _drawBrushInvertiertOhneFokus_ = Color.White;   // Schrift-Pinsel bereitstellen;
         }
 
         /// <summary>

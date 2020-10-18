@@ -10,9 +10,9 @@ namespace de.springwald.xml.blazor
     {
         private Font textNodeFont;
 
-        public override Font NodeNameFont { get; set; }
-        public override Font NodeAttributeFont { get; set; }
-        public override Font TextNodeFont
+        public override Font FontNodeName { get; set; }
+        public override Font FontNodeAttribute { get; set; }
+        public override Font FontTextNode
         {
             get => this.textNodeFont; set
             {
