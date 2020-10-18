@@ -31,6 +31,10 @@ namespace de.springwald.xml.editor
 
         public int InnerMarginY => Math.Max(1, this.FontNodeName.Height / 3);
 
+        public int  ChildEinrueckungX => (int)(this.FontNodeName.Height * 1.5);
+
+        public int AbstandYZwischenZeilen => (int)(Math.Max(1, this.FontNodeName.Height * 0.2));
+
         public int MinLineHeight => this.TagHeight + 2;
     }
 }

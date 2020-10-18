@@ -55,30 +55,6 @@ namespace de.springwald.xml
         }
 
         /// <summary>
-        ///  Soweit wird ein Child-Element in einer neuen Zeile eingerückt
-        /// </summary>
-        public virtual int ChildEinrueckungX
-        {
-            get { return 20; }
-        }
-
-        /// <summary>
-        /// Der Abstand zwischen zwei Zeilen
-        /// </summary>
-        public virtual int AbstandYZwischenZeilen
-        {
-            get { return 5; }
-        }
-
-        /// <summary>
-        /// Der Abstand zwischen zwei Fliesstextelementen
-        /// </summary>
-        public virtual int AbstandFliessElementeX
-        {
-            get { return 0; }
-        }
-
-        /// <summary>
         /// Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können
         /// </summary>
         public virtual XMLElementGruppenListe ElementGruppen

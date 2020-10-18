@@ -23,7 +23,6 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
     /// </summary>
     public partial class XMLElement_TextNode : XMLElement
     {
-
         protected Color colorText;
         protected Color colorBackground;
 
@@ -182,18 +181,8 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
 
         protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
         {
-            //unPaintColor++;
-            //if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
             foreach (var textPart in this.textParts)
             {
-                //gfx.AddJob(new JobDrawRectangle
-                //{
-                //    Layer = GfxJob.Layers.ClearBackground,
-                //    Batchable = true,
-                //    FillColor = unPaintColors[unPaintColor],
-                //    Rectangle = textPart.Rectangle
-
-                //});
                 gfx.UnPaintRectangle(textPart.Rectangle);
             }
         }
