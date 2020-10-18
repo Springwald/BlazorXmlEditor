@@ -66,13 +66,13 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
 
                 case PaintModes.ForcePaintAndUnpaintBefore:
                     this.lastPaintData = null;
-                    this.UnPaint(gfx, paintContext);
+                    this.UnPaint(gfx);
                     break;
 
                 case PaintModes.OnlyPaintWhenChanged:
                     if (!actualPaintData.Equals(lastPaintData)) {
                         this.lastPaintData = null;
-                        this.UnPaint(gfx, paintContext);
+                        this.UnPaint(gfx);
                     }
                     break;
             }
@@ -179,7 +179,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
             }
         }
 
-        protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
+        protected override void UnPaint(IGraphics gfx)
         {
             foreach (var textPart in this.textParts)
             {

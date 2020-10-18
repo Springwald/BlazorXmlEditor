@@ -28,11 +28,6 @@ namespace de.springwald.xml.editor
         private StandardNodeDimensionsAndColor nodeDimensions;
         private StandardNodeStartTagPainter StartTag;
         private StandardNodeEndTagPainter EndTag;
-        //private int lastPaintNodeAbschlussX;
-        //private int lastPaintNodeAbschlussY;
-        //private PaintContext lastAfterStartNodePaintContext;
-        //private PaintContext lastAfterClosingNodePaintContext;
-        //private XMLCursor lastPaintCursor;
 
         protected List<XMLElement> childElements = new List<XMLElement>();   // Die ChildElemente in diesem Steuerelement
 
@@ -42,10 +37,10 @@ namespace de.springwald.xml.editor
             var colorTagBackground = xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode, selektiert: false);
             this.node = XMLNode;
             this.nodeDimensions = new StandardNodeDimensionsAndColor(xmlEditor.EditorConfig, colorTagBackground);
-            this.StartTag = new StandardNodeStartTagPainter(this.xmlEditor, this.nodeDimensions, xmlNode, isClosingTagVisible);
+            this.StartTag = new StandardNodeStartTagPainter(this.xmlEditor.EditorConfig, this.nodeDimensions, xmlNode, isClosingTagVisible);
             if (isClosingTagVisible)
             {
-                this.EndTag = new StandardNodeEndTagPainter(this.xmlEditor, this.nodeDimensions, xmlNode);
+                this.EndTag = new StandardNodeEndTagPainter(this.xmlEditor.EditorConfig, this.nodeDimensions, xmlNode);
             }
         }
 
@@ -67,6 +62,21 @@ namespace de.springwald.xml.editor
 
             Point newCursorPaintPos = null;
 
+            bool alreadyUnpainted = false;
+
+            switch (paintMode)
+            {
+                case PaintModes.ForcePaintNoUnPaintNeeded:
+                    alreadyUnpainted = true;
+                    break;
+                case PaintModes.ForcePaintAndUnpaintBefore:
+                    this.UnPaint(gfx);
+                    alreadyUnpainted = true;
+                    break;
+                case PaintModes.OnlyPaintWhenChanged:
+                    break;
+            }
+
             // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
             if (cursor.StartPos.AktNode == this.node)
             {
@@ -77,7 +87,7 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            paintContext = await this.StartTag.Paint(paintContext, cursor, isSelected, gfx);
+            paintContext = await this.StartTag.Paint(paintContext, alreadyUnpainted,  isSelected, gfx);
 
             // If the cursor is inside the empty node, then draw the cursor there
             if (cursor.StartPos.AktNode == this.node)
@@ -93,7 +103,7 @@ namespace de.springwald.xml.editor
 
             if (this.EndTag != null)
             {
-                paintContext = await this.EndTag.Paint(paintContext, cursor, isSelected, gfx);
+                paintContext = await this.EndTag.Paint(paintContext, alreadyUnpainted, isSelected, gfx);
             }
 
             // If the cursor is behind the node, then also draw the cursor there
@@ -184,7 +194,7 @@ namespace de.springwald.xml.editor
         }
 
 
-        protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
+        protected override void UnPaint(IGraphics gfx)
         {
             this.StartTag.Unpaint(gfx);
             this.EndTag?.Unpaint(gfx);

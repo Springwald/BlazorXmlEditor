@@ -77,7 +77,7 @@ namespace de.springwald.xml.editor
 
         protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode);
 
-        protected abstract void UnPaint(IGraphics gfx, PaintContext paintContext);
+        protected abstract void UnPaint(IGraphics gfx);
 
         protected abstract bool IsClickPosInsideNode(Point pos);
 

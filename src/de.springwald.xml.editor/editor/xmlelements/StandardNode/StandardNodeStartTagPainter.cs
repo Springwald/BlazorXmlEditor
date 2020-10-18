@@ -1,8 +1,5 @@
-﻿using de.springwald.xml.cursor;
-using de.springwald.xml.editor.editor.xmlelements.StandardNode;
+﻿using de.springwald.xml.editor.editor.xmlelements.StandardNode;
 using de.springwald.xml.editor.nativeplatform.gfx;
-using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -11,41 +8,58 @@ namespace de.springwald.xml.editor.editor.xmlelements
 {
     internal class StandardNodeStartTagPainter
     {
-        private XMLEditor editor;
         private EditorConfig config;
         private StandardNodeDimensionsAndColor dimensions;
         private XmlNode node;
         private bool isClosingTagVisible;
         private string lastAttributeString;
+        private PaintContext lastPaintContextResult;
+        private bool lastPaintWasSelected;
+        private int lastPaintY;
+        private int lastPaintX;
+        private int nodeNameTextWidth;
+        private int lastTextWidthFontHeight;
 
         public Rectangle AreaTag { get; private set; }
         public Rectangle AreaArrow { get; private set; }
 
-        public StandardNodeStartTagPainter(XMLEditor editor, StandardNodeDimensionsAndColor dimensions, System.Xml.XmlNode node, bool isClosingTagVisible)
+        public StandardNodeStartTagPainter(EditorConfig config, StandardNodeDimensionsAndColor dimensions, System.Xml.XmlNode node, bool isClosingTagVisible)
         {
-            this.editor = editor;
-            this.config = editor.EditorConfig;
+            this.config = config;
             this.dimensions = dimensions;
             this.node = node;
             this.isClosingTagVisible = isClosingTagVisible;
-          
         }
 
-        public async Task<PaintContext> Paint(PaintContext paintContext, XMLCursor cursor,  bool isSelected, IGraphics gfx)
+        public async Task<PaintContext> Paint(PaintContext paintContext, bool alreadyUnpainted, bool isSelected, IGraphics gfx)
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
-
-            // ### Write the name of the node ###
-
-            // Pre-calculate the width of the node name
-
-            int nodeNameTextWidth = (int)(await gfx.MeasureDisplayStringWidthAsync(this.node.Name, this.config.FontNodeName));
-            //
-            // Console.WriteLine(">>>>>>>>>>>>>>" + this.XMLNode.Name + ":" + xmlEditor.EditorConfig.NodeNameFont.Height + "=" + nodeNameTextWidth);
-
-            // Pre-calculate the width of the attribute string
             var attributeString = this.GetAttributeString();
+
+            if (alreadyUnpainted) this.lastPaintContextResult = null;
+
+            if (this.lastTextWidthFontHeight != this.config.FontNodeName.Height)
+            {
+                this.nodeNameTextWidth = (int)(await gfx.MeasureDisplayStringWidthAsync(this.node.Name, this.config.FontNodeName));
+                this.lastTextWidthFontHeight = this.config.FontNodeName.Height;
+                lastPaintContextResult = null;
+            }
+
+            if (lastPaintContextResult != null &&
+                this.lastPaintX == startX &&
+                this.lastPaintY == startY &&
+                this.lastPaintWasSelected == isSelected &&
+                this.lastAttributeString == attributeString)
+            {
+                return lastPaintContextResult.Clone();
+            }
+
+            if (!alreadyUnpainted) this.Unpaint(gfx);
+
+            this.lastPaintX = startX;
+            this.lastPaintY = startY;
+            this.lastPaintWasSelected = isSelected;
             this.lastAttributeString = attributeString;
 
             paintContext.PaintPosX += this.dimensions.InnerMarginX;  // margin to left border
@@ -65,7 +79,7 @@ namespace de.springwald.xml.editor.editor.xmlelements
             paintContext.PaintPosX += nodeNameTextWidth + this.dimensions.InnerMarginX;
 
             // draw the attributes
-            paintContext = await AttributeZeichnen(paintContext, attributeString, isSelected, gfx);
+            paintContext = await PaintAttributes(paintContext, attributeString, isSelected, gfx);
 
             // standard distance + one pixel to the right, otherwise we draw on the frame line
             paintContext.PaintPosX += 1;
@@ -104,42 +118,57 @@ namespace de.springwald.xml.editor.editor.xmlelements
                 this.AreaArrow = null;
             }
 
-
-
             paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, this.config.MinLineHeight); // See how high the current line is
 
             // Remember where the mouse areas are
             this.AreaTag = new Rectangle(startX, startY, paintContext.PaintPosX - startX, this.config.TagHeight);
 
-            // this._klickBereiche = this._klickBereiche.Append(_tagBereichLinks).ToArray();
-
- 
             paintContext.BisherMaxX = System.Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
 
-            return paintContext;
+            this.lastPaintContextResult = paintContext.Clone();
+            return paintContext.Clone();
         }
 
-        public void Unpaint(IGraphics gfx )
+        public void Unpaint(IGraphics gfx)
         {
             gfx.UnPaintRectangle(this.AreaArrow);
             gfx.UnPaintRectangle(this.AreaTag);
         }
 
+        public string GetAttributeString()
+        {
+            var attribute = this.node.Attributes; // Attribs auf Kurznamen umlegen
+            if (attribute == null) return null;
+            if (attribute.Count == 0) return null;
+            var attributeString = new StringBuilder();
+            for (int attribLauf = 0; attribLauf < attribute.Count; attribLauf++)
+            {
+                attributeString.AppendFormat(" {0}=\"{1}\"", attribute[attribLauf].Name, attribute[attribLauf].Value);
+            }
+            return attributeString.ToString();
+        }
+
+        private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
+        {
+            if (string.IsNullOrEmpty(attributeString)) return 0;
+            return (int)await gfx.MeasureDisplayStringWidthAsync(attributeString, this.config.FontNodeAttribute);
+        }
+
         /// <summary>
         /// Draws the attributes 
         /// </summary>
-        private async Task<PaintContext> AttributeZeichnen(PaintContext paintContext, string attributeString, bool isSelected, IGraphics gfx)
+        private async Task<PaintContext> PaintAttributes(PaintContext paintContext, string attributeString, bool isSelected, IGraphics gfx)
         {
             paintContext = paintContext.Clone();
 
             if (string.IsNullOrWhiteSpace(attributeString)) return paintContext;
 
-            var attributeBreite = await this.GetAttributeTextWidth(attributeString, gfx);
+            var attributeWidth = await this.GetAttributeTextWidth(attributeString, gfx);
 
             // draw a frame around the attributes
             StandardNodeTagPaint.DrawNodeBodyBySize(GfxJob.Layers.AttributeBackground,
                 paintContext.PaintPosX, paintContext.PaintPosY + this.dimensions.AttributeMarginY,
-                attributeBreite, this.dimensions.AttributeHeight, 2,
+                attributeWidth, this.dimensions.AttributeHeight, 2,
                 isSelected ? this.config.ColorNodeAttributeBackground.InvertedColor : this.config.ColorNodeAttributeBackground,
                 isSelected ? this.config.ColorNodeTagBorder.InvertedColor : this.config.ColorNodeTagBorder,
                 gfx);
@@ -157,28 +186,13 @@ namespace de.springwald.xml.editor.editor.xmlelements
             });
 
             // Set character cursor behind the attributes
-            paintContext.PaintPosX += attributeBreite + this.dimensions.InnerMarginX;
+            paintContext.PaintPosX += attributeWidth + this.dimensions.InnerMarginX;
+
             return paintContext;
         }
 
-        private async Task<int> GetAttributeTextWidth(string attributeString, IGraphics gfx)
-        {
-            if (string.IsNullOrEmpty(attributeString)) return 0;
-            return (int)await gfx.MeasureDisplayStringWidthAsync(attributeString, this.config.FontNodeAttribute);
-        }
 
-        private string GetAttributeString()
-        {
-            System.Xml.XmlAttributeCollection attribute = this.node.Attributes; // Attribs auf Kurznamen umlegen
-            if (attribute == null) return null;
-            if (attribute.Count == 0) return null;
 
-            StringBuilder attributeString = new StringBuilder();
-            for (int attribLauf = 0; attribLauf < attribute.Count; attribLauf++)
-            {
-                attributeString.AppendFormat(" {0}=\"{1}\"", attribute[attribLauf].Name, attribute[attribLauf].Value);
-            }
-            return attributeString.ToString();
-        }
+
     }
 }
