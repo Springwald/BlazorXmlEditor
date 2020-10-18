@@ -31,5 +31,15 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
                 && point.X < this.X + this.Width
                 && point.Y < this.Y + this.Height;
         }
+
+
+        public bool Equals(Rectangle second)
+        {
+            if (second == null) return false;
+            return second.X == this.X
+                && second.Y == this.Y
+                && second.Height== this.Height
+                && second.Width == this.Width;
+        }
     }
 }

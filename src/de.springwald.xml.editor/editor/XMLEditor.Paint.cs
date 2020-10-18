@@ -52,7 +52,7 @@ namespace de.springwald.xml.editor
                 _virtuelleBreite = context1.BisherMaxX + 50 - ZeichnungsOffsetX;
                 _virtuelleHoehe = context1.PaintPosY + 50 - ZeichnungsOffsetY;
             }
-            await this.NativePlatform.Gfx.PaintJobs();
+            await this.NativePlatform.Gfx.PaintJobs(EditorConfig.ColorBackground);
         }
 
         public void FokusAufEingabeFormularSetzen()

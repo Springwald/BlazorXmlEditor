@@ -15,14 +15,14 @@ namespace de.springwald.xml.editor.helper
 {
     public class TextSplitHelper
     {
-        public class TextPart
+        public class TextPartRaw
         {
             public string Text { get; set; }
             public int LineNo { get; set; }
             public bool Inverted { get; set; }
         }
 
-        public static IEnumerable<TextPart> SplitText(string text, int invertStart, int invertLength, int maxLength, int maxLengthFirstLine)
+        public static IEnumerable<TextPartRaw> SplitText(string text, int invertStart, int invertLength, int maxLength, int maxLengthFirstLine)
         {
             if (invertLength < 0) throw new ArgumentOutOfRangeException(nameof(invertLength) + ":" + invertLength);
             if (invertStart < -1) throw new ArgumentOutOfRangeException(nameof(invertStart) + ":" + invertStart);
@@ -69,7 +69,7 @@ namespace de.springwald.xml.editor.helper
 
                     if (invertStartLocal > 0 && invertStartLocal != invertEndLocal && invertStartLocal < partTextLocal.Length)
                     {
-                        yield return new TextPart // the not inverted part before the inverstart
+                        yield return new TextPartRaw // the not inverted part before the inverstart
                         {
                             LineNo = lineNo,
                             Inverted = false,
@@ -85,7 +85,7 @@ namespace de.springwald.xml.editor.helper
                         var textInverted = partTextLocal.Substring(localRunPos, invertEndLocal - localRunPos);
                         if (textInverted.Length != 0)
                         {
-                            yield return new TextPart // close the inverted part
+                            yield return new TextPartRaw // close the inverted part
                             {
                                 LineNo = lineNo,
                                 Inverted = true,
@@ -98,7 +98,7 @@ namespace de.springwald.xml.editor.helper
 
                     if (localRunPos < partTextLocal.Length)
                     {
-                        yield return new TextPart // close the inverted part
+                        yield return new TextPartRaw // close the inverted part
                         {
                             LineNo = lineNo,
                             Inverted = inverted,

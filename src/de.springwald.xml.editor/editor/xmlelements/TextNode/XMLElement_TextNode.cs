@@ -29,7 +29,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
         protected int lastFontHeight = 0;
         protected double lastCalculatedFontWidth = 0;
 
-        private TextLine[] textParts;  // Buffer of the single, drawn lines. Each corresponds to a click area
+        private TextPart[] textParts;  // Buffer of the single, drawn lines. Each corresponds to a click area
 
         /// <summary>
         /// Der offizielle Inhalt dieses textnodes
@@ -58,21 +58,25 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
             this.StartUndEndeDerSelektionBestimmen(out int selektionStart, out int selektionLaenge, cursor);
             var actualPaintData = CalculateActualPaintData(paintContext, null, selektionStart, selektionLaenge);
 
+            var alreadyUnpainted = false;
+
             switch (paintMode)
             {
                 case PaintModes.ForcePaintNoUnPaintNeeded:
+                    alreadyUnpainted = true;
                     this.lastPaintData = null;
                     break;
 
                 case PaintModes.ForcePaintAndUnpaintBefore:
+                    alreadyUnpainted = true;
                     this.lastPaintData = null;
                     this.UnPaint(gfx);
                     break;
 
                 case PaintModes.OnlyPaintWhenChanged:
-                    if (!actualPaintData.Equals(lastPaintData)) {
+                    if (!actualPaintData.Equals(lastPaintData))
+                    {
                         this.lastPaintData = null;
-                        this.UnPaint(gfx);
                     }
                     break;
             }
@@ -81,102 +85,102 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
             {
                 return this.lastPaintContextResult.Clone();
             }
-            else
+            this.lastPaintData = actualPaintData;
+            this.cursorPaintPos = null;
+
+            if (lastFontHeight != this.xmlEditor.EditorConfig.FontTextNode.Height)
             {
-                this.lastPaintData = actualPaintData;
+                lastFontHeight = this.xmlEditor.EditorConfig.FontTextNode.Height;
+                lastCalculatedFontWidth = await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("W", this.xmlEditor.EditorConfig.FontTextNode);
+            }
+            paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.xmlEditor.EditorConfig.MinLineHeight);
 
-                if (lastFontHeight != this.xmlEditor.EditorConfig.FontTextNode.Height)
+            int marginY = (paintContext.HoeheAktZeile - this.xmlEditor.EditorConfig.FontTextNode.Height) / 2;
+
+            // ggf. den Cursorstrich vor dem Node berechnen
+            if (this.XMLNode == cursor.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
+            {
+                if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
                 {
-                    lastFontHeight = this.xmlEditor.EditorConfig.FontTextNode.Height;
-                    lastCalculatedFontWidth = await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("W", this.xmlEditor.EditorConfig.FontTextNode);
+                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
-                paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.xmlEditor.EditorConfig.MinLineHeight);
+            }
 
-                int marginY = (paintContext.HoeheAktZeile - this.xmlEditor.EditorConfig.FontTextNode.Height) / 2;
+            const int charMarginRight = 2;
 
-                // ggf. den Cursorstrich vor dem Node berechnen
-                if (this.XMLNode == cursor.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
+            var textPartsRaw = TextSplitHelper.SplitText(
+                text: AktuellerInhalt,
+                invertStart: selektionStart,
+                invertLength: selektionLaenge,
+                maxLength: (int)((paintContext.LimitRight - paintContext.LimitLeft) / lastCalculatedFontWidth) - charMarginRight,
+                maxLengthFirstLine: (int)((paintContext.LimitRight - paintContext.PaintPosX) / lastCalculatedFontWidth) - charMarginRight)
+                .ToArray();
+
+            var newTextParts = this.GetTextLinesFromTextParts(textPartsRaw, paintContext, cursor, lastFontHeight, lastCalculatedFontWidth).ToArray();
+
+            // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
+            for (int i = 0; i < newTextParts.Length; i++)
+            {
+                var newPart = newTextParts[i];
+                var oldPart = (this.textParts != null && i < this.textParts.Length) ? this.textParts[i] : null;
+                if (alreadyUnpainted == false && newPart.Equals(oldPart))
                 {
-                    if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
-                    {
-                        this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
-                    }
+                    // no need to paint the textpart again
                 }
-
-                const int charMarginRight = 2;
-
-                var textPartsRaw = TextSplitHelper.SplitText(
-                    text: AktuellerInhalt,
-                    invertStart: selektionStart,
-                    invertLength: selektionLaenge,
-                    maxLength: (int)((paintContext.LimitRight - paintContext.LimitLeft) / lastCalculatedFontWidth) - charMarginRight,
-                    maxLengthFirstLine: (int)((paintContext.LimitRight - paintContext.PaintPosX) / lastCalculatedFontWidth) - charMarginRight)
-                    .ToArray();
-
-                this.textParts = this.GetTextLinesFromTextParts(textPartsRaw, paintContext, lastFontHeight, lastCalculatedFontWidth).ToArray();
-
-                // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
-                int actualTextPartStartPos = 0;
-                foreach (var part in this.textParts)
+                else
                 {
-                    // ggf. den Cursorstrich berechnen
-                    if (this.XMLNode == cursor.StartPos.AktNode) // ist der Cursor im aktuellen Textnode
-                    {
-                        if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorInnerhalbDesTextNodes)
-                        {
-                            // Checken, ob der Cursor innerhalb dieses Textteiles liegt
-                            if ((cursor.StartPos.PosImTextnode >= actualTextPartStartPos) && (cursor.StartPos.PosImTextnode <= actualTextPartStartPos + part.Text.Length))
-                            {
-                                this.cursorPaintPos = new Point(
-                                    part.Rectangle.X + (int)((cursor.StartPos.PosImTextnode - actualTextPartStartPos) * lastCalculatedFontWidth),
-                                    part.Rectangle.Y
-                                    );
-                            }
-                        }
-                    }
-
-                    // Merken, wo im Text wir uns gerade befinden
-                    actualTextPartStartPos += part.Text.Length;
-
                     // draw the inverted background
-                    if (part.Inverted)
+                    if (!alreadyUnpainted && oldPart != null) gfx.UnPaintRectangle(oldPart.Rectangle);
+
+                    if (newPart.Inverted || this.colorBackground != this.Config.ColorBackground)
                     {
                         gfx.AddJob(new JobDrawRectangle
                         {
                             Batchable = true,
                             Layer = GfxJob.Layers.TagBackground,
-                            Rectangle = part.Rectangle,
-                            FillColor = part.Inverted ? this.colorBackground.InvertedColor : this.colorBackground,
+                            Rectangle = newPart.Rectangle,
+                            FillColor = newPart.Inverted ? this.colorBackground.InvertedColor : this.colorBackground,
                         });
-                    }
+                    } 
 
                     // draw the text
                     gfx.AddJob(new JobDrawString
                     {
                         Batchable = false,
                         Layer = GfxJob.Layers.Text,
-                        Text = part.Text,
-                        Color = part.Inverted ? this.colorText.InvertedColor : this.colorText,
-                        X = part.Rectangle.X,
-                        Y = part.Rectangle.Y + marginY,
+                        Text = newPart.Text,
+                        Color = newPart.Inverted ? this.colorText.InvertedColor : this.colorText,
+                        X = newPart.Rectangle.X,
+                        Y = newPart.Rectangle.Y + marginY,
                         Font = xmlEditor.EditorConfig.FontTextNode
                     }); ;
-                    paintContext.PaintPosY = part.Rectangle.Y;
-                    paintContext.PaintPosX = part.Rectangle.X + part.Rectangle.Width;
-                    paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
                 }
-
-                // ggf. den Cursorstrich hinter dem Node berechnen
-                if (this.XMLNode == cursor.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
-                {
-                    if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
-                    {
-                        this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY + marginY);
-                    }
-                }
-                this.lastPaintContextResult = paintContext.Clone();
-                return paintContext.Clone();
+                paintContext.PaintPosY = newPart.Rectangle.Y;
+                paintContext.PaintPosX = newPart.Rectangle.X + newPart.Rectangle.Width;
+                paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
             }
+
+            if (this.textParts != null) // unpaint old textparts out of new parts range
+            {
+                for (int i = newTextParts.Length; i < this.textParts.Length; i++)
+                {
+                    gfx.UnPaintRectangle(this.textParts[i].Rectangle);
+                }
+            }
+
+            this.textParts = newTextParts;
+
+            // ggf. den Cursorstrich hinter dem Node berechnen
+            if (this.XMLNode == cursor.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
+            {
+                if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
+                {
+                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY + marginY);
+                }
+            }
+
+            this.lastPaintContextResult = paintContext.Clone();
+            return paintContext.Clone();
         }
 
         protected override void UnPaint(IGraphics gfx)
@@ -187,12 +191,13 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
             }
         }
 
-        private IEnumerable<TextLine> GetTextLinesFromTextParts(TextSplitHelper.TextPart[] parts, PaintContext paintContext, int fontHeight, double fontWidth)
+        private IEnumerable<TextPart> GetTextLinesFromTextParts(TextSplitHelper.TextPartRaw[] parts, PaintContext paintContext, XMLCursor cursor, int fontHeight, double fontWidth)
         {
             paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.Config.MinLineHeight);
             var x = paintContext.PaintPosX;
             var y = paintContext.PaintPosY;
             var actualLine = 0;
+            var actualTextPartStartPos = 0;
 
             foreach (var part in parts)
             {
@@ -204,13 +209,34 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
                     x = paintContext.LimitLeft;
                 }
                 var width = (int)(part.Text.Length * fontWidth);
-                yield return new TextLine
+                var textPart = new TextPart
                 {
                     Text = part.Text,
                     Inverted = part.Inverted,
-                    Rectangle = new Rectangle(x, y, width, paintContext.HoeheAktZeile)
+                    Rectangle = new Rectangle(x, y, width, paintContext.HoeheAktZeile),
+                    CursorPos = -1,
                 };
+
+                if (this.XMLNode == cursor.StartPos.AktNode) // ist der Cursor im aktuellen Textnode
+                {
+                    if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorInnerhalbDesTextNodes)
+                    {
+                        // Checken, ob der Cursor innerhalb dieses Textteiles liegt
+                        if ((cursor.StartPos.PosImTextnode >= actualTextPartStartPos) && (cursor.StartPos.PosImTextnode <= actualTextPartStartPos + part.Text.Length))
+                        {
+                            textPart.CursorPos = (int)(cursor.StartPos.PosImTextnode - actualTextPartStartPos);
+                            this.cursorPaintPos = new Point(
+                                textPart.Rectangle.X + (int)(textPart.CursorPos * lastCalculatedFontWidth),
+                                textPart.Rectangle.Y
+                                );
+                        }
+                    }
+                }
+
                 x += 1 + width;
+                yield return textPart;
+                actualTextPartStartPos += part.Text.Length;
+
             }
         }
 

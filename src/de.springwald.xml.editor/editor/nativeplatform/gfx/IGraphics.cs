@@ -22,7 +22,8 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 
         void UnPaintRectangle(Rectangle rectangle);
         
-        Task PaintJobs();
+        Task PaintJobs(Color backgroundColor);
+        
 
         Task<double> MeasureDisplayStringWidthAsync(string text, Font drawFont);
     }

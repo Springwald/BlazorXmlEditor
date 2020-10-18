@@ -61,7 +61,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             this.jobs.Add(job);
         }
 
-        public async Task PaintJobs()
+        public async Task PaintJobs(Color backgroundColor)
         {
             var sorted = this.jobs.OrderBy(j => j.Layer).ThenBy(j => j.Batchable).ThenBy(j => j.SortKey);
             var batching = false;
@@ -84,7 +84,7 @@ namespace de.springwald.xml.blazor.NativePlatform
                     }
                 }
 
-                await BlazorGfxJobPainter.PaintJob(job, await this.GetContext());
+                await BlazorGfxJobPainter.PaintJob(job, await this.GetContext(), backgroundColor);
             }
             this.jobs.Clear();
             if (batching) await this.EndBatch();
