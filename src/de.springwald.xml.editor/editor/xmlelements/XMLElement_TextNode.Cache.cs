@@ -17,7 +17,6 @@ namespace de.springwald.xml.editor
                 LastPaintLimitRight = paintContext.LimitRight,
                 LastPaintContent = this.AktuellerInhalt,
                 LastPaintTextFontHeight = this.Config.TextNodeFont.Height,
-                CursorPaintPos = cursorPaintPos,
                 SelectionStart = selectionStart,
                 SelectionLength = selectionLength,
             };

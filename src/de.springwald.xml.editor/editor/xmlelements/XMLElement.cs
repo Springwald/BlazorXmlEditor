@@ -145,18 +145,24 @@ namespace de.springwald.xml.editor
             }
         }
 
+        private Color[] unPaintColors = new[] { Color.Blue, Color.DarkBlue, Color.Gray, Color.Red, Color.White };
+        private int unPaintColor = 0;
+
         protected void UnPaintRectangle(IGraphics gfx, Rectangle rectangle)
         {
             if (rectangle != null)
             {
                 rectangle = new Rectangle(rectangle.X-1, rectangle.Y - 1, rectangle.Width + 2, rectangle.Height + 2);
 
+                unPaintColor++;
+                if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
+                var fillColor = unPaintColors[unPaintColor]; // this.xmlEditor.NativePlatform.ControlElement.BackColor,
+
                 gfx.AddJob(new JobDrawRectangle
                 {
                     Layer = GfxJob.Layers.ClearBackground,
                     Batchable = true,
-                    // FillColor = Color.Red, // debug color
-                    FillColor = this.xmlEditor.NativePlatform.ControlElement.BackColor,
+                    FillColor = fillColor,
                     Rectangle = rectangle
                 }) ;
             }

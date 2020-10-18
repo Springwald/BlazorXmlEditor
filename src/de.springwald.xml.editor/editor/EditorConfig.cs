@@ -20,6 +20,11 @@ namespace de.springwald.xml.editor
 
         public abstract Font TextNodeFont { get; set; }
 
+        public Color TextColor { get; set; } = Color.Black;
+        public Color NodeTagBorderColor { get; set; } = Color.Gray;
+        public Color NodeTagBackgroundColor { get; set; } = Color.LightGray;
+
+
         public int TagHeight => this.NodeNameFont.Height + this.InnerMarginY * 2;
 
         public int InnerMarginY => Math.Max(1, this.NodeNameFont.Height / 3);

@@ -53,8 +53,6 @@ namespace de.springwald.xml.editor.editor
             }
         }
 
-        internal bool HasFocus => this.nativePlatform?.ControlElement.Focused == true;
-
         /// <summary>
         /// Indicates whether something is on the clipboard for the editor
         /// </summary>

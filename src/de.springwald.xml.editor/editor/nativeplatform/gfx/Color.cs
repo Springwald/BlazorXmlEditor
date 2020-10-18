@@ -7,6 +7,8 @@
 // All rights reserved
 // Licensed under MIT License
 
+using Microsoft.Win32.SafeHandles;
+
 namespace de.springwald.xml.editor.nativeplatform.gfx
 {
     public class Color
@@ -33,6 +35,11 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
             this.G = g;
             this.B = b;
             this.A = a;
+        }
+
+        public Color InvertedColor()
+        {
+            return new Color(r: (byte)(255 - this.R), g: (byte)(255 - this.G), b: (byte)(255 - this.B), a: this.A);
         }
 
         public static Color FromArgb(byte r, byte g, byte b)

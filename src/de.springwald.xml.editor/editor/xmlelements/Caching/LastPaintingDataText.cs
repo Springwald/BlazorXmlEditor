@@ -13,8 +13,6 @@ namespace de.springwald.xml.editor.editor.xmlelements.Caching
 
         public int SelectionStart { get; set; }
         public int SelectionLength { get; set; }
-        public Point CursorPaintPos { get; set; }
-
         public bool Equals(LastPaintingDataText second) {
             if (second == null) return false;
 
@@ -25,14 +23,6 @@ namespace de.springwald.xml.editor.editor.xmlelements.Caching
             if (LastPaintTextFontHeight != second.LastPaintTextFontHeight) return false;
             if (SelectionStart != second.SelectionStart) return false;
             if (SelectionLength != second.SelectionLength) return false;
-            if (CursorPaintPos == null)
-            {
-                if (second.CursorPaintPos != null) return false;
-            } else
-            {
-                if (!second.CursorPaintPos.Equals(this.CursorPaintPos)) return false;
-            }
-
             return true;
         }
 

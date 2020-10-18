@@ -35,11 +35,9 @@ namespace de.springwald.xml.editor
 
         protected Color _farbeHintergrund_;
         protected Color _farbeHintergrundInvertiert_;
-        protected Color _farbeHintergrundInvertiertOhneFokus_;
 
         protected Color _drawBrush_;
         protected Color _drawBrushInvertiert_;
-        protected Color _drawBrushInvertiertOhneFokus_;
 
         private TextLine[] textParts;  // Buffer of the single, drawn lines. Each corresponds to a click area
 
@@ -52,16 +50,8 @@ namespace de.springwald.xml.editor
         {
             if (invertiert)
             {
-                if (xmlEditor.EditorStatus.HasFocus)
-                {
                     // Inverted
                     return _farbeHintergrundInvertiert_;
-                }
-                else
-                {
-                    // weak inverted  
-                    return _farbeHintergrundInvertiertOhneFokus_;
-                }
             }
             else
             {
@@ -74,16 +64,8 @@ namespace de.springwald.xml.editor
         {
             if (inverted)
             {
-                if (xmlEditor.EditorStatus.HasFocus)
-                {
                     // Inverted
                     return _drawBrushInvertiert_;
-                }
-                else
-                {
-                    // weak inverted  
-                    return _drawBrushInvertiertOhneFokus_;
-                }
             }
             else
             {
@@ -224,14 +206,10 @@ namespace de.springwald.xml.editor
                         this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY + marginY);
                     }
                 }
-
                 this.lastPaintContextResult = paintContext.Clone();
                 return paintContext.Clone();
             }
         }
-
-        private Color[] unPaintColors = new[] { Color.Blue, Color.DarkBlue, Color.Gray, Color.Red, Color.White };
-        private int unPaintColor = 0;
 
         protected override void UnPaint(IGraphics gfx, PaintContext paintContext)
         {
@@ -249,7 +227,6 @@ namespace de.springwald.xml.editor
                 //});
                 base.UnPaintRectangle(gfx, textPart.Rectangle);
             }
-            
         }
 
         private IEnumerable<TextLine> GetTextLinesFromTextParts(TextSplitHelper.TextPart[] parts, PaintContext paintContext, int fontHeight, double fontWidth)
@@ -453,12 +430,9 @@ namespace de.springwald.xml.editor
                 }
             }
         }
-
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
         }
-
-
     }
 }
