@@ -1,72 +1,39 @@
-using System;
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
 
 namespace de.springwald.xml.dtd
 {
-	/// <summary>
-	/// Ein einzelnes DTD-Element aus einer DTD
-	/// </summary>
-	/// <remarks>
-	/// (C)2005 Daniel Springwald, Herne Germany
-	/// Springwald Software  - www.springwald.de
-	/// daniel@springwald.de -   0700-SPRINGWALD
-	/// all rights reserved
-	/// </remarks>
-	public class DTDEntity
-	{
+    /// <summary>
+    /// A single DTD element from a DTD
+    /// </summary>
+    public class DTDEntity
+    {
+        /// <summary>
+        /// Der eindeutige Name  dieser Entity
+        /// </summary>
+        public string Name { get; set; }
 
-		#region PRIVATE ATTRIBUTES
+        /// <summary>
+        /// Der Inhalt dieser Entity
+        /// </summary>
+        public string Inhalt { get; set; }
 
-		private string _name;			 // Der eindeutige Name dieser Entity
-		private string _inhalt;			 // Der Inhalt dieser Entity
-		private bool _istErsetzungsEntity;	// (% - Entity) - enthält nur einen zu ersetzenden String und bleibt nicht unter ihrem Namen als einzufügen bestehen
-		
-		#endregion
+        /// <summary>
+        /// Ist eine eine % - Entity, d.h.enthält nur einen zu ersetzenden String und bleibt nicht unter ihrem Namen als einzufügen bestehen?
+        /// </summary>
+        public bool IstErsetzungsEntity { get; set; }
 
-		#region PUBLIC ATTRIBUTES
-
-		/// <summary>
-		/// Der eindeutige Name  dieser Entity
-		/// </summary>
-		public string Name 
-		{
-			get { return _name; }
-			set { _name = value; }
-		}
-
-		/// <summary>
-		/// Der Inhalt dieser Entity
-		/// </summary>
-		public string Inhalt 
-		{
-			get { return _inhalt; }
-			set { _inhalt = value; }
-		}
-
-		/// <summary>
-		/// Ist eine eine % - Entity, d.h.enthält nur einen zu ersetzenden String und bleibt nicht unter ihrem Namen als einzufügen bestehen?
-		/// </summary>
-		public bool IstErsetzungsEntity 
-		{
-			get { return this._istErsetzungsEntity; }
-			set { this._istErsetzungsEntity = value; }
-		}
-
-		#endregion
-
-		#region PUBLIC METHODS
-
-		/// <summary>
-		/// Erzeugt eine DTD-Entity auf Basis des übergebenen DTD-Entity-Quellcodes
-		/// </summary>
-		public DTDEntity()
-		{
-		}
-
-		#endregion
-
-		#region PRIVATE METHODS
-
-		#endregion
-		
-	}
+        /// <summary>
+        /// Erzeugt eine DTD-Entity auf Basis des übergebenen DTD-Entity-Quellcodes
+        /// </summary>
+        public DTDEntity()
+        {
+        }
+    }
 }

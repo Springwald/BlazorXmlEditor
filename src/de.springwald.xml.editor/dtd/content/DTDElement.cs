@@ -1,6 +1,13 @@
-using de.springwald.toolbox;
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Text;
@@ -8,56 +15,34 @@ using System.Text.RegularExpressions;
 
 namespace de.springwald.xml.dtd
 {
-	/// <summary>
-	/// Ein einzelnes DTD-Element aus einer DTD
-	/// </summary>
-	/// <remarks>
-	/// (C)2006 Daniel Springwald, Herne Germany
-	/// Springwald Software  - www.springwald.de
-	/// daniel@springwald.de -   0700-SPRINGWALD
-	/// all rights reserved
-	/// </remarks>
-	public class DTDElement
-	{
-
-		#region PRIVATE ATTRIBUTES
-
-		private string _name;						// Der eindeutige Name dieses Elementes
-		private DTDChildElemente _children;			// Child-Elemente dieses Elementes
+    /// <summary>
+    /// A single DTD element from a DTD
+    /// </summary>
+    public class DTDElement
+    {
         private Regex _childrenRegExObjekt;         // Liefert ein RegEx-Objekt, mit welchem man Childfolgen darauf hin prüfen kann, ob sie für dieses Element gültig sind
         private StringCollection _alleElementNamenWelcheAlsDirektesChildZulaessigSind; // Diese DTD-Elemente dürfen innerhalb dieses Elementes vorkommen
-		
-		#endregion
 
-		#region PUBLIC ATTRIBUTES
+        /// <summary>
+        /// Der eindeutige Name dieses Elementes
+        /// </summary>
+        public string Name { get; set; }
 
-		/// <summary>
-		/// Der eindeutige Name dieses Elementes
-		/// </summary>
-		public string Name 
-		{
-			get { return _name; }
-            set { _name = value; }
-		}
-
- 		/// <summary>
-		/// Die Child-Elemente dieses Elementes
-		/// </summary>
-		public DTDChildElemente ChildElemente 
-		{
-			get { return _children; }
-			set{ _children = value; }
-		}
+        /// <summary>
+        /// Die Child-Elemente dieses Elementes
+        /// </summary>
+        public DTDChildElemente ChildElemente { get; set; }
 
         /// <summary>
         /// Diese DTD-Elemente dürfen innerhalb dieses Elementes vorkommen.
         /// </summary>
         public StringCollection AlleElementNamenWelcheAlsDirektesChildZulaessigSind
         {
-            get {
+            get
+            {
                 if (_alleElementNamenWelcheAlsDirektesChildZulaessigSind == null)
                 {
-                    _alleElementNamenWelcheAlsDirektesChildZulaessigSind = GetDTDElementeNamenAusChildElementen_(_children);
+                    _alleElementNamenWelcheAlsDirektesChildZulaessigSind = GetDTDElementeNamenAusChildElementen_(this.ChildElemente);
                     // Das Kommentar-Tag hinzufügen, da dieses immer zulässig ist
                     _alleElementNamenWelcheAlsDirektesChildZulaessigSind.Add("#COMMENT");
                 }
@@ -65,10 +50,10 @@ namespace de.springwald.xml.dtd
             }
         }
 
-		/// <summary>
-		/// Die für dieses Element bekannten Attribute
-		/// </summary>
-		public List<DTDAttribut> Attribute { get; set;}
+        /// <summary>
+        /// Die für dieses Element bekannten Attribute
+        /// </summary>
+        public List<DTDAttribut> Attribute { get; set; }
 
         /// <summary>
         /// Liefert ein RegEx-Objekt, mit welchem man Childfolgen darauf hin prüfen kann, ob sie für dieses
@@ -82,7 +67,7 @@ namespace de.springwald.xml.dtd
                 {
                     StringBuilder ausdruck = new StringBuilder();
                     ausdruck.Append(">");
-                    ausdruck.Append(_children.RegExAusdruck);
+                    ausdruck.Append(this.ChildElemente.RegExAusdruck);
                     ausdruck.Append("<");
                     _childrenRegExObjekt = new Regex(ausdruck.ToString());// RegexOptions.Compiled);
                 }
@@ -90,9 +75,6 @@ namespace de.springwald.xml.dtd
             }
         }
 
-		#endregion
-
-        #region CONSTRUCTOR
 
         /// <summary>
         /// Erzeugt ein DTDElement auf Basis des übergebenen DTD-Element-Quellcodes
@@ -101,29 +83,23 @@ namespace de.springwald.xml.dtd
         {
         }
 
-        #endregion
 
-        #region PUBLIC METHODS
-
-
-
-        #endregion
-
-        #region PRIVATE METHODS
 
         /// <summary>
         /// Liefert die Liste aller in den Children erwähnten Elemente
         /// </summary>
         /// <param name="children"></param>
         /// <returns></returns>
-        private StringCollection GetDTDElementeNamenAusChildElementen_(DTDChildElemente children) {
+        private StringCollection GetDTDElementeNamenAusChildElementen_(DTDChildElemente children)
+        {
             StringCollection liste = new StringCollection();
 
             switch (children.Art)
             {
                 case DTDChildElemente.DTDChildElementArten.EinzelChild:
                     // Ist ein einzelnes ChildElement und noch nicht in der Liste: Hinzufügen
-                    if (!liste.Contains(children.ElementName)) {
+                    if (!liste.Contains(children.ElementName))
+                    {
                         liste.Add(children.ElementName);
                     }
                     break;
@@ -149,11 +125,9 @@ namespace de.springwald.xml.dtd
                     throw new ApplicationException(String.Format(ResReader.Reader.GetString("UnbekannteDTDChildElementArt"), children.Art));
             }
 
-            return liste ;
+            return liste;
         }
 
-		#endregion
 
-		
-	}
+    }
 }

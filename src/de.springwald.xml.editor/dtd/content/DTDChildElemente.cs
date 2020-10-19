@@ -1,3 +1,12 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
 using System.Text;
 using System.Collections;
@@ -5,32 +14,25 @@ using de.springwald.toolbox;
 
 namespace de.springwald.xml.dtd
 {
-	/// <summary>
-	/// Verwaltet die ChildElemente eines DTD-Elementes, also die Teile, welcher innerhalb
-	/// der Klammer im Elemente-Tag bestehen
-	/// </summary>
-	/// <remarks>
-	/// (C)2005 Daniel Springwald, Herne Germany
-	/// Springwald Software  - www.springwald.de
-	/// daniel@springwald.de -   0700-SPRINGWALD
-	/// all rights reserved
-	/// </remarks>
-	public class DTDChildElemente
+    /// <summary>
+    /// Manages the child elements of a DTD element, i.e. the parts within the brackets of the element tag
+    /// </summary>
+    public class DTDChildElemente
 	{
-		/// <summary>
-		/// Welcher Art ist das angegebene Child?
-		/// </summary>
-		public enum DTDChildElementArten  { Leer=0, EinzelChild=-1, ChildListe=2 };
+        /// <summary>
+        /// What kind of child is the given child?
+        /// </summary>
+        public enum DTDChildElementArten  { Leer=0, EinzelChild=-1, ChildListe=2 };
 
-		/// <summary>
-		/// So oft darf dieses Element an der angegebenen Stelle vorkommen
-		/// </summary>
-		/// <remarks>
-		/// GenauEinmal=kein Zeichen
-		/// NullUndMehr=*
-		/// EinsUndMehr=+
-		/// </remarks>
-		public enum DTDChildElementAnzahl { GenauEinmal=0, NullUndMehr=-1, NullOderEinmal= 2, EinsUndMehr=3 };
+        /// <summary>
+        /// This element may occur at the specified position as often as
+        /// </summary>
+        /// <remarks>
+        /// GenauEinmal=kein Zeichen
+        /// NullUndMehr=*
+        /// EinsUndMehr=+
+        /// </remarks>
+        public enum DTDChildElementAnzahl { GenauEinmal=0, NullUndMehr=-1, NullOderEinmal= 2, EinsUndMehr=3 };
 
 		/// <summary>
 		/// Sind die ChildElemente in dieser Liste durch ODER getrennt, oder müssen
@@ -38,7 +40,6 @@ namespace de.springwald.xml.dtd
 		/// </summary>
 		public enum DTDChildElementOperatoren { GefolgtVon=0, Oder=-1 };
 
-		#region PRIVATE ATTRIBUTES
 		private DTDChildElementArten _art;              // Dieser Art ist dieser Child-Bereich
 		private DTDChildElementAnzahl _defAnzahl;       // So oft darf dieser Childblock vorkommen
 		private DTDChildElementOperatoren _operator;	// Sind die ChildElemente in dieser Liste durch ODER getrennt, oder müssen sie in der angebenen Reihenfolge auftreten
@@ -53,9 +54,6 @@ namespace de.springwald.xml.dtd
 
         private string _regExAusdruck;  // Der diesem Childblock entsprechende RegEx-Ausdruck
 
-		#endregion
-
-		#region PUBLIC ATTRIBUTES
 
         /// <summary>
         /// Der diesem Childblock entsprechende RegEx-Ausdruck
@@ -217,10 +215,6 @@ namespace de.springwald.xml.dtd
             get {  return _elementName; }
         }
 
-		#endregion
-
-		#region CONSTRUCTOR
-
 		/// <summary>
 		/// Stellt einen ChildElemente-Block auf Basis des übergebenen DTD-Quellcodes bereit
 		/// </summary>
@@ -253,7 +247,7 @@ namespace de.springwald.xml.dtd
 			} 
 			else // Es sind Children vorhanden
 			{
-				CodeAuslesen();
+				ReadCode();
 			}
 
 		}
@@ -266,9 +260,6 @@ namespace de.springwald.xml.dtd
         {
         }
 
-		#endregion 
-
-		#region PUBLIC METHODS
 
         /// <summary>
         /// Erzeugt eine Kopie dieses ChildBlocks
@@ -343,17 +334,11 @@ namespace de.springwald.xml.dtd
 			return (DTDChildElemente)this._children[index];
 		}
 
-   
 	
-
-		#endregion
-
-		#region PRIVATE METHODS
-
 		/// <summary>
 		/// Verarbeitet den Quellcode zu Children
 		/// </summary>
-		private void CodeAuslesen() 
+		private void ReadCode() 
 		{
 			string code=_quellcode;
 
@@ -383,7 +368,7 @@ namespace de.springwald.xml.dtd
 			if ((code.Substring(0,1)=="(") && (code.Substring(code.Length-1,1)==")")) 
 			{ // Es sind Klammern vorhanden, also sind es mehrere Children 
 				code = code.Substring(1,code.Length-2); // Die Klammern entfernen
-				ChildrenAuslesen(code); // Die Children erkennen
+				ReadChildren(code); // Die Children erkennen
 			} 
 			else 
 			{ // Keine Klammern vorhanden, dann ist es wohl nur ein einzelnes Child
@@ -396,10 +381,8 @@ namespace de.springwald.xml.dtd
 		/// Wertet die vorhandenen Childran aus
 		/// </summary>
 		/// <param name="code"></param>
-		private void ChildrenAuslesen(string code) 
+		private void ReadChildren(string code) 
 		{
-
-
 			string rohcode = code;
 
 			_art = DTDChildElementArten.ChildListe;
@@ -441,7 +424,7 @@ namespace de.springwald.xml.dtd
 						else 
 						{
 							// Den bisher gesammelten Element-String als Child speichern
-							SpeichereChildElement(fertig);
+							SaveChildElement(fertig);
 						}
 						// Neues Element beginnen
 						aktElement = new StringBuilder();
@@ -461,7 +444,7 @@ namespace de.springwald.xml.dtd
 			// auch abschließen und speichern
 			if (aktElement.Length > 0) 
 			{
-				SpeichereChildElement(aktElement.ToString());
+				SaveChildElement(aktElement.ToString());
 			}
 		}
 
@@ -469,7 +452,7 @@ namespace de.springwald.xml.dtd
 		/// Reiht ein Child-Element in die Liste ein
 		/// </summary>
 		/// <param name="code"></param>
-		private void SpeichereChildElement(string code) 
+		private void SaveChildElement(string code) 
 		{
 			code = code.Trim();  
 			DTDChildElemente child = new DTDChildElemente (code); // Aus dem code neues Child oder Childliste erzeugen
@@ -513,8 +496,6 @@ namespace de.springwald.xml.dtd
             // "Der angegebene String '" + code + "' ist kein Operator!"
             throw new ApplicationException(String.Format(ResReader.Reader.GetString("StringIstKeinOperator"), code));
 		}
-
-		#endregion
 
 		
 	}
