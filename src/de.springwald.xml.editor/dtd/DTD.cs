@@ -1,129 +1,102 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace de.springwald.xml.dtd
 {
-	/// <summary>
-	/// Der Inhalt einer DTD
-	/// </summary>
-	/// <remarks>
-	/// (C)2005 Daniel Springwald, Herne Germany
-	/// Springwald Software  - www.springwald.de
-	/// daniel@springwald.de -   0700-SPRINGWALD
-	/// all rights reserved
-	/// </remarks>
-	public class DTD
-	{
+    /// <summary>
+    /// Der Inhalt einer DTD
+    /// </summary>
+    public class DTD
+    {
+        /// <summary>
+        /// Diese Ausnahme wird geworfen, wenn ein Element erfragt wurde, welches in der DTD nicht definiert ist
+        /// </summary>
+        public class XMLUnknownElementException : Exception
+        {
+            public string ElementName { get; }
 
-		/// <summary>
-		/// Diese Ausnahme wird geworfen, wenn ein Element erfragt wurde, welches in der DTD nicht definiert ist
-		/// </summary>
-		public class XMLUnknownElementException : Exception 
-		{
-			private string _elementname;
-			public XMLUnknownElementException (string elementname) { _elementname = elementname; }
+            public XMLUnknownElementException(string elementname)
+            {
+                this.ElementName = elementname;
+            }
+        }
 
-			public string ElementName 
-			{
-				get { return _elementname; }
-			}
+        private Dictionary<string, DTDElement> _elementeNachNamen;
 
-		}
+        /// <summary>
+        /// Die in dieser DTD verfügbaren Elemente
+        /// </summary>
+        public List<DTDElement> Elemente { get; }
 
-		#region PRIVATE ATTRIBUTES
-
-        private List<DTDElement> _elemente;		// Die in dieser DTD verfügbaren Elemente
-
-        private Hashtable _elementeNachNamen;
-
-        private List<DTDEntity> _entities;		// Die bekannten Entity-Einträge dieser DTD
-
-		#endregion
-
-		#region PUBLIC ATTRIBUTES
-
-
-		/// <summary>
-		/// Die in dieser DTD verfügbaren Elemente
-		/// </summary>
-        public List<DTDElement> Elemente 
-		{
-			get { return _elemente; }
-		}
-
-		/// <summary>
-		/// Die in dieser DTD verfügbaren Entities
-		/// </summary>
-        public List<DTDEntity> Entities 
-		{
-			get { return _entities; }
-		}
-
-		#endregion
-
-		#region CONSTRUCTOR
+        /// <summary>
+        /// Die in dieser DTD verfügbaren Entities
+        /// </summary>
+        public List<DTDEntity> Entities { get; }
 
         public DTD(List<DTDElement> elemente, List<DTDEntity> entities)
-		{
-			_elemente = elemente;
-			_entities = entities;
-            _elementeNachNamen = new Hashtable();
-		}
+        {
+            this.Elemente = elemente;
+            this.Entities = entities;
+            _elementeNachNamen = new Dictionary<string, DTDElement>();
+        }
 
-		public DTD()
-		{
-		}
+        public DTD()
+        {
+        }
 
-		#endregion 
+        /// <summary>
+        /// Findet heraus, ob ein Element in dieser DTD bekannt ist
+        /// </summary>
+        /// <param name="elementName"></param>
+        /// <returns></returns>
+        public bool IstDTDElementBekannt(string elementName)
+        {
+            return (DTDElementByNameIntern_(elementName, false) != null);
+        }
 
-		#region PUBLIC METHODS
+        /// <summary>
+        /// Findet das dem angegebenen Node entsprechende DTD-Element
+        /// </summary>
+        /// <param name="elementName"></param>
+        public DTDElement DTDElementByNode_(System.Xml.XmlNode node, bool fehlerWennNichtVorhanden)
+        {
+            return DTDElementByNameIntern_(GetElementNameFromNode(node), fehlerWennNichtVorhanden);
+        }
 
-		/// <summary>
-		/// Findet heraus, ob ein Element in dieser DTD bekannt ist
-		/// </summary>
-		/// <param name="elementName"></param>
-		/// <returns></returns>
-		public bool IstDTDElementBekannt(string elementName) 
-		{
-            return (DTDElementByNameIntern_(elementName,false) != null);
-		}
-
-
-		/// <summary>
-		/// Findet das dem angegebenen Node entsprechende DTD-Element
-		/// </summary>
-		/// <param name="elementName"></param>
-		public DTDElement DTDElementByNode_(System.Xml.XmlNode node, bool fehlerWennNichtVorhanden) 
-		{
-			return DTDElementByNameIntern_(GetElementNameFromNode(node),fehlerWennNichtVorhanden);
-		}
-
-		/// <summary>
-		/// Findet das dem angegebenen Namen entsprechende DTD-Element
-		/// </summary>
-		/// <param name="elementName"></param>
-        public DTDElement DTDElementByName(string elementName, bool fehlerWennNichtVorhanden) 
-		{
+        /// <summary>
+        /// Findet das dem angegebenen Namen entsprechende DTD-Element
+        /// </summary>
+        /// <param name="elementName"></param>
+        public DTDElement DTDElementByName(string elementName, bool fehlerWennNichtVorhanden)
+        {
             return DTDElementByNameIntern_(elementName, fehlerWennNichtVorhanden);
-		}
+        }
 
-		/// <summary>
-		/// Ermittelt für die Vergleichsmuster den Namen des angegebenen Nodes
-		/// </summary>
-		/// <param name="node"></param>
-		/// <returns></returns>
-		public static string GetElementNameFromNode(System.Xml.XmlNode node) 
-		{
+        /// <summary>
+        /// Ermittelt für die Vergleichsmuster den Namen des angegebenen Nodes
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public static string GetElementNameFromNode(System.Xml.XmlNode node)
+        {
             if (node == null) return "";
 
-			//if (node.Name == "#text") 
-            if (node is System.Xml.XmlText) 
-			{
-				return "#PCDATA";
-			} 
-			else 
-			{
+            //if (node.Name == "#text") 
+            if (node is System.Xml.XmlText)
+            {
+                return "#PCDATA";
+            }
+            else
+            {
                 //if (node.Name == "#comment")
                 if (node is System.Xml.XmlComment)
                 {
@@ -141,13 +114,8 @@ namespace de.springwald.xml.dtd
                         return node.Name;
                     }
                 }
-			}
-		}
-
-		#endregion
-
-		#region PRIVATE METHODS
-
+            }
+        }
 
         /// <summary>
         /// Findet das dem angegebenen Namen entsprechende DTD-Element
@@ -156,15 +124,13 @@ namespace de.springwald.xml.dtd
         public DTDElement DTDElementByNameIntern_(string elementName, bool fehlerWennNichtVorhanden)
         {
 
-            DTDElement elementInBuffer = (DTDElement)_elementeNachNamen[elementName];
-
-            if (elementInBuffer != null)
+            if (this._elementeNachNamen.TryGetValue(elementName, out DTDElement elementInBuffer))
             {
                 return elementInBuffer;
             }
             else
             {
-                foreach (DTDElement element in this._elemente)
+                foreach (var element in this.Elemente)
                 {
                     if (elementName == element.Name)
                     {
@@ -183,8 +149,5 @@ namespace de.springwald.xml.dtd
                 }
             }
         }
-
-		#endregion
-
-	}
+    }
 }

@@ -196,14 +196,14 @@ namespace de.springwald.xml.dtd
             }
             else // Ist kein Kommentar
             {
-                StringCollection anDieserStelleErlaubteChildren;
+                string[] anDieserStelleErlaubteChildren;
                 if (cursorPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode ) {
                     // Im Node sind alle Children dieses Nodes erlaubt
                     DTDElement element = _dtd.DTDElementByName(cursorPos.AktNode.Name,false);
                     if (element == null)
                     {
                         // Ein Element mit diesem Namen ist nicht bekannt
-                        anDieserStelleErlaubteChildren = new StringCollection();
+                        anDieserStelleErlaubteChildren = new string[] { };
                     }
                     else
                     {
@@ -220,7 +220,7 @@ namespace de.springwald.xml.dtd
 #warning Noch eine korrekte Meldung oder Ton einfügen
 
                         Debug.Assert(false, "Beep!");
-                        anDieserStelleErlaubteChildren = new StringCollection();
+                        anDieserStelleErlaubteChildren = new string[] { };
                     }
                     else
                     {
@@ -228,7 +228,7 @@ namespace de.springwald.xml.dtd
                         {
                             // Bei diesem Node handelt es sich im das Dokument-Tag selbst. Dieses ist auf dem Root 
                             // exklusiv, daher kann es daneben keine anderen Elemente geben
-                            anDieserStelleErlaubteChildren = new StringCollection();
+                            anDieserStelleErlaubteChildren = new string[] { };
                         }
                         else
                         {
@@ -238,7 +238,7 @@ namespace de.springwald.xml.dtd
                             if (parentElement == null)
                             {
                                 // Ein Element mit diesem Namen ist nicht bekannt
-                                anDieserStelleErlaubteChildren = new StringCollection();
+                                anDieserStelleErlaubteChildren = new string[] { };
                             }
                             else
                             {

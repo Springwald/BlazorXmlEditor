@@ -9,7 +9,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -21,7 +21,7 @@ namespace de.springwald.xml.dtd
     public class DTDElement
     {
         private Regex _childrenRegExObjekt;         // Liefert ein RegEx-Objekt, mit welchem man Childfolgen darauf hin prüfen kann, ob sie für dieses Element gültig sind
-        private StringCollection _alleElementNamenWelcheAlsDirektesChildZulaessigSind; // Diese DTD-Elemente dürfen innerhalb dieses Elementes vorkommen
+        private string[] _alleElementNamenWelcheAlsDirektesChildZulaessigSind; // Diese DTD-Elemente dürfen innerhalb dieses Elementes vorkommen
 
         /// <summary>
         /// Der eindeutige Name dieses Elementes
@@ -36,15 +36,13 @@ namespace de.springwald.xml.dtd
         /// <summary>
         /// Diese DTD-Elemente dürfen innerhalb dieses Elementes vorkommen.
         /// </summary>
-        public StringCollection AlleElementNamenWelcheAlsDirektesChildZulaessigSind
+        public string[] AlleElementNamenWelcheAlsDirektesChildZulaessigSind
         {
             get
             {
                 if (_alleElementNamenWelcheAlsDirektesChildZulaessigSind == null)
                 {
-                    _alleElementNamenWelcheAlsDirektesChildZulaessigSind = GetDTDElementeNamenAusChildElementen_(this.ChildElemente);
-                    // Das Kommentar-Tag hinzufügen, da dieses immer zulässig ist
-                    _alleElementNamenWelcheAlsDirektesChildZulaessigSind.Add("#COMMENT");
+                    _alleElementNamenWelcheAlsDirektesChildZulaessigSind = GetDTDElementeNamenAusChildElementen_(this.ChildElemente).Distinct().ToArray();
                 }
                 return _alleElementNamenWelcheAlsDirektesChildZulaessigSind;
             }
@@ -83,25 +81,18 @@ namespace de.springwald.xml.dtd
         {
         }
 
-
-
         /// <summary>
         /// Liefert die Liste aller in den Children erwähnten Elemente
         /// </summary>
         /// <param name="children"></param>
         /// <returns></returns>
-        private StringCollection GetDTDElementeNamenAusChildElementen_(DTDChildElemente children)
+        private IEnumerable<string> GetDTDElementeNamenAusChildElementen_(DTDChildElemente children)
         {
-            StringCollection liste = new StringCollection();
-
             switch (children.Art)
             {
                 case DTDChildElemente.DTDChildElementArten.EinzelChild:
-                    // Ist ein einzelnes ChildElement und noch nicht in der Liste: Hinzufügen
-                    if (!liste.Contains(children.ElementName))
-                    {
-                        liste.Add(children.ElementName);
-                    }
+                    // Ist ein einzelnes ChildElement
+                    yield return children.ElementName;
                     break;
 
                 case DTDChildElemente.DTDChildElementArten.ChildListe:
@@ -109,10 +100,7 @@ namespace de.springwald.xml.dtd
                     {
                         foreach (string childElementName in GetDTDElementeNamenAusChildElementen_(children.Child(i)))
                         {
-                            if (!liste.Contains(childElementName))
-                            {
-                                liste.Add(childElementName);
-                            }
+                            yield return childElementName;
                         }
                     }
                     break;
@@ -125,7 +113,7 @@ namespace de.springwald.xml.dtd
                     throw new ApplicationException(String.Format(ResReader.Reader.GetString("UnbekannteDTDChildElementArt"), children.Art));
             }
 
-            return liste;
+            yield return "#COMMENT";     // Das Kommentar-Tag hinzufügen, da dieses immer zulässig ist
         }
 
 

@@ -1,43 +1,31 @@
-using System;
-using System.Collections.Specialized;
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System.Text;
 
 namespace de.springwald.xml.dtd
 {
-	/// <summary>
-	/// Ein XML-Block, wie er nach der angestrebten Veränderung aussehen könnte.
-	/// Dieses Muster wird durch den Prüfer gejagt. Alle Muster, welche anschließend 
-	/// als "bestätigt" geflagt wurden, sind lt. DTD zulässig
-	/// </summary>
-	/// <remarks>
-	/// (C)2005 Daniel Springwald, Herne Germany
-	/// Springwald Software  - www.springwald.de
-	/// daniel@springwald.de -   0700-SPRINGWALD
-	/// all rights reserved
-	/// </remarks>
-	public class DTDTestmuster
-	{
-		#region PRIVATE ATTRIBUTES
-
-		private string _elementName;	        // Das zum Test eingefügte Element zur Rückgabe nach Erledigung des Tests. Ist es NULL, bedeutet das, dass statt Einfügen das Löschen geprüft wurde
-		private string _parentElementName;	    // Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)
-		private bool _erfolgreich;		        // Ist das Muster erfolgreich anwendbar gewesen?
+    /// <summary>
+    /// An XML block of what it might look like after the intended change. This pattern is chased through the validator. All patterns, which were subsequently flagged as "confirmed", are permitted according to the DTD
+    /// </summary>
+    public class DTDTestmuster
+    {
+        private string _parentElementName;	    // Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)
 
         private string _vergleichsStringFuerRegEx;
 
         private StringBuilder _elementNamenListe;
 
-		#endregion
-
-		#region PUBLIC ATTRIBUTES
-
-		/// <summary>
-		/// Das zum Test eingefügte Element. Ist es NULL, bedeutet das, dass statt Einfügen das Löschen geprüft wurde
-		/// </summary>
-		public string ElementName 
-		{
-			get { return _elementName; }
-		}
+        /// <summary>
+        /// Das zum Test eingefügte Element. Ist es NULL, bedeutet das, dass statt Einfügen das Löschen geprüft wurde
+        /// </summary>
+        public string ElementName { get; }
 
         public string VergleichStringFuerRegEx
         {
@@ -52,57 +40,49 @@ namespace de.springwald.xml.dtd
             }
         }
 
+        /// <summary>
+        /// Eine schriftliche Zusammenfassung dieses Musters
+        /// </summary>
+        public string Zusammenfassung
+        {
+            get
+            {
+                StringBuilder ergebnis = new StringBuilder();
 
-		/// <summary>
-		/// Eine schriftliche Zusammenfassung dieses Musters
-		/// </summary>
-		public string Zusammenfassung
-		{
-			get 
-			{
-				StringBuilder ergebnis = new StringBuilder();
+                // Erfolgreich getestet?
+                if (this.Erfolgreich)
+                {
+                    ergebnis.Append("+ ");
+                }
+                else
+                {
+                    ergebnis.Append("- ");
+                }
 
-				// Erfolgreich getestet?
-				if (_erfolgreich) 
-				{
-					ergebnis.Append("+ ");
-				}
-				else 
-				{
-					ergebnis.Append("- ");
-				}
-
-				 // Der Name des ParentNodes
+                // Der Name des ParentNodes
                 ergebnis.Append(this._parentElementName);
-				ergebnis.Append(" (");
+                ergebnis.Append(" (");
                 ergebnis.Append(VergleichStringFuerRegEx);
-				ergebnis.Append(")");
+                ergebnis.Append(")");
 
-				// Was wurde getestet?
-				if (_elementName == null) 
-				{
-					ergebnis.Append(" [getestet: löschen]");
-				}
-				else 
-				{
-					ergebnis.AppendFormat("[getestet: {0}]", this._elementName );
-				}
+                // Was wurde getestet?
+                if (this.ElementName == null)
+                {
+                    ergebnis.Append(" [getestet: löschen]");
+                }
+                else
+                {
+                    ergebnis.AppendFormat("[getestet: {0}]", this.ElementName);
+                }
 
-				return ergebnis.ToString();
-			}
-		}
+                return ergebnis.ToString();
+            }
+        }
 
-		/// <summary>
-		/// Ist das Muster erfolgreich anwendbar gewesen?
-		/// </summary>
-		public bool Erfolgreich {
-			get { return _erfolgreich; }
-			set { _erfolgreich = value; }
-		}
-
-		#endregion
-
-        #region CONSTRUCTOR
+        /// <summary>
+        /// Ist das Muster erfolgreich anwendbar gewesen?
+        /// </summary>
+        public bool Erfolgreich { get; set; }
 
         /// <summary>
         /// 
@@ -111,30 +91,17 @@ namespace de.springwald.xml.dtd
         /// <param name="parentElementName">Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)</param>
         public DTDTestmuster(string elementName, string parentElementName)
         {
-
             _elementNamenListe = new StringBuilder();
             _elementNamenListe.Append(">");
 
-            this._elementName = elementName;
+            this.ElementName = elementName;
             this._parentElementName = parentElementName;
-            this._erfolgreich = false; // Bisher nicht bestätigt
+            this.Erfolgreich = false; // Bisher nicht bestätigt
         }
-
-        #endregion
-
-        #region PUBLIC METHODS
 
         public void AddElement(string elementName)
         {
             _elementNamenListe.AppendFormat("-{0}", elementName);
         }
-
-		#endregion
-
-		#region PRIVATE METHODS
-
-		#endregion
-
-		
-	}
+    }
 }

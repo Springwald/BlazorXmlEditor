@@ -1,4 +1,6 @@
-﻿using de.springwald.xml.editor;
+﻿
+
+using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
 using System.Collections.Generic;

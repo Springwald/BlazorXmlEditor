@@ -1,4 +1,14 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using de.springwald.xml.cursor;
 using de.springwald.xml.dtd;
@@ -19,13 +29,12 @@ namespace de.springwald.xml
     /// </summary>
     public class XMLRegelwerk
     {
-
         private DTD _dtd;                   // Wenn eine DTD zugewiesen ist, dann steht diese hier
         private DTDPruefer _dtdPruefer;
         private DTDNodeEditCheck _checker;
 
         /// <summary>Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können</summary>
-        protected XMLElementGruppenListe _elementGruppen;
+        protected List<XMLElementGruppe> _elementGruppen;
 
         /// <summary>
         /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
@@ -57,13 +66,13 @@ namespace de.springwald.xml
         /// <summary>
         /// Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können
         /// </summary>
-        public virtual XMLElementGruppenListe ElementGruppen
+        public virtual List<XMLElementGruppe> ElementGruppen
         {
             get
             {
                 if (_elementGruppen == null)
                 {
-                    _elementGruppen = new XMLElementGruppenListe();
+                    _elementGruppen = new List<XMLElementGruppe>();
                 }
                 return _elementGruppen;
             }
@@ -78,7 +87,6 @@ namespace de.springwald.xml
         {
             _dtd = null;
         }
-
 
         /// <summary>
         /// Ermittelt die Farbe, in welcher dieser Node gezeichnet werden soll
@@ -131,7 +139,7 @@ namespace de.springwald.xml
 
             if (element != null)
             {
-                if (element.AlleElementNamenWelcheAlsDirektesChildZulaessigSind.Count > 1) // Das Element kann Unterelement haben (> 1 statt 0, weil Kommentar ist immer dabei)
+                if (element.AlleElementNamenWelcheAlsDirektesChildZulaessigSind.Length > 1) // Das Element kann Unterelement haben (> 1 statt 0, weil Kommentar ist immer dabei)
                 {
                     return true;
                 }
@@ -168,7 +176,6 @@ namespace de.springwald.xml
         /// Ist der Inhalt "", dann ist das Element frei einzugeben </returns>
         public virtual string[] ErlaubteEinfuegeElemente_(XMLCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
         {
-
 #warning evtl. Optimierungs-TODO:
             // Wahrscheinlich (allein schon durch die Nutzung von IstDiesesTagAnDieserStelleErlaubt() etc.)
             // wird diese Liste oft hintereinander identisch neu erzeugt. Es macht daher Sinn, wenn der

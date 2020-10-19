@@ -1,3 +1,12 @@
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,21 +18,12 @@ using System.Linq;
 
 namespace de.springwald.xml.dtd
 {
-	/// <summary>
-	/// Zusammenfassung für DTDReaderDTD.
-	/// </summary>
 	public class DTDReaderDTD
 	{
-		#region PRIVATE ATTRIBUTES
-
 		private string _rohinhalt;			// Der eingelesene Rohinhalt der DTD
 		private string _workingInhalt;		// Der überarbeitete Inhalt der DTD
 		private List<DTDElement> _elemente;		// Die in dieser DTD verfügbaren Elemente
         private List<DTDEntity> _entities;		// Die bekannten Entity-Einträge dieser DTD
-
-		#endregion
-
-		#region PUBLIC ATTRIBUTES
 
 		/// <summary>
 		/// Der eingelesene Rohinhalt der DTD
@@ -41,17 +41,9 @@ namespace de.springwald.xml.dtd
 			get { return _workingInhalt; }
 		}
 
-		#endregion
-
-		#region CONSTRUCTOR
-
 		public DTDReaderDTD()
 		{
 		}
-
-		#endregion
-
-		#region PUBLIC METHODS
 
 		/// <summary>
 		/// Erzeugt ein DTD-Objekt auf Basis einer DTD-Datei
@@ -75,8 +67,6 @@ namespace de.springwald.xml.dtd
 
 			return GetDTDFromString(inhalt);
 		}
-
-
 
 		/// <summary>
 		/// Erzeugt ein DTD-Objekt auf Basis einer DTD-Datei
@@ -104,10 +94,6 @@ namespace de.springwald.xml.dtd
 
             return dtd;
 		}
-
-		#endregion
-
-		#region PRIVATE METHODS
 
 		/// <summary>
 		/// Verarbeitet den angegebenen Inhalt und baut die entsprechenden Hintergrundstrukturen auf
@@ -390,9 +376,6 @@ namespace de.springwald.xml.dtd
 				}
 				return entity;
 			}
-
-
-			
 		}
 
 		#endregion analyisieren
@@ -504,10 +487,6 @@ namespace de.springwald.xml.dtd
 				Trace.WriteLine (String.Format("Keine Attribute für Element {0} vorhanden.",element.Name));
 			}
 		}
-
-
-		#endregion
-
 
 		#endregion
 	}

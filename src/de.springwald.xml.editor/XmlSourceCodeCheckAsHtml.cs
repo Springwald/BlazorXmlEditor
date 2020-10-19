@@ -1,4 +1,13 @@
-﻿using System;
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
+using System;
 using System.Text;
 using System.Xml;
 
@@ -90,7 +99,6 @@ namespace de.springwald.xml
         /// </summary>
         public void Render()
         {
-
             this._sourcecodeAsHtml = new StringBuilder();
             this._errorsAsHtml = new StringBuilder();
 
@@ -125,11 +133,11 @@ namespace de.springwald.xml
         private string GetNodeAlsQuellText(System.Xml.XmlNode node, string einzug, bool newLineNeeded, bool parentWarFehlerhaft, bool posBereitsAlsOKGeprueft, ref bool nodeFehlerhaft)
         {
             // Kommentare und Whitespace besonders behandeln
-            if (node is System.Xml.XmlWhitespace)
+            if (node is XmlWhitespace)
             {
                 return ""; // Whitespace wird nicht dargestellt
             }
-            if (node is System.Xml.XmlComment) return String.Format("&lt;!--{0}--&gt;", node.InnerText);
+            if (node is XmlComment) return String.Format("&lt;!--{0}--&gt;", node.InnerText);
 
             var quellcode = new StringBuilder();
             const string einzugplus = "&nbsp;&nbsp;&nbsp;&nbsp;";

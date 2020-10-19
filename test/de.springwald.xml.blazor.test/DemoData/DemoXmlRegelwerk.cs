@@ -2,6 +2,7 @@ using de.springwald.xml.cursor;
 using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
@@ -21,13 +22,13 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// <summary>
         /// Die Gruppierungen, in welchen die XML-Elemente zum Einfügen angeboten werden
         /// </summary>
-        public override de.springwald.xml.editor.XMLElementGruppenListe ElementGruppen
+        public override List<XMLElementGruppe> ElementGruppen
         {
             get
             {
                 if (_elementGruppen == null)
                 {
-                    _elementGruppen = new XMLElementGruppenListe();
+                    _elementGruppen = new List<XMLElementGruppe>();
 
                     // Unwichtige Gruppen zuerst mal zusammenklappen?
                     const bool zusammengeklappt = true;
