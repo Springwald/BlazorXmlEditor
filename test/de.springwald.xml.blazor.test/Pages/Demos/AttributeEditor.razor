@@ -6,11 +6,13 @@
 
 <h3>Attribute editor demo</h3>
 <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
+<de.springwald.xml.blazor.Components.AddElement EditorContext="this.editorContext" EditorStatus="this.editorStatus"></de.springwald.xml.blazor.Components.AddElement>
 <p>@test</p>
 
 @code {
     private XmlEditor xmlEditor;
     private XmlEditorContext editorContext = new XmlEditorContext();
+    private de.springwald.xml.editor.editor.EditorStatus editorStatus;
     private string test;
 
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
@@ -41,6 +43,7 @@
         await Task.Delay(100);
         await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
         await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.FirstChild.FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 10);
+        this.editorStatus = this.xmlEditor.Editor.EditorStatus;
     }
 
     public void Dispose()

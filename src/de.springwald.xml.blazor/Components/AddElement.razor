@@ -1,0 +1,118 @@
+﻿@using de.springwald.xml.editor.editor
+@using de.springwald.xml.dtd
+@implements IDisposable
+
+<h3>AddXmlElement</h3>
+
+<li>
+    @foreach(var element in this.Elements)
+    {
+        <p>@element</p>
+    }
+    <ul></ul>
+</li>
+
+@code {
+    [Parameter]
+    public XmlEditorContext EditorContext { get; set; }
+
+    private EditorStatus editorStatus;
+
+    [Parameter]
+    public EditorStatus EditorStatus
+    {
+        set
+        {
+            if (value == null)
+            {
+                if (this.editorStatus != null)
+                {
+                    this.editorStatus.CursorRoh.ChangedEvent.Remove(this.Show);
+                }
+            }
+            else
+            {
+                this.editorStatus.CursorRoh.ChangedEvent.Add(this.Show);
+            }
+            this.editorStatus = value;
+        }
+        get
+        {
+            return this.editorStatus;
+        }
+    }
+
+    private string[] Elements = new string[] { };
+
+    protected override Task OnInitializedAsync()
+    {
+
+        return base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        this.editorStatus?.CursorRoh.ChangedEvent.Remove(this.Show);
+    }
+
+
+    public async Task Show(EventArgs eventArgs)
+    {
+        if ((this.EditorContext.RootNode != null))  //  genug Daten, um einzufügenden Elemente aufzulisten
+        {
+            string[] elemente = null;
+
+            try
+            {
+#if CommentNichtZulassen
+                    bool kommentareMitAuflisten = false;
+#else
+                bool kommentareMitAuflisten = true;
+#endif
+                this.Elements = this.EditorContext.XmlRules.ErlaubteEinfuegeElemente_(this.editorStatus.CursorOptimiert.StartPos, false, kommentareMitAuflisten); // die Liste der erlaubten Tags holen
+            }
+            catch (DTD.XMLUnknownElementException e)
+            {
+                var error = $"unknown element '{e.ElementName}'";
+                //Debugger.GlobalDebugger.Protokolliere(String.Format("unknown element {0} in {1}->{2}", e.ElementName, this.Name, "Aktualisieren"));  //Eines der bezogenen Elemente ist in der DTD unbekannt
+                //lblFehler.Text = String.Format("unknown element '{0}'", e.ElementName);
+                //lblFehler.Visible = true;
+            }
+
+            if (elemente != null)
+            {
+
+                //// Elemente alphabetisch sortieren
+                //string[] restElemente = (from e in elemente
+                //                         orderby e
+                //                         select e).ToArray();
+
+                //// ButtonArray füllen
+                //int rand = 3; // Abstand zwischen Buttons
+                //int top = 0; // Dort anfangen
+
+                //// Buttons in den Gruppen anzeigen
+                //for (int i = 0; i < _gruppenControls.Count; i++)
+                //{
+                //    // Jetzt dem Gruppencontrol die Elemente übergeben, welche überhaupt zur Verfügung stehen
+                //    restElemente = _gruppenControls[i].VerfuegbareElementeZuweisenUndRestElementeZurueckGeben(restElemente);
+
+                //    if (_gruppenControls[i].Visible) // Ist das Gruppencontrol sichtbar?
+                //    {
+                //        _gruppenControls[i].Top = top;
+                //        _gruppenControls[i].Left = rand;
+                //        int breite = ClientSize.Width - rand * 2;
+                //        _gruppenControls[i].Width = breite;
+                //        top += _gruppenControls[i].Height;
+                //    }
+                //    else // Das Gruppencontrol ist nicht sichtbar - wohl weil es keine Buttons drin hat
+                //    {
+                //    }
+                //}
+            }
+            await Task.CompletedTask;
+        }
+    }
+
+}
+ 
