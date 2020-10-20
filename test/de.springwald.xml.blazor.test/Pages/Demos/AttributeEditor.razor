@@ -5,8 +5,12 @@
 @implements IDisposable
 
 <h3>Attribute editor demo</h3>
+
 <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
-<de.springwald.xml.blazor.Components.AddElement EditorContext="this.editorContext" EditorStatus="this.editorStatus"></de.springwald.xml.blazor.Components.AddElement>
+@if (this.xmlEditor != null && this.editorContext != null && this.editorStatus != null)
+{
+    <de.springwald.xml.blazor.Components.AddElement EditorContext="this.editorContext" EditorStatus="this.editorStatus"></de.springwald.xml.blazor.Components.AddElement>
+}
 <p>@test</p>
 
 @code {
@@ -36,7 +40,7 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async Task  LoadXml()
+    private async Task LoadXml()
     {
         await Task.Delay(100);
         xmlDocument.LoadXml(this.documentContent);
@@ -44,6 +48,7 @@
         await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
         await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.FirstChild.FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 10);
         this.editorStatus = this.xmlEditor.Editor.EditorStatus;
+        StateHasChanged();
     }
 
     public void Dispose()

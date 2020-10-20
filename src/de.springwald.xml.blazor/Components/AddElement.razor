@@ -32,7 +32,7 @@
             }
             else
             {
-                this.editorStatus.CursorRoh.ChangedEvent.Add(this.Show);
+                value.CursorRoh.ChangedEvent.Add(this.Show);
             }
             this.editorStatus = value;
         }
@@ -70,6 +70,7 @@
                 bool kommentareMitAuflisten = true;
 #endif
                 this.Elements = this.EditorContext.XmlRules.ErlaubteEinfuegeElemente_(this.editorStatus.CursorOptimiert.StartPos, false, kommentareMitAuflisten); // die Liste der erlaubten Tags holen
+                this.StateHasChanged();
             }
             catch (DTD.XMLUnknownElementException e)
             {
