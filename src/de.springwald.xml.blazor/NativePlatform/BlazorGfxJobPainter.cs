@@ -1,4 +1,4 @@
-﻿using de.springwald.xml.editor.editor.nativeplatform.gfx.Jobs;
+﻿using de.springwald.xml.editor.nativeplatform.gfx.Jobs;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.editor.nativeplatform.gfxobs;
 using System;

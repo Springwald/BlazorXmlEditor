@@ -12,8 +12,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.cursor;
-using de.springwald.xml.editor.editor.xmlelements;
-using de.springwald.xml.editor.editor.xmlelements.StandardNode;
+using de.springwald.xml.editor.xmlelements;
+using de.springwald.xml.editor.xmlelements.StandardNode;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 

@@ -1,5 +1,5 @@
 ﻿using Blazor.Extensions;
-using de.springwald.xml.editor.editor.nativeplatform.gfx.Jobs;
+using de.springwald.xml.editor.nativeplatform.gfx.Jobs;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System.Collections.Generic;
 using System.Linq;

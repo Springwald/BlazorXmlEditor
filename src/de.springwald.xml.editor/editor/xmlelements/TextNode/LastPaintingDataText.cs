@@ -1,7 +1,7 @@
 ﻿using de.springwald.xml.cursor;
 using System.Xml;
 
-namespace de.springwald.xml.editor.editor.xmlelements.Caching
+namespace de.springwald.xml.editor.xmlelements.Caching
 {
     internal class LastPaintingDataText
     {

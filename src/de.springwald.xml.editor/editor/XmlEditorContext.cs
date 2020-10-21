@@ -1,6 +1,4 @@
-﻿using de.springwald.xml.editor.editor;
-
-namespace de.springwald.xml.blazor
+﻿namespace de.springwald.xml.editor
 {
     public class XmlEditorContext
     {

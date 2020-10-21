@@ -1,16 +1,13 @@
-﻿@using de.springwald.xml.editor.editor
+﻿@using de.springwald.xml.editor
 @using de.springwald.xml.dtd
 @implements IDisposable
 
-<h3>AddXmlElement</h3>
-
-<li>
+<ul>
     @foreach(var element in this.Elements)
     {
-        <p>@element</p>
+        <li onclick="this.ClickElement(element)">@element</li>
     }
-    <ul></ul>
-</li>
+</ul>
 
 @code {
     [Parameter]
@@ -53,6 +50,11 @@
     public void Dispose()
     {
         this.editorStatus?.CursorRoh.ChangedEvent.Remove(this.Show);
+    }
+
+    protected async Task ClickElement(string element)
+    {
+
     }
 
 

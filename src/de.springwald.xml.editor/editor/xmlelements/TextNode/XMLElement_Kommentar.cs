@@ -7,7 +7,7 @@
 // All rights reserved
 // Licensed under MIT License
 
-namespace de.springwald.xml.editor.editor.xmlelements.TextNode
+namespace de.springwald.xml.editor.xmlelements.TextNode
 {
     /// <summary>
     /// Draws a comment in the editor

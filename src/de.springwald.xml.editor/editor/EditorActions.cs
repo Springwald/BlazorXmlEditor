@@ -13,7 +13,7 @@ using System.Xml;
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform;
 
-namespace de.springwald.xml.editor.editor
+namespace de.springwald.xml.editor
 {
     public class EditorActions
     {
@@ -41,10 +41,7 @@ namespace de.springwald.xml.editor.editor
             }
         }
 
-        internal void AktionNeuesElementAnAktCursorPosEinfuegen(string v1, object ja, bool v2)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public EditorActions(INativePlatform nativePlatform, EditorStatus editorStatus , XMLRegelwerk regelwerk )
         {

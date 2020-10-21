@@ -1,6 +1,6 @@
 ﻿using de.springwald.xml.editor.nativeplatform.gfx;
 
-namespace de.springwald.xml.editor.editor.nativeplatform.gfx.Jobs
+namespace de.springwald.xml.editor.nativeplatform.gfx.Jobs
 {
     public class JobUnpaintRectangle : GfxJob
     {

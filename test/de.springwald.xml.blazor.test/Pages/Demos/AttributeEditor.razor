@@ -2,21 +2,31 @@
 @using de.springwald.xml.blazor.Components
 @using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.test.DemoData
+@using de.springwald.xml.editor
 @implements IDisposable
 
 <h3>Attribute editor demo</h3>
 
-<de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
-@if (this.xmlEditor != null && this.editorContext != null && this.editorStatus != null)
-{
-    <de.springwald.xml.blazor.Components.AddElement EditorContext="this.editorContext" EditorStatus="this.editorStatus"></de.springwald.xml.blazor.Components.AddElement>
-}
+<div class="row">
+    <div class="col-8">
+        <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
+    </div>
+    <div class="col-4">
+        @if (this.xmlEditor != null && this.editorContext != null && this.editorStatus != null)
+        {
+            <AddElement EditorContext="this.editorContext" EditorStatus="this.editorStatus"/>
+        }
+        <hr />
+        <EditAttributes/>
+    </div>
+</div>
+
 <p>@test</p>
 
 @code {
     private XmlEditor xmlEditor;
     private XmlEditorContext editorContext = new XmlEditorContext();
-    private de.springwald.xml.editor.editor.EditorStatus editorStatus;
+    private de.springwald.xml.editor.EditorStatus editorStatus;
     private string test;
 
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";

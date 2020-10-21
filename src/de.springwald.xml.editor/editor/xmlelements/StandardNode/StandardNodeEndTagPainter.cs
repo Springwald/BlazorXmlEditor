@@ -9,10 +9,10 @@
 
 using System.Threading.Tasks;
 using System.Xml;
-using de.springwald.xml.editor.editor.xmlelements.StandardNode;
+using de.springwald.xml.editor.xmlelements.StandardNode;
 using de.springwald.xml.editor.nativeplatform.gfx;
 
-namespace de.springwald.xml.editor.editor.xmlelements
+namespace de.springwald.xml.editor.xmlelements
 {
     internal class StandardNodeEndTagPainter
     {

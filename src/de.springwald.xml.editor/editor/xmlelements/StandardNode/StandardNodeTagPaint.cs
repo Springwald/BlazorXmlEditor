@@ -9,7 +9,7 @@
 
 using de.springwald.xml.editor.nativeplatform.gfx;
 
-namespace de.springwald.xml.editor.editor.xmlelements.StandardNode
+namespace de.springwald.xml.editor.xmlelements.StandardNode
 {
     internal class StandardNodeTagPaint
     {

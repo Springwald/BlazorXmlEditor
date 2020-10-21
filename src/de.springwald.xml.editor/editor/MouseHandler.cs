@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using de.springwald.xml.editor.nativeplatform;
 using de.springwald.xml.events;
 
-namespace de.springwald.xml.editor.editor
+namespace de.springwald.xml.editor
 {
     internal class MouseHandler: IDisposable
     {

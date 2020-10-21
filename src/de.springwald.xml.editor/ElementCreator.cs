@@ -7,7 +7,7 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.editor.editor.xmlelements.TextNode;
+using de.springwald.xml.editor.xmlelements.TextNode;
 
 namespace de.springwald.xml
 {

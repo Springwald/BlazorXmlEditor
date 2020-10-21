@@ -9,7 +9,7 @@
 
 using System;
 
-namespace de.springwald.xml.editor.editor.cursor
+namespace de.springwald.xml.editor.cursor
 {
     internal class CursorBlink : IDisposable
     {

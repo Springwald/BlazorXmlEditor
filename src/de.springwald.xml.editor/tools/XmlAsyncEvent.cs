@@ -10,7 +10,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using de.springwald.xml.editor.editor.cursor;
+using de.springwald.xml.editor.cursor;
 
 namespace de.springwald.xml
 {

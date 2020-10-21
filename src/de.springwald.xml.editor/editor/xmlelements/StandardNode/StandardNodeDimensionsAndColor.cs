@@ -10,7 +10,7 @@
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
 
-namespace de.springwald.xml.editor.editor.xmlelements.StandardNode
+namespace de.springwald.xml.editor.xmlelements.StandardNode
 {
     public class StandardNodeDimensionsAndColor
     {

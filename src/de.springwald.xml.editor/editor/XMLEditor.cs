@@ -9,8 +9,8 @@
 
 using System;
 using System.Threading.Tasks;
-using de.springwald.xml.editor.editor;
-using de.springwald.xml.editor.editor.cursor;
+using de.springwald.xml.editor;
+using de.springwald.xml.editor.cursor;
 using de.springwald.xml.editor.nativeplatform;
 
 namespace de.springwald.xml.editor

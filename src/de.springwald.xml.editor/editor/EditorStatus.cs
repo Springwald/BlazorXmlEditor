@@ -13,7 +13,7 @@ using System.Xml;
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform;
 
-namespace de.springwald.xml.editor.editor
+namespace de.springwald.xml.editor
 {
     public class EditorStatus : IDisposable
     {

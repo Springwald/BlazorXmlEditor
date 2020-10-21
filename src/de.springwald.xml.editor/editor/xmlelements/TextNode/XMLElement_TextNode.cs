@@ -8,7 +8,7 @@
 // Licensed under MIT License
 
 using de.springwald.xml.cursor;
-using de.springwald.xml.editor.editor.xmlelements.Caching;
+using de.springwald.xml.editor.xmlelements.Caching;
 using de.springwald.xml.editor.helper;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using System;
@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace de.springwald.xml.editor.editor.xmlelements.TextNode
+namespace de.springwald.xml.editor.xmlelements.TextNode
 {
     /// <summary>
     /// XML element for displaying a text node
