@@ -9,6 +9,7 @@
 
 using System;
 using System.Threading.Tasks;
+using System.Xml;
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform;
 
@@ -16,19 +17,29 @@ namespace de.springwald.xml.editor.editor
 {
     public class EditorStatus : IDisposable
     {
-        private INativePlatform nativePlatform;
+        // private INativePlatform nativePlatform;
+
+        public async Task SetRootNode(XmlNode rootNode)
+        {
+            if (this.RootNode != rootNode)
+            {
+                this.RootNode = rootNode;
+                await this.RootNodeChanged.Trigger(rootNode);
+            }
+        }
+        public XmlAsyncEvent<XmlNode> RootNodeChanged { get; set; } = new XmlAsyncEvent<XmlNode>();
 
         /// <summary>
         /// This is the topmost node to edit. You must not edit higher, even if there are parents in the DOM
         /// </summary>
-        public System.Xml.XmlNode RootNode { get; internal set; }
+        public XmlNode RootNode { get; private set; }
 
         internal XMLElement RootElement { get; set; }
 
-        /// <summary>
-        /// The set of rules on which the XML processing is based
-        /// </summary>
-        public XMLRegelwerk Regelwerk { get; }
+        ///// <summary>
+        ///// The set of rules on which the XML processing is based
+        ///// </summary>
+        //public XMLRegelwerk Regelwerk { get; }
 
         /// <summary>
         /// Is the current xml document treated as read-only?
@@ -53,10 +64,10 @@ namespace de.springwald.xml.editor.editor
             }
         }
 
-        /// <summary>
-        /// Indicates whether something is on the clipboard for the editor
-        /// </summary>
-        public bool IstEtwasInZwischenablage => this.nativePlatform.Clipboard.ContainsText;
+        ///// <summary>
+        ///// Indicates whether something is on the clipboard for the editor
+        ///// </summary>
+        //public bool IstEtwasInZwischenablage => this.nativePlatform.Clipboard.ContainsText;
 
         /// <summary>
         /// Indicates whether something is selected in the editor
@@ -101,10 +112,8 @@ namespace de.springwald.xml.editor.editor
 
         public XmlAsyncEvent<EventArgs> ContentChangedEvent = new XmlAsyncEvent<EventArgs>();
 
-        public EditorStatus(INativePlatform nativePlatform, XMLRegelwerk regelwerk)
+        public EditorStatus()
         {
-            this.nativePlatform = nativePlatform;
-            this.Regelwerk = regelwerk;
             this.CursorRoh = new XMLCursor();
         }
 

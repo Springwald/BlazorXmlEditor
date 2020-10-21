@@ -63,15 +63,15 @@
             FontNodeAttribute = new Font(names: new[] { "Verdana", "Geneva", "sans-serif" }, height: 12, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
             FontTextNode = new Font(names: new[] { "Lucida Console", "Monaco", "monospace" }, height: 14, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: true)
         };
-        this.EditorContext.RootNodeChanged.Add(this.RootNodeChanged);
-        this.Editor = new XMLEditor(this.EditorContext.XmlRules, nativePlattform, config);
+        this.EditorContext.EditorStatus.RootNodeChanged.Add(this.RootNodeChanged);
+        this.Editor = new XMLEditor(nativePlattform, config, EditorContext.EditorStatus, this.EditorContext.XmlRules);
         await Task.CompletedTask;
     }
 
     public void Dispose()
     {
         BrowserResize.OnResize -= this.Resized;
-        this.EditorContext?.RootNodeChanged.Remove(this.RootNodeChanged);
+        this.EditorContext?.EditorStatus.RootNodeChanged.Remove(this.RootNodeChanged);
         this.Editor.Dispose();
     }
 

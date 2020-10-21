@@ -56,7 +56,7 @@
         {
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
-            await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
+            await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
             var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
             var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
             var textNode = patternNode.ChildNodes[0];

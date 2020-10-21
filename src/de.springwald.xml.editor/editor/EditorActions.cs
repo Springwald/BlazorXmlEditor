@@ -17,6 +17,7 @@ namespace de.springwald.xml.editor.editor
 {
     public class EditorActions
     {
+        private XMLRegelwerk regelwerk;
         private INativePlatform nativePlatform;
         private EditorStatus editorStatus;
 
@@ -45,8 +46,9 @@ namespace de.springwald.xml.editor.editor
             throw new NotImplementedException();
         }
 
-        public EditorActions(INativePlatform nativePlatform, EditorStatus editorStatus)
+        public EditorActions(INativePlatform nativePlatform, EditorStatus editorStatus , XMLRegelwerk regelwerk )
         {
+            this.regelwerk = regelwerk;
             this.nativePlatform = nativePlatform;
             this.editorStatus = editorStatus;
         }
@@ -125,17 +127,17 @@ namespace de.springwald.xml.editor.editor
                     {
                         if (node is XmlText) // Einen Text einfügen
                         {
-                            var pasteResult = await endPos.TextEinfuegen(node.Clone().Value, this.editorStatus.Regelwerk);
+                            var pasteResult = await endPos.TextEinfuegen(node.Clone().Value, this.regelwerk);
                             if (pasteResult.ErsatzNode != null)
                             {
                                 // Text konnte nicht eingefügt werden, da aus der Texteingabe eine Node-Eingabe umgewandelt
                                 // wurde. Beispiel: Im AIML-Template wird * gedrückt, und dort statt dessen ein <star> eingefügt
-                                await endPos.InsertXMLNode(pasteResult.ErsatzNode.Clone(), this.editorStatus.Regelwerk, true);
+                                await endPos.InsertXMLNode(pasteResult.ErsatzNode.Clone(), this.regelwerk, true);
                             }
                         }
                         else // Einen Node einfügen
                         {
-                            await endPos.InsertXMLNode(node.Clone(), this.editorStatus.Regelwerk, true);
+                            await endPos.InsertXMLNode(node.Clone(), this.regelwerk, true);
                         }
                     }
 
@@ -406,7 +408,7 @@ namespace de.springwald.xml.editor.editor
                     this.editorStatus.CursorRoh);
             }
 
-            await this.editorStatus.CursorRoh.TextEinfuegen(insertText, this.editorStatus.Regelwerk);
+            await this.editorStatus.CursorRoh.TextEinfuegen(insertText, this.regelwerk);
             await this.editorStatus.FireContentChangedEvent();
             return true;
         }
@@ -493,7 +495,7 @@ namespace de.springwald.xml.editor.editor
             var deleteArea = new XMLCursor();
             deleteArea.StartPos.CursorSetzenOhneChangeEvent(position.AktNode, position.PosAmNode, position.PosImTextnode);
             var endPos = deleteArea.StartPos.Clone();
-            await endPos.MoveLeft(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
+            await endPos.MoveLeft(this.editorStatus.RootNode, this.regelwerk);
             deleteArea.EndPos.CursorSetzenOhneChangeEvent(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
             await deleteArea.SelektionOptimieren();
 
@@ -538,7 +540,7 @@ namespace de.springwald.xml.editor.editor
             var deleteArea = new XMLCursor();
             deleteArea.StartPos.CursorSetzenOhneChangeEvent(position.AktNode, position.PosAmNode, position.PosImTextnode);
             var endPos = deleteArea.StartPos.Clone();
-            await endPos.MoveRight(this.editorStatus.RootNode, this.editorStatus.Regelwerk);
+            await endPos.MoveRight(this.editorStatus.RootNode, this.regelwerk);
             deleteArea.EndPos.CursorSetzenOhneChangeEvent(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
             await deleteArea.SelektionOptimieren();
 
@@ -597,7 +599,7 @@ namespace de.springwald.xml.editor.editor
             }
 
             // Node an aktueller CursorPos einfügen
-            await this.editorStatus.CursorRoh.XMLNodeEinfuegen(node, this.editorStatus.Regelwerk, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen);
+            await this.editorStatus.CursorRoh.XMLNodeEinfuegen(node, this.regelwerk, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen);
             await this.editorStatus.FireContentChangedEvent();
             return node;
         }

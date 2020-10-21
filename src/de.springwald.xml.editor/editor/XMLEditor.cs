@@ -23,6 +23,9 @@ namespace de.springwald.xml.editor
         internal KeyboardHandler KeyboardHandler { get; }
 
         public EditorActions EditorActions { get; }
+
+        private XMLRegelwerk regelwerk;
+
         public EditorConfig EditorConfig { get; }
         public INativePlatform NativePlatform { get; }
         public EditorStatus EditorStatus { get; }
@@ -35,16 +38,15 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Stellt einen XML-Editor bereit
         /// </summary>
-        /// <param name="regelwerk">Das Regelwerk zur Darstellung des XMLs</param>
-        /// <param name="zeichnungsSteuerelement">Das Usercontrol, auf welchem der Editor gezeichnet werden soll</param>
-        /// <param name="rootNode">Dies ist der oberste, zu bearbeitende Node. Höher darf nicht bearbeitet werden, selbst wenn im DOM Parents vorhanden sind</param>
-        public XMLEditor(XMLRegelwerk regelwerk, INativePlatform nativePlatform, EditorConfig editorConfig)
+        public XMLEditor(INativePlatform nativePlatform, EditorConfig editorConfig, EditorStatus editorStatus, XMLRegelwerk regelwerk)
         {
+            this.regelwerk = regelwerk;
+
             this.EditorConfig = editorConfig;
             this.NativePlatform = nativePlatform;
             this.NativePlatform.ControlElement.Enabled = false; // Bis zu einer Content-Zuweisung erstmal deaktiviert */
 
-            this.EditorStatus = new EditorStatus(nativePlatform, regelwerk);
+            this.EditorStatus = editorStatus;
             this.EditorStatus.CursorRoh.ChangedEvent.Add(this.CursorChangedEvent);
             this.EditorStatus.ContentChangedEvent.Add(this.OnContentChanged);
 
@@ -52,8 +54,8 @@ namespace de.springwald.xml.editor
             this.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
 
             this.MouseHandler = new MouseHandler(nativePlatform);
-            this.EditorActions = new EditorActions(nativePlatform, this.EditorStatus);
-            this.KeyboardHandler = new KeyboardHandler(nativePlatform, this.EditorStatus, this.EditorActions);
+            this.EditorActions = new EditorActions(nativePlatform, this.EditorStatus, this.regelwerk);
+            this.KeyboardHandler = new KeyboardHandler(nativePlatform, this.EditorStatus, regelwerk, this.EditorActions);
 
             InitScrolling();
         }
@@ -64,7 +66,10 @@ namespace de.springwald.xml.editor
             {
                 this.CleanUpXmlElements();
                 this.EditorStatus.CursorRoh.ChangedEvent.Remove(this.CursorChangedEvent);
+                this.EditorStatus.ContentChangedEvent.Remove(this.OnContentChanged);
+
                 this.CursorBlink.Dispose();
+
                 this.MouseHandler.Dispose();
                 this.KeyboardHandler.Dispose();
                 this.EditorStatus.Dispose();
@@ -74,7 +79,7 @@ namespace de.springwald.xml.editor
 
         public async Task SetRootNode(System.Xml.XmlNode value)
         {
-            this.EditorStatus.RootNode = value;
+            await this.EditorStatus.SetRootNode(value);
 
             if (this.EditorStatus.RootNode == null)
             {
@@ -129,7 +134,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         internal XMLElement CreateElement(System.Xml.XmlNode xmlNode)
         {
-            return new ElementCreator(this).CreatePaintElementForNode(xmlNode);
+            return new ElementCreator(this, this.regelwerk).CreatePaintElementForNode(xmlNode);
         }
 
         private async Task OnContentChanged(EventArgs e)

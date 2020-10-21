@@ -35,7 +35,9 @@ namespace de.springwald.xml.editor
         protected Point cursorPaintPos;  // there the cursor is drawn in this node, if it is the current node
         protected XMLEditor xmlEditor;
         protected EditorConfig config { get; }
-  
+
+        protected XMLRegelwerk regelwerk;
+
         /// <summary>
         /// The XMLNode to be displayed with this element
         /// </summary>
@@ -43,8 +45,9 @@ namespace de.springwald.xml.editor
 
         /// <param name="xmlNode">The XML-Node to be drawn</param>
         /// <param name="xmlEditor">The editor for which the node is to be drawn</param>
-        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor)
+        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor, XMLRegelwerk regelwerk)
         {
+            this.regelwerk = regelwerk;
             this.XMLNode = xmlNode;
             this.xmlEditor = xmlEditor;
             this.config = xmlEditor.EditorConfig;

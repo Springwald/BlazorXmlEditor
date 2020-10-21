@@ -58,7 +58,7 @@
 
     public async Task Show(EventArgs eventArgs)
     {
-        if ((this.EditorContext.RootNode != null))  //  genug Daten, um einzufügenden Elemente aufzulisten
+        if ((this.EditorContext.EditorStatus.RootNode != null))  //  genug Daten, um einzufügenden Elemente aufzulisten
         {
             string[] elemente = null;
 

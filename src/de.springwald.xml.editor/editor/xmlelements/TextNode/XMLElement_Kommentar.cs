@@ -14,7 +14,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
     /// </summary>
     class XMLElement_Kommentar : XMLElement_TextNode
     {
-        public XMLElement_Kommentar(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
+        public XMLElement_Kommentar(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor, XMLRegelwerk regelwerk) : base(xmlNode, xmlEditor, regelwerk)
         {
         }
 

@@ -58,7 +58,7 @@
     private async Task InitTypingTimer()
     {
         await Task.Delay(100);
-        await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
+        await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
         var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
         var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
         this.textNode = patternNode.ChildNodes[0];

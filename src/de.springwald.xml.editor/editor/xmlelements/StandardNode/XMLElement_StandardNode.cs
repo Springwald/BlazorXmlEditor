@@ -30,10 +30,10 @@ namespace de.springwald.xml.editor
 
         protected List<XMLElement> childElements = new List<XMLElement>();   // Die ChildElemente in diesem Steuerelement
 
-        public XMLElement_StandardNode(XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
+        public XMLElement_StandardNode(XmlNode xmlNode, XMLEditor xmlEditor, XMLRegelwerk regelwerk) : base(xmlNode, xmlEditor, regelwerk)
         {
-            var isClosingTagVisible = xmlEditor.EditorStatus.Regelwerk.IstSchliessendesTagSichtbar(xmlNode);
-            var colorTagBackground = xmlEditor.EditorStatus.Regelwerk.NodeFarbe(this.XMLNode, selektiert: false);
+            var isClosingTagVisible = this.regelwerk.IstSchliessendesTagSichtbar(xmlNode);
+            var colorTagBackground = this.regelwerk.NodeFarbe(this.XMLNode, selektiert: false);
             this.nodeDimensions = new StandardNodeDimensionsAndColor(xmlEditor.EditorConfig, colorTagBackground);
             this.startTag = new StandardNodeStartTagPainter(this.xmlEditor.EditorConfig, this.nodeDimensions, xmlNode, isClosingTagVisible);
             if (isClosingTagVisible)
@@ -146,7 +146,7 @@ namespace de.springwald.xml.editor
                 // An dieser Stelle sollte im Objekt ChildControl die entsprechends
                 // Instanz des XMLElement-Controls für den aktuellen XMLChildNode stehen
                 var childElement = (XMLElement)childElements[childLauf];
-                switch (xmlEditor.EditorStatus.Regelwerk.DarstellungsArt(childElement.XMLNode))
+                switch (this.regelwerk.DarstellungsArt(childElement.XMLNode))
                 {
                     case DarstellungsArten.EigeneZeile:
 

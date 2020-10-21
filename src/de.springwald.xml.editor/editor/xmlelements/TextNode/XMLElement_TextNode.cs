@@ -38,7 +38,7 @@ namespace de.springwald.xml.editor.editor.xmlelements.TextNode
         /// </summary>
         //private string ActualText => 
 
-        public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor) : base(xmlNode, xmlEditor)
+        public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor, XMLRegelwerk regelwerk) : base(xmlNode, xmlEditor, regelwerk)
         {
             this.SetColors();
         }

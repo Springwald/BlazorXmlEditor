@@ -20,15 +20,17 @@ namespace de.springwald.xml.editor.editor
     {
         private bool _naechstesLostFokusVerhindern = false; // So that leaving the focus is ignored on TAB
         private INativePlatform nativePlatform;
+        private XMLRegelwerk regelwerk;
         private EditorActions actions;
         private EditorStatus editorState;
 
         public XmlAsyncEvent<KeyEventArgs> KeyDownEvent = new XmlAsyncEvent<KeyEventArgs>();
         public XmlAsyncEvent<KeyEventArgs> KeyPressEvent = new XmlAsyncEvent<KeyEventArgs>();
 
-        public KeyboardHandler(INativePlatform nativePlatform, EditorStatus editorState, EditorActions actions)
+        public KeyboardHandler(INativePlatform nativePlatform, EditorStatus editorState, XMLRegelwerk regelwerk, EditorActions actions)
         {
             this.nativePlatform = nativePlatform;
+            this.regelwerk = regelwerk;
             this.actions = actions;
             this.editorState = editorState;
             this.nativePlatform.InputEvents.Leave.Add(this.zeichnungsSteuerelement_Leave);
@@ -89,12 +91,12 @@ namespace de.springwald.xml.editor.editor
                     case Keys.Left: // move cursor to left
                         if (e.ShiftKey)
                         {
-                            await this.editorState.CursorRoh.EndPos.MoveLeft(this.editorState.RootNode, this.editorState.Regelwerk);
+                            await this.editorState.CursorRoh.EndPos.MoveLeft(this.editorState.RootNode, this.regelwerk);
                         }
                         else
                         {
                             dummy = this.editorState.CursorRoh.StartPos.Clone();
-                            await dummy.MoveLeft(this.editorState.RootNode, this.editorState.Regelwerk);
+                            await dummy.MoveLeft(this.editorState.RootNode, this.regelwerk);
                             await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
                         }
                         useKeyContent = false;
@@ -103,12 +105,12 @@ namespace de.springwald.xml.editor.editor
                     case Keys.Right: // move cursor to right
                         if (e.ShiftKey)
                         {
-                            await this.editorState.CursorRoh.EndPos.MoveRight(this.editorState.RootNode, this.editorState.Regelwerk);
+                            await this.editorState.CursorRoh.EndPos.MoveRight(this.editorState.RootNode, this.regelwerk);
                         }
                         else
                         {
                             dummy = this.editorState.CursorRoh.StartPos.Clone();
-                            await dummy.MoveRight(this.editorState.RootNode, this.editorState.Regelwerk);
+                            await dummy.MoveRight(this.editorState.RootNode, this.regelwerk);
                             await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
                         }
                         useKeyContent = false;

@@ -45,7 +45,7 @@
         await Task.Delay(100);
         xmlDocument.LoadXml(this.documentContent);
         await Task.Delay(100);
-        await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
+        await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
         await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.FirstChild.FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 10);
         this.editorStatus = this.xmlEditor.Editor.EditorStatus;
         StateHasChanged();

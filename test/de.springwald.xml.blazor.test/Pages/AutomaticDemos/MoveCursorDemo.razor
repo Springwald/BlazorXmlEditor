@@ -55,7 +55,7 @@
         {
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
-            await this.editorContext.SetRootNode(xmlDocument.DocumentElement);
+            await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
             await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                xmlDocument.DocumentElement,
                cursor.XMLCursorPositionen.CursorVorDemNode,
