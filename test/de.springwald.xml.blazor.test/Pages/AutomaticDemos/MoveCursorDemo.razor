@@ -17,7 +17,7 @@
 
     private XmlEditor xmlEditor;
     private FpsCounter fpsCounter;
-    private XmlEditorContext editorContext = new XmlEditorContext();
+    private EditorContext editorContext ;
 
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
 
@@ -29,7 +29,7 @@
     protected override async Task OnInitializedAsync()
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
-        this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
+        this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
         this.moveTimer = new Timer();
         this.moveTimer.Elapsed += MoveTimerEvent;
         this.moveTimer.Interval = 1;
@@ -57,13 +57,13 @@
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
             await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
-            await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                xmlDocument.DocumentElement,
                cursor.XMLCursorPositionen.CursorVorDemNode,
                0);
         }
 
-        var cursorStatus = this.xmlEditor.Editor.EditorStatus.CursorRoh;
+        var cursorStatus = this.editorContext.EditorStatus.CursorRoh;
 
         if (forward)
         {

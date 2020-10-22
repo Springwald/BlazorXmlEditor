@@ -15,7 +15,7 @@
 @code {
 
     private FpsCounter fpsCounter;
-    private XmlEditorContext editorContext = new XmlEditorContext();
+    private EditorContext editorContext;
 
     private Timer loadDocumentTimer;
     private string[] documents = new[] {
@@ -26,7 +26,7 @@
     protected override async Task OnInitializedAsync()
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
-        this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
+        this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
         this.loadDocumentTimer = new Timer();
         this.loadDocumentTimer.Elapsed += LoadDocumentTimedEvent;
         this.loadDocumentTimer.Interval = 1;

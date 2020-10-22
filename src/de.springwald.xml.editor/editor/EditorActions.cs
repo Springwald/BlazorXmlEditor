@@ -8,6 +8,7 @@
 // Licensed under MIT License
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.cursor;
@@ -17,9 +18,11 @@ namespace de.springwald.xml.editor
 {
     public class EditorActions
     {
-        private XMLRegelwerk regelwerk;
-        private INativePlatform nativePlatform;
-        private EditorStatus editorStatus;
+        private XMLRegelwerk regelwerk => this.editorContext.XmlRules;
+        private INativePlatform nativePlatform => this.editorContext.NativePlatform;
+        private EditorStatus editorStatus => this.editorContext.EditorStatus;
+
+        private EditorContext editorContext;
 
         public enum UndoSnapshotSetzenOptionen { ja, nein };
 
@@ -41,13 +44,9 @@ namespace de.springwald.xml.editor
             }
         }
 
-
-
-        public EditorActions(INativePlatform nativePlatform, EditorStatus editorStatus , XMLRegelwerk regelwerk )
+        public EditorActions(EditorContext editorContext)
         {
-            this.regelwerk = regelwerk;
-            this.nativePlatform = nativePlatform;
-            this.editorStatus = editorStatus;
+            this.editorContext = editorContext;
         }
 
         /// <summary>
@@ -398,7 +397,8 @@ namespace de.springwald.xml.editor
 
             if (setUnDoSnapShot == UndoSnapshotSetzenOptionen.ja)
             {
-                this.editorStatus.UndoHandler.SnapshotSetzen(
+                var editorStatus = this.editorStatus;
+                editorStatus.UndoHandler.SnapshotSetzen(
                     String.Format(
                         ResReader.Reader.GetString("AktionSchreiben"),
                         insertText),

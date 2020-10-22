@@ -33,7 +33,6 @@
 
     protected BECanvasComponent _canvasReference;
     protected ElementReference _canvasDivReference;
-    protected BlazorNativePlatform nativePlattform;
 
     protected int canvasWidth;
     protected int canvasHeight;
@@ -41,13 +40,17 @@
     public de.springwald.xml.editor.XMLEditor Editor;
 
     [Parameter]
-    public XmlEditorContext EditorContext { get; set; }
+    public EditorContext EditorContext { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            this.nativePlattform = new BlazorNativePlatform(_canvasReference);
             await this.Init();
             await JSRuntime.InvokeVoidAsync("browserResize.registerResizeCallback");
             BrowserResize.OnResize += this.Resized;
@@ -57,14 +60,10 @@
 
     private async Task Init()
     {
-        var config = new BlazorEditorConfig
-        {
-            FontNodeName = new Font(names: new[] { "Verdana", "Geneva", "sans-serif" }, height: 13, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
-            FontNodeAttribute = new Font(names: new[] { "Verdana", "Geneva", "sans-serif" }, height: 12, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: false),
-            FontTextNode = new Font(names: new[] { "Lucida Console", "Monaco", "monospace" }, height: 14, graphicsUnit: Font.GraphicsUnit.Pixel, monospace: true)
-        };
+        this.EditorContext.NativePlatform = new BlazorNativePlatform(_canvasReference);
+        this.Editor = new XMLEditor(this.EditorContext);
         this.EditorContext.EditorStatus.RootNodeChanged.Add(this.RootNodeChanged);
-        this.Editor = new XMLEditor(nativePlattform, config, EditorContext.EditorStatus, this.EditorContext.XmlRules);
+        await this.EditorContext.EditorIsReady.Trigger(EventArgs.Empty);
         await Task.CompletedTask;
     }
 
@@ -102,7 +101,7 @@
         {
             this.canvasWidth = (int)size.Width;
             this.canvasHeight = (int)size.Height;
-            await this.nativePlattform.SetSize(this.canvasWidth, this.canvasHeight - 10);
+            await this.EditorContext.NativePlatform.SetSize(this.canvasWidth, this.canvasHeight - 10);
             this.Editor.SizeHasChanged();
             this.StateHasChanged();
         }
@@ -162,7 +161,7 @@
                 break;
         }
 
-        await this.nativePlattform.InputEvents.PreviewKey.Trigger(args);
+        await this.EditorContext.NativePlatform.InputEvents.PreviewKey.Trigger(args);
     }
 
     #endregion
@@ -176,7 +175,7 @@
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
 
-        await this.nativePlattform.InputEvents.MouseDown.Trigger(new de.springwald.xml.events.MouseEventArgs
+        await this.EditorContext.NativePlatform.InputEvents.MouseDown.Trigger(new de.springwald.xml.events.MouseEventArgs
         {
             X = x,
             Y = y
@@ -190,7 +189,7 @@
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
 
-        await this.nativePlattform.InputEvents.MouseMove.Trigger(new de.springwald.xml.events.MouseEventArgs
+        await this.EditorContext.NativePlatform.InputEvents.MouseMove.Trigger(new de.springwald.xml.events.MouseEventArgs
         {
             X = x,
             Y = y
@@ -204,7 +203,7 @@
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
 
-        await this.nativePlattform.InputEvents.MouseUp.Trigger(new de.springwald.xml.events.MouseEventArgs
+        await this.EditorContext.NativePlatform.InputEvents.MouseUp.Trigger(new de.springwald.xml.events.MouseEventArgs
         {
             X = x,
             Y = y

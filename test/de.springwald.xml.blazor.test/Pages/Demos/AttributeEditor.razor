@@ -25,7 +25,7 @@
 
 @code {
     private XmlEditor xmlEditor;
-    private XmlEditorContext editorContext = new XmlEditorContext();
+    private EditorContext editorContext;
     private de.springwald.xml.editor.EditorStatus editorStatus;
     private string test;
 
@@ -36,7 +36,7 @@
     protected override async Task OnInitializedAsync()
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
-        this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
+        this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
         this.xmlDocument = new System.Xml.XmlDocument();
         await base.OnInitializedAsync();
     }
@@ -56,8 +56,8 @@
         xmlDocument.LoadXml(this.documentContent);
         await Task.Delay(100);
         await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
-        await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.FirstChild.FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 10);
-        this.editorStatus = this.xmlEditor.Editor.EditorStatus;
+        await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.FirstChild.FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 10);
+        this.editorStatus = this.xmlEditor.EditorContext.EditorStatus;
         StateHasChanged();
     }
 

@@ -7,18 +7,19 @@
 // All rights reserved
 // Licensed under MIT License
 
+using de.springwald.xml.editor;
 using de.springwald.xml.editor.xmlelements.TextNode;
 
 namespace de.springwald.xml
 {
     class ElementCreator
     {
-        private XMLRegelwerk regelwerk;
-        private editor.XMLEditor xmlEditor;
+        private EditorContext editorContext;
+        private XMLEditor xmlEditor;
 
-        public ElementCreator(editor.XMLEditor xmlEditor, XMLRegelwerk regelwerk)
+        public ElementCreator(XMLEditor xmlEditor, EditorContext editorContext)
         {
-            this.regelwerk = regelwerk;
+            this.editorContext = editorContext;
             this.xmlEditor = xmlEditor;
         }
         /// <summary>
@@ -36,15 +37,15 @@ namespace de.springwald.xml
                 //switch (xmlNode.Name)
                 //{
                 //    default: 
-                return new editor.XMLElement_StandardNode(xmlNode, this.xmlEditor, regelwerk);
+                return new editor.XMLElement_StandardNode(xmlNode, this.xmlEditor, this.editorContext);
                 //}
             }
 
-            if (xmlNode is System.Xml.XmlText) return new XMLElement_TextNode(xmlNode, this.xmlEditor, this.regelwerk);
+            if (xmlNode is System.Xml.XmlText) return new XMLElement_TextNode(xmlNode, this.xmlEditor, this.editorContext);
 
-            if (xmlNode is System.Xml.XmlComment) return new XMLElement_Kommentar(xmlNode, this.xmlEditor, regelwerk);
+            if (xmlNode is System.Xml.XmlComment) return new XMLElement_Kommentar(xmlNode, this.xmlEditor, this.editorContext);
 
-            return new editor.XMLElement_StandardNode(xmlNode, this.xmlEditor, regelwerk);
+            return new editor.XMLElement_StandardNode(xmlNode, this.xmlEditor, this.editorContext);
         }
     }
 }

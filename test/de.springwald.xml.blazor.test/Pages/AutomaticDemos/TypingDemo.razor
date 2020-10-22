@@ -1,6 +1,6 @@
 ﻿@page "/TypingDemo"
 @using de.springwald.xml.blazor.Components
-@using de.springwald.xml.blazor
+@using de.springwald.xml.blazor.test;
 @using de.springwald.xml.editor
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
@@ -15,7 +15,8 @@
 
     private XmlEditor xmlEditor;
     private FpsCounter fpsCounter;
-    private XmlEditorContext editorContext = new XmlEditorContext();
+    private EditorContext editorContext;
+    private EditorActions editorActions;
 
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet <star/> lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
     private const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
@@ -29,17 +30,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var demoDtd = DemoDtd.LoadDemoDtd();
+        this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
+        this.editorContext.EditorIsReady.Add(this.EditorIsReady);
         await base.OnInitializedAsync();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            this.LoadXml();
-            await this.InitTypingTimer();
-        }
-        await base.OnAfterRenderAsync(firstRender);
     }
 
     public void Dispose()
@@ -48,12 +42,13 @@
         this.typingTimer.Elapsed -= TypingTimerEvent;
     }
 
-    private void LoadXml()
+    private async Task EditorIsReady(EventArgs e)
     {
-        var demoDtd = DemoDtd.LoadDemoDtd();
-        this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
+        this.editorContext.EditorIsReady.Remove(this.EditorIsReady);
+        this.editorActions = new EditorActions(this.editorContext);
         this.xmlDocument = new System.Xml.XmlDocument();
         xmlDocument.LoadXml(this.documentContent);
+        await this.InitTypingTimer();
     }
 
     private async Task InitTypingTimer()
@@ -77,11 +72,11 @@
         this.typingPos++;
         if (this.typingPos >= LoremIpsum.Length) this.typingPos = 0;
 
-        await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+        await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                 textNode,
                 cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
                 textNode.InnerText.Length);
-        await this.xmlEditor.Editor.EditorActions.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), editor.EditorActions.UndoSnapshotSetzenOptionen.ja);
+        await this.editorActions.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), editor.EditorActions.UndoSnapshotSetzenOptionen.ja);
 
         this.fpsCounter.Count();
 

@@ -15,7 +15,7 @@
 @code {
     private FpsCounter fpsCounter;
     private XmlEditor xmlEditor;
-    private XmlEditorContext editorContext = new XmlEditorContext();
+    private EditorContext editorContext;
 
     private Timer selectTimer;
     private string documentContent = "<category><pattern>Demo text</pattern><template>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.</template></category>";
@@ -24,8 +24,7 @@
     protected override async Task OnInitializedAsync()
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
-        this.editorContext.XmlRules = new DemoXmlRegelwerk(demoDtd);
-
+        this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
         this.selectTimer = new Timer();
         this.selectTimer.Elapsed += LoadDocumentTimedEvent;
         this.selectTimer.Interval = 10;
@@ -60,13 +59,13 @@
         flipFlop = !flipFlop;
         if (flipFlop)
         {
-            await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                             patternNode,
                             cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
         }
         else
         {
-            await this.xmlEditor.Editor.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                             templateNode,
                             cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
         }

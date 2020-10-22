@@ -34,9 +34,11 @@ namespace de.springwald.xml.editor
 
         protected Point cursorPaintPos;  // there the cursor is drawn in this node, if it is the current node
         protected XMLEditor xmlEditor;
-        protected EditorConfig config { get; }
 
-        protected XMLRegelwerk regelwerk;
+        private EditorContext editorContext;
+        protected EditorConfig Config => this.editorContext.EditorConfig;
+        protected XMLRegelwerk Regelwerk => this.editorContext.XmlRules;
+        protected EditorStatus EditorStatus => this.editorContext.EditorStatus;
 
         /// <summary>
         /// The XMLNode to be displayed with this element
@@ -45,14 +47,13 @@ namespace de.springwald.xml.editor
 
         /// <param name="xmlNode">The XML-Node to be drawn</param>
         /// <param name="xmlEditor">The editor for which the node is to be drawn</param>
-        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor, XMLRegelwerk regelwerk)
+        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor, EditorContext editorContext )
         {
-            this.regelwerk = regelwerk;
+            this.editorContext = editorContext;
             this.XMLNode = xmlNode;
             this.xmlEditor = xmlEditor;
-            this.config = xmlEditor.EditorConfig;
 
-            this.xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
+            this.EditorStatus.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
             this.xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
             this.xmlEditor.MouseHandler.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
             this.xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
@@ -87,7 +88,7 @@ namespace de.springwald.xml.editor
             if (this.cursorPaintPos == null) return;
             if (this.xmlEditor.CursorBlink.PaintCursor == false) return;
 
-            var height = (int)(Math.Max(this.xmlEditor.EditorConfig.FontTextNode.Height, this.xmlEditor.EditorConfig.FontNodeName.Height) * 1.6);
+            var height = (int)(Math.Max(this.editorContext.EditorConfig.FontTextNode.Height, this.editorContext.EditorConfig.FontNodeName.Height) * 1.6);
             var margin = height / 5;
             gfx.AddJob(new JobDrawLine
             {
@@ -195,7 +196,7 @@ namespace de.springwald.xml.editor
             else
             {
                 // Herausfinden, ob der Node dieses Elementes betroffen ist
-                if (xmlEditor.EditorStatus.CursorRoh.StartPos.AktNode != this.XMLNode)
+                if (this.editorContext.EditorStatus.CursorRoh.StartPos.AktNode != this.XMLNode)
                 {
                     return;
                 }
@@ -238,7 +239,7 @@ namespace de.springwald.xml.editor
                 if (disposing) // Dispose managed resources.
                 {
                     // Von den Events abmelden
-                    xmlEditor.EditorStatus.CursorRoh.ChangedEvent.Remove(this.Cursor_ChangedEvent);
+                    editorContext.EditorStatus.CursorRoh.ChangedEvent.Remove(this.Cursor_ChangedEvent);
                     xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
                     xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
                     xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);

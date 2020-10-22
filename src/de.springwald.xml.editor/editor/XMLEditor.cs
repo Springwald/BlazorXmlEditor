@@ -22,13 +22,17 @@ namespace de.springwald.xml.editor
         internal MouseHandler MouseHandler { get; }
         internal KeyboardHandler KeyboardHandler { get; }
 
-        public EditorActions EditorActions { get; }
+       //  public EditorActions EditorActions { get; }
 
-        private XMLRegelwerk regelwerk;
+        private EditorContext editorContext;
 
-        public EditorConfig EditorConfig { get; }
-        public INativePlatform NativePlatform { get; }
-        public EditorStatus EditorStatus { get; }
+        private EditorStatus EditorStatus => this.editorContext.EditorStatus;
+
+        private EditorConfig EditorConfig => this.editorContext.EditorConfig;
+
+        private XMLRegelwerk Regelwerk => this.editorContext.XmlRules;
+
+        public INativePlatform NativePlatform => this.editorContext.NativePlatform;
 
         /// <summary>
         /// let all XML elements know that you are cleaning up
@@ -38,24 +42,20 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Stellt einen XML-Editor bereit
         /// </summary>
-        public XMLEditor(INativePlatform nativePlatform, EditorConfig editorConfig, EditorStatus editorStatus, XMLRegelwerk regelwerk)
+        public XMLEditor(EditorContext editorContext)
         {
-            this.regelwerk = regelwerk;
-
-            this.EditorConfig = editorConfig;
-            this.NativePlatform = nativePlatform;
+            this.editorContext = editorContext;
             this.NativePlatform.ControlElement.Enabled = false; // Bis zu einer Content-Zuweisung erstmal deaktiviert */
 
-            this.EditorStatus = editorStatus;
-            this.EditorStatus.CursorRoh.ChangedEvent.Add(this.CursorChangedEvent);
-            this.EditorStatus.ContentChangedEvent.Add(this.OnContentChanged);
+            this.editorContext.EditorStatus.CursorRoh.ChangedEvent.Add(this.CursorChangedEvent);
+            this.editorContext.EditorStatus.ContentChangedEvent.Add(this.OnContentChanged);
 
             this.CursorBlink = new CursorBlink();
             this.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
 
-            this.MouseHandler = new MouseHandler(nativePlatform);
-            this.EditorActions = new EditorActions(nativePlatform, this.EditorStatus, this.regelwerk);
-            this.KeyboardHandler = new KeyboardHandler(nativePlatform, this.EditorStatus, regelwerk, this.EditorActions);
+            this.MouseHandler = new MouseHandler(editorContext.NativePlatform);
+          //   this.EditorActions = new EditorActions(nativePlatform, this.EditorStatus, this.regelwerk);
+            this.KeyboardHandler = new KeyboardHandler(editorContext.NativePlatform, this.editorContext);
 
             InitScrolling();
         }
@@ -65,14 +65,14 @@ namespace de.springwald.xml.editor
             if (!_disposed)
             {
                 this.CleanUpXmlElements();
-                this.EditorStatus.CursorRoh.ChangedEvent.Remove(this.CursorChangedEvent);
-                this.EditorStatus.ContentChangedEvent.Remove(this.OnContentChanged);
+                this.editorContext.EditorStatus.CursorRoh.ChangedEvent.Remove(this.CursorChangedEvent);
+                this.editorContext.EditorStatus.ContentChangedEvent.Remove(this.OnContentChanged);
 
                 this.CursorBlink.Dispose();
 
                 this.MouseHandler.Dispose();
                 this.KeyboardHandler.Dispose();
-                this.EditorStatus.Dispose();
+                this.editorContext.Dispose();
                 _disposed = true;
             }
         }
@@ -134,7 +134,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         internal XMLElement CreateElement(System.Xml.XmlNode xmlNode)
         {
-            return new ElementCreator(this, this.regelwerk).CreatePaintElementForNode(xmlNode);
+            return new ElementCreator(this,  this.editorContext).CreatePaintElementForNode(xmlNode);
         }
 
         private async Task OnContentChanged(EventArgs e)
