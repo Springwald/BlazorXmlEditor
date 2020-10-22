@@ -10,27 +10,23 @@
 <h2>loading document @this.actualDocumentIndex</h2>
 <FpsCounter @ref="fpsCounter" />
 
-<de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" />
+<de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.OnEditorReady" />
 
 @code {
 
-    private FpsCounter fpsCounter;
-    private EditorContext editorContext;
-
-    private Timer loadDocumentTimer;
     private string[] documents = new[] {
         "<category><pattern>Demo text no 1</pattern><template>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.</template></category>",
         "<category><pattern>Demo text no 2</pattern><template>At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</template></category>"};
+
+    private FpsCounter fpsCounter;
+    private EditorContext editorContext;
+    private Timer loadDocumentTimer;
     private int actualDocumentIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
         this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
-        this.loadDocumentTimer = new Timer();
-        this.loadDocumentTimer.Elapsed += LoadDocumentTimedEvent;
-        this.loadDocumentTimer.Interval = 1;
-        this.loadDocumentTimer.Start();
         await base.OnInitializedAsync();
     }
 
@@ -40,12 +36,15 @@
         this.loadDocumentTimer.Elapsed -= LoadDocumentTimedEvent;
     }
 
-    private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+    private void OnEditorReady()
     {
-        await this.LoadDemoXml();
+        this.loadDocumentTimer = new Timer();
+        this.loadDocumentTimer.Elapsed += LoadDocumentTimedEvent;
+        this.loadDocumentTimer.Interval = 1;
+        this.loadDocumentTimer.Start();
     }
 
-    protected async Task LoadDemoXml()
+    private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
     {
         this.loadDocumentTimer.Stop();
 
@@ -53,9 +52,8 @@
         var xmlDocument = new System.Xml.XmlDocument();
         xmlDocument.LoadXml(this.documents[this.actualDocumentIndex]);
         await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
-        this.loadDocumentTimer.Start();
 
-        await Task.CompletedTask;
+        this.loadDocumentTimer.Start();
     }
 
     protected void IncrementDocumentIndex()

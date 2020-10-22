@@ -1,5 +1,4 @@
 ﻿@page "/MoveCursorDemo"
-@using de.springwald.xml.blazor.Components
 @using de.springwald.xml.blazor
 @using de.springwald.xml.editor
 @using de.springwald.xml.blazor.test.DemoData
@@ -10,30 +9,26 @@
 <h1>move cursor demo</h1>
 <FpsCounter @ref="fpsCounter" />
 <p>@this.cursorPos</p>
-<de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
-
+<de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.OnEditorReady"/>
 
 @code {
 
-    private XmlEditor xmlEditor;
-    private FpsCounter fpsCounter;
-    private EditorContext editorContext ;
-
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
 
+    private FpsCounter fpsCounter;
+    private EditorContext editorContext ;
+    private System.Xml.XmlDocument xmlDocument;
     private Timer moveTimer;
     private int actualDocumentIndex = 0;
-    private System.Xml.XmlDocument xmlDocument;
     private string cursorPos;
+    private int typingPos = 0;
+    private int step = 0;
+    private bool forward = true;
 
     protected override async Task OnInitializedAsync()
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
         this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
-        this.moveTimer = new Timer();
-        this.moveTimer.Elapsed += MoveTimerEvent;
-        this.moveTimer.Interval = 1;
-        this.moveTimer.Start();
         await base.OnInitializedAsync();
     }
 
@@ -43,10 +38,13 @@
         this.moveTimer.Elapsed -= MoveTimerEvent;
     }
 
-    private int typingPos = 0;
-
-    private int step = 0;
-    private bool forward = true;
+    private void OnEditorReady()
+    {
+        this.moveTimer = new Timer();
+        this.moveTimer.Elapsed += MoveTimerEvent;
+        this.moveTimer.Interval = 1;
+        this.moveTimer.Start();
+    }
 
     private async void MoveTimerEvent(Object source, System.Timers.ElapsedEventArgs e)
     {

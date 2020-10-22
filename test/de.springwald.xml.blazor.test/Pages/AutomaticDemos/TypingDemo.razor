@@ -1,6 +1,4 @@
 ﻿@page "/TypingDemo"
-@using de.springwald.xml.blazor.Components
-@using de.springwald.xml.blazor.test;
 @using de.springwald.xml.editor
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
@@ -13,16 +11,14 @@
 
 @code {
 
-    private FpsCounter fpsCounter;
-    private EditorContext editorContext;
-
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet <star/> lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
     private const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
 
+    private FpsCounter fpsCounter;
+    private EditorContext editorContext;
     private Timer typingTimer;
-    private System.Xml.XmlDocument xmlDocument;
-
     private int typingPos = 0;
+    private System.Xml.XmlDocument xmlDocument;
     private System.Xml.XmlNode textNode;
 
     protected override async Task OnInitializedAsync()

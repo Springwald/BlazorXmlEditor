@@ -1,5 +1,4 @@
 ﻿@page "/SelectDemo"
-@using de.springwald.xml.blazor.Components
 @using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.test.DemoData
 @using de.springwald.xml.editor
@@ -10,26 +9,21 @@
 <h1>select demo</h1>
 <FpsCounter @ref="fpsCounter" />
 
-<de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
+<de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
 
 @code {
-    private FpsCounter fpsCounter;
-    private XmlEditor xmlEditor;
-    private EditorContext editorContext;
-
-    private Timer selectTimer;
     private string documentContent = "<category><pattern>Demo text</pattern><template>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.</template></category>";
+
+    private FpsCounter fpsCounter;
+    private EditorContext editorContext;
     private System.Xml.XmlDocument xmlDocument;
+    private Timer selectTimer;
+    public bool flipFlop;
 
     protected override async Task OnInitializedAsync()
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
         this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
-        this.selectTimer = new Timer();
-        this.selectTimer.Elapsed += LoadDocumentTimedEvent;
-        this.selectTimer.Interval = 10;
-        this.selectTimer.Start();
-
         await base.OnInitializedAsync();
     }
 
@@ -39,7 +33,13 @@
         this.selectTimer.Elapsed -= LoadDocumentTimedEvent;
     }
 
-    public bool flipFlop;
+    private void EditorIsReady()
+    {
+        this.selectTimer = new Timer();
+        this.selectTimer.Elapsed += LoadDocumentTimedEvent;
+        this.selectTimer.Interval = 10;
+        this.selectTimer.Start();
+    }
 
     private async void LoadDocumentTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
     {

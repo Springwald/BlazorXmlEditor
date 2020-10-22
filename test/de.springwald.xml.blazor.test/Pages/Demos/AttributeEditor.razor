@@ -3,34 +3,25 @@
 @using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.test.DemoData
 @using de.springwald.xml.editor
-@implements IDisposable
 
 <h3>Attribute editor demo</h3>
 
 <div class="row">
     <div class="col-8">
-        <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
+        <de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
     </div>
     <div class="col-4">
-        @if (this.xmlEditor != null && this.editorContext != null && this.editorStatus != null)
-        {
-            <AddElement EditorContext="this.editorContext" EditorStatus="this.editorStatus"/>
-        }
+        <AddElement EditorContext="this.editorContext" />
         <hr />
-        <EditAttributes/>
+        <EditAttributes />
     </div>
 </div>
 
-<p>@test</p>
 
 @code {
-    private XmlEditor xmlEditor;
-    private EditorContext editorContext;
-    private de.springwald.xml.editor.EditorStatus editorStatus;
-    private string test;
 
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
-
+    private EditorContext editorContext;
     private System.Xml.XmlDocument xmlDocument;
 
     protected override async Task OnInitializedAsync()
@@ -38,27 +29,13 @@
         var demoDtd = DemoDtd.LoadDemoDtd();
         this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
         this.xmlDocument = new System.Xml.XmlDocument();
+        this.xmlDocument.LoadXml(this.documentContent);
         await base.OnInitializedAsync();
     }
 
     private async Task EditorIsReady()
     {
-        _ = this.LoadXml();
-    }
-
-    private async Task LoadXml()
-    {
-        await Task.Delay(100);
-        xmlDocument.LoadXml(this.documentContent);
-        await Task.Delay(100);
         await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
         await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.FirstChild.FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 10);
-        this.editorStatus = this.xmlEditor.EditorContext.EditorStatus;
-        StateHasChanged();
     }
-
-    public void Dispose()
-    {
-    }
-
 }

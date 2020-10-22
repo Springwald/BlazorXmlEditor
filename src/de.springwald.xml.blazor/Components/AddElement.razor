@@ -12,44 +12,19 @@
 @code {
     [Parameter]
     public EditorContext EditorContext { get; set; }
-
-    private EditorStatus editorStatus;
-
-    [Parameter]
-    public EditorStatus EditorStatus
-    {
-        set
-        {
-            if (value == null)
-            {
-                if (this.editorStatus != null)
-                {
-                    this.editorStatus.CursorRoh.ChangedEvent.Remove(this.Show);
-                }
-            }
-            else
-            {
-                value.CursorRoh.ChangedEvent.Add(this.Show);
-            }
-            this.editorStatus = value;
-        }
-        get
-        {
-            return this.editorStatus;
-        }
-    }
+    private EditorStatus EditorStatus => this.EditorContext.EditorStatus;
 
     private string[] Elements = new string[] { };
 
     protected override Task OnInitializedAsync()
     {
-
+        this.EditorStatus.CursorRoh.ChangedEvent.Add(this.Show);
         return base.OnInitializedAsync();
     }
 
     public void Dispose()
     {
-        this.editorStatus?.CursorRoh.ChangedEvent.Remove(this.Show);
+        this.EditorStatus.CursorRoh.ChangedEvent.Remove(this.Show);
     }
 
     protected async Task ClickElement(string element)
@@ -71,7 +46,7 @@
 #else
                 bool kommentareMitAuflisten = true;
 #endif
-                this.Elements = this.EditorContext.XmlRules.ErlaubteEinfuegeElemente_(this.editorStatus.CursorOptimiert.StartPos, false, kommentareMitAuflisten); // die Liste der erlaubten Tags holen
+                this.Elements = this.EditorContext.XmlRules.ErlaubteEinfuegeElemente_(this.EditorStatus.CursorOptimiert.StartPos, false, kommentareMitAuflisten); // die Liste der erlaubten Tags holen
                 this.StateHasChanged();
             }
             catch (DTD.XMLUnknownElementException e)
