@@ -5,7 +5,7 @@
 <ul>
     @foreach(var element in this.Elements)
     {
-        <li onclick="this.ClickElement(element)">@element</li>
+        <li @onclick="(async () => await this.ClickElement(element))">@element</li>
     }
 </ul>
 
@@ -29,7 +29,8 @@
 
     protected async Task ClickElement(string element)
     {
-
+        await this.EditorContext.Actions.AktionNeuesElementAnAktCursorPosEinfuegen(element, EditorActions.UndoSnapshotSetzenOptionen.ja, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen: false);
+        StateHasChanged();
     }
 
 
