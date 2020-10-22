@@ -17,7 +17,7 @@ namespace de.springwald.xml.blazor.test.DemoData
     /// daniel@springwald.de -   0700-SPRINGWALD
     /// all rights reserved
     /// </remarks>
-    public class DemoXmlRegelwerk : de.springwald.xml.XMLRegelwerk
+    public class DemoXmlRules : de.springwald.xml.XMLRegelwerk
     {
         /// <summary>
         /// Die Gruppierungen, in welchen die XML-Elemente zum Einfügen angeboten werden
@@ -34,7 +34,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     const bool zusammengeklappt = true;
 
                     // Die Gruppe der Standard-Elemente
-                    XMLElementGruppe standard = new XMLElementGruppe(ResReader.Reader.GetString("GruppeStandard"), false);
+                    XMLElementGruppe standard = new XMLElementGruppe("standard", false);
                     standard.AddElementName("bot");
                     standard.AddElementName("get");
                     standard.AddElementName("li");
@@ -51,7 +51,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     _elementGruppen.Add(standard);
 
                     // Die Gruppe der Fortgeschrittenen-Elemente
-                    XMLElementGruppe fortschritten = new XMLElementGruppe(ResReader.Reader.GetString("GruppeFortgeschritten"), zusammengeklappt);
+                    XMLElementGruppe fortschritten = new XMLElementGruppe("advanced", zusammengeklappt);
                     fortschritten.AddElementName("condition");
                     fortschritten.AddElementName("formal");
                     fortschritten.AddElementName("gender");
@@ -62,7 +62,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     _elementGruppen.Add(fortschritten);
 
                     // Die Gruppe der HTML-Elemente
-                    XMLElementGruppe html = new XMLElementGruppe(ResReader.Reader.GetString("GruppeHTML"), zusammengeklappt);
+                    XMLElementGruppe html = new XMLElementGruppe("html", zusammengeklappt);
                     html.AddElementName("a");
                     html.AddElementName("applet");
                     html.AddElementName("br");
@@ -82,7 +82,7 @@ namespace de.springwald.xml.blazor.test.DemoData
             }
         }
 
-        public DemoXmlRegelwerk(de.springwald.xml.dtd.DTD dtd) : base(dtd) { }
+        public DemoXmlRules(de.springwald.xml.dtd.DTD dtd) : base(dtd) { }
 
         /// <summary>
         /// Findet heraus, welche Farbe der Node haben soll

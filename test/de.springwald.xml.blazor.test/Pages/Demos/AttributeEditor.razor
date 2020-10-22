@@ -27,7 +27,7 @@
     protected override async Task OnInitializedAsync()
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
-        this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
+        this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRules(demoDtd));
         this.xmlDocument = new System.Xml.XmlDocument();
         this.xmlDocument.LoadXml(this.documentContent);
         await base.OnInitializedAsync();

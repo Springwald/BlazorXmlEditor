@@ -2,19 +2,41 @@
 @using de.springwald.xml.dtd
 @implements IDisposable
 
-<ul>
-    @foreach(var element in this.Elements)
+
+@foreach (var group in groups)
+{
+    var elems = this.elements.Where(e => e.Group == group);
+    if (elems.Any())
     {
-        <li @onclick="(async () => await this.ClickElement(element))">@element</li>
+        <div style="border-width:1px; border-color: gray; border-style: solid;">
+            @if (group != null)
+            {
+                <p>@group.Titel</p>
+            }
+            <ul>
+                @foreach (var element in elems)
+                {
+                    <li @onclick="(async () => await this.ClickElement(element.Title))">@element.Title</li>
+                }
+            </ul>
+        </div>
     }
-</ul>
+}
 
 @code {
+
+    private class Element
+    {
+        public string Title { get; set; }
+        public XMLElementGruppe Group { get; set; }
+    }
+
     [Parameter]
     public EditorContext EditorContext { get; set; }
     private EditorStatus EditorStatus => this.EditorContext.EditorStatus;
 
-    private string[] Elements = new string[] { };
+    private Element[] elements = new Element[] { };
+    private XMLElementGruppe[] groups = new XMLElementGruppe[] { };
 
     protected override Task OnInitializedAsync()
     {
@@ -43,11 +65,13 @@
             try
             {
 #if CommentNichtZulassen
-                    bool kommentareMitAuflisten = false;
+            bool kommentareMitAuflisten = false;
 #else
                 bool kommentareMitAuflisten = true;
 #endif
-                this.Elements = this.EditorContext.XmlRules.ErlaubteEinfuegeElemente_(this.EditorStatus.CursorOptimiert.StartPos, false, kommentareMitAuflisten); // die Liste der erlaubten Tags holen
+                var elementsRaw = this.EditorContext.XmlRules.ErlaubteEinfuegeElemente_(this.EditorStatus.CursorOptimiert.StartPos, false, kommentareMitAuflisten); // die Liste der erlaubten Tags holen
+                this.groups = this.EditorContext.XmlRules.ElementGruppen.Append(null).ToArray();
+                this.elements = elementsRaw.Select(e => new Element { Title = e, Group = groups.Where(g => g != null && g.ContainsElement(e)).FirstOrDefault() }).ToArray();
                 this.StateHasChanged();
             }
             catch (DTD.XMLUnknownElementException e)
@@ -93,5 +117,5 @@
         }
     }
 
+
 }
- 
