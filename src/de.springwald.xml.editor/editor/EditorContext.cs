@@ -9,23 +9,23 @@ namespace de.springwald.xml.editor
         {
             this.EditorConfig = editorConfig;
             this.XmlRules = xmlRules;
+            this.EditorStatus = new EditorStatus();
+            this.Actions = new EditorActions(this);
         }
 
         public INativePlatform NativePlatform { get; set;  }
 
         public EditorConfig EditorConfig { get; }
 
-        public EditorStatus EditorStatus { get; } = new EditorStatus();
+        public EditorStatus EditorStatus { get; }
 
-        public XmlAsyncEvent<EventArgs> EditorIsReady { get; } = new XmlAsyncEvent<EventArgs>();
-
-        // public EditorActions Actions { get; }
+        public EditorActions Actions { get; }
 
         public XMLRegelwerk XmlRules { get;  }
 
         public void Dispose()
         {
-            this.EditorStatus?.Dispose();
+            this.EditorStatus.Dispose();
         }
     }
 }

@@ -9,20 +9,17 @@
 
 <h1>typing demo</h1>
 <FpsCounter @ref="fpsCounter" />
-<de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
+<de.springwald.xml.blazor.Components.XmlEditor  EditorContext="this.editorContext"  OnReady="this.EditorIsReady" />
 
 @code {
 
-    private XmlEditor xmlEditor;
     private FpsCounter fpsCounter;
     private EditorContext editorContext;
-    private EditorActions editorActions;
 
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet <star/> lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
     private const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
 
     private Timer typingTimer;
-    private int actualDocumentIndex = 0;
     private System.Xml.XmlDocument xmlDocument;
 
     private int typingPos = 0;
@@ -32,7 +29,8 @@
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
         this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRegelwerk(demoDtd));
-        this.editorContext.EditorIsReady.Add(this.EditorIsReady);
+        this.xmlDocument = new System.Xml.XmlDocument();
+        this.xmlDocument.LoadXml(this.documentContent);
         await base.OnInitializedAsync();
     }
 
@@ -42,23 +40,17 @@
         this.typingTimer.Elapsed -= TypingTimerEvent;
     }
 
-    private async Task EditorIsReady(EventArgs e)
+    private async Task EditorIsReady()
     {
-        this.editorContext.EditorIsReady.Remove(this.EditorIsReady);
-        this.editorActions = new EditorActions(this.editorContext);
-        this.xmlDocument = new System.Xml.XmlDocument();
-        xmlDocument.LoadXml(this.documentContent);
-        await this.InitTypingTimer();
-    }
-
-    private async Task InitTypingTimer()
-    {
-        await Task.Delay(100);
         await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
         var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
         var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
         this.textNode = patternNode.ChildNodes[0];
+        this.InitTypingTimer();
+    }
 
+    private void InitTypingTimer()
+    {
         this.typingTimer = new Timer();
         this.typingTimer.Elapsed += TypingTimerEvent;
         this.typingTimer.Interval = 1;
@@ -76,12 +68,9 @@
                 textNode,
                 cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
                 textNode.InnerText.Length);
-        await this.editorActions.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), editor.EditorActions.UndoSnapshotSetzenOptionen.ja);
+        await this.editorContext.Actions.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), editor.EditorActions.UndoSnapshotSetzenOptionen.ja);
 
         this.fpsCounter.Count();
-
-        this.actualDocumentIndex++;
-
         this.typingTimer.Start();
     }
 }

@@ -9,7 +9,7 @@
 
 <div class="row">
     <div class="col-8">
-        <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" />
+        <de.springwald.xml.blazor.Components.XmlEditor @ref="xmlEditor" EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
     </div>
     <div class="col-4">
         @if (this.xmlEditor != null && this.editorContext != null && this.editorStatus != null)
@@ -41,13 +41,9 @@
         await base.OnInitializedAsync();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task EditorIsReady()
     {
-        if (firstRender)
-        {
-            _ = this.LoadXml();
-        }
-        await base.OnAfterRenderAsync(firstRender);
+        _ = this.LoadXml();
     }
 
     private async Task LoadXml()

@@ -1,9 +1,7 @@
 ﻿@using Blazor.Extensions
 @using Blazor.Extensions.Canvas
-@using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.NativePlatform
 @using de.springwald.xml.editor
-@using editor.nativeplatform.gfx
 @using Microsoft.JSInterop;
 @using de.springwald.xml.blazor.Code;
 @inject IJSRuntime JSRuntime
@@ -42,6 +40,8 @@
     [Parameter]
     public EditorContext EditorContext { get; set; }
 
+    [Parameter] public EventCallback OnReady { get; set; }
+
     protected override Task OnInitializedAsync()
     {
         return base.OnInitializedAsync();
@@ -60,11 +60,11 @@
 
     private async Task Init()
     {
+        if (this.EditorContext == null) throw new ArgumentNullException(nameof(this.EditorContext));
         this.EditorContext.NativePlatform = new BlazorNativePlatform(_canvasReference);
         this.Editor = new XMLEditor(this.EditorContext);
         this.EditorContext.EditorStatus.RootNodeChanged.Add(this.RootNodeChanged);
-        await this.EditorContext.EditorIsReady.Trigger(EventArgs.Empty);
-        await Task.CompletedTask;
+        await OnReady.InvokeAsync(EventArgs.Empty);
     }
 
     public void Dispose()
