@@ -1,0 +1,23 @@
+﻿
+
+/* attribute editor */
+
+.addAttributes {
+}
+
+    .addAttributes .elementGroup {
+        border-radius: 0.2em;
+        border-width: 1px;
+        padding: 5px;
+        border-color: lightgrey;
+        border-style: solid;
+    }
+
+        .addAttributes .elementGroup .title {
+            font-style: italic;
+            /*  font-weight: bold;*/
+        }
+
+        .addAttributes .elementGroup button {
+            font-size: 0.8em;
+        }

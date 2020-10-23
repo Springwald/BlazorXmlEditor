@@ -2,26 +2,25 @@
 @using de.springwald.xml.dtd
 @implements IDisposable
 
-
-@foreach (var group in groups)
-{
-    var elems = this.elements.Where(e => e.Group == group);
-    if (elems.Any())
+<div class="addAttributes" >
+    @foreach (var group in groups)
     {
-        <div style="border-width:1px; border-color: gray; border-style: solid;">
-            @if (group != null)
-            {
-                <p>@group.Titel</p>
-            }
-            <ul>
+        var elems = this.elements.Where(e => e.Group == group);
+        if (elems.Any())
+        {
+            <div class="elementGroup">
+                @if (group != null)
+                {
+                    <div class="title">@group.Titel</div>
+                }
                 @foreach (var element in elems)
                 {
-                    <li @onclick="(async () => await this.ClickElement(element.Title))">@element.Title</li>
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="(async () => await this.ClickElement(element.Title))">@element.Title</button>
                 }
-            </ul>
-        </div>
+            </div>
+        }
     }
-}
+</div>
 
 @code {
 
@@ -55,7 +54,6 @@
         StateHasChanged();
     }
 
-
     public async Task Show(EventArgs eventArgs)
     {
         if ((this.EditorContext.EditorStatus.RootNode != null))  //  genug Daten, um einzufügenden Elemente aufzulisten
@@ -80,38 +78,6 @@
                 //Debugger.GlobalDebugger.Protokolliere(String.Format("unknown element {0} in {1}->{2}", e.ElementName, this.Name, "Aktualisieren"));  //Eines der bezogenen Elemente ist in der DTD unbekannt
                 //lblFehler.Text = String.Format("unknown element '{0}'", e.ElementName);
                 //lblFehler.Visible = true;
-            }
-
-            if (elemente != null)
-            {
-
-                //// Elemente alphabetisch sortieren
-                //string[] restElemente = (from e in elemente
-                //                         orderby e
-                //                         select e).ToArray();
-
-                //// ButtonArray füllen
-                //int rand = 3; // Abstand zwischen Buttons
-                //int top = 0; // Dort anfangen
-
-                //// Buttons in den Gruppen anzeigen
-                //for (int i = 0; i < _gruppenControls.Count; i++)
-                //{
-                //    // Jetzt dem Gruppencontrol die Elemente übergeben, welche überhaupt zur Verfügung stehen
-                //    restElemente = _gruppenControls[i].VerfuegbareElementeZuweisenUndRestElementeZurueckGeben(restElemente);
-
-                //    if (_gruppenControls[i].Visible) // Ist das Gruppencontrol sichtbar?
-                //    {
-                //        _gruppenControls[i].Top = top;
-                //        _gruppenControls[i].Left = rand;
-                //        int breite = ClientSize.Width - rand * 2;
-                //        _gruppenControls[i].Width = breite;
-                //        top += _gruppenControls[i].Height;
-                //    }
-                //    else // Das Gruppencontrol ist nicht sichtbar - wohl weil es keine Buttons drin hat
-                //    {
-                //    }
-                //}
             }
             await Task.CompletedTask;
         }
