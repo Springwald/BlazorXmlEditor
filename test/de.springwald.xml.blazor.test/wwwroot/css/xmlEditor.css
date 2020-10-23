@@ -6,11 +6,13 @@
 }
 
     .addAttributes .elementGroup {
+        padding: 0.4em;
+        margin-bottom: 0.4em;
         border-radius: 0.2em;
         border-width: 1px;
-        padding: 5px;
         border-color: lightgrey;
         border-style: solid;
+        background: #FDFDFD;
     }
 
         .addAttributes .elementGroup .title {
