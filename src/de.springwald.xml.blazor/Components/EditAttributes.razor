@@ -4,66 +4,66 @@
 @using System.Linq
 @implements IDisposable
 
-<h3>EditXmlAttributes</h3>
-
 @if (this.errorMessage != null)
 {
     <p>Error: this.errorMessage</p>
 }
 
-@if (this.actualNodeDtdElement != null)
-{
-    @foreach (var attribut in this.actualNodeDtdElement.Attribute)
+<form>
+    @if (this.actualNodeDtdElement != null)
     {
-        // ucXMLEditAttribut editFeld;
-
-        <p>@attribut.Name</p>
-
-        @if (attribut.ErlaubteWerte.Any()) // der Inhalt kommt aus einer vorgegebene Liste von Werten
+        @foreach (var attribut in this.actualNodeDtdElement.Attribute)
         {
+            <div class="form-group row">
 
-            <select class="form-control selectpicker" @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))">
-                @if (actualNode.Attributes[attribut.Name] == null || string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value))
-                {
-                    <option>--select--</option>
+                @{
+                    string id = new Guid().ToString();
                 }
-                @if (attribut.Pflicht != DTDAttribut.PflichtArten.Optional)
-                {
-                    <option selected="@(string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value) ? true : false)" value=""></option>
-                }
-                @foreach (var value in attribut.ErlaubteWerte)
-                {
-                    <option selected="@(value == actualNode.Attributes[attribut.Name]?.Value ? true : false)">@value</option>
-                }
-            </select>
-        }
-        else  // Inhalt ist frei
-        {
-            //this.comboAuswahl.Visible = false;
-            //this.txtEingabe.Visible = true;
-            //this.txtEingabe.Text = XMLInhaltInNode;
-        }
 
-        // Dem Attribut-Editor seinen Kontext übergeben und neu anzeigen
-        //if (editFeld.Attribut != _attribute[i])
-        // Wenn das Attribut nicht bereits in diesem Feld angezeigt wird+++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        //editFeld.Node = actualNode;
-        //editFeld.Attribut = attribut;
-        //editFeld.NeuZeichnen();
+                <label for="@id" class="col-sm-2 col-form-label">@attribut.Name</label>
+                <div class="col-sm-10">
+                    @if (attribut.ErlaubteWerte.Any()) //  the content comes from a predefined list of values
+                    {
+                        <select id="@id" class="form-control selectpicker" @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))">
+                            @if (actualNode.Attributes[attribut.Name] == null || string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value))
+                            {
+                                <option selected="selected">--select--</option>
+                            }
+                            else
+                            {
+                                @if (attribut.Pflicht == DTDAttribut.PflichtArten.Optional)
+                                {
+                                    <option selected="@(string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value) ? true : false)" value=""></option>
+                                }
+                            }
+                            @foreach (var value in attribut.ErlaubteWerte)
+                            {
+                                <option selected="@(value == actualNode.Attributes[attribut.Name]?.Value ? true : false)">@value</option>
+                            }
+                        </select>
+                    }
+                    else  // Content is free
+                    {
+                        <input id="@id" class="form-control" type="text" value="@actualNode.Attributes[attribut.Name]?.Value"
+                               @oninput="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))"
+                               @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))" />
+                    }
+                </div>
+            </div>
+        }
     }
-}
+</form>
 
 @code {
 
-        [Parameter]
-        public EditorContext EditorContext { get; set; }
+    [Parameter]
+    public EditorContext EditorContext { get; set; }
     private EditorStatus EditorStatus => this.EditorContext?.EditorStatus;
 
     private string[] attributes;
     private System.Xml.XmlNode actualNode;
     private DTDElement actualNodeDtdElement;
     private string errorMessage;
-
 
     private async Task ValueSelected(string name, string value)
     {
@@ -75,18 +75,6 @@
         {
             (this.actualNode as System.Xml.XmlElement).SetAttribute(name, value);
         }
-
-        //var attrib = this.actualNode.Attributes[name];
-        //if (attrib == null)
-        //{
-        //    if (!string.IsNullOrWhiteSpace(value))
-        //    {
-        //        (this.actualNode as System.Xml.XmlElement).SetAttribute(name, value);
-        //    }
-        //} else
-        //{
-        //    if ()
-        //}
         this.StateHasChanged();
         await Task.CompletedTask;
     }
@@ -108,10 +96,6 @@
         {
             if (this.EditorStatus.CursorRoh.StartPos.Equals(this.EditorStatus.CursorRoh.EndPos))  //  kein Bereich gewählt
             {
-                // AttributeListe füllen
-                int rand = 5; // Abstand zwischen Attribut-Editoren
-                int top = rand; // Dort anfangen
-
                 // Herausfinden, für welchen Node die Attribute angezeigt werden sollen
                 switch (this.EditorStatus.CursorRoh.StartPos.PosAmNode)
                 {
@@ -161,8 +145,6 @@
                         this.errorMessage = $"unknown element '{e.ElementName}'";
                     }
                 }
-
-
             }
             StateHasChanged();
             await Task.CompletedTask;
