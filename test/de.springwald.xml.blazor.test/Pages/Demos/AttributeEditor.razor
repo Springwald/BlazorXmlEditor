@@ -13,14 +13,17 @@
     <div class="col-4">
         <AddElement EditorContext="this.editorContext" />
         <hr />
-        <EditAttributes />
+        <EditAttributes EditorContext="this.editorContext"/>
     </div>
 </div>
 
 
 @code {
 
-    private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
+    private string documentContent =    "<category>" +
+                                            "<pattern>Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern>" +
+                                            "<template>Lorem<script>lorem</script> ipsum <star/> ipsum Dolor sit amet</template>" +
+                                        "</category>";
     private EditorContext editorContext;
     private System.Xml.XmlDocument xmlDocument;
 
@@ -36,6 +39,7 @@
     private async Task EditorIsReady()
     {
         await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
-        await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.FirstChild.FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 10);
+        // await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.ChildNodes[1].ChildNodes[1].FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 2);
+        await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.ChildNodes[1].ChildNodes[1].FirstChild, cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, 2);
     }
 }

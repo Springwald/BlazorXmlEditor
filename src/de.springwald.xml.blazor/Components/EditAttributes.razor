@@ -1,5 +1,171 @@
-﻿<h3>EditXmlAttributes</h3>
+﻿@using de.springwald.xml.editor
+@using de.springwald.xml.dtd
+@using de.springwald.xml.cursor
+@using System.Linq
+@implements IDisposable
+
+<h3>EditXmlAttributes</h3>
+
+@if (this.errorMessage != null)
+{
+    <p>Error: this.errorMessage</p>
+}
+
+@if (this.actualNodeDtdElement != null)
+{
+    @foreach (var attribut in this.actualNodeDtdElement.Attribute)
+    {
+        // ucXMLEditAttribut editFeld;
+
+        <p>@attribut.Name</p>
+
+        @if (attribut.ErlaubteWerte.Any()) // der Inhalt kommt aus einer vorgegebene Liste von Werten
+        {
+
+            <select class="form-control selectpicker" @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))">
+                @if (actualNode.Attributes[attribut.Name] == null || string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value))
+                {
+                    <option>--select--</option>
+                }
+                @if (attribut.Pflicht != DTDAttribut.PflichtArten.Optional)
+                {
+                    <option selected="@(string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value) ? true : false)" value=""></option>
+                }
+                @foreach (var value in attribut.ErlaubteWerte)
+                {
+                    <option selected="@(value == actualNode.Attributes[attribut.Name]?.Value ? true : false)">@value</option>
+                }
+            </select>
+        }
+        else  // Inhalt ist frei
+        {
+            //this.comboAuswahl.Visible = false;
+            //this.txtEingabe.Visible = true;
+            //this.txtEingabe.Text = XMLInhaltInNode;
+        }
+
+        // Dem Attribut-Editor seinen Kontext übergeben und neu anzeigen
+        //if (editFeld.Attribut != _attribute[i])
+        // Wenn das Attribut nicht bereits in diesem Feld angezeigt wird+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //editFeld.Node = actualNode;
+        //editFeld.Attribut = attribut;
+        //editFeld.NeuZeichnen();
+    }
+}
 
 @code {
 
+        [Parameter]
+        public EditorContext EditorContext { get; set; }
+    private EditorStatus EditorStatus => this.EditorContext?.EditorStatus;
+
+    private string[] attributes;
+    private System.Xml.XmlNode actualNode;
+    private DTDElement actualNodeDtdElement;
+    private string errorMessage;
+
+
+    private async Task ValueSelected(string name, string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            (this.actualNode as System.Xml.XmlElement).RemoveAttribute(name);
+        }
+        else
+        {
+            (this.actualNode as System.Xml.XmlElement).SetAttribute(name, value);
+        }
+
+        //var attrib = this.actualNode.Attributes[name];
+        //if (attrib == null)
+        //{
+        //    if (!string.IsNullOrWhiteSpace(value))
+        //    {
+        //        (this.actualNode as System.Xml.XmlElement).SetAttribute(name, value);
+        //    }
+        //} else
+        //{
+        //    if ()
+        //}
+        this.StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        this.EditorStatus.CursorRoh.ChangedEvent.Add(this.ShowAttributes);
+        return base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        this.EditorStatus.CursorRoh.ChangedEvent.Remove(this.ShowAttributes);
+    }
+
+    private async Task ShowAttributes(EventArgs eventArgs)
+    {
+        if ((this.EditorStatus != null) && (this.EditorStatus.RootNode != null)) // genug Daten, um Attribute aufzulisten
+        {
+            if (this.EditorStatus.CursorRoh.StartPos.Equals(this.EditorStatus.CursorRoh.EndPos))  //  kein Bereich gewählt
+            {
+                // AttributeListe füllen
+                int rand = 5; // Abstand zwischen Attribut-Editoren
+                int top = rand; // Dort anfangen
+
+                // Herausfinden, für welchen Node die Attribute angezeigt werden sollen
+                switch (this.EditorStatus.CursorRoh.StartPos.PosAmNode)
+                {
+                    case XMLCursorPositionen.CursorInDemLeeremNode:
+                    case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
+                    case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
+                        // Der Node selbst ist selektiert
+                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.AktNode;
+                        break;
+
+                    case XMLCursorPositionen.CursorInnerhalbDesTextNodes:
+                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.AktNode;
+                        break;
+
+                    case XMLCursorPositionen.CursorHinterDemNode:
+                    case XMLCursorPositionen.CursorVorDemNode:
+                        // Wir sind hinter oder vor dem Node, daher werden die Attribute des ParentNodes angezeigt
+                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.AktNode.ParentNode;
+                        break;
+
+                    default:
+                        this.actualNode = null;
+                        break;
+                }
+
+                while (this.actualNode is System.Xml.XmlText) // Wenn es ein Textnode ist
+                {
+                    this.actualNode = this.actualNode.ParentNode;   // dann die Attribute des Parentnodes anzeigen
+                }
+
+                if (this.actualNode == null)
+                {
+                    this.actualNodeDtdElement = null;
+                }
+                else
+                {
+                    this.actualNodeDtdElement = null;   // Die DTD-Info des gewählten Elementes
+
+                    // Die DTD-Definitionen für den aktuellen Node holen
+                    try
+                    {
+                        this.actualNodeDtdElement = this.EditorContext.XmlRules.DTD.DTDElementByName(this.actualNode.Name, true);
+                    }
+                    catch (de.springwald.xml.dtd.DTD.XMLUnknownElementException e)
+                    {
+                        // Debugger.GlobalDebugger.Protokolliere(String.Format("unknown element {0} in {1}->{2}", e.ElementName, this.Name, "AttributeNeuAnzeigen"));  //Eines der bezogenen Elemente ist in der DTD unbekannt
+                        this.errorMessage = $"unknown element '{e.ElementName}'";
+                    }
+                }
+
+
+            }
+            StateHasChanged();
+            await Task.CompletedTask;
+        }
+    }
 }
