@@ -99,10 +99,15 @@
             this.IsDisabled = true;
             this.UndoTitle = null;
             return;
+        } else
+        {
+            this.IsDisabled = false;
         }
 
         this.UndoTitle = this.EditorStatus.UndoMoeglich ? this.EditorStatus.UndoSchrittName : null;
         this.InsertPossible = this.EditorContext.NativePlatform.Clipboard.ContainsText && this.EditorStatus.CursorRoh.StartPos.AktNode != null;
+        this.SomethingIsSelected = this.EditorStatus.IstEtwasSelektiert;
+        this.StateHasChanged();
     }
 
 

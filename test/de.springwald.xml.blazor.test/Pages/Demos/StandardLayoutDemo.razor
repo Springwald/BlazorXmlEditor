@@ -1,15 +1,16 @@
-﻿@page "/AttributeEditor"
+﻿@page "/StandardLayoutDemo"
 @using de.springwald.xml.blazor.Components
 @using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.test.DemoData
 @using de.springwald.xml.editor
 
-<h3>interactive demo</h3>
+<h3>standard layout - interactive demo</h3>
 
-<ActionsToolbar EditorContext="this.editorContext"></ActionsToolbar>
+
 
 <div class="row">
     <div class="col-8">
+        <ActionsToolbar EditorContext="this.editorContext"></ActionsToolbar>
         <de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
     </div>
     <div class="col-4">
@@ -20,7 +21,6 @@
         <EditAttributes EditorContext="this.editorContext"/>
     </div>
 </div>
-
 
 @code {
 
@@ -43,7 +43,6 @@
     private async Task EditorIsReady()
     {
         await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
-        // await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.ChildNodes[1].ChildNodes[1].FirstChild, cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes, 2);
         await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.ChildNodes[1].ChildNodes[1].FirstChild, cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, 2);
     }
 }
