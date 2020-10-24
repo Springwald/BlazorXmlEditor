@@ -1,5 +1,4 @@
-﻿
-
+﻿@using de.springwald.xml.editor
 
 <button class="btn btn-outline-secondary btn-sm" @onclick="this.HomeClicked" title="home"><i class="fa fa-home" aria-hidden="true"></i></button>
 <button class="btn btn-outline-secondary btn-sm" @onclick="this.RefreshClicked" title="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
@@ -11,8 +10,14 @@
 <button class="btn btn-outline-secondary btn-sm" @onclick="this.DeleteClicked" title="delete"><i class="fa fa-ban" aria-hidden="true"></i></button>
 
 @code {
+
+    [Parameter]
+    public EditorContext EditorContext { get; set; }
+    private EditorStatus EditorStatus => this.EditorContext.EditorStatus;
+
     private async void HomeClicked()
     {
+        // _xmlEditor.AktionCursorAufPos1();
         await Task.CompletedTask;
     }
 
@@ -23,6 +28,7 @@
 
     private async void UndoClicked()
     {
+        // _xmlEditor.UnDo();
         await Task.CompletedTask;
     }
 
@@ -33,21 +39,74 @@
 
     private async void CutClicked()
     {
+        // _xmlEditor.AktionCutToClipboard(XMLEditor.UndoSnapshotSetzenOptionen.ja);
         await Task.CompletedTask;
     }
 
     private async void PasteClicked()
     {
+        // _xmlEditor.AktionPasteFromClipboard(XMLEditor.UndoSnapshotSetzenOptionen.ja);
         await Task.CompletedTask;
     }
 
     private async void CopyClicked()
     {
+        // _xmlEditor.AktionCopyToClipboard();
         await Task.CompletedTask;
     }
 
     private async void DeleteClicked()
     {
+        // _xmlEditor.AktionDelete(XMLEditor.UndoSnapshotSetzenOptionen.ja);
         await Task.CompletedTask;
     }
+
+
+    /*
+
+
+
+
+      if (_xmlEditor == null) // gar kein Editor zugewiesen
+            {
+                toolStrip.Enabled = false;
+                return;
+            }
+
+            if (_xmlEditor.RootNode == null) // Im Editor ist nichts zu bearbeiten
+            {
+                toolStrip.Enabled = false;
+                return;
+            }
+
+            if (_xmlEditor.ReadOnly) // Dokument im Editor ist ReadOnly
+            {
+                toolStrip.Enabled = false;
+                return;
+            }
+
+            toolStrip.Enabled = true;
+
+            bool etwasSelektiert = _xmlEditor.IstEtwasSelektiert;
+
+            ButtonAusschneiden.Enabled = etwasSelektiert;
+            ButtonLoeschen.Enabled = etwasSelektiert;
+            ButtonKopieren.Enabled = etwasSelektiert;
+
+            // UnDo
+            ButtonUndo.Enabled = _xmlEditor.UndoMoeglich;
+            ButtonUndo.Text = _xmlEditor.UndoSchrittName;
+
+            // ReDo
+#warning Redo noch implementieren
+            ButtonRedo.Visible = false;
+            ButtonRedo.Enabled = false;
+
+            ButtonHome.Enabled = true;
+
+            ButtonEinfuegen.Enabled = ((_xmlEditor.IstEtwasInZwischenablage) && (_xmlEditor.CursorRoh.StartPos.AktNode != null));
+
+        */
 }
+
+
