@@ -15,6 +15,10 @@ Project is developed and maintained by [Daniel Springwald](https://blog.springwa
 
 The following libraries are required:
 
+- Blazor Webassembly
+- Bootstrap 4
+- "Font Awesome by Dave Gandy - http://fontawesome.io".
+
 ... to do...
 
 ## Documentation
