@@ -4,7 +4,9 @@
 @using de.springwald.xml.editor
 @using Microsoft.JSInterop;
 @using de.springwald.xml.blazor.Code;
+@using CurrieTechnologies.Razor.Clipboard
 @inject IJSRuntime JSRuntime
+@inject ClipboardService clipboardService
 @implements IDisposable
 
 @if (this.showContextMenu)
@@ -61,11 +63,13 @@
     private async Task Init()
     {
         if (this.EditorContext == null) throw new ArgumentNullException(nameof(this.EditorContext));
-        this.EditorContext.NativePlatform = new BlazorNativePlatform(_canvasReference);
+        this.EditorContext.NativePlatform = new BlazorNativePlatform(_canvasReference, new BlazorClipboard(this.clipboardService));
         this.Editor = new XMLEditor(this.EditorContext);
         this.EditorContext.EditorStatus.RootNodeChanged.Add(this.RootNodeChanged);
         await OnReady.InvokeAsync(EventArgs.Empty);
     }
+
+
 
     public void Dispose()
     {

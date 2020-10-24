@@ -32,9 +32,9 @@ namespace de.springwald.xml.blazor.NativePlatform
         }
 
 #else
-        public BlazorNativePlatform(BECanvasComponent canvas)
+        public BlazorNativePlatform(BECanvasComponent canvas, BlazorClipboard blazorClipboard)
         {
-            this.Clipboard = new BlazorClipboard();
+            this.Clipboard = blazorClipboard;
             this.ControlElement = new BlazorControlElement();
             this.InputEvents = new BlazorInputEvents();
             this.Focus = new BlazorFocus();

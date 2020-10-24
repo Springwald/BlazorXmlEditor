@@ -1,22 +1,50 @@
-﻿using System;
+﻿using CurrieTechnologies.Razor.Clipboard;
+using System;
+using System.Threading.Tasks;
+
 
 namespace de.springwald.xml.blazor.NativePlatform
 {
-    public class BlazorClipboard : de.springwald.xml.editor.nativeplatform.IClipboard
+    public class BlazorClipboard : editor.nativeplatform.IClipboard
     {
-        public bool ContainsText => false;
+        private ClipboardService clipboard;
 
-        public void Clear()
+        public BlazorClipboard(ClipboardService clipboard)
         {
+            this.clipboard = clipboard;
         }
 
-        public string GetText()
+        public async Task<bool> ContainsText()
         {
-            return "";
+            return !string.IsNullOrEmpty(await this.GetText());
         }
 
-        public void SetText(string inhalt)
+        public async Task Clear()
         {
+            await this.SetText(string.Empty);
+        }
+
+        public async Task<string> GetText()
+        {
+            try
+            {
+                return await this.clipboard.ReadTextAsync();
+            }
+            catch (Exception e)
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task SetText(string text)
+        {
+            try
+            {
+                await this.clipboard.WriteTextAsync(text);
+            }
+            catch (Exception e)
+            {
+            }
         }
     }
 }

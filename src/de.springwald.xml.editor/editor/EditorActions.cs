@@ -62,7 +62,7 @@ namespace de.springwald.xml.editor
 
             try
             {
-                if (this.nativePlatform.Clipboard.ContainsText) // wenn Text in der Zwischenablage ist
+                if (await this.nativePlatform.Clipboard.ContainsText()) // wenn Text in der Zwischenablage ist
                 {
                     XMLCursorPos startPos;
                     XMLCursorPos endPos;
@@ -99,7 +99,7 @@ namespace de.springwald.xml.editor
                     }
 
                     // Den Text mit einem umschließenden, virtuellen Tag umschließen
-                    text = this.nativePlatform.Clipboard.GetText();
+                    text = await this.nativePlatform.Clipboard.GetText();
 
                     // Whitespaces entschärfen
                     text = text.Replace("\r\n", " ");
@@ -194,7 +194,7 @@ namespace de.springwald.xml.editor
             {
 
                 // den XML-Reader erzeugen
-                text = this.nativePlatform.Clipboard.GetText();
+                text =await  this.nativePlatform.Clipboard.GetText();
                 var reader = new XmlTextReader(text, System.Xml.XmlNodeType.Element, null);
                 reader.MoveToContent(); //Move to the cd element node.
 

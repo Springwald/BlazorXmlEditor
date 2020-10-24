@@ -7,14 +7,18 @@
 // All rights reserved
 // Licensed under MIT License
 
+using System.Threading.Tasks;
+
 namespace de.springwald.xml.editor.nativeplatform
 {
     public interface IClipboard
     {
-        bool ContainsText { get; }
+        Task<bool> ContainsText();
 
-        string GetText();
-        void SetText(string inhalt);
-        void Clear();
+        Task Clear();
+
+        Task<string> GetText();
+
+        Task SetText(string text);
     }
 }

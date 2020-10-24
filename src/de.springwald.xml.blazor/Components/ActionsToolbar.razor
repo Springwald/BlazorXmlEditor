@@ -33,9 +33,9 @@
     private string UndoTitle;
     private bool InsertPossible;
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
-        this.UpdateButtonStates();
+        await this.UpdateButtonStates();
         base.OnInitialized();
     }
 
@@ -47,7 +47,7 @@
 
     private async Task OnChanged(EventArgs e)
     {
-        this.UpdateButtonStates();
+        await this.UpdateButtonStates();
         await Task.CompletedTask;
     }
 
@@ -92,7 +92,7 @@
         await Task.CompletedTask;
     }
 
-    private void UpdateButtonStates()
+    private async Task UpdateButtonStates()
     {
         if (this.EditorStatus == null || this.EditorStatus.RootNode == null || this.EditorStatus.ReadOnly)
         {
@@ -105,7 +105,9 @@
         }
 
         this.UndoTitle = this.EditorStatus.UndoMoeglich ? this.EditorStatus.UndoSchrittName : null;
-        this.InsertPossible = this.EditorContext.NativePlatform.Clipboard.ContainsText && this.EditorStatus.CursorRoh.StartPos.AktNode != null;
+
+        this.InsertPossible = await this.EditorContext.NativePlatform.Clipboard.ContainsText() && this.EditorStatus.CursorRoh.StartPos.AktNode != null;
+
         this.SomethingIsSelected = this.EditorStatus.IstEtwasSelektiert;
         this.StateHasChanged();
     }
