@@ -1,4 +1,4 @@
-# BlazorXmlEditor
+# Blazor xml editor
 
 A tag-view-style xml editor for dotnet blazor webassembly
 
