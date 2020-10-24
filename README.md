@@ -11,7 +11,7 @@ Project is developed and maintained by [Daniel Springwald](https://blog.springwa
 
 [live demo](https://www.springwald.de/demos/BlazorXmlEditor/)
 
-## Installation
+## Requirements
 
 The following libraries are required:
 
@@ -21,6 +21,49 @@ The following libraries are required:
 - CurrieTechnologies.Razor.Clipboard - https://github.com/Basaingeal/Razor.Clipboard
 
 ## Documentation
+
+### Installation
+
+In Program.cs add CurrieTechnologies.Razor.Clipboard service:
+
+```csharp
+builder.Services.AddClipboard();
+```
+
+In Index.html head add
+
+```html
+<link href="_content/de.springwald.xml.blazor/springwaldXmlEditBlazor.css" rel="stylesheet" />
+```
+
+In Index.html body add
+
+```html
+<script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
+<script src="_content/de.springwald.xml.blazor/springwaldXmlEditBlazor.js"></script>
+<script src="_content/CurrieTechnologies.Razor.Clipboard/clipboard.min.js"></script>
+```
+
+### Use the standard layout
+
+### Create an own layout
+
+```html
+<div class="row">
+    <div class="col-8">
+        <ActionsToolbar EditorContext="this.editorContext"/>
+        <XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
+    </div>
+    <div class="col-4">
+        <h5>insert element</h5>
+        <AddElement EditorContext="this.editorContext" />
+        <hr />
+        <h5>edit attributes</h5>
+        <EditAttributes EditorContext="this.editorContext"/>
+    </div>
+</div>
+```
+
 
 ... to do...
 
