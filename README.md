@@ -51,6 +51,12 @@ In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExt
 ### Create an own layout
 
 ```html
+@page "/StandardLayoutDemo"
+@using de.springwald.xml.blazor.Components
+@using de.springwald.xml.blazor
+@using de.springwald.xml.blazor.test.DemoData
+@using de.springwald.xml.editor
+
 <div class="row">
     <div class="col-8">
         <ActionsToolbar EditorContext="this.editorContext"/>
