@@ -118,11 +118,6 @@ namespace de.springwald.xml.editor
             return paintContext.Clone();
         }
 
-        protected override bool IsClickPosInsideNode(Point pos)
-        {
-            return false;
-        }
-
 
         protected override void UnPaint(IGraphics gfx)
         {
@@ -235,11 +230,12 @@ namespace de.springwald.xml.editor
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
         /// </summary>
         /// <param name="point"></param>
-        protected override async Task WurdeAngeklickt(Point point, MausKlickAktionen mouseAction)
+        protected override async Task OnMouseAction(Point point, MausKlickAktionen mouseAction)
         {
             if (this.startTag.AreaTag?.Contains(point) == true) // er wurde auf das linke Tag geklickt
             {
                 await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, mouseAction);
+                xmlEditor.CursorBlink.ResetBlinkPhase();
                 return;
             }
 
@@ -249,12 +245,14 @@ namespace de.springwald.xml.editor
                 {
                     // vor das erste Child setzen
                     await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.LastChild, XMLCursorPositionen.CursorHinterDemNode, mouseAction);
+                    xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
                     await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInDemLeeremNode, mouseAction);
+                    xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
             }
@@ -262,6 +260,7 @@ namespace de.springwald.xml.editor
             if (this.endTag?.AreaTag?.Contains(point) == true) // er wurde auf das rechte Tag geklickt
             {
                 await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstHinteresTag, mouseAction);
+                xmlEditor.CursorBlink.ResetBlinkPhase();
                 return;
             }
 
@@ -271,19 +270,21 @@ namespace de.springwald.xml.editor
                 {
                     // vor das erste Child setzen
                     await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.FirstChild, XMLCursorPositionen.CursorVorDemNode, mouseAction);
+                    xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
                     await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInDemLeeremNode, mouseAction);
+                    xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
             }
 
             // Nicht auf Pfeil geklickt, dann Event weiterreichen an Base-Klasse
-            await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, mouseAction);
-            xmlEditor.CursorBlink.ResetBlinkPhase();
+            //await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, mouseAction);
+            //xmlEditor.CursorBlink.ResetBlinkPhase();
         }
 
         private void CreateChildElementsIfNeeded()

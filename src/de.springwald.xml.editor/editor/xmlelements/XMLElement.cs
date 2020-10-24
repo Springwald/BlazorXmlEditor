@@ -47,7 +47,7 @@ namespace de.springwald.xml.editor
 
         /// <param name="xmlNode">The XML-Node to be drawn</param>
         /// <param name="xmlEditor">The editor for which the node is to be drawn</param>
-        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor, EditorContext editorContext )
+        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor, EditorContext editorContext)
         {
             this.editorContext = editorContext;
             this.XMLNode = xmlNode;
@@ -77,8 +77,6 @@ namespace de.springwald.xml.editor
         protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode);
 
         protected abstract void UnPaint(IGraphics gfx);
-
-        protected abstract bool IsClickPosInsideNode(Point pos);
 
         /// <summary>
         /// Draws the vertical cursor line
@@ -126,63 +124,23 @@ namespace de.springwald.xml.editor
             }
         }
 
-      
 
-        /// <summary>
-        /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
-        /// </summary>
-        protected abstract Task WurdeAngeklickt(Point point, MausKlickAktionen mouseAction);
+        protected abstract Task OnMouseAction(Point point, MausKlickAktionen mouseAction);
 
         /// <summary>
         /// Ein Mausklick ist eingegangen
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async Task _xmlEditor_MouseDownEvent(MouseEventArgs e)
-        {
-            var point = new Point(e.X, e.Y);
-
-            // Prüfen, ob der Mausklick überhaupt auf diesem Node geschehen ist
-            if (this.IsClickPosInsideNode(point))
-            {
-                await WurdeAngeklickt(point, MausKlickAktionen.MouseDown);  // An Mausklick-Methode weitergeben
-                return;
-            }
-        }
+        private async Task _xmlEditor_MouseDownEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MausKlickAktionen.MouseDown);
 
         /// <summary>
         /// Die Maus wurde von einem Mausklick wieder gelöst
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        async Task _xmlEditor_MouseUpEvent(MouseEventArgs e)
-        {
-            var point = new Point(e.X, e.Y);
-
-            // Prüfen, ob der MausUpüberhaupt auf diesem Node geschehen ist
-            if (this.IsClickPosInsideNode(point))
-            {
-                await WurdeAngeklickt(point, MausKlickAktionen.MouseUp);  // An MausUp-Methode weitergeben
-                return;
-            }
-        }
+        async Task _xmlEditor_MouseUpEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MausKlickAktionen.MouseUp);
 
         /// <summary>
         /// Die Maus wurde mit gedrückter Maustaste bewegt
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        async Task _xmlEditor_MouseDownMoveEvent(MouseEventArgs e)
-        {
-            var point = new Point(e.X, e.Y);
-
-            // Prüfen, ob der MausUpüberhaupt auf diesem Node geschehen ist
-            if (this.IsClickPosInsideNode(point))
-            {
-                await WurdeAngeklickt(point, MausKlickAktionen.MouseDownMove);  // An MausUp-Methode weitergeben
-                return;
-            }
-        }
+        async Task _xmlEditor_MouseDownMoveEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MausKlickAktionen.MouseDownMove);
 
         /// <summary>
         /// Der XML-Cursor hat sich geändert

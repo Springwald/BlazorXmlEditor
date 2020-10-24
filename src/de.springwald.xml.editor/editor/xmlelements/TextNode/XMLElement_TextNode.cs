@@ -49,12 +49,6 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             this.colorBackground = this.Config.ColorBackground;
         }
 
-        protected override bool IsClickPosInsideNode(Point pos)
-        {
-            if (this.textParts == null) return false;
-            return this.textParts.Where(t => t.Rectangle.Contains(pos)).Any();
-        }
-
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
             var actualText = ToolboxXML.TextAusTextNodeBereinigt(XMLNode);
@@ -244,7 +238,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
         /// <summary>
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
         /// </summary>
-        protected override async Task WurdeAngeklickt(Point point, MausKlickAktionen action)
+        protected override async Task OnMouseAction(Point point, MausKlickAktionen action)
         {
             // Herausfinden, an welcher Position des Textes geklickt wurde
             int posInLine = 0;
@@ -253,14 +247,14 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 if (part.Rectangle.Contains(point)) // Wenn der Klick in diesem Textteil ist
                 {
                     posInLine += Math.Min(part.Text.Length - 1, (int)((point.X - part.Rectangle.X) / Math.Max(1, this.lastCalculatedFontWidth) + 0.5));
-                    break;
+                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, posInLine, action);
+                    return;
                 }
                 else // In diesem Textteil war der Klick nicht
                 {
                     posInLine += part.Text.Length;
                 }
             }
-            await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, posInLine, action);
         }
 
         /// <summary>

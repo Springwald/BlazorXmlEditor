@@ -19,7 +19,6 @@ namespace de.springwald.xml.editor
     internal class KeyboardHandler : IDisposable
     {
         private bool _naechstesLostFokusVerhindern = false; // So that leaving the focus is ignored on TAB
-        private EditorContext editorContext;
         private INativePlatform nativePlatform;
         private XMLRegelwerk regelwerk;
         private EditorActions actions;
@@ -28,13 +27,13 @@ namespace de.springwald.xml.editor
         public XmlAsyncEvent<KeyEventArgs> KeyDownEvent = new XmlAsyncEvent<KeyEventArgs>();
         public XmlAsyncEvent<KeyEventArgs> KeyPressEvent = new XmlAsyncEvent<KeyEventArgs>();
 
-        public KeyboardHandler(INativePlatform nativePlatform, EditorContext editorContext)
+        public KeyboardHandler(EditorContext editorContext)
         {
-            this.editorContext = editorContext;
-            this.nativePlatform = nativePlatform;
-            this.regelwerk = regelwerk;
-            this.actions = actions;
-            this.editorState = editorState;
+            this.actions = editorContext.Actions;
+            this.editorState = editorContext.EditorStatus;
+            this.regelwerk = editorContext.XmlRules;
+
+            this.nativePlatform = editorContext.NativePlatform;
             this.nativePlatform.InputEvents.Leave.Add(this.zeichnungsSteuerelement_Leave);
             this.nativePlatform.InputEvents.PreviewKey.Add(this.zeichnungsSteuerelement_PreviewKeyDown);
             this.nativePlatform.InputEvents.KeyPress.Add(this.zeichnungsSteuerelement_KeyPress);

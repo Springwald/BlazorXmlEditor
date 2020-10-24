@@ -55,7 +55,7 @@ namespace de.springwald.xml.editor
 
             this.MouseHandler = new MouseHandler(editorContext.NativePlatform);
           //   this.EditorActions = new EditorActions(nativePlatform, this.EditorStatus, this.regelwerk);
-            this.KeyboardHandler = new KeyboardHandler(editorContext.NativePlatform, this.editorContext);
+            this.KeyboardHandler = new KeyboardHandler(this.editorContext);
 
             InitScrolling();
         }
