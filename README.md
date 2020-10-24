@@ -17,31 +17,33 @@ The following libraries are required:
 
 - Blazor Webassembly
 - Bootstrap 4
-- "Font Awesome by Dave Gandy - http://fontawesome.io".
+- Font Awesome by Dave Gandy - http://fontawesome.io
 - CurrieTechnologies.Razor.Clipboard - https://github.com/Basaingeal/Razor.Clipboard
+- Blazor Extensions Canvas - https://github.com/BlazorExtensions/Canvas
 
 ## Documentation
 
 ### Installation
 
-In Program.cs add CurrieTechnologies.Razor.Clipboard service:
+In `Program.cs` add [CurrieTechnologies.Razor.Clipboard service](https://github.com/Basaingeal/Razor.Clipboard):
 
 ```csharp
 builder.Services.AddClipboard();
 ```
 
-In Index.html head add
+In `index.html` head add
 
 ```html
 <link href="_content/de.springwald.xml.blazor/springwaldXmlEditBlazor.css" rel="stylesheet" />
 ```
 
-In Index.html body add
+In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExtensions/Canvas), [CurrieTechnologies.Razor.Clipboard service](https://github.com/Basaingeal/Razor.Clipboard) and the blazor xml editor JS:
 
 ```html
 <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
-<script src="_content/de.springwald.xml.blazor/springwaldXmlEditBlazor.js"></script>
 <script src="_content/CurrieTechnologies.Razor.Clipboard/clipboard.min.js"></script>
+<script src="_content/de.springwald.xml.blazor/springwaldXmlEditBlazor.js"></script>
+
 ```
 
 ### Use the standard layout
@@ -63,9 +65,6 @@ In Index.html body add
     </div>
 </div>
 ```
-
-
-... to do...
 
 ## Third party material
 
