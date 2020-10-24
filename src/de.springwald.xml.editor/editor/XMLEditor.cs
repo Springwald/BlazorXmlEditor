@@ -9,7 +9,6 @@
 
 using System;
 using System.Threading.Tasks;
-using de.springwald.xml.editor;
 using de.springwald.xml.editor.cursor;
 using de.springwald.xml.editor.nativeplatform;
 
@@ -22,15 +21,11 @@ namespace de.springwald.xml.editor
         internal MouseHandler MouseHandler { get; }
         internal KeyboardHandler KeyboardHandler { get; }
 
-       //  public EditorActions EditorActions { get; }
-
         private EditorContext editorContext;
 
         private EditorStatus EditorStatus => this.editorContext.EditorStatus;
 
         private EditorConfig EditorConfig => this.editorContext.EditorConfig;
-
-        private XMLRegelwerk Regelwerk => this.editorContext.XmlRules;
 
         public INativePlatform NativePlatform => this.editorContext.NativePlatform;
 

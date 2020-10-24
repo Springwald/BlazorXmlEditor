@@ -1,23 +1,59 @@
 ﻿@using de.springwald.xml.editor
+@implements IDisposable
 
-<button class="btn btn-outline-secondary btn-sm" @onclick="this.HomeClicked" title="home"><i class="fa fa-home" aria-hidden="true"></i></button>
-<button class="btn btn-outline-secondary btn-sm" @onclick="this.RefreshClicked" title="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-<button class="btn btn-outline-secondary btn-sm" @onclick="this.UndoClicked" title="undo"><i class="fa fa-undo" aria-hidden="true"></i></button>
-<button class="btn btn-outline-secondary btn-sm" @onclick="this.RedoClicked" title="redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>
-<button class="btn btn-outline-secondary btn-sm" @onclick="this.CopyClicked" title="copy"><i class="fa fa-copy" aria-hidden="true"></i></button>
-<button class="btn btn-outline-secondary btn-sm" @onclick="this.PasteClicked" title="paste"><i class="fa fa-paste" aria-hidden="true"></i></button>
-<button class="btn btn-outline-secondary btn-sm" @onclick="this.CutClicked" title="cut"><i class="fa fa-cut" aria-hidden="true"></i></button>
-<button class="btn btn-outline-secondary btn-sm" @onclick="this.DeleteClicked" title="delete"><i class="fa fa-ban" aria-hidden="true"></i></button>
+<button class="btn btn-outline-secondary btn-sm" @onclick="this.HomeClicked" title="home" disabled="@IsDisabled"><i class="fa fa-home" aria-hidden="true"></i></button>
+@*<button class="btn btn-outline-secondary btn-sm" @onclick="this.RefreshClicked" title="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>*@
+<button class="btn btn-outline-secondary btn-sm" @onclick="this.UndoClicked" title="@UndoTitle" disabled="@(IsDisabled || UndoTitle == null)"><i class="fa fa-undo" aria-hidden="true"></i></button>
+<button class="btn btn-outline-secondary btn-sm" @onclick="this.CopyClicked" title="copy" disabled="@(IsDisabled || !SomethingIsSelected)"><i class="fa fa-copy" aria-hidden="true"></i></button>
+<button class="btn btn-outline-secondary btn-sm" @onclick="this.PasteClicked" title="paste" disabled="@(IsDisabled || !InsertPossible)"><i class="fa fa-paste" aria-hidden="true"></i></button>
+<button class="btn btn-outline-secondary btn-sm" @onclick="this.CutClicked" title="cut" disabled="@(IsDisabled || !SomethingIsSelected)"><i class="fa fa-cut" aria-hidden="true"></i></button>
+<button class="btn btn-outline-secondary btn-sm" @onclick="this.DeleteClicked" title="delete" disabled="@(IsDisabled || !SomethingIsSelected)"><i class="fa fa-ban" aria-hidden="true"></i></button>
 
 @code {
 
     [Parameter]
-    public EditorContext EditorContext { get; set; }
-    private EditorStatus EditorStatus => this.EditorContext.EditorStatus;
+    public EditorContext EditorContext
+    {
+        get { return this.editorContext; }
+        set {
+            this.editorContext = value;
+            if (this.editorContext != null)
+            {
+                this.editorContext.EditorStatus.CursorRoh.ChangedEvent.Add(this.OnChanged);
+                this.editorContext.EditorStatus.ContentChangedEvent.Add(this.OnChanged);
+            }
+            this.UpdateButtonStates();
+        }
+    }
+    private EditorStatus EditorStatus => this.EditorContext?.EditorStatus;
+    private EditorContext editorContext;
+
+    private bool IsDisabled = true;
+    private bool SomethingIsSelected;
+    private string UndoTitle;
+    private bool InsertPossible;
+
+    protected override void OnInitialized()
+    {
+        this.UpdateButtonStates();
+        base.OnInitialized();
+    }
+
+    public void Dispose()
+    {
+        this.editorContext?.EditorStatus.CursorRoh.ChangedEvent.Remove(this.OnChanged);
+        this.editorContext?.EditorStatus.ContentChangedEvent.Remove(this.OnChanged);
+    }
+
+    private async Task OnChanged(EventArgs e)
+    {
+        this.UpdateButtonStates();
+        await Task.CompletedTask;
+    }
 
     private async void HomeClicked()
     {
-        // _xmlEditor.AktionCursorAufPos1();
+        await this.EditorContext.Actions.AktionCursorAufPos1();
         await Task.CompletedTask;
     }
 
@@ -28,85 +64,48 @@
 
     private async void UndoClicked()
     {
-        // _xmlEditor.UnDo();
-        await Task.CompletedTask;
-    }
-
-    private async void RedoClicked()
-    {
+        await this.EditorContext.EditorStatus.UnDo();
         await Task.CompletedTask;
     }
 
     private async void CutClicked()
     {
-        // _xmlEditor.AktionCutToClipboard(XMLEditor.UndoSnapshotSetzenOptionen.ja);
+        await this.EditorContext.Actions.AktionCutToClipboard(EditorActions.UndoSnapshotSetzenOptionen.ja);
         await Task.CompletedTask;
     }
 
     private async void PasteClicked()
     {
-        // _xmlEditor.AktionPasteFromClipboard(XMLEditor.UndoSnapshotSetzenOptionen.ja);
+        await this.EditorContext.Actions.AktionPasteFromClipboard(EditorActions.UndoSnapshotSetzenOptionen.ja);
         await Task.CompletedTask;
     }
 
     private async void CopyClicked()
     {
-        // _xmlEditor.AktionCopyToClipboard();
+        await this.EditorContext.Actions.AktionCopyToClipboard();
         await Task.CompletedTask;
     }
 
     private async void DeleteClicked()
     {
-        // _xmlEditor.AktionDelete(XMLEditor.UndoSnapshotSetzenOptionen.ja);
+        await this.EditorContext.Actions.AktionDelete(EditorActions.UndoSnapshotSetzenOptionen.ja);
         await Task.CompletedTask;
     }
 
+    private void UpdateButtonStates()
+    {
+        if (this.EditorStatus == null || this.EditorStatus.RootNode == null || this.EditorStatus.ReadOnly)
+        {
+            this.IsDisabled = true;
+            this.UndoTitle = null;
+            return;
+        }
 
-    /*
+        this.UndoTitle = this.EditorStatus.UndoMoeglich ? this.EditorStatus.UndoSchrittName : null;
+        this.InsertPossible = this.EditorContext.NativePlatform.Clipboard.ContainsText && this.EditorStatus.CursorRoh.StartPos.AktNode != null;
+    }
 
 
-
-
-      if (_xmlEditor == null) // gar kein Editor zugewiesen
-            {
-                toolStrip.Enabled = false;
-                return;
-            }
-
-            if (_xmlEditor.RootNode == null) // Im Editor ist nichts zu bearbeiten
-            {
-                toolStrip.Enabled = false;
-                return;
-            }
-
-            if (_xmlEditor.ReadOnly) // Dokument im Editor ist ReadOnly
-            {
-                toolStrip.Enabled = false;
-                return;
-            }
-
-            toolStrip.Enabled = true;
-
-            bool etwasSelektiert = _xmlEditor.IstEtwasSelektiert;
-
-            ButtonAusschneiden.Enabled = etwasSelektiert;
-            ButtonLoeschen.Enabled = etwasSelektiert;
-            ButtonKopieren.Enabled = etwasSelektiert;
-
-            // UnDo
-            ButtonUndo.Enabled = _xmlEditor.UndoMoeglich;
-            ButtonUndo.Text = _xmlEditor.UndoSchrittName;
-
-            // ReDo
-#warning Redo noch implementieren
-            ButtonRedo.Visible = false;
-            ButtonRedo.Enabled = false;
-
-            ButtonHome.Enabled = true;
-
-            ButtonEinfuegen.Enabled = ((_xmlEditor.IstEtwasInZwischenablage) && (_xmlEditor.CursorRoh.StartPos.AktNode != null));
-
-        */
 }
 
 
