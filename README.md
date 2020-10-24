@@ -65,6 +65,31 @@ In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExt
     </div>
 </div>
 ```
+```csharp
+@code {
+	private string documentContent =    "<category>" +
+                                            "<pattern>Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern>" +
+                                            "<template>Lorem<script>lorem</script> ipsum <star/> ipsum Dolor sit amet</template>" +
+                                        "</category>";
+    private EditorContext editorContext;
+    private System.Xml.XmlDocument xmlDocument;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var demoDtd = DemoDtd.LoadDemoDtd();
+        this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRules(demoDtd));
+        this.xmlDocument = new System.Xml.XmlDocument();
+        this.xmlDocument.LoadXml(this.documentContent);
+        await base.OnInitializedAsync();
+    }
+
+    private async Task EditorIsReady()
+    {
+        await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
+        await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.ChildNodes[1].ChildNodes[1].FirstChild, cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, 2);
+    }
+}
+```
 
 ## Third party material
 
