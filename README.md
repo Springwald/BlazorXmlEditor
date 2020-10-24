@@ -18,8 +18,7 @@ The following libraries are required:
 - Blazor Webassembly
 - Bootstrap 4
 - "Font Awesome by Dave Gandy - http://fontawesome.io".
-
-... to do...
+- CurrieTechnologies.Razor.Clipboard - https://github.com/Basaingeal/Razor.Clipboard
 
 ## Documentation
 
