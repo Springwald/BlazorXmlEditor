@@ -88,12 +88,12 @@ You can also layout the various controls and toolbars by hand:
 
 ```csharp
 @code {
-	private string documentContent =    
+    private string documentContent =    
         "<category>" +
             "<pattern>Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern>" +
             "<template>Lorem<script>lorem</script> ipsum <star/> ipsum Dolor sit amet</template>" +
         "</category>";
-		
+
     private EditorContext editorContext;
     private System.Xml.XmlDocument xmlDocument;
 
