@@ -48,6 +48,19 @@ In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExt
 
 ### Use the standard layout
 
+
+```html
+@using de.springwald.xml.editor
+@using de.springwald.xml.blazor
+@using de.springwald.xml.blazor.Components
+
+<XmlEditorStandardLayout EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
+```
+
+### Create an own layout
+
+You can also layout the various controls and toolbars by hand:
+
 ```html
 @using de.springwald.xml.editor
 @using de.springwald.xml.blazor
@@ -66,16 +79,6 @@ In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExt
         <EditAttributes EditorContext="this.editorContext"/>
     </div>
 </div>
-```
-
-### Create an own layout
-
-```html
-@using de.springwald.xml.editor
-@using de.springwald.xml.blazor
-@using de.springwald.xml.blazor.Components
-
-<XmlEditorStandardLayout EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
 ```
 
 ### Connect the editor
