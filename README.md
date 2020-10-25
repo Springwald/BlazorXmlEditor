@@ -48,6 +48,9 @@ In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExt
 
 ### Use the standard layout
 
+In the standard layout, the editor is located on the left. 
+Above it is the toolbar with the actions. 
+Attributes can be edited in the right area.
 
 ```html
 @using de.springwald.xml.editor
