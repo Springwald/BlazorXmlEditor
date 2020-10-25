@@ -2,6 +2,8 @@
 
 A tag-view-style xml editor for dotnet blazor webassembly
 
+![images/standardlayout.png](Blazor xml editor)
+
 > This is a port of the xml-editor for dotnet WinForms, which was created 2006 for the Windows version of the [GaitoBotEditor](https://www.gaitobot.de).
 > The project is currently under revision to remove old issues from 2006. Therefore it still contains German source code and outdated coding paradigms. 
 
@@ -60,6 +62,8 @@ Attributes can be edited in the right area.
 <XmlEditorStandardLayout EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
 ```
 
+![images/standardlayout.png](standard layout)
+
 ### Create an own layout
 
 You can also layout the various controls and toolbars by hand:
@@ -70,16 +74,17 @@ You can also layout the various controls and toolbars by hand:
 @using de.springwald.xml.blazor.Components
 
 <div class="row">
-    <div class="col-8">
-        <ActionsToolbar EditorContext="this.editorContext"/>
+    <div class="col-6">
         <XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
     </div>
-    <div class="col-4">
+    <div class="col-6">
+        <ActionsToolbar EditorContext="this.editorContext"></ActionsToolbar>
+        <hr />
         <h5>insert element</h5>
         <AddElement EditorContext="this.editorContext" />
         <hr />
         <h5>edit attributes</h5>
-        <EditAttributes EditorContext="this.editorContext"/>
+        <EditAttributes EditorContext="this.editorContext" />
     </div>
 </div>
 ```

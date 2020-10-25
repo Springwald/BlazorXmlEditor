@@ -6,19 +6,7 @@
 
 <h3>standard layout - interactive demo</h3>
 
-<div class="row">
-    <div class="col-8">
-        <ActionsToolbar EditorContext="this.editorContext"></ActionsToolbar>
-        <de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
-    </div>
-    <div class="col-4">
-        <h5>insert element</h5>
-        <AddElement EditorContext="this.editorContext" />
-        <hr />
-        <h5>edit attributes</h5>
-        <EditAttributes EditorContext="this.editorContext"/>
-    </div>
-</div>
+<XmlEditorStandardLayout EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
 
 @code {
 
