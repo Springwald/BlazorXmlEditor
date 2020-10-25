@@ -51,6 +51,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
 
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
+            paintContext.PaintPosX += 3;
             var actualText = ToolboxXML.TextAusTextNodeBereinigt(XMLNode);
             this.CalculateStartAndEndOfSelection(actualText, out int selektionStart, out int selektionLaenge, cursor);
             var actualPaintData = LastPaintingDataText.CalculateActualPaintData(paintContext, this.XMLNode, actualText, this.Config.FontTextNode.Height, cursor, selektionStart, selektionLaenge);
@@ -171,15 +172,16 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             {
                 if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
                 {
-                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY + marginY);
+                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
             }
 
+            paintContext.PaintPosX += 3;
             this.lastPaintContextResult = paintContext.Clone();
             return paintContext.Clone();
         }
 
-        protected override void UnPaint(IGraphics gfx)
+        internal override void UnPaint(IGraphics gfx)
         {
             foreach (var textPart in this.textParts)
             {

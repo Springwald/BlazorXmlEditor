@@ -54,9 +54,11 @@ namespace de.springwald.xml.editor
 
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
+           
+
             this.nodeDimensions.Update();
             var isSelected = cursor.IstNodeInnerhalbDerSelektion(this.XMLNode);
-            this.CreateChildElementsIfNeeded();
+            this.CreateChildElementsIfNeeded(gfx);
 
             Point newCursorPaintPos = null;
 
@@ -119,7 +121,7 @@ namespace de.springwald.xml.editor
         }
 
 
-        protected override void UnPaint(IGraphics gfx)
+        internal override void UnPaint(IGraphics gfx)
         {
             this.startTag.Unpaint(gfx);
             this.endTag?.Unpaint(gfx);
@@ -138,6 +140,8 @@ namespace de.springwald.xml.editor
 
             for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
             {
+               
+
                 // An dieser Stelle sollte im Objekt ChildControl die entsprechends
                 // Instanz des XMLElement-Controls für den aktuellen XMLChildNode stehen
                 var childElement = (XMLElement)childElements[childLauf];
@@ -218,7 +222,8 @@ namespace de.springwald.xml.editor
             // am Ende der ChildControlListe löschen
             while (this.XMLNode.ChildNodes.Count < childElements.Count)
             {
-                var deleteChildElement = (XMLElement)childElements[childElements.Count - 1];
+                var deleteChildElement = childElements[childElements.Count - 1];
+                deleteChildElement.UnPaint(gfx);
                 childElements.Remove(childElements[childElements.Count - 1]);
                 deleteChildElement.Dispose();
             }
@@ -287,7 +292,7 @@ namespace de.springwald.xml.editor
             //xmlEditor.CursorBlink.ResetBlinkPhase();
         }
 
-        private void CreateChildElementsIfNeeded()
+        private void CreateChildElementsIfNeeded(IGraphics gfx)
         {
             // Alle Child-Controls anzeigen und ggf. vorher anlegen
             for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
@@ -311,6 +316,7 @@ namespace de.springwald.xml.editor
                     if (childElement.XMLNode != this.XMLNode.ChildNodes[childLauf])
                     {   // Das ChildControl enthält nicht den selben ChildNode, also 
                         // löschen und neu machen
+                        childElement.UnPaint(gfx);
                         childElement.Dispose(); // altes Löschen
                         childElements[childLauf] = this.xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
                     }

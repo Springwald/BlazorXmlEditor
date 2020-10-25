@@ -43,6 +43,8 @@ namespace de.springwald.xml.editor.xmlelements
 
         public async Task<PaintContext> Paint(PaintContext paintContext, bool alreadyUnpainted, bool isSelected, IGraphics gfx)
         {
+            paintContext.PaintPosX += 3;
+
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
             var attributesString = this.GetAttributesString();
@@ -131,7 +133,7 @@ namespace de.springwald.xml.editor.xmlelements
             paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, this.config.MinLineHeight); // See how high the current line is
 
             // Remember where the mouse areas are
-            this.AreaTag = new Rectangle(startX, startY, paintContext.PaintPosX - startX, this.config.TagHeight);
+            this.AreaTag = new Rectangle(startX-2, startY, paintContext.PaintPosX + 2 - (startX), this.config.TagHeight);
 
             paintContext.BisherMaxX = System.Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
 

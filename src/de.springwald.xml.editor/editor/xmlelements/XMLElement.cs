@@ -74,9 +74,9 @@ namespace de.springwald.xml.editor
             return paintContext;
         }
 
-        protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode);
+        internal abstract void UnPaint(IGraphics gfx);
 
-        protected abstract void UnPaint(IGraphics gfx);
+        protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode);
 
         /// <summary>
         /// Draws the vertical cursor line
@@ -123,7 +123,6 @@ namespace de.springwald.xml.editor
                 return;
             }
         }
-
 
         protected abstract Task OnMouseAction(Point point, MausKlickAktionen mouseAction);
 
