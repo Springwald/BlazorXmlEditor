@@ -2,7 +2,7 @@
 
 A tag-view-style xml editor for dotnet blazor webassembly
 
-![Blazor xml editor](mages/standardlayout.png)
+![Blazor xml editor](images/standardlayout.png)
 
 > This is a port of the xml-editor for dotnet WinForms, which was created 2006 for the Windows version of the [GaitoBotEditor](https://www.gaitobot.de).
 > The project is currently under revision to remove old issues from 2006. Therefore it still contains German source code and outdated coding paradigms. 
@@ -88,6 +88,8 @@ You can also layout the various controls and toolbars by hand:
     </div>
 </div>
 ```
+
+![individual layout](images/individuallayout.png)
 
 ### Connect the editor
 
