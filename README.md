@@ -48,14 +48,10 @@ In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExt
 
 ### Use the standard layout
 
-### Create an own layout
-
 ```html
-@page "/StandardLayoutDemo"
-@using de.springwald.xml.blazor.Components
-@using de.springwald.xml.blazor
-@using de.springwald.xml.blazor.test.DemoData
 @using de.springwald.xml.editor
+@using de.springwald.xml.blazor
+@using de.springwald.xml.blazor.Components
 
 <div class="row">
     <div class="col-8">
@@ -71,6 +67,19 @@ In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExt
     </div>
 </div>
 ```
+
+### Create an own layout
+
+```html
+@using de.springwald.xml.editor
+@using de.springwald.xml.blazor
+@using de.springwald.xml.blazor.Components
+
+<XmlEditorStandardLayout EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
+```
+
+### Connect the editor
+
 ```csharp
 @code {
 	private string documentContent =    "<category>" +

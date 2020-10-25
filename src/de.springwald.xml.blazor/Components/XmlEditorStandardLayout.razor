@@ -1,0 +1,29 @@
+﻿@using de.springwald.xml.editor
+
+<div class="row">
+    <div class="col-8">
+        <ActionsToolbar EditorContext="this.EditorContext"></ActionsToolbar>
+        <de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.EditorContext" OnReady="this.EditorIsReady" />
+    </div>
+    <div class="col-4">
+        <h5>insert element</h5>
+        <AddElement EditorContext="this.EditorContext" />
+        <hr />
+        <h5>edit attributes</h5>
+        <EditAttributes EditorContext="this.EditorContext" />
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public EditorContext EditorContext { get; set; }
+
+    [Parameter]
+    public EventCallback OnReady { get; set; }
+
+    private async Task EditorIsReady()
+    {
+        await this.OnReady.InvokeAsync(EventArgs.Empty);
+    }
+}

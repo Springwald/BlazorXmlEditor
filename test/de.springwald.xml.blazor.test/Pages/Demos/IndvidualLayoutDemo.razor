@@ -1,22 +1,23 @@
-﻿@page "/StandardLayoutDemo"
+﻿@page "/IndvidualLayoutDemo"
 @using de.springwald.xml.blazor.Components
 @using de.springwald.xml.blazor
 @using de.springwald.xml.blazor.test.DemoData
 @using de.springwald.xml.editor
 
-<h3>standard layout - interactive demo</h3>
+<h3>indivdual layout - interactive demo</h3>
 
 <div class="row">
-    <div class="col-8">
-        <ActionsToolbar EditorContext="this.editorContext"></ActionsToolbar>
+    <div class="col-6">
         <de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
     </div>
-    <div class="col-4">
+    <div class="col-6">
+        <ActionsToolbar EditorContext="this.editorContext"></ActionsToolbar>
+        <hr />
         <h5>insert element</h5>
         <AddElement EditorContext="this.editorContext" />
         <hr />
         <h5>edit attributes</h5>
-        <EditAttributes EditorContext="this.editorContext"/>
+        <EditAttributes EditorContext="this.editorContext" />
     </div>
 </div>
 
