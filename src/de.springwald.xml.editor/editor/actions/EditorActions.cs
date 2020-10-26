@@ -48,6 +48,17 @@ namespace de.springwald.xml.editor.actions
             this.editorContext = editorContext;
         }
 
+
+        public async Task<bool> MoveRight(XMLCursorPos cursorPos)
+        {
+            return await CursorPosMoveHelper.MoveRight(cursorPos, this.editorContext.EditorStatus.RootNode, this.editorContext.XmlRules);
+        }
+
+        public async Task<bool> MoveLeft(XMLCursorPos cursorPos)
+        {
+            return await CursorPosMoveHelper.MoveLeft(cursorPos, this.editorContext.EditorStatus.RootNode, this.editorContext.XmlRules);
+        }
+
         /// <summary>
         /// Fuegt den Zwischenablageinhalt an die aktuelle CursorPos ein
         /// </summary>
@@ -177,6 +188,8 @@ namespace de.springwald.xml.editor.actions
         {
             await Task.CompletedTask;
         }
+
+
 
         /// <summary>
         /// Ersetzt den Root-Node des Editors durch den Inhalt der Zwischenablage
@@ -485,7 +498,7 @@ namespace de.springwald.xml.editor.actions
             var deleteArea = new XMLCursor();
             deleteArea.StartPos.SetPos(position.AktNode, position.PosAmNode, position.PosImTextnode);
             var endPos = deleteArea.StartPos.Clone();
-            await endPos.MoveLeft(this.editorStatus.RootNode, this.regelwerk);
+            await CursorPosMoveHelper.MoveLeft(endPos, this.editorStatus.RootNode, this.regelwerk);
             deleteArea.EndPos.SetPos(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
             await deleteArea.SelektionOptimieren();
 
@@ -530,7 +543,7 @@ namespace de.springwald.xml.editor.actions
             var deleteArea = new XMLCursor();
             deleteArea.StartPos.SetPos(position.AktNode, position.PosAmNode, position.PosImTextnode);
             var endPos = deleteArea.StartPos.Clone();
-            await endPos.MoveRight(this.editorStatus.RootNode, this.regelwerk);
+            await CursorPosMoveHelper.MoveRight(endPos, this.editorStatus.RootNode, this.regelwerk);
             deleteArea.EndPos.SetPos(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
             await deleteArea.SelektionOptimieren();
 

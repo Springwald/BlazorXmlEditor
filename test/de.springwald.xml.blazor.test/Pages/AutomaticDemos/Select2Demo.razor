@@ -75,7 +75,7 @@
                 this.forward = false;
             }
 
-            await cursorStatus.EndPos.MoveRight(xmlDocument.DocumentElement, this.editorContext.XmlRules);
+            await this.editorContext.Actions.MoveRight(cursorStatus.EndPos);
         }
         else
         {
@@ -84,7 +84,7 @@
             {
                 this.forward = true;
             }
-            await cursorStatus.EndPos.MoveLeft(xmlDocument.DocumentElement, this.editorContext.XmlRules);
+            await this.editorContext.Actions.MoveLeft(cursorStatus.EndPos);
         }
 
         this.cursorPosStart = $"{cursorStatus.StartPos.AktNode.Name}:{cursorStatus.StartPos.PosAmNode}:{cursorStatus.StartPos.PosImTextnode}";

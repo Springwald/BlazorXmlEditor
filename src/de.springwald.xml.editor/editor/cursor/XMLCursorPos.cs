@@ -82,6 +82,44 @@ namespace de.springwald.xml.cursor
             return ToolboxXML.Node1LiegtVorNode2(node, AktNode);
         }
 
+        /// <summary>
+        /// Sets new values to this cursor pos
+        /// </summary>
+        /// <param name="aktNode"></param>
+        /// <param name="posAmNode"></param>
+        /// <param name="posImTextnode"></param>
+        /// <returns>true, when values where other than before</returns>
+        public bool SetPos(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode, int posImTextnode = 0)
+        {
+            bool changed;
+            if (aktNode != this.AktNode)
+            {
+                changed = true;
+            }
+            else
+            {
+                if (posAmNode != this.PosAmNode)
+                {
+                    changed = true;
+                }
+                else
+                {
+                    if (posImTextnode != this.PosImTextnode)
+                    {
+                        changed = true;
+                    }
+                    else
+                    {
+                        changed = false;
+                    }
+                }
+            }
+
+            this.AktNode = aktNode;
+            this.PosAmNode = posAmNode;
+            this.PosImTextnode = posImTextnode;
+            return changed;
+        }
 
 
     }

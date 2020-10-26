@@ -93,12 +93,12 @@ namespace de.springwald.xml.editor
                     case Keys.Left: // move cursor to left
                         if (e.ShiftKey)
                         {
-                            await this.editorState.CursorRoh.EndPos.MoveLeft(this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveLeft(this.editorState.CursorRoh.EndPos, this.editorState.RootNode, this.regelwerk);
                         }
                         else
                         {
                             dummy = this.editorState.CursorRoh.StartPos.Clone();
-                            await dummy.MoveLeft(this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveLeft(dummy, this.editorState.RootNode, this.regelwerk);
                             await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
                         }
                         useKeyContent = false;
@@ -107,12 +107,12 @@ namespace de.springwald.xml.editor
                     case Keys.Right: // move cursor to right
                         if (e.ShiftKey)
                         {
-                            await this.editorState.CursorRoh.EndPos.MoveRight(this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveRight(this.editorState.CursorRoh.EndPos, this.editorState.RootNode, this.regelwerk);
                         }
                         else
                         {
                             dummy = this.editorState.CursorRoh.StartPos.Clone();
-                            await dummy.MoveRight(this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveRight(dummy, this.editorState.RootNode, this.regelwerk);
                             await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
                         }
                         useKeyContent = false;
