@@ -28,7 +28,6 @@ namespace de.springwald.xml
     /// </summary>
     public class XMLRegelwerk
     {
-        private DTD _dtd;                   // Wenn eine DTD zugewiesen ist, dann steht diese hier
         private DTDPruefer _dtdPruefer;
         private DTDNodeEditCheck _checker;
 
@@ -44,11 +43,11 @@ namespace de.springwald.xml
             {
                 if (_dtdPruefer == null) // Noch kein DTD-Prüfer instanziert
                 {
-                    if (_dtd == null) // Noch keine DTD zugewiesen
+                    if (this.DTD == null) // Noch keine DTD zugewiesen
                     {
                         throw new ApplicationException("No DTD attached!");
                     }
-                    _dtdPruefer = new DTDPruefer(_dtd); // Neuen DTD-Prüfer für die DTD erzeugen
+                    _dtdPruefer = new DTDPruefer(this.DTD); // Neuen DTD-Prüfer für die DTD erzeugen
                 }
                 return _dtdPruefer;
             }
@@ -57,10 +56,7 @@ namespace de.springwald.xml
         /// <summary>
         /// Wenn eine DTD zugewiesen ist, dann steht diese hier
         /// </summary>
-        public DTD DTD
-        {
-            get { return _dtd; }
-        }
+        public DTD DTD { get; }
 
         /// <summary>
         /// Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können
@@ -79,12 +75,12 @@ namespace de.springwald.xml
 
         public XMLRegelwerk(DTD dtd)
         {
-            _dtd = dtd;
+            this.DTD = dtd;
         }
 
         public XMLRegelwerk()
         {
-            _dtd = null;
+            this.DTD = null;
         }
 
         /// <summary>
@@ -134,7 +130,7 @@ namespace de.springwald.xml
         {
             if (xmlNode is System.Xml.XmlText) return false;
 
-            DTDElement element = _dtd.DTDElementByNode_(xmlNode, false); // Das betroffene DTD-Element holen
+            DTDElement element = this.DTD.DTDElementByNode_(xmlNode, false); // Das betroffene DTD-Element holen
 
             if (element != null)
             {
@@ -183,7 +179,7 @@ namespace de.springwald.xml
 
             if (zielPunkt.AktNode == null) return new string[] { }; // Wenn nichts gewählt ist, ist auch nichts erlaubt
 
-            if (this._dtd == null) // Keine DTD hinterlegt
+            if (this.DTD == null) // Keine DTD hinterlegt
             {
                 return new string[] { "" }; // Freie Eingabe erlaubt
             }
@@ -191,7 +187,7 @@ namespace de.springwald.xml
             {
                 if (_checker == null)
                 {
-                    _checker = new DTDNodeEditCheck(_dtd);
+                    _checker = new DTDNodeEditCheck(this.DTD);
                 }
                 return _checker.AnDieserStelleErlaubteTags_(zielPunkt, pcDATAMitAuflisten, kommentareMitAuflisten);
             }
