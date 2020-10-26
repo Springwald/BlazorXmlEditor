@@ -20,7 +20,7 @@ namespace de.springwald.xml.cursor
                 case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
                 case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
                     // Vor den Node setzen
-                    await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorVorDemNode);
+                    SetPos(AktNode, XMLCursorPositionen.CursorVorDemNode);
                     break;
 
                 case XMLCursorPositionen.CursorVorDemNode:
@@ -28,12 +28,12 @@ namespace de.springwald.xml.cursor
                     {
                         if (node.PreviousSibling != null) // Vorheriger Geschwisterknoten vorhanden
                         {
-                            await CursorSetzenMitChangeEventWennGeaendert(node.PreviousSibling, XMLCursorPositionen.CursorHinterDemNode);
+                            SetPos(node.PreviousSibling, XMLCursorPositionen.CursorHinterDemNode);
                             await MoveLeft(rootnode, regelwerk);
                         }
                         else // kein vorheriger Geschwisterknoten vorhanden
                         {
-                            await CursorSetzenMitChangeEventWennGeaendert(node.ParentNode, XMLCursorPositionen.CursorVorDemNode);
+                            SetPos(node.ParentNode, XMLCursorPositionen.CursorVorDemNode);
                         }
                     }
                     else
@@ -45,7 +45,7 @@ namespace de.springwald.xml.cursor
                 case XMLCursorPositionen.CursorHinterDemNode:
                     if (ToolboxXML.IstTextOderKommentarNode(node)) // Bei einem Textnode wird der Cursor hinter das letzte Zeichen gesetzt
                     {
-                        await CursorSetzenMitChangeEventWennGeaendert(node, XMLCursorPositionen.CursorInnerhalbDesTextNodes, Math.Max(0,ToolboxXML.TextAusTextNodeBereinigt(node).Length - 1));
+                        SetPos(node, XMLCursorPositionen.CursorInnerhalbDesTextNodes, Math.Max(0,ToolboxXML.TextAusTextNodeBereinigt(node).Length - 1));
                     }
                     else
                     {
@@ -54,24 +54,24 @@ namespace de.springwald.xml.cursor
                             if (regelwerk.IstSchliessendesTagSichtbar(node))
                             {
                                 // Wenn der Cursor ein Schließen-Tag anzeigt, dann in den leeren Node setzen
-                                await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorInDemLeeremNode);
+                                SetPos(AktNode, XMLCursorPositionen.CursorInDemLeeremNode);
                             }
                             else
                             {
                                 // Wenn der Cursor kein Schließen-Tag anzeige, dann vor den leeren Node setzen
-                                await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorVorDemNode);
+                                SetPos(AktNode, XMLCursorPositionen.CursorVorDemNode);
                             }
                         }
                         else // Im Node sind Children
                         {
-                            await CursorSetzenMitChangeEventWennGeaendert(node.LastChild, XMLCursorPositionen.CursorHinterDemNode);
+                            SetPos(node.LastChild, XMLCursorPositionen.CursorHinterDemNode);
                         }
                     }
                     break;
 
                 case XMLCursorPositionen.CursorInDemLeeremNode:
                     // Vor den Node setzen
-                    await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorVorDemNode);
+                    SetPos(AktNode, XMLCursorPositionen.CursorVorDemNode);
                     break;
 
                 case XMLCursorPositionen.CursorInnerhalbDesTextNodes:
@@ -79,12 +79,12 @@ namespace de.springwald.xml.cursor
                     {
                         if (PosImTextnode > 1)
                         {  // Cursor ein Zeichen nach links
-                            await CursorSetzenMitChangeEventWennGeaendert(AktNode, PosAmNode, PosImTextnode - 1);
+                            SetPos(AktNode, PosAmNode, PosImTextnode - 1);
                         }
                         else
                         {
                             // Vor den Node setzen
-                            await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorVorDemNode);
+                            SetPos(AktNode, XMLCursorPositionen.CursorVorDemNode);
                         }
                     }
                     else // Kein Textnode
@@ -115,14 +115,14 @@ namespace de.springwald.xml.cursor
                 case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
                 case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
                     // Hinter den Node setzen
-                    await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorHinterDemNode);
+                    SetPos(AktNode, XMLCursorPositionen.CursorHinterDemNode);
                     break;
 
                 case XMLCursorPositionen.CursorHinterDemNode:
                     if (node.NextSibling != null) // Folgegeschwister vorhanden
                     {
                         // Vor das nächste Geschwister setzen
-                        await CursorSetzenMitChangeEventWennGeaendert(node.NextSibling, XMLCursorPositionen.CursorVorDemNode);
+                        SetPos(node.NextSibling, XMLCursorPositionen.CursorVorDemNode);
                         // Da "hinter dem ersten" genauso aussieht wie "vor dem zweiten", noch
                         // einen Schritt weiter nach rechts bewegen
                         await MoveRight(rootnode, regelwerk);
@@ -131,7 +131,7 @@ namespace de.springwald.xml.cursor
                     {
                         if (node.ParentNode != rootnode)
                         {
-                            await CursorSetzenMitChangeEventWennGeaendert(node.ParentNode, XMLCursorPositionen.CursorHinterDemNode);
+                            SetPos(node.ParentNode, XMLCursorPositionen.CursorHinterDemNode);
                             if (!regelwerk.IstSchliessendesTagSichtbar(node.ParentNode))
                             { // Wenn für den Parent kein geschlossenes Tag angezeigt wird, dann noch einen weiter nach rechts
                                 await MoveRight(rootnode, regelwerk);
@@ -146,7 +146,7 @@ namespace de.springwald.xml.cursor
 
                 case XMLCursorPositionen.CursorInDemLeeremNode:
                     // Hinter den Node setzen
-                    await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorHinterDemNode);
+                    SetPos(AktNode, XMLCursorPositionen.CursorHinterDemNode);
                     break;
 
                 case XMLCursorPositionen.CursorVorDemNode:
@@ -154,12 +154,12 @@ namespace de.springwald.xml.cursor
                     {
                         if (ToolboxXML.TextAusTextNodeBereinigt(node).Length > 1) // Textnode ist nicht leer
                         {
-                            await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, 1); // ein Zeichen vor, also hinter das erste Zeichen
+                            SetPos(AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, 1); // ein Zeichen vor, also hinter das erste Zeichen
                         }
                         else  // Textnode ist leer
                         {
                             // Hinter den Node setzen
-                            await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorHinterDemNode);
+                            SetPos(AktNode, XMLCursorPositionen.CursorHinterDemNode);
                         }
                     }
                     else  // Node ist kein Textnode
@@ -169,17 +169,17 @@ namespace de.springwald.xml.cursor
                             if (!regelwerk.IstSchliessendesTagSichtbar(node)) // Wenn für diesen Node kein geschlossenes Tag angezeigt wird, dann direkt hinter den Node
                             {
                                 // Hinter den Node setzen
-                                await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorHinterDemNode);
+                                SetPos(AktNode, XMLCursorPositionen.CursorHinterDemNode);
                             }
                             else  // Node hat schließendes Tag, also dazwischen setzen
                             {
                                 // In den leeren Node setzen
-                                await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorInDemLeeremNode);
+                                SetPos(AktNode, XMLCursorPositionen.CursorInDemLeeremNode);
                             }
                         }
                         else // Children vorhanden
                         {
-                            await CursorSetzenMitChangeEventWennGeaendert(node.FirstChild, XMLCursorPositionen.CursorVorDemNode);
+                            SetPos(node.FirstChild, XMLCursorPositionen.CursorVorDemNode);
                         }
                     }
                     break;
@@ -190,7 +190,7 @@ namespace de.springwald.xml.cursor
                         if (ToolboxXML.TextAusTextNodeBereinigt(node).Length > PosImTextnode + 1) // es folgt rechts noch Text im Textnode
                         {
                             // ein Zeichen vor, also hinter das erste Zeichen
-                            await CursorSetzenMitChangeEventWennGeaendert(AktNode, PosAmNode, PosImTextnode + 1);
+                            SetPos(AktNode, PosAmNode, PosImTextnode + 1);
 
                             /*if ((XMLEditor.TextAusTextNodeBereinigt(node).Length == cursor.PosInNode) && (node.NextSibling != null)) 
                             {
@@ -202,7 +202,7 @@ namespace de.springwald.xml.cursor
                         else  // es folgt kein Text im Textnode
                         {
                             // Cursor hinter den Node setzen
-                            await CursorSetzenMitChangeEventWennGeaendert(AktNode, XMLCursorPositionen.CursorHinterDemNode);
+                            SetPos(AktNode, XMLCursorPositionen.CursorHinterDemNode);
                         }
                     }
                     else // Node ist kein Textnode
@@ -219,72 +219,90 @@ namespace de.springwald.xml.cursor
         }
 
         /// <summary>
-        /// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
+        /// Sets new values to this cursor pos
         /// </summary>
         /// <param name="aktNode"></param>
-        /// <param name="posInNode"></param>
+        /// <param name="posAmNode"></param>
         /// <param name="posImTextnode"></param>
-        public async Task CursorSetzenMitChangeEventWennGeaendert(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode, int posImTextnode)
+        /// <returns>true, when values where other than before</returns>
+        public bool SetPos(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode, int posImTextnode = 0)
         {
-            bool geaendert;
+            bool changed;
             if (aktNode != _aktNode)
             {
-                geaendert = true;
+                changed = true;
             }
             else
             {
                 if (posAmNode != _posAmNode)
                 {
-                    geaendert = true;
+                    changed = true;
                 }
                 else
                 {
                     if (posImTextnode != _posImTextnode)
                     {
-                        geaendert = true;
+                        changed = true;
                     }
                     else
                     {
-                        geaendert = false;
+                        changed = false;
                     }
                 }
             }
-            this.CursorSetzenOhneChangeEvent(aktNode, posAmNode, posImTextnode);
-            if (geaendert) await this.PosChangedEvent.Trigger(EventArgs.Empty); // Bescheid geben, dass nun der Cursor geändert wurde
+
+            this._aktNode = aktNode;
+            this._posAmNode = posAmNode;
+            this._posImTextnode = posImTextnode;
+            return changed;
         }
 
-        /// <summary>
-        /// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
-        /// </summary>
-        /// <param name="aktNode"></param>
-        /// <param name="posInNode"></param>
-        /// <param name="posImTextnode"></param>
-        public void CursorSetzenOhneChangeEvent(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode, int posImTextnode)
-        {
-            _aktNode = aktNode;
-            _posAmNode = posAmNode;
-            _posImTextnode = posImTextnode;
-        }
+        ///// <summary>
+        ///// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
+        ///// </summary>
+        ///// <param name="aktNode"></param>
+        ///// <param name="posInNode"></param>
+        ///// <param name="posImTextnode"></param>
+        //public async Task CursorSetzenMitChangeEventWennGeaendert(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode, int posImTextnode = 0)
+        //{
+        //    bool geaendert;
+        //    if (aktNode != _aktNode)
+        //    {
+        //        geaendert = true;
+        //    }
+        //    else
+        //    {
+        //        if (posAmNode != _posAmNode)
+        //        {
+        //            geaendert = true;
+        //        }
+        //        else
+        //        {
+        //            if (posImTextnode != _posImTextnode)
+        //            {
+        //                geaendert = true;
+        //            }
+        //            else
+        //            {
+        //                geaendert = false;
+        //            }
+        //        }
+        //    }
+        //    this.CursorSetzenOhneChangeEvent(aktNode, posAmNode, posImTextnode);
+        //    if (geaendert) await this.PosChangedEvent.Trigger(EventArgs.Empty); // Bescheid geben, dass nun der Cursor geändert wurde
+        //}
 
-        /// <summary>
-        /// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
-        /// </summary>
-        /// <param name="aktNode"></param>
-        /// <param name="posInNode"></param>
-        public async Task CursorSetzenMitChangeEventWennGeaendert(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode)
-        {
-            await this.CursorSetzenMitChangeEventWennGeaendert(aktNode, posAmNode, 0);
-        }
-
-        /// <summary>
-        /// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
-        /// </summary>
-        /// <param name="aktNode"></param>
-        /// <param name="posInNode"></param>
-        public void CursorSetzenOhneChangeEvent(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode)
-        {
-            this.CursorSetzenOhneChangeEvent(aktNode, posAmNode, 0);
-        }
-
+        ///// <summary>
+        ///// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
+        ///// </summary>
+        ///// <param name="aktNode"></param>
+        ///// <param name="posInNode"></param>
+        ///// <param name="posImTextnode"></param>
+        //public void CursorSetzenOhneChangeEvent(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode, int posImTextnode = 0)
+        //{
+        //    _aktNode = aktNode;
+        //    _posAmNode = posAmNode;
+        //    _posImTextnode = posImTextnode;
+        //}
     }
 }

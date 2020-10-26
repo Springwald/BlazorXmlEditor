@@ -142,13 +142,14 @@ namespace de.springwald.xml.editor
                         case XMLCursorPositionen.CursorInnerhalbDesTextNodes:
                         case XMLCursorPositionen.CursorVorDemNode:
                             // Ende des Einfügens liegt einem Text oder vor dem Node
-                            await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
+                            await this.editorStatus.CursorRoh.SetPositions(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode, throwChangedEventWhenValuesChanged:false);
                             break;
                         default:
                             // Ende des Einfügens liegt hinter dem letzten eingefügten Node
-                            await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(endPos.AktNode, XMLCursorPositionen.CursorHinterDemNode);
+                            await this.editorStatus.CursorRoh.SetPositions(endPos.AktNode, XMLCursorPositionen.CursorHinterDemNode, textPosInBothNodes: 0, throwChangedEventWhenValuesChanged: false);
                             break;
                     }
+                    await this.editorStatus.FireContentChangedEvent();
                     return true;
                 }
                 else // Kein Text in der Zwischenablage
@@ -160,9 +161,6 @@ namespace de.springwald.xml.editor
             {
                 this.nativePlatform.ProtokolliereFehler(
                     String.Format("AktionPasteFromClipboard:Fehler für Einfügetext '{0}':{1}", text, e.Message));
-
-#warning Hier noch beep
-
                 return false;
             }
         }
@@ -224,7 +222,7 @@ namespace de.springwald.xml.editor
                 }
 
                 var startPos = new XMLCursorPos();
-                startPos.CursorSetzenOhneChangeEvent(this.editorStatus.RootNode, XMLCursorPositionen.CursorInDemLeeremNode);
+                startPos.SetPos(this.editorStatus.RootNode, XMLCursorPositionen.CursorInDemLeeremNode);
                 XMLCursorPos endPos;
 
                 // Nun alle Children des virtuellen Root-Node nacheinander an der CursorPos einfügen
@@ -234,11 +232,8 @@ namespace de.springwald.xml.editor
                     var child = pasteNode.RemoveChild(pasteNode.FirstChild);
                     this.editorStatus.RootNode.AppendChild(child);
                 }
-
+                await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, 0, throwChangedEventWhenValuesChanged: false);
                 await this.editorStatus.FireContentChangedEvent();
-                this.editorStatus.CursorRoh.BeideCursorPosSetzenOhneChangeEvent(this.editorStatus.RootNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
-                await this.editorStatus.CursorRoh.ErzwingeChanged();
-
                 return true;
             }
             catch (Exception e)
@@ -265,8 +260,8 @@ namespace de.springwald.xml.editor
             {
                 try
                 {
-                    this.nativePlatform.Clipboard.Clear();
-                    this.nativePlatform.Clipboard.SetText(content); // Selektion als Text in die Zwischenablage kopieren
+                    await this.nativePlatform.Clipboard.Clear();
+                    await this.nativePlatform.Clipboard.SetText(content); // Selektion als Text in die Zwischenablage kopieren
                 }
                 catch (Exception)
                 {
@@ -292,12 +287,12 @@ namespace de.springwald.xml.editor
                 if (this.editorStatus.RootNode.FirstChild != null)
                 {
                     // Vor das erste Child des Rootnodes
-                    await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(this.editorStatus.RootNode.FirstChild, XMLCursorPositionen.CursorVorDemNode);
+                    await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode.FirstChild, XMLCursorPositionen.CursorVorDemNode,0, throwChangedEventWhenValuesChanged: true);
                 }
                 else
                 {
                     // In den leeren Rootnode
-                    await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(this.editorStatus.RootNode, XMLCursorPositionen.CursorInDemLeeremNode);
+                    await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode, XMLCursorPositionen.CursorInDemLeeremNode, 0, throwChangedEventWhenValuesChanged: true);
                 }
                 return true;
             }
@@ -310,7 +305,7 @@ namespace de.springwald.xml.editor
         public virtual async Task<bool> AktionAllesMarkieren()
         {
             // Den Rootnode selbst markieren
-            await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(this.editorStatus.RootNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+            await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, 0, throwChangedEventWhenValuesChanged: true);
             return true;
         }
 
@@ -320,7 +315,6 @@ namespace de.springwald.xml.editor
         /// <returns></returns>
         public virtual async Task<bool> AktionCutToClipboard(UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
-
             if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
             if (this.editorStatus.CursorOptimiert.StartPos.AktNode == this.editorStatus.RootNode)
@@ -376,7 +370,7 @@ namespace de.springwald.xml.editor
             var deleteResult = await optimized.SelektionLoeschen();
             if (deleteResult.Success)
             {
-                await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode);
+                await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
                 await this.editorStatus.FireContentChangedEvent();
                 return true;
             }
@@ -490,10 +484,10 @@ namespace de.springwald.xml.editor
 
             // Den Cursor eine Pos nach links
             var deleteArea = new XMLCursor();
-            deleteArea.StartPos.CursorSetzenOhneChangeEvent(position.AktNode, position.PosAmNode, position.PosImTextnode);
+            deleteArea.StartPos.SetPos(position.AktNode, position.PosAmNode, position.PosImTextnode);
             var endPos = deleteArea.StartPos.Clone();
             await endPos.MoveLeft(this.editorStatus.RootNode, this.regelwerk);
-            deleteArea.EndPos.CursorSetzenOhneChangeEvent(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
+            deleteArea.EndPos.SetPos(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
             await deleteArea.SelektionOptimieren();
 
             if (deleteArea.StartPos.AktNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
@@ -509,7 +503,7 @@ namespace de.springwald.xml.editor
             if (deleteResult.Success)
             {
                 // Nach erfolgreichem Löschen wird hier die neue CursorPos zurückgeholt
-                await this.editorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode);
+                await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
                 await this.editorStatus.FireContentChangedEvent(); // Bescheid sagen, dass der Inhalt des XMLs sich geändert hat
                 return true;
             }
@@ -535,10 +529,10 @@ namespace de.springwald.xml.editor
             }
 
             var deleteArea = new XMLCursor();
-            deleteArea.StartPos.CursorSetzenOhneChangeEvent(position.AktNode, position.PosAmNode, position.PosImTextnode);
+            deleteArea.StartPos.SetPos(position.AktNode, position.PosAmNode, position.PosImTextnode);
             var endPos = deleteArea.StartPos.Clone();
             await endPos.MoveRight(this.editorStatus.RootNode, this.regelwerk);
-            deleteArea.EndPos.CursorSetzenOhneChangeEvent(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
+            deleteArea.EndPos.SetPos(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
             await deleteArea.SelektionOptimieren();
 
             if (deleteArea.StartPos.AktNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
@@ -547,10 +541,7 @@ namespace de.springwald.xml.editor
             if (deleteResult.Success)
             {
                 // Nach erfolgreichem Löschen wird hier die neue CursorPos zurückgeholt
-                this.editorStatus.CursorRoh.BeideCursorPosSetzenOhneChangeEvent(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode);
-                await this.editorStatus.CursorRoh.ErzwingeChanged();	// Weil der Cursor nach dem löschen des folgenden Zeichen nachher exakt noch an der
-                // selben Stelle steht, wird kein automatischer Change-Event ausgeführt, sondern muss
-                // hier manuell erzwungen werden
+                await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
                 await this.editorStatus.FireContentChangedEvent();
                 return true;
             }

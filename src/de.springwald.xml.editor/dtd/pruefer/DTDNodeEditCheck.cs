@@ -125,7 +125,7 @@ namespace de.springwald.xml.dtd
 			else 
 			{
 				XMLCursorPos cursorPos = new XMLCursorPos();
-				cursorPos.CursorSetzenOhneChangeEvent(node,XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+				cursorPos.SetPos(node,XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
 
                 #if DenkProtokoll
 				_denkProtokoll=new StringBuilder();

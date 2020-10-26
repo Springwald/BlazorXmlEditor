@@ -8,7 +8,9 @@
 // Licensed under MIT License
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace de.springwald.xml.cursor
 {
@@ -16,7 +18,7 @@ namespace de.springwald.xml.cursor
 
     public enum MausKlickAktionen { MouseDown, MouseDownMove, MouseUp };
 
-    public partial class XMLCursor: IDisposable
+    public partial class XMLCursor : IDisposable
     {
         /// <summary>
         /// Event definieren, wenn sich der Cursor geändert hat
@@ -39,17 +41,34 @@ namespace de.springwald.xml.cursor
             EndPos = new XMLCursorPos();
             StartPos = new XMLCursorPos();
             this.ChangedEvent = new XmlAsyncEvent<EventArgs>();
-
-            EndPos.PosChangedEvent.Add(this.endPos_ChangedEvent);
-            StartPos.PosChangedEvent.Add(this.startPos_ChangedEvent);
         }
 
         public void Dispose()
         {
-            EndPos.PosChangedEvent.Remove(this.endPos_ChangedEvent);
-            StartPos.PosChangedEvent.Remove(this.startPos_ChangedEvent);
         }
 
+        public async Task SetPositions(XmlNode bothNodes, XMLCursorPositionen posAtBothNodes, int textPosInBothNodes, bool throwChangedEventWhenValuesChanged)
+        {
+            await this.SetPositions(
+                bothNodes, posAtBothNodes, textPosInBothNodes,
+                bothNodes, posAtBothNodes, textPosInBothNodes,
+                throwChangedEventWhenValuesChanged);
+        }
+
+        public async Task SetPositions(
+            XmlNode startNode, XMLCursorPositionen posAtStartNode, int textPosInStartNode,
+            XmlNode endNode, XMLCursorPositionen posAtEndNode, int textPosInEndNode, bool throwChangedEventWhenValuesChanged)
+        {
+            var changed = false;
+            if (throwChangedEventWhenValuesChanged)
+            {
+                changed = (startNode != this.StartPos.AktNode || posAtStartNode != this.StartPos.PosAmNode || textPosInStartNode != this.StartPos.PosImTextnode ||
+                    endNode != this.EndPos.AktNode || posAtEndNode != this.EndPos.PosAmNode || textPosInEndNode != this.EndPos.PosImTextnode);
+            }
+            this.StartPos.SetPos(StartPos.AktNode, StartPos.PosAmNode, StartPos.PosImTextnode);
+            this.EndPos.SetPos(EndPos.AktNode, EndPos.PosAmNode, EndPos.PosImTextnode);
+            if (changed) await ChangedEvent.Trigger(EventArgs.Empty);
+        }
 
         public bool Equals(XMLCursor second)
         {
@@ -63,8 +82,8 @@ namespace de.springwald.xml.cursor
         public XMLCursor Clone()
         {
             XMLCursor klon = new XMLCursor();
-            klon.StartPos.CursorSetzenOhneChangeEvent(StartPos.AktNode, StartPos.PosAmNode, StartPos.PosImTextnode);
-            klon.EndPos.CursorSetzenOhneChangeEvent(EndPos.AktNode, EndPos.PosAmNode, EndPos.PosImTextnode);
+            klon.StartPos.SetPos(StartPos.AktNode, StartPos.PosAmNode, StartPos.PosImTextnode);
+            klon.EndPos.SetPos(EndPos.AktNode, EndPos.PosAmNode, EndPos.PosImTextnode);
             return klon;
         }
 
@@ -86,8 +105,8 @@ namespace de.springwald.xml.cursor
         {
             // Cursor setzen
             _cursorWirdGeradeGesetzt = true;
-            StartPos.CursorSetzenOhneChangeEvent(node, posAmNode, posImTextnode);
-            EndPos.CursorSetzenOhneChangeEvent(node, posAmNode, posImTextnode);
+            StartPos.SetPos(node, posAmNode, posImTextnode);
+            EndPos.SetPos(node, posAmNode, posImTextnode);
             _cursorWirdGeradeGesetzt = false;
         }
 
@@ -184,12 +203,15 @@ namespace de.springwald.xml.cursor
             {
                 case MausKlickAktionen.MouseDown:
                     // den Cursor an die neue Position setzen
-                    await BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlNode, cursorPos, posInZeile);
+                    await SetPositions(xmlNode, cursorPos, posInZeile, throwChangedEventWhenValuesChanged: true);
                     break;
                 case MausKlickAktionen.MouseDownMove:
                 case MausKlickAktionen.MouseUp:
                     // Ende des Select-Cursors setzen
-                    await EndPos.CursorSetzenMitChangeEventWennGeaendert(xmlNode, cursorPos, posInZeile);
+                    if (EndPos.SetPos(xmlNode, cursorPos, posInZeile))
+                    {
+                        await this.ErzwingeChanged();
+                    }
                     //Debug.WriteLine(SelektionAlsString);
                     break;
             }

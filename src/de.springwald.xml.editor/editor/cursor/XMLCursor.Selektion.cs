@@ -190,7 +190,7 @@ namespace de.springwald.xml.cursor
         /// </summary>
         /// <param name="cursor"></param>
         /// <param name="neueCursorPosNachLoeschen"></param>
-        public async Task<SelectionLoeschenResult> SelektionLoeschen()
+        internal async Task<SelectionLoeschenResult> SelektionLoeschen()
         {
             // Wenn der Cursor gar keine Auswahl enthält
             if (!IstEtwasSelektiert)
@@ -225,7 +225,7 @@ namespace de.springwald.xml.cursor
                                 {   //der zu löschende Node liegt zwischen zwei Textnodes , daher werden diese zwei Textnodes zu einem zusammengefasst
 
                                     // Nachher steht der Cursor an der Einfügestelle zwischen beiden Textbausteinen
-                                    await neueCursorPosNachLoeschen.CursorSetzenMitChangeEventWennGeaendert(nodeVorher, XMLCursorPositionen.CursorInnerhalbDesTextNodes, nodeVorher.InnerText.Length);
+                                    neueCursorPosNachLoeschen.SetPos(nodeVorher, XMLCursorPositionen.CursorInnerhalbDesTextNodes, nodeVorher.InnerText.Length);
 
                                     nodeVorher.InnerText += nodeDanach.InnerText; // Den Text von Nachher-Node an den Vorhernode anhängen
 
@@ -250,19 +250,19 @@ namespace de.springwald.xml.cursor
                             if (nodeVorher != null)
                             {
                                 // Nach dem Löschen steht der Cursor hinter dem vorherigen Node
-                                await neueCursorPosNachLoeschen.CursorSetzenMitChangeEventWennGeaendert(nodeVorher, XMLCursorPositionen.CursorHinterDemNode);
+                                neueCursorPosNachLoeschen.SetPos(nodeVorher, XMLCursorPositionen.CursorHinterDemNode);
                             }
                             else
                             {
                                 if (nodeDanach != null)
                                 {
                                     // Nach dem Löschen steht der Cursor vor dem folgenden Node
-                                    await neueCursorPosNachLoeschen.CursorSetzenMitChangeEventWennGeaendert(nodeDanach, XMLCursorPositionen.CursorVorDemNode);
+                                    neueCursorPosNachLoeschen.SetPos(nodeDanach, XMLCursorPositionen.CursorVorDemNode);
                                 }
                                 else
                                 {
                                     // Nach dem Löschen steht der Cursor im Parent-Node
-                                    await neueCursorPosNachLoeschen.CursorSetzenMitChangeEventWennGeaendert(loeschNode.ParentNode, XMLCursorPositionen.CursorInDemLeeremNode);
+                                    neueCursorPosNachLoeschen.SetPos(loeschNode.ParentNode, XMLCursorPositionen.CursorInDemLeeremNode);
                                 }
                             }
 
@@ -281,7 +281,7 @@ namespace de.springwald.xml.cursor
                             if (ToolboxXML.IstTextOderKommentarNode(StartPos.AktNode))
                             {
                                 // Den Cursor in den Textnode vor dem ersten Zeichen setzen und dann neu abschicken
-                                await StartPos.CursorSetzenMitChangeEventWennGeaendert(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, 0);
+                                StartPos.SetPos(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, 0);
                                 return await SelektionLoeschen(); // zum löschen neu abschicken
                             }
                             else
@@ -297,7 +297,7 @@ namespace de.springwald.xml.cursor
                             if (ToolboxXML.IstTextOderKommentarNode(StartPos.AktNode))
                             {
                                 // Den Cursor in den Textnode vor dem ersten Zeichen setzen und dann neu abschicken
-                                await StartPos.CursorSetzenMitChangeEventWennGeaendert(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, StartPos.AktNode.InnerText.Length);
+                                StartPos.SetPos(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, StartPos.AktNode.InnerText.Length);
                                 return await SelektionLoeschen();// zum löschen neu abschicken
                             }
                             else
@@ -338,11 +338,11 @@ namespace de.springwald.xml.cursor
                                 if (startpos == 0) // Der Cursor steht vor dem ersten Zeichen
                                 {
                                     // dann kann er besser vor den Textnode selbst gestellt werden
-                                    await neueCursorPosNachLoeschen.CursorSetzenMitChangeEventWennGeaendert(StartPos.AktNode, XMLCursorPositionen.CursorVorDemNode);
+                                    neueCursorPosNachLoeschen.SetPos(StartPos.AktNode, XMLCursorPositionen.CursorVorDemNode);
                                 }
                                 else
                                 {
-                                    await neueCursorPosNachLoeschen.CursorSetzenMitChangeEventWennGeaendert(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, startpos);
+                                    neueCursorPosNachLoeschen.SetPos(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, startpos);
                                 }
 
                                 return new SelectionLoeschenResult
@@ -382,12 +382,12 @@ namespace de.springwald.xml.cursor
 
                     // den Endnode oder einen Teil von ihm löschen
                     XMLCursor temp = this.Clone();
-                    await temp.StartPos.CursorSetzenMitChangeEventWennGeaendert(EndPos.AktNode, XMLCursorPositionen.CursorVorDemNode);
+                    temp.StartPos.SetPos(EndPos.AktNode, XMLCursorPositionen.CursorVorDemNode);
                     await temp.SelektionLoeschen();
 
                     // den Startnode, oder einen Teil von ihm löschen
                     // -> Geschieht durch Rekursion in der Selektion-Loeschen-Methode
-                    await EndPos.CursorSetzenMitChangeEventWennGeaendert(StartPos.AktNode, XMLCursorPositionen.CursorHinterDemNode);
+                    EndPos.SetPos(StartPos.AktNode, XMLCursorPositionen.CursorHinterDemNode);
                     return await SelektionLoeschen();
                 }
             }
@@ -412,8 +412,8 @@ namespace de.springwald.xml.cursor
                     // beide Positionen am selben Node tauschen
                     dummyPos = StartPos.PosAmNode;
                     dummyTextPos = StartPos.PosImTextnode;
-                    await StartPos.CursorSetzenMitChangeEventWennGeaendert(EndPos.AktNode, EndPos.PosAmNode, EndPos.PosImTextnode);
-                    await EndPos.CursorSetzenMitChangeEventWennGeaendert(EndPos.AktNode, dummyPos, dummyTextPos);
+                    StartPos.SetPos(EndPos.AktNode, EndPos.PosAmNode, EndPos.PosImTextnode);
+                    EndPos.SetPos(EndPos.AktNode, dummyPos, dummyTextPos);
                 }
                 else // StartPos lag nicht hinter Endpos
                 {
@@ -423,8 +423,8 @@ namespace de.springwald.xml.cursor
                         if (StartPos.PosImTextnode > EndPos.PosImTextnode) // Wenn die TextStartpos hinter der TextEndpos liegt, dann wechseln
                         {   // Textauswahl tauschen
                             dummyTextPos = StartPos.PosImTextnode;
-                            await StartPos.CursorSetzenMitChangeEventWennGeaendert(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, EndPos.PosImTextnode);
-                            await EndPos.CursorSetzenMitChangeEventWennGeaendert(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, dummyTextPos);
+                            StartPos.SetPos(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, EndPos.PosImTextnode);
+                            EndPos.SetPos(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, dummyTextPos);
                         }
                     }
                 }
@@ -442,7 +442,7 @@ namespace de.springwald.xml.cursor
                 // Wenn der EndNode im StartNode liegt, den gesamten, umgebenden Startnode selektieren
                 if (ToolboxXML.IstChild(EndPos.AktNode, StartPos.AktNode))
                 {
-                    await BeideCursorPosSetzenMitChangeEventWennGeaendert(StartPos.AktNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                    await SetPositions(StartPos.AktNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, 0, throwChangedEventWhenValuesChanged: false);
                 }
 
                 // Den ersten gemeinsamen Parent von Start und Ende finden, und in dieser Höhe die Nodes selektieren.
@@ -458,8 +458,8 @@ namespace de.springwald.xml.cursor
                     System.Xml.XmlNode nodeEnde = EndPos.AktNode;
                     while (nodeEnde.ParentNode != gemeinsamerParent) nodeEnde = nodeEnde.ParentNode;
                     // - schließlich die neuen Start- und End-Nodes anzeigen  
-                    await StartPos.CursorSetzenMitChangeEventWennGeaendert(nodeStart, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
-                    await EndPos.CursorSetzenMitChangeEventWennGeaendert(nodeEnde, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                     StartPos.SetPos(nodeStart, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                     EndPos.SetPos(nodeEnde, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
                 }
             }
         }

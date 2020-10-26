@@ -72,7 +72,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Indicates whether something is selected in the editor
         /// </summary>
-        public bool IstEtwasSelektiert =>this.CursorOptimiert.IstEtwasSelektiert;
+        public bool IstEtwasSelektiert => this.CursorOptimiert.IstEtwasSelektiert;
 
         public XMLUndoHandler UndoHandler { get; internal set; }
 
@@ -137,8 +137,11 @@ namespace de.springwald.xml.editor
                 XMLCursor c = this.UndoHandler.Undo();
                 if (c != null) // Wenn für diesen UndoSchritt eine CursorPos gespeichert war
                 {
-                    await this.CursorRoh.StartPos.CursorSetzenMitChangeEventWennGeaendert(c.StartPos.AktNode, c.StartPos.PosAmNode, c.StartPos.PosImTextnode);
-                    await this.CursorRoh.EndPos.CursorSetzenMitChangeEventWennGeaendert(c.EndPos.AktNode, c.EndPos.PosAmNode, c.EndPos.PosImTextnode);
+
+                    await this.CursorRoh.SetPositions(
+                        c.StartPos.AktNode, c.StartPos.PosAmNode, c.StartPos.PosImTextnode,
+                        c.EndPos.AktNode, c.EndPos.PosAmNode, c.EndPos.PosImTextnode,
+                         throwChangedEventWhenValuesChanged: true);
                 }
                 await this.FireContentChangedEvent();
             }

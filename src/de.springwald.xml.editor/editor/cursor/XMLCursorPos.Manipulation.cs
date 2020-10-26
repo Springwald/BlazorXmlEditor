@@ -18,7 +18,7 @@ namespace de.springwald.xml.cursor
         /// <param name="cursor">An dieser Stelle soll eingefügt werden</param>
         /// <param name="ersatzNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
         /// AIML-Template wir * gedrückt, dann wird ein STAR-Tag eingefügt</param>
-        public async Task<TextEinfuegeResult> TextEinfuegen(string rohText, XMLRegelwerk regelwerk)
+        internal async Task<TextEinfuegeResult> TextEinfuegen(string rohText, XMLRegelwerk regelwerk)
         {
             // Den eingegebenen Text im Preprocessing ggf. überarbeiten.
             // In einer AIML-DTD kann dies z.B. bedeuten, dass der
@@ -44,7 +44,7 @@ namespace de.springwald.xml.cursor
                             // Den gewählten Node durch einen neu erzeugten Textnode 
                             System.Xml.XmlText neuerTextNode = AktNode.OwnerDocument.CreateTextNode(text);
                             AktNode.ParentNode.ReplaceChild(AktNode, neuerTextNode);
-                            await CursorSetzenMitChangeEventWennGeaendert(neuerTextNode, XMLCursorPositionen.CursorHinterDemNode);
+                            SetPos(neuerTextNode, XMLCursorPositionen.CursorHinterDemNode);
                         }
                         throw new ApplicationException(String.Format("TextEinfuegen: unbehandelte CursorPos {0}", PosAmNode));
 
@@ -63,7 +63,7 @@ namespace de.springwald.xml.cursor
                             // Dann innerhalb des leeren Nodes einen Textnode mit dem gewünschten Textinhalt erzeugen
                             System.Xml.XmlText neuerTextNode = AktNode.OwnerDocument.CreateTextNode(text);
                             AktNode.AppendChild(neuerTextNode);
-                            await CursorSetzenMitChangeEventWennGeaendert(neuerTextNode, XMLCursorPositionen.CursorHinterDemNode);
+                             SetPos(neuerTextNode, XMLCursorPositionen.CursorHinterDemNode);
                         }
                         else
                         {
@@ -76,7 +76,7 @@ namespace de.springwald.xml.cursor
                         string textNachCursor = AktNode.InnerText.Substring(PosImTextnode, AktNode.InnerText.Length - PosImTextnode);
                         // Das Zeichen der gedrückten Tasten nach dem Cursor einsetzen
                         AktNode.InnerText = textVorCursor + text + textNachCursor;
-                        await CursorSetzenMitChangeEventWennGeaendert(AktNode, PosAmNode, PosImTextnode + text.Length);
+                        SetPos(AktNode, PosAmNode, PosImTextnode + text.Length);
                         break;
 
                     default:
@@ -142,19 +142,19 @@ namespace de.springwald.xml.cursor
             if (neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
             {
                 // Cursor hinter den neuen Node setzen
-                await CursorSetzenMitChangeEventWennGeaendert(node, XMLCursorPositionen.CursorHinterDemNode);
+                SetPos(node, XMLCursorPositionen.CursorHinterDemNode);
             }
             else
             {
                 if (regelwerk.IstSchliessendesTagSichtbar(node))
                 {
                     // Cursor in den neuen Node setzen
-                    await CursorSetzenMitChangeEventWennGeaendert(node, XMLCursorPositionen.CursorInDemLeeremNode);
+                    SetPos(node, XMLCursorPositionen.CursorInDemLeeremNode);
                 }
                 else
                 {
                     // Cursor hinter den neuen Node setzen
-                    await CursorSetzenMitChangeEventWennGeaendert(node, XMLCursorPositionen.CursorHinterDemNode);
+                    SetPos(node, XMLCursorPositionen.CursorHinterDemNode);
                 }
             }
             return true;
@@ -172,14 +172,14 @@ namespace de.springwald.xml.cursor
             if (ToolboxXML.IstTextOderKommentarNode(nodeVorher))  // wenn der Node vorher schon Text ist, dann einfach an ihn anhängen
             {
                 nodeVorher.InnerText += text;
-                await CursorSetzenMitChangeEventWennGeaendert(nodeVorher, XMLCursorPositionen.CursorInnerhalbDesTextNodes, nodeVorher.InnerText.Length);
+                SetPos(nodeVorher, XMLCursorPositionen.CursorInnerhalbDesTextNodes, nodeVorher.InnerText.Length);
             }
             else  // der Node vorher ist kein Text
             {
                 if (ToolboxXML.IstTextOderKommentarNode(nodeNachher))  // wenn der Node dahinter schon Text istm dann einfach an in einfügen
                 {
                     nodeNachher.InnerText = text + nodeNachher.InnerText;
-                    await CursorSetzenMitChangeEventWennGeaendert(nodeNachher, XMLCursorPositionen.CursorInnerhalbDesTextNodes, text.Length);
+                    SetPos(nodeNachher, XMLCursorPositionen.CursorInnerhalbDesTextNodes, text.Length);
                 }
                 else // der Node dahinter ist auch kein Text
                 {

@@ -16,7 +16,7 @@ namespace de.springwald.xml.cursor
         /// <summary>
         /// Fügt den angegebenen Text an der aktuellen Cursorposition ein, sofern möglich
         /// </summary>
-        public async Task TextEinfuegen(string text, de.springwald.xml.XMLRegelwerk regelwerk)
+        internal async Task TextEinfuegen(string text, de.springwald.xml.XMLRegelwerk regelwerk)
         {
             XMLCursorPos einfuegePos;
 
@@ -43,14 +43,13 @@ namespace de.springwald.xml.cursor
             }
 
             // anschließend wird der Cursor nur noch ein Strich hinter dem eingefügten
-            await BeideCursorPosSetzenMitChangeEventWennGeaendert(einfuegePos.AktNode, einfuegePos.PosAmNode, einfuegePos.PosImTextnode);
-
+            await SetPositions(einfuegePos.AktNode, einfuegePos.PosAmNode, einfuegePos.PosImTextnode, throwChangedEventWhenValuesChanged: false);
         }
 
         /// <summary>
         /// Fügt den angegebenen Node an der aktuellen Cursorposition ein, sofern möglich
         /// </summary>
-        public async Task XMLNodeEinfuegen(System.Xml.XmlNode node, de.springwald.xml.XMLRegelwerk regelwerk, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
+        internal async Task XMLNodeEinfuegen(System.Xml.XmlNode node, de.springwald.xml.XMLRegelwerk regelwerk, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
         {
             // Wenn etwas selektiert ist, dann zuerst das löschen, da es ja durch den neuen Text ersetzt wird
             XMLCursor loeschbereich = Clone();
@@ -58,14 +57,14 @@ namespace de.springwald.xml.cursor
             var loeschResult = await loeschbereich.SelektionLoeschen();
             if (loeschResult.Success)
             {
-                await BeideCursorPosSetzenMitChangeEventWennGeaendert(loeschResult.NeueCursorPosNachLoeschen.AktNode, loeschResult.NeueCursorPosNachLoeschen.PosAmNode, loeschResult.NeueCursorPosNachLoeschen.PosImTextnode);
+                await SetPositions(loeschResult.NeueCursorPosNachLoeschen.AktNode, loeschResult.NeueCursorPosNachLoeschen.PosAmNode, loeschResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
             }
 
             // den angegebenen Node an der CursorPosition einfügen
             if (await StartPos.InsertXMLNode(node, regelwerk, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen))
             {
                 // anschließen wird der Cursor nur noch ein Strich hinter dem eingefügten
-                await EndPos.CursorSetzenMitChangeEventWennGeaendert(StartPos.AktNode, StartPos.PosAmNode, StartPos.PosImTextnode);
+                EndPos.SetPos(StartPos.AktNode, StartPos.PosAmNode, StartPos.PosImTextnode);
             }
         }
     }

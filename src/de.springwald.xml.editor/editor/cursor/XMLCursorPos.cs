@@ -14,14 +14,6 @@ namespace de.springwald.xml.cursor
 {
     public partial class XMLCursorPos
     {
-
-
-        /// <summary>
-        /// Event definieren, wenn sich der Cursor geändert hat
-        /// </summary>
-        public XmlAsyncEvent<EventArgs> PosChangedEvent { get; } = new XmlAsyncEvent<EventArgs>();
-
-
         private System.Xml.XmlNode _aktNode;        // Der XMLNode, welcher aktuell den Fokus hat
         private XMLCursorPositionen _posAmNode;     // Dort befindet sich der Cursor innerhalb oder außerhalb des fokusierten XMLNodes
         private int _posImTextnode;                 // Dort befindet sich der Cursor im Fließtext, wenn die Pos CursorInnerhalbDesTextNodes ist
@@ -147,7 +139,7 @@ namespace de.springwald.xml.cursor
         public XMLCursorPos Clone()
         {
             XMLCursorPos klon = new XMLCursorPos();
-            klon.CursorSetzenOhneChangeEvent(this._aktNode, this._posAmNode, this._posImTextnode);
+            klon.SetPos(this._aktNode, this._posAmNode, this._posImTextnode);
             return klon;
         }
 
@@ -171,13 +163,7 @@ namespace de.springwald.xml.cursor
             return ToolboxXML.Node1LiegtVorNode2(node, _aktNode);
         }
 
-        /// <summary>
-        /// Löst den Cursor-Changed-Event manuell aus
-        /// </summary>
-        public async Task ErzwingeChanged()
-        {
-            await this.PosChangedEvent.Trigger(EventArgs.Empty);
-        }
+
 
     }
 }

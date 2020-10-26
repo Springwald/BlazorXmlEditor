@@ -102,7 +102,7 @@ namespace de.springwald.xml.dtd.pruefer
                         // "Tag '{0}' hier nicht erlaubt: "
                         _fehlermeldungen.AppendFormat(ResReader.Reader.GetString("TagHierNichtErlaubt"), node.Name);
                         XMLCursorPos pos = new XMLCursorPos();
-                        pos.CursorSetzenOhneChangeEvent(node, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                        pos.SetPos(node, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
                         var erlaubteTags = this.NodeChecker.AnDieserStelleErlaubteTags_(pos, false, false); // was ist an dieser Stelle erlaubt?
                         if (erlaubteTags.Length > 0)
                         {
