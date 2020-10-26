@@ -208,6 +208,5 @@ namespace de.springwald.xml.editor
             }
             _disposed = true;
         }
-
     }
 }

@@ -65,8 +65,8 @@ namespace de.springwald.xml.cursor
                 changed = (startNode != this.StartPos.AktNode || posAtStartNode != this.StartPos.PosAmNode || textPosInStartNode != this.StartPos.PosImTextnode ||
                     endNode != this.EndPos.AktNode || posAtEndNode != this.EndPos.PosAmNode || textPosInEndNode != this.EndPos.PosImTextnode);
             }
-            this.StartPos.SetPos(StartPos.AktNode, StartPos.PosAmNode, StartPos.PosImTextnode);
-            this.EndPos.SetPos(EndPos.AktNode, EndPos.PosAmNode, EndPos.PosImTextnode);
+            this.StartPos.SetPos(startNode, posAtStartNode, textPosInStartNode);
+            this.EndPos.SetPos(endNode, posAtEndNode, textPosInEndNode);
             if (changed) await ChangedEvent.Trigger(EventArgs.Empty);
         }
 

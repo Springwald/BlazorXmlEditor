@@ -8,7 +8,7 @@ namespace de.springwald.xml.cursor
         /// </summary>
         public bool IstNodeInnerhalbDerSelektion(System.Xml.XmlNode node)
         {
-            if (_aktNode == null) // es ist gar kein Node selektiert
+            if (this.AktNode == null) // es ist gar kein Node selektiert
             {
                 return false;
             }
@@ -20,11 +20,11 @@ namespace de.springwald.xml.cursor
                 }
                 else
                 {
-                    if (node == _aktNode) // der übergebene Node ist der aktuelle
+                    if (node == this.AktNode) // der übergebene Node ist der aktuelle
                     {
                         // Zurückgeben, ob der Node selbst selektiert ist
-                        return ((_posAmNode == XMLCursorPositionen.CursorAufNodeSelbstVorderesTag) ||
-                            (_posAmNode == XMLCursorPositionen.CursorAufNodeSelbstHinteresTag));
+                        return ((this.PosAmNode == XMLCursorPositionen.CursorAufNodeSelbstVorderesTag) ||
+                            (this.PosAmNode == XMLCursorPositionen.CursorAufNodeSelbstHinteresTag));
                     }
                     else
                     {

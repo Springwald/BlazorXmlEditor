@@ -228,19 +228,19 @@ namespace de.springwald.xml.cursor
         public bool SetPos(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode, int posImTextnode = 0)
         {
             bool changed;
-            if (aktNode != _aktNode)
+            if (aktNode != this.AktNode)
             {
                 changed = true;
             }
             else
             {
-                if (posAmNode != _posAmNode)
+                if (posAmNode != this.PosAmNode)
                 {
                     changed = true;
                 }
                 else
                 {
-                    if (posImTextnode != _posImTextnode)
+                    if (posImTextnode != this.PosImTextnode)
                     {
                         changed = true;
                     }
@@ -251,9 +251,9 @@ namespace de.springwald.xml.cursor
                 }
             }
 
-            this._aktNode = aktNode;
-            this._posAmNode = posAmNode;
-            this._posImTextnode = posImTextnode;
+            this.AktNode = aktNode;
+            this.PosAmNode = posAmNode;
+            this.PosImTextnode = posImTextnode;
             return changed;
         }
 

@@ -14,110 +14,29 @@ namespace de.springwald.xml.cursor
 {
     public partial class XMLCursorPos
     {
-        private System.Xml.XmlNode _aktNode;        // Der XMLNode, welcher aktuell den Fokus hat
-        private XMLCursorPositionen _posAmNode;     // Dort befindet sich der Cursor innerhalb oder auﬂerhalb des fokusierten XMLNodes
-        private int _posImTextnode;                 // Dort befindet sich der Cursor im Flieﬂtext, wenn die Pos CursorInnerhalbDesTextNodes ist
+        private int posImTextnode;                 // Dort befindet sich der Cursor im Flieﬂtext, wenn die Pos CursorInnerhalbDesTextNodes ist
 
 
         /// <summary>
         /// Auf diesem XML-Node liegt gerade der Fokus des XMLEditors
         /// </summary>
-        public System.Xml.XmlNode AktNode
-        {
-            get { return _aktNode; }
-            /*set 
-			{ 
-				if (_aktNode != value) 
-				{
-					_posAmNode = XMLCursorPositionen.CursorAufNodeSelbst;
-					_aktNode = value;
-					Changed (EventArgs.Empty); // Bescheid geben, dass nun der Cursor auf einen anderern Node zeigt
-				}
-			}*/
-        }
+        public System.Xml.XmlNode AktNode { get; private set; }
 
         /// <summary>
         /// Dort befindet sich der Cursor im Flieﬂtext, wenn dei Pos CursorInnerhalbDesTextNodes ist
         /// </summary>
-        public int PosImTextnode
-        {
-            get
-            {
-                if (this._posAmNode != XMLCursorPositionen.CursorInnerhalbDesTextNodes)
-                {
-                    //throw new ApplicationException("PosImTextnode kann nicht abgefragt werden, wenn posAmNode = " + _posAmNode + " statt XMLCursorPositionen.CursorInnerhalbDesTextNodes!");
-                }
-                return _posImTextnode;
-            }
-            /*set 
-			{ 
-				if (_aktNode != null) // es ist ein AktNodeXML zugewiesen
-				{
-					if (this._posAmNode != XMLCursorPositionen.CursorInnerhalbDesTextNodes) 
-					{
-						//throw new ApplicationException("PosImTextnode kann nicht gesetzt werden, wenn posAmNode != XMLCursorPositionen.CursorInnerhalbDesTextNodes!");
-					}
-					if (_posImTextnode != value) 
-					{
-
-						if (value==0) // wenn der Cursor vor dem ersten Zeichen ist, dann ist der Cursor eigentlich auch vor dem Node
-						{
-							_posImTextnode = 0;
-							this._posAmNode = XMLCursorPositionen.CursorVorDemNode;
-						} 
-						else 
-						{
-							if (value>=_aktNode.InnerText.Length ) // wenn der Cursor hinter dem letzten Zeichen ist, dann ist der Cursor eigentlich auch hinter dem Node
-							{
-								_posImTextnode = 0;
-								this._posAmNode = XMLCursorPositionen.CursorHinterDemNode;
-							} 
-							else 
-							{
-								_posImTextnode = value; 
-							}
-						}
-						Changed(EventArgs.Empty); // Bescheid geben, dass nun der Cursor auf einen anderen Teil des Nodes zeigt
-						
-					}
-				} 
-				else // Noch kein AktNode zugewiesen 
-				{
-					throw (new ApplicationException("AktNode=null; muss vor Zuweisung von PosInNode gesetzt sein. " + this.ToString() + ".set PosInNode"));
-				}
-			}*/
-        }
-
+        public int PosImTextnode { get; private set; }
 
         /// <summary>
         /// Dort befindet sich der Cursor innerhalb oder auﬂerhalb des fokusierten XMLNodes
         /// </summary>
-        public XMLCursorPositionen PosAmNode
-        {
-            get { return _posAmNode; }
-            /*set 
-			{ 
-				if (_aktNode != null) // es ist ein AktNodeXML zugewiesen
-				{
-					if (_posAmNode != value) 
-					{
-						_posAmNode = value; 
-						Changed(EventArgs.Empty); // Bescheid geben, dass nun der Cursor auf einen anderen Teil des Nodes zeigt
-					}
-				} 
-				else // Noch kein AktNode zugewiesen 
-				{
-					throw (new ApplicationException("AktNode=null; muss vor Zuweisung von PosInNode gesetzt sein. " + this.ToString() + ".set PosInNode"));
-				}
-			}*/
-        }
-
+        public XMLCursorPositionen PosAmNode { get; private set; }
 
         public XMLCursorPos()
         {
-            _aktNode = null;  // Kein Node angew‰hlt
-            _posAmNode = XMLCursorPositionen.CursorAufNodeSelbstVorderesTag;
-            _posImTextnode = 0;
+            this.AktNode = null;  // Kein Node angew‰hlt
+            this.PosAmNode = XMLCursorPositionen.CursorAufNodeSelbstVorderesTag;
+            this.PosImTextnode = 0;
         }
 
         /// <summary>
@@ -128,7 +47,7 @@ namespace de.springwald.xml.cursor
         {
             if (this.AktNode != zweitePos.AktNode) return false;
             if (this.PosAmNode != zweitePos.PosAmNode) return false;
-            if (this._posImTextnode != zweitePos._posImTextnode) return false;
+            if (this.PosImTextnode != zweitePos.PosImTextnode) return false;
             return true;
         }
 
@@ -139,7 +58,7 @@ namespace de.springwald.xml.cursor
         public XMLCursorPos Clone()
         {
             XMLCursorPos klon = new XMLCursorPos();
-            klon.SetPos(this._aktNode, this._posAmNode, this._posImTextnode);
+            klon.SetPos(this.AktNode, this.PosAmNode, this.PosImTextnode);
             return klon;
         }
 
@@ -150,7 +69,7 @@ namespace de.springwald.xml.cursor
         /// <returns></returns>
         public bool LiegtNodeHinterDieserPos(System.Xml.XmlNode node)
         {
-            return ToolboxXML.Node1LiegtVorNode2(_aktNode, node);
+            return ToolboxXML.Node1LiegtVorNode2(AktNode, node);
         }
 
         /// <summary>
@@ -160,7 +79,7 @@ namespace de.springwald.xml.cursor
         /// <returns></returns>
         public bool LiegtNodeVorDieserPos(System.Xml.XmlNode node)
         {
-            return ToolboxXML.Node1LiegtVorNode2(node, _aktNode);
+            return ToolboxXML.Node1LiegtVorNode2(node, AktNode);
         }
 
 
