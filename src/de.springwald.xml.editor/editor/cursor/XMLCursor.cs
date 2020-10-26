@@ -7,6 +7,7 @@
 // All rights reserved
 // Licensed under MIT License
 
+using de.springwald.xml.editor.cursor;
 using System;
 using System.Threading.Tasks;
 using System.Xml;
@@ -241,6 +242,108 @@ namespace de.springwald.xml.cursor
                 await this.ChangedEvent.Trigger(EventArgs.Empty); // Bescheid geben, dass nun der Cursor geändert wurde
             }
         }
+        /// <summary>
+        /// Optimiert den selektierten Bereich 
+        /// </summary>
+        public async Task SelektionOptimieren()
+        {
+            // Tauschbuffer-Variablen definieren
+            XMLCursorPositionen dummyPos;
+            int dummyTextPos;
 
+            if (StartPos.AktNode == null) return; // Nix im Cursor, daher nix zu optimieren
+
+            // 1. Wenn die Startpos hinter der Endpos liegt, dann beide vertauschen
+            if (StartPos.AktNode == EndPos.AktNode)  // Beide Nodes sind gleich
+            {
+                if (StartPos.PosAmNode > EndPos.PosAmNode) // Wenn StartPos innerhalb eines Nodes hinter EndPos liegt
+                {
+                    // beide Positionen am selben Node tauschen
+                    dummyPos = StartPos.PosAmNode;
+                    dummyTextPos = StartPos.PosImTextnode;
+                    StartPos.SetPos(EndPos.AktNode, EndPos.PosAmNode, EndPos.PosImTextnode);
+                    EndPos.SetPos(EndPos.AktNode, dummyPos, dummyTextPos);
+                }
+                else // StartPos lag nicht hinter Endpos
+                {
+                    // Ist ist ein Textteil innerhalb eines Textnodes selektiert ?
+                    if ((StartPos.PosAmNode == XMLCursorPositionen.CursorInnerhalbDesTextNodes) && (EndPos.PosAmNode == XMLCursorPositionen.CursorInnerhalbDesTextNodes))
+                    {  // Ein Teil eines Textnodes ist selektiert
+                        if (StartPos.PosImTextnode > EndPos.PosImTextnode) // Wenn die TextStartpos hinter der TextEndpos liegt, dann wechseln
+                        {   // Textauswahl tauschen
+                            dummyTextPos = StartPos.PosImTextnode;
+                            StartPos.SetPos(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, EndPos.PosImTextnode);
+                            EndPos.SetPos(StartPos.AktNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, dummyTextPos);
+                        }
+                    }
+                }
+            }
+            else // Beide Nodes sind nicht gleich
+            {
+                // Wenn die Nodes in der Reihenfolge falsch sind, dann beide vertauschen
+                if (ToolboxXML.Node1LiegtVorNode2(EndPos.AktNode, StartPos.AktNode))
+                {
+                    XMLCursorPos tempPos = StartPos;
+                    StartPos = EndPos;
+                    EndPos = tempPos;
+                }
+
+                // Wenn der EndNode im StartNode liegt, den gesamten, umgebenden Startnode selektieren
+                if (ToolboxXML.IstChild(EndPos.AktNode, StartPos.AktNode))
+                {
+                    await SetPositions(StartPos.AktNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, 0, throwChangedEventWhenValuesChanged: false);
+                }
+
+                // Den ersten gemeinsamen Parent von Start und Ende finden, und in dieser Höhe die Nodes selektieren.
+                // Das führt dazu, dass z.B. bei LI-Elemente und UL beim Ziehen der Selektion über mehrere LI immer
+                // nur ganze LI selektiert werden und nicht nur Teile davon
+                if (StartPos.AktNode.ParentNode != EndPos.AktNode.ParentNode) // wenn Start und Ende nicht direkt im selben Parent stecken
+                {
+                    // - zuerst herausfinden, welches der tiefste, gemeinsame Parent von Start- und End-node ist
+                    System.Xml.XmlNode gemeinsamerParent = XmlCursorSelectionHelper.TiefsterGemeinsamerParent(StartPos.AktNode, EndPos.AktNode);
+                    // - dann Start- und End-Node bis vor dem Parent hoch-eskalieren
+                    System.Xml.XmlNode nodeStart = StartPos.AktNode;
+                    while (nodeStart.ParentNode != gemeinsamerParent) nodeStart = nodeStart.ParentNode;
+                    System.Xml.XmlNode nodeEnde = EndPos.AktNode;
+                    while (nodeEnde.ParentNode != gemeinsamerParent) nodeEnde = nodeEnde.ParentNode;
+                    // - schließlich die neuen Start- und End-Nodes anzeigen  
+                    StartPos.SetPos(nodeStart, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                    EndPos.SetPos(nodeEnde, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sind Zeichen oder Nodes von diesem Cursor eingeschlossen
+        /// </summary>
+        /// <remarks>
+        /// Entweder ist ein einzelner Node von der Startpos selektiert, oder die selektierten Bereiche liegen
+        /// zwischen StartPos und EndPos
+        /// </remarks>
+        public  bool IstEtwasSelektiert
+        {
+            get
+            {
+                // Wenn gar kein Cursor gesetzt ist, dann ist auch nix selektiert
+                if (this.StartPos.AktNode == null) return false;
+
+                if ((this.StartPos.PosAmNode == XMLCursorPositionen.CursorAufNodeSelbstVorderesTag) ||
+                    (this.StartPos.PosAmNode == XMLCursorPositionen.CursorAufNodeSelbstHinteresTag))
+                {
+                    return true; // mindestens ein einzelner Node ist direkt selektiert
+                }
+                else
+                {
+                    if (this.StartPos.Equals(this.EndPos))
+                    {
+                        return false; // offenbar ist der Cursor nur ein Strich mittendrin, ohne etwas selektiert zu haben
+                    }
+                    else
+                    {
+                        return true; // Start- und Endpos sind unterschiedlich, daher sollte etwas dazwischen liegen
+                    }
+                }
+            }
+        }
     }
 }

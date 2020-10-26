@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using de.springwald.xml.editor.cursor;
 
 namespace de.springwald.xml.editor.xmlelements.TextNode
 {
@@ -385,7 +386,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 }
                 else // Weder der Start noch das Ende der Selektion liegen genau auf diesem Node
                 {
-                    if (EditorStatus.CursorOptimiert.IstNodeInnerhalbDerSelektion(this.XMLNode))
+                    if (XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(EditorStatus.CursorOptimiert,this.XMLNode))
                     {
                         selectionStart = 0;
                         selectionEnd = actualText.Length;   // Ganzen Textnode selektieren

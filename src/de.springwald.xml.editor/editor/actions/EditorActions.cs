@@ -8,6 +8,7 @@
 // Licensed under MIT License
 
 using de.springwald.xml.cursor;
+using de.springwald.xml.editor.cursor;
 using de.springwald.xml.editor.nativeplatform;
 using System;
 using System.Threading.Tasks;
@@ -263,7 +264,7 @@ namespace de.springwald.xml.editor.actions
         {
             if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
-            var content = await this.editorStatus.CursorRoh.GetSelektionAlsString();
+            var content = await XmlCursorSelectionHelper.GetSelektionAlsString(this.editorStatus.CursorRoh);
             if (string.IsNullOrEmpty(content)) // Nix selektiert
             {
                 return false;
@@ -379,7 +380,7 @@ namespace de.springwald.xml.editor.actions
             var optimized = this.editorStatus.CursorRoh;
             await optimized.SelektionOptimieren();
 
-            var deleteResult = await optimized.SelektionLoeschen();
+            var deleteResult = await XmlCursorSelectionHelper.SelektionLoeschen(optimized);
             if (deleteResult.Success)
             {
                 await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
@@ -511,7 +512,7 @@ namespace de.springwald.xml.editor.actions
                     this.editorStatus.CursorRoh);
             }
 
-            var deleteResult = await deleteArea.SelektionLoeschen();
+            var deleteResult = await XmlCursorSelectionHelper.SelektionLoeschen(deleteArea);
             if (deleteResult.Success)
             {
                 // Nach erfolgreichem Löschen wird hier die neue CursorPos zurückgeholt
@@ -549,7 +550,7 @@ namespace de.springwald.xml.editor.actions
 
             if (deleteArea.StartPos.AktNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
 
-            var deleteResult = await deleteArea.SelektionLoeschen();
+            var deleteResult = await XmlCursorSelectionHelper.SelektionLoeschen(deleteArea);
             if (deleteResult.Success)
             {
                 // Nach erfolgreichem Löschen wird hier die neue CursorPos zurückgeholt
@@ -615,7 +616,7 @@ namespace de.springwald.xml.editor.actions
             // Wenn etwas selektiert ist, dann zuerst das löschen, da es ja durch den neuen Text ersetzt wird
             XMLCursor loeschbereich = cursor.Clone();
             await loeschbereich.SelektionOptimieren();
-            var loeschResult = await loeschbereich.SelektionLoeschen();
+            var loeschResult = await XmlCursorSelectionHelper.SelektionLoeschen(loeschbereich);
             if (loeschResult.Success)
             {
                 einfuegePos = loeschResult.NeueCursorPosNachLoeschen;
@@ -646,7 +647,7 @@ namespace de.springwald.xml.editor.actions
             // Wenn etwas selektiert ist, dann zuerst das löschen, da es ja durch den neuen Text ersetzt wird
             XMLCursor loeschbereich = cursor.Clone();
             await loeschbereich.SelektionOptimieren();
-            var loeschResult = await loeschbereich.SelektionLoeschen();
+            var loeschResult = await XmlCursorSelectionHelper.SelektionLoeschen(loeschbereich);
             if (loeschResult.Success)
             {
                 await cursor.SetPositions(loeschResult.NeueCursorPosNachLoeschen.AktNode, loeschResult.NeueCursorPosNachLoeschen.PosAmNode, loeschResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);

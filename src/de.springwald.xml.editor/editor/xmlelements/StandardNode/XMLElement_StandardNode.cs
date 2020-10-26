@@ -16,6 +16,7 @@ using de.springwald.xml.editor.xmlelements;
 using de.springwald.xml.editor.xmlelements.StandardNode;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
+using de.springwald.xml.editor.cursor;
 
 namespace de.springwald.xml.editor
 {
@@ -57,7 +58,7 @@ namespace de.springwald.xml.editor
            
 
             this.nodeDimensions.Update();
-            var isSelected = cursor.IstNodeInnerhalbDerSelektion(this.XMLNode);
+            var isSelected = XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(cursor, this.XMLNode);
             this.CreateChildElementsIfNeeded(gfx);
 
             Point newCursorPaintPos = null;
