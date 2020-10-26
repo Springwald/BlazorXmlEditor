@@ -8,14 +8,14 @@
 // Licensed under MIT License
 
 using de.springwald.xml.editor.cursor;
+using de.springwald.xml.rules;
 using System;
 using System.Threading.Tasks;
 using System.Xml;
+using static de.springwald.xml.rules.XMLCursorPos;
 
 namespace de.springwald.xml.cursor
 {
-    public enum XMLCursorPositionen { CursorVorDemNode, CursorAufNodeSelbstVorderesTag, CursorAufNodeSelbstHinteresTag, CursorInDemLeeremNode, CursorInnerhalbDesTextNodes, CursorHinterDemNode };
-
     public enum MausKlickAktionen { MouseDown, MouseDownMove, MouseUp };
 
     public partial class XMLCursor : IDisposable
@@ -101,7 +101,7 @@ namespace de.springwald.xml.cursor
         /// <param name="aktNode"></param>
         /// <param name="posInNode"></param>
         /// <param name="posImTextnode"></param>
-        public void BeideCursorPosSetzenOhneChangeEvent(System.Xml.XmlNode node, XMLCursorPositionen posAmNode, int posImTextnode)
+        public void BeideCursorPosSetzenOhneChangeEvent(XmlNode node, XMLCursorPositionen posAmNode, int posImTextnode)
         {
             // Cursor setzen
             _cursorWirdGeradeGesetzt = true;
@@ -116,7 +116,7 @@ namespace de.springwald.xml.cursor
         /// <param name="aktNode"></param>
         /// <param name="posInNode"></param>
         /// <param name="posImTextnode"></param>
-        public async Task BeideCursorPosSetzenMitChangeEventWennGeaendert(System.Xml.XmlNode node, XMLCursorPositionen posAmNode, int posImTextnode)
+        public async Task BeideCursorPosSetzenMitChangeEventWennGeaendert(XmlNode node, XMLCursorPositionen posAmNode, int posImTextnode)
         {
             // Herausfinden, ob sich etwas geändert hat
             bool geaendert;

@@ -1,6 +1,5 @@
 ﻿@using de.springwald.xml.editor
 @using de.springwald.xml.editor.actions
-@using de.springwald.xml.dtd
 @implements IDisposable
 
 <div class="addAttributes">
@@ -64,7 +63,7 @@
             try
             {
 #if CommentNichtZulassen
-        bool kommentareMitAuflisten = false;
+    bool kommentareMitAuflisten = false;
 #else
                 bool kommentareMitAuflisten = true;
 #endif
@@ -73,7 +72,7 @@
                 this.elements = elementsRaw.Select(e => new Element { Title = e, Group = groups.Where(g => g != null && g.ContainsElement(e)).FirstOrDefault() }).ToArray();
                 this.StateHasChanged();
             }
-            catch (DTD.XMLUnknownElementException e)
+            catch (rules.dtd.DTD.XMLUnknownElementException e)
             {
                 var error = $"unknown element '{e.ElementName}'";
                 //Debugger.GlobalDebugger.Protokolliere(String.Format("unknown element {0} in {1}->{2}", e.ElementName, this.Name, "Aktualisieren"));  //Eines der bezogenen Elemente ist in der DTD unbekannt

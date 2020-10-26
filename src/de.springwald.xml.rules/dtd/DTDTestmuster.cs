@@ -9,7 +9,7 @@
 
 using System.Text;
 
-namespace de.springwald.xml.dtd
+namespace de.springwald.xml.rules.dtd
 {
     /// <summary>
     /// An XML block of what it might look like after the intended change. This pattern is chased through the validator. All patterns, which were subsequently flagged as "confirmed", are permitted according to the DTD

@@ -1,6 +1,8 @@
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.rules;
+using de.springwald.xml.rules.dtd;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -82,7 +84,7 @@ namespace de.springwald.xml.blazor.test.DemoData
             }
         }
 
-        public DemoXmlRules(de.springwald.xml.dtd.DTD dtd) : base(dtd) { }
+        public DemoXmlRules(DTD dtd) : base(dtd) { }
 
         /// <summary>
         /// Findet heraus, welche Farbe der Node haben soll

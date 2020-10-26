@@ -7,6 +7,7 @@
 // All rights reserved
 // Licensed under MIT License
 
+using de.springwald.xml.rules.dtd;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -199,7 +200,7 @@ namespace de.springwald.xml
             }
             else
             {
-                de.springwald.xml.dtd.pruefer.DTDPruefer pruefer = _regelwerk.DTDPruefer;
+                DTDPruefer pruefer = _regelwerk.DTDPruefer;
                 if (pruefer.IstXmlNodeOk(node, posBereitsAlsOKGeprueft))
                 {
                     nodeFehlerhaft = false;

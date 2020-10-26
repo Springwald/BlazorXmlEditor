@@ -1,6 +1,6 @@
-﻿@using de.springwald.xml.editor
-@using de.springwald.xml.dtd
-@using de.springwald.xml.cursor
+﻿@using de.springwald.xml.rules.dtd
+@using de.springwald.xml.rules
+@using de.springwald.xml.editor
 @using System.Linq
 @implements IDisposable
 
@@ -99,19 +99,19 @@
                 // Herausfinden, für welchen Node die Attribute angezeigt werden sollen
                 switch (this.EditorStatus.CursorRoh.StartPos.PosAmNode)
                 {
-                    case XMLCursorPositionen.CursorInDemLeeremNode:
-                    case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
-                    case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
+                    case XMLCursorPos.XMLCursorPositionen.CursorInDemLeeremNode:
+                    case XMLCursorPos.XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
+                    case XMLCursorPos.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
                         // Der Node selbst ist selektiert
                         this.actualNode = this.EditorStatus.CursorRoh.StartPos.AktNode;
                         break;
 
-                    case XMLCursorPositionen.CursorInnerhalbDesTextNodes:
+                    case XMLCursorPos.XMLCursorPositionen.CursorInnerhalbDesTextNodes:
                         this.actualNode = this.EditorStatus.CursorRoh.StartPos.AktNode;
                         break;
 
-                    case XMLCursorPositionen.CursorHinterDemNode:
-                    case XMLCursorPositionen.CursorVorDemNode:
+                    case XMLCursorPos.XMLCursorPositionen.CursorHinterDemNode:
+                    case XMLCursorPos.XMLCursorPositionen.CursorVorDemNode:
                         // Wir sind hinter oder vor dem Node, daher werden die Attribute des ParentNodes angezeigt
                         this.actualNode = this.EditorStatus.CursorRoh.StartPos.AktNode.ParentNode;
                         break;
@@ -139,7 +139,7 @@
                     {
                         this.actualNodeDtdElement = this.EditorContext.XmlRules.DTD.DTDElementByName(this.actualNode.Name, true);
                     }
-                    catch (de.springwald.xml.dtd.DTD.XMLUnknownElementException e)
+                    catch (DTD.XMLUnknownElementException e)
                     {
                         // Debugger.GlobalDebugger.Protokolliere(String.Format("unknown element {0} in {1}->{2}", e.ElementName, this.Name, "AttributeNeuAnzeigen"));  //Eines der bezogenen Elemente ist in der DTD unbekannt
                         this.errorMessage = $"unknown element '{e.ElementName}'";

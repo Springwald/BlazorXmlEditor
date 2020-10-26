@@ -4,6 +4,7 @@
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
 @using de.springwald.xml.blazor.test.Components
+@using de.springwald.xml.rules
 @implements IDisposable
 
 <h1>insert element demo</h1>
@@ -45,7 +46,7 @@
         this.textNode = patternNode.ChildNodes[0];
         await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
             textNode,
-            cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
+            XMLCursorPos.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
             10);
         this.InitTypingTimer();
     }

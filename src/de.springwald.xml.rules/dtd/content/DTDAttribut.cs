@@ -7,7 +7,7 @@
 // All rights reserved
 // Licensed under MIT License
 
-namespace de.springwald.xml.dtd
+namespace de.springwald.xml.rules.dtd
 {
 
     /// <summary>

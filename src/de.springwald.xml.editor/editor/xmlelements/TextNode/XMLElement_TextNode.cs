@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using de.springwald.xml.editor.cursor;
+using static de.springwald.xml.rules.XMLCursorPos;
 
 namespace de.springwald.xml.editor.xmlelements.TextNode
 {

@@ -1,4 +1,4 @@
-using de.springwald.xml.dtd;
+using de.springwald.xml.rules.dtd;
 using System.IO;
 using System.Reflection;
 
@@ -45,7 +45,7 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// loads the dtd
         /// </summary>
         /// <returns></returns>
-        public static de.springwald.xml.dtd.DTD LoadDemoDtd()
+        public static DTD LoadDemoDtd()
         {
             // nun daraus die DTD erzeugen und zurückgeben
             var reader = new DTDReaderDTD();

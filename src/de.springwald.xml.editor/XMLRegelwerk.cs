@@ -10,11 +10,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using de.springwald.xml.cursor;
-using de.springwald.xml.dtd;
-using de.springwald.xml.dtd.pruefer;
 using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.rules;
+using de.springwald.xml.rules.dtd;
 
 namespace de.springwald.xml
 {

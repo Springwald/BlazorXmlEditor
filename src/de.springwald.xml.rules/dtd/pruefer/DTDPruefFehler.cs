@@ -9,7 +9,7 @@
 
 using System;
 
-namespace de.springwald.xml.dtd.pruefer
+namespace de.springwald.xml.rules.dtd
 {
 	public class DTDPruefFehler
 	{

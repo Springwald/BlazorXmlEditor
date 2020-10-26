@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace de.springwald.xml.dtd
+namespace de.springwald.xml.rules.dtd
 {
     /// <summary>
     /// A single DTD element from a DTD
@@ -110,7 +110,7 @@ namespace de.springwald.xml.dtd
 
                 default:
                     // "Unbekannte DTDChildElementArt {0}"
-                    throw new ApplicationException(String.Format(ResReader.Reader.GetString("UnbekannteDTDChildElementArt"), children.Art));
+                    throw new ApplicationException($"Unbekannte DTDChildElementArt {children.Art}" );
             }
 
             yield return "#COMMENT";     // Das Kommentar-Tag hinzufügen, da dieses immer zulässig ist

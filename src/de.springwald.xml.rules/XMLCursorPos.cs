@@ -7,15 +7,13 @@
 // All rights reserved
 // Licensed under MIT License
 
-using System;
-using System.Threading.Tasks;
-
-namespace de.springwald.xml.cursor
+namespace de.springwald.xml.rules
 {
     public partial class XMLCursorPos
     {
-        private int posImTextnode;                 // Dort befindet sich der Cursor im Flieﬂtext, wenn die Pos CursorInnerhalbDesTextNodes ist
+        public enum XMLCursorPositionen { CursorVorDemNode, CursorAufNodeSelbstVorderesTag, CursorAufNodeSelbstHinteresTag, CursorInDemLeeremNode, CursorInnerhalbDesTextNodes, CursorHinterDemNode };
 
+        private int posImTextnode;                 // Dort befindet sich der Cursor im Flieﬂtext, wenn die Pos CursorInnerhalbDesTextNodes ist
 
         /// <summary>
         /// Auf diesem XML-Node liegt gerade der Fokus des XMLEditors
@@ -152,7 +150,7 @@ namespace de.springwald.xml.cursor
             }
         }
 
-      
+
 
     }
 }

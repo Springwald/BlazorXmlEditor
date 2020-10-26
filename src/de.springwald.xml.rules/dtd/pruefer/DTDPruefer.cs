@@ -7,10 +7,10 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.cursor;
 using System.Text;
+using static de.springwald.xml.rules.XMLCursorPos;
 
-namespace de.springwald.xml.dtd.pruefer
+namespace de.springwald.xml.rules.dtd
 {
 
     /// <summary>
@@ -100,14 +100,14 @@ namespace de.springwald.xml.dtd.pruefer
                     else
                     {
                         // "Tag '{0}' hier nicht erlaubt: "
-                        _fehlermeldungen.AppendFormat(ResReader.Reader.GetString("TagHierNichtErlaubt"), node.Name);
+                        _fehlermeldungen.AppendFormat($"Tag '{node.Name}' hier nicht erlaubt");
                         XMLCursorPos pos = new XMLCursorPos();
                         pos.SetPos(node, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
                         var erlaubteTags = this.NodeChecker.AnDieserStelleErlaubteTags_(pos, false, false); // was ist an dieser Stelle erlaubt?
                         if (erlaubteTags.Length > 0)
                         {
                             // "An dieser Stelle erlaubte Tags: "
-                            _fehlermeldungen.Append(ResReader.Reader.GetString("ErlaubteTags"));
+                            _fehlermeldungen.Append("An dieser Stelle erlaubte Tags:");
                             foreach (string tag in erlaubteTags)
                             {
                                 _fehlermeldungen.AppendFormat("{0} ", tag);
@@ -116,7 +116,7 @@ namespace de.springwald.xml.dtd.pruefer
                         else
                         {
                             //"An dieser Stelle sind keine Tags erlaubt. Wahrscheinlich ist das Parent-Tag bereits defekt."
-                            _fehlermeldungen.Append(ResReader.Reader.GetString("AnDieserStelleKeineTagsErlaubt"));
+                            _fehlermeldungen.Append("An dieser Stelle sind keine Tags erlaubt. Wahrscheinlich ist das Parent-Tag bereits defekt.");
                         }
                         return false;
                     }
@@ -124,14 +124,14 @@ namespace de.springwald.xml.dtd.pruefer
                 catch (DTD.XMLUnknownElementException e)
                 {
                     // "Unbekanntes Element '{0}'"
-                    _fehlermeldungen.AppendFormat(ResReader.Reader.GetString("UnbekanntesElement"), e.ElementName);
+                    _fehlermeldungen.AppendFormat($"Unbekanntes Element '{e.ElementName}'");
                     return false;
                 }
             }
             else // Das Element dieses Nodes ist in der DTD gar nicht bekannt
             {
                 //  "Unbekanntes Element '{0}'"
-                _fehlermeldungen.AppendFormat(ResReader.Reader.GetString("UnbekanntesElement"), DTD.GetElementNameFromNode(node));
+                _fehlermeldungen.AppendFormat($"Unbekanntes Element '{DTD.GetElementNameFromNode(node)}'");
                 return false;
             }
         }

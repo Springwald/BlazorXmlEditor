@@ -61,13 +61,13 @@
         {
             await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                             patternNode,
-                            cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                            rules.XMLCursorPos.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
         }
         else
         {
             await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                             templateNode,
-                            cursor.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                            rules.XMLCursorPos.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
         }
         this.fpsCounter.Count();
         this.selectTimer.Start();

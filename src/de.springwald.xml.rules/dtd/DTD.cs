@@ -10,7 +10,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace de.springwald.xml.dtd
+namespace de.springwald.xml.rules.dtd
 {
     /// <summary>
     /// Der Inhalt einer DTD

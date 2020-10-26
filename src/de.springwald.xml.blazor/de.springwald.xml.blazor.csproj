@@ -24,6 +24,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\de.springwald.xml.editor\de.springwald.xml.editor.csproj" />
+	  <ProjectReference Include="..\de.springwald.xml.rules\de.springwald.xml.rules.csproj" />
 	</ItemGroup>
 
 

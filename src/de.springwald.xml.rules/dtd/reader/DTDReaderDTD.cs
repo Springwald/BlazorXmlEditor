@@ -13,10 +13,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections;
 using System.Diagnostics;
-using de.springwald.toolbox;
 using System.Linq;
 
-namespace de.springwald.xml.dtd
+namespace de.springwald.xml.rules.dtd
 {
 	public class DTDReaderDTD
 	{
@@ -61,8 +60,8 @@ namespace de.springwald.xml.dtd
 			}
 			catch (FileNotFoundException exc) // Falls die Datei nicht gefunden wurde
 			{
-                // "Konnte Datei '{0}' nicht einlesen:\n{1}"
-				throw new ApplicationException(String.Format(ResReader.Reader.GetString("KonnteDateiNichtEinlesen"), dateiname, exc.Message));
+                // 
+				throw new ApplicationException($"Konnte Datei '{dateiname}' nicht einlesen:\n{exc.Message}" );
 			}
 
 			return GetDTDFromString(inhalt);
@@ -147,7 +146,7 @@ namespace de.springwald.xml.dtd
                 }
                 catch (ArgumentException e)
                 {
-                    throw new ApplicationException(String.Format(ResReader.Reader.GetString("FehlerBeimLesenDesDTDELementes"),element.Name,e.Message));
+                    throw new ApplicationException(String.Format($"Error reading dtd element {element.Name}: {e.Message}"));
                 }
 				match = match.NextMatch(); // Zum nächsten RegEx-Treffer
 			}
@@ -200,7 +199,7 @@ namespace de.springwald.xml.dtd
 			if (!match.Success) // Wenn kein Element im Element-Code gefunden wurde
 			{
                 // "Kein Vorkommen gefunden im Elementcode '{0}'."
-                throw new ApplicationException(String.Format(ResReader.Reader.GetString("NichtsImElementCodeGefunden"), elementQuellcode));
+                throw new ApplicationException($"Kein Vorkommen gefunden im Elementcode '{elementQuellcode}'.");
 			}
 			else // ein Element gefunden
 			{
@@ -212,7 +211,7 @@ namespace de.springwald.xml.dtd
 				if (!match.Groups["elementname"].Success) 
 				{	// kein Name gefunden
                     // "Kein Name gefunden im Elementcode '{0}'."
-                    throw new ApplicationException(String.Format(ResReader.Reader.GetString("KeinNameInElementcodegefunden"), elementQuellcode));
+                    throw new ApplicationException($"Kein Name gefunden im Elementcode '{elementQuellcode}'.");
 				} 
 				else 
 				{
@@ -237,8 +236,8 @@ namespace de.springwald.xml.dtd
 				match = match.NextMatch();
 				if (match.Success) // Wenn mehr als ein Element im Element-Code gefunden wurde
 				{
-                    // "Mehr als ein Vorkommen gefunden im Elementcode '{0}'."
-					throw new ApplicationException(string.Format(ResReader.Reader.GetString("MehrAlsEinsImElementCodeGefunden"),  elementQuellcode ));
+                    // 
+					throw new ApplicationException($"Mehr als ein Vorkommen gefunden im Elementcode '{elementQuellcode}'.");
 				}
 				return element;
 			}
@@ -335,8 +334,8 @@ namespace de.springwald.xml.dtd
 
 			if (!match.Success) // Wenn keine Entity im Entity-Code gefunden wurde
 			{
-                // "Kein Vorkommen gefunden im Entityquellcode '{0}'"
-                throw new ApplicationException(String.Format(ResReader.Reader.GetString("NichtsImEntityCode"), entityQuellcode));
+                //
+                throw new ApplicationException($"Kein Vorkommen gefunden im Entityquellcode '{entityQuellcode}'");
 			}
 			else // Genau eine Entity gefunden
 			{
@@ -348,8 +347,8 @@ namespace de.springwald.xml.dtd
 				// Name der Entity herausfinden
 				if (!match.Groups["entityname"].Success) 
 				{	// kein Name gefunden
-                    // "Kein Name gefunden im Entitycode '{0}'"
-					throw new ApplicationException(String.Format(ResReader.Reader.GetString("KeinNameImEntityCode") , entityQuellcode  ));
+                    // 
+					throw new ApplicationException($"Kein Name gefunden im Entitycode '{entityQuellcode}'");
 				} 
 				else 
 				{
@@ -359,8 +358,8 @@ namespace de.springwald.xml.dtd
 					// Inhalt der Entity herausfinden
 					if (!match.Groups["inhalt"].Success) 
 					{	// kein Inhalt gefunden
-                        // "Kein Inhalt gefunden im Entitycode '{0}'"
-						throw new ApplicationException(String.Format(ResReader.Reader.GetString("KeinInhaltImEntityCode") , entityQuellcode  ));
+                        // 
+						throw new ApplicationException($"Kein Inhalt gefunden im Entitycode '{entityQuellcode}'" );
 					} 
 					else 
 					{
@@ -371,8 +370,8 @@ namespace de.springwald.xml.dtd
 				match = match.NextMatch();
 				if (match.Success) // Wenn mehr als eine Entity im Element-Code gefunden wurde
 				{
-                    // "Mehr als ein Vorkommen gefunden im Entitycode '{0}'"
-					throw new ApplicationException(String.Format(ResReader.Reader.GetString("MehrAlsEinsImEntityQuellCode") , entityQuellcode ));
+                    // 
+					throw new ApplicationException($"Mehr als ein Vorkommen gefunden im Entitycode '{entityQuellcode}'" );
 				}
 				return entity;
 			}
@@ -445,7 +444,7 @@ namespace de.springwald.xml.dtd
 								break;
 							default:
                                 //"Unbekannte AttributAnzahl '{0}' in Attribut '{1}' von Element {2}"
-                                throw new ApplicationException(String.Format(ResReader.Reader.GetString("UnbekannteAttributAnzahl"), match.Groups["anzahl"].Value, match.Value, element.Name ));
+                                throw new ApplicationException($"Unbekannte AttributAnzahl '{match.Groups["anzahl"].Value}' in Attribut '{match.Value}' von Element {element.Name}" );
 
 						}
 						// Der Typ des Attributes
@@ -475,8 +474,8 @@ namespace de.springwald.xml.dtd
 				} 
 				else 
 				{
-                    //"Keine Attribute in der AttribuListe '{0}' gefunden!"
-					throw new ApplicationException(String.Format(ResReader.Reader.GetString("KeineAttributeInAttributListe"), attributListeCode ));
+                    //
+					throw new ApplicationException($"Keine Attribute in der AttribuListe '{attributListeCode}' gefunden!");
 				}
 
 			} 

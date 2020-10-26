@@ -17,6 +17,7 @@ using de.springwald.xml.editor.xmlelements.StandardNode;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 using de.springwald.xml.editor.cursor;
+using static de.springwald.xml.rules.XMLCursorPos;
 
 namespace de.springwald.xml.editor
 {

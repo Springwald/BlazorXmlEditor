@@ -1,6 +1,8 @@
 ﻿using de.springwald.xml.cursor;
+using de.springwald.xml.rules;
 using System;
 using System.Threading.Tasks;
+using static de.springwald.xml.rules.XMLCursorPos;
 
 namespace de.springwald.xml.editor.actions
 {

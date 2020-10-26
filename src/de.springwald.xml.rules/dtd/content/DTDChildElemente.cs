@@ -10,9 +10,8 @@
 using System;
 using System.Text;
 using System.Collections;
-using de.springwald.toolbox;
 
-namespace de.springwald.xml.dtd
+namespace de.springwald.xml.rules.dtd
 {
     /// <summary>
     /// Manages the child elements of a DTD element, i.e. the parts within the brackets of the element tag
@@ -320,7 +319,7 @@ namespace de.springwald.xml.dtd
 					if (anzahl >=0) return true; else return false;;
 				default:
                     // "unknown DTDChildElementAnzahl: {0}"
-					throw new ApplicationException(String.Format(ResReader.Reader.GetString("UnbekannteDTDChildElementAnzahl"), _art));
+					throw new ApplicationException($"unknown DTDChildElementAnzahl: {_defAnzahl}");
 			}
 		}
 
@@ -494,7 +493,7 @@ namespace de.springwald.xml.dtd
 			}
 
             // "Der angegebene String '" + code + "' ist kein Operator!"
-            throw new ApplicationException(String.Format(ResReader.Reader.GetString("StringIstKeinOperator"), code));
+            throw new ApplicationException("Der angegebene String '" + code + "' ist kein Operator!");
 		}
 
 		
