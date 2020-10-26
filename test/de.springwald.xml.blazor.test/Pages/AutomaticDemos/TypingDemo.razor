@@ -1,5 +1,6 @@
 ﻿@page "/TypingDemo"
 @using de.springwald.xml.editor
+@using de.springwald.xml.editor.actions
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
 @using de.springwald.xml.blazor.test.Components
@@ -7,7 +8,7 @@
 
 <h1>typing demo</h1>
 <FpsCounter @ref="fpsCounter" />
-<de.springwald.xml.blazor.Components.XmlEditor  EditorContext="this.editorContext"  OnReady="this.EditorIsReady" />
+<de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
 
 @code {
 
@@ -64,7 +65,7 @@
                 textNode,
                 cursor.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
                 textNode.InnerText.Length);
-        await this.editorContext.Actions.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), editor.EditorActions.UndoSnapshotSetzenOptionen.ja);
+        await this.editorContext.Actions.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), EditorActions.UndoSnapshotSetzenOptionen.ja);
 
         this.fpsCounter.Count();
         this.typingTimer.Start();

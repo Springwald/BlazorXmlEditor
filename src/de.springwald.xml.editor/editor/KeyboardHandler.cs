@@ -10,9 +10,10 @@
 using System;
 using System.Threading.Tasks;
 using de.springwald.xml.cursor;
+using de.springwald.xml.editor.actions;
 using de.springwald.xml.editor.nativeplatform;
 using de.springwald.xml.events;
-using static de.springwald.xml.editor.EditorActions;
+using static de.springwald.xml.editor.actions.EditorActions;
 
 namespace de.springwald.xml.editor
 {

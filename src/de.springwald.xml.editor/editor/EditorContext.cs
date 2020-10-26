@@ -1,4 +1,5 @@
-﻿using de.springwald.xml.editor.nativeplatform;
+﻿using de.springwald.xml.editor.actions;
+using de.springwald.xml.editor.nativeplatform;
 using System;
 
 namespace de.springwald.xml.editor

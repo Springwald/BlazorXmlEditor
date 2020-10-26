@@ -1,5 +1,6 @@
 ﻿@page "/InsertElementDemo"
 @using de.springwald.xml.editor
+@using de.springwald.xml.editor.actions
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
 @using de.springwald.xml.blazor.test.Components
@@ -12,7 +13,7 @@
 @code {
 
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet <star/> lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
-    private string[] elementNames = new[] { "star", "br", "img" , "table", "p" };
+    private string[] elementNames = new[] { "star", "br", "img", "table", "p" };
 
     private FpsCounter fpsCounter;
     private EditorContext editorContext;
@@ -63,8 +64,8 @@
 
         await this.editorContext.Actions.AktionNeuesElementAnAktCursorPosEinfuegen(
             elementNames[this.rnd.Next(0, this.elementNames.Length)],
-            editor.EditorActions.UndoSnapshotSetzenOptionen.ja,
-            neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen:true );
+            EditorActions.UndoSnapshotSetzenOptionen.ja,
+            neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen: true);
 
         this.fpsCounter.Count();
         this.typingTimer.Start();

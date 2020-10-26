@@ -7,14 +7,13 @@
 // All rights reserved
 // Licensed under MIT License
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform;
+using System;
+using System.Threading.Tasks;
+using System.Xml;
 
-namespace de.springwald.xml.editor
+namespace de.springwald.xml.editor.actions
 {
     public class EditorActions
     {
@@ -123,17 +122,17 @@ namespace de.springwald.xml.editor
                     {
                         if (node is XmlText) // Einen Text einfügen
                         {
-                            var pasteResult = await endPos.TextEinfuegen(node.Clone().Value, this.regelwerk);
+                            var pasteResult = InsertAtCursorPosHelper.TextEinfuegen(endPos, node.Clone().Value, this.regelwerk);
                             if (pasteResult.ErsatzNode != null)
                             {
                                 // Text konnte nicht eingefügt werden, da aus der Texteingabe eine Node-Eingabe umgewandelt
                                 // wurde. Beispiel: Im AIML-Template wird * gedrückt, und dort statt dessen ein <star> eingefügt
-                                await endPos.InsertXMLNode(pasteResult.ErsatzNode.Clone(), this.regelwerk, true);
+                                InsertAtCursorPosHelper.InsertXMLNode(endPos, pasteResult.ErsatzNode.Clone(), this.regelwerk, true);
                             }
                         }
                         else // Einen Node einfügen
                         {
-                            await endPos.InsertXMLNode(node.Clone(), this.regelwerk, true);
+                            InsertAtCursorPosHelper.InsertXMLNode(endPos, node.Clone(), this.regelwerk, true);
                         }
                     }
 
@@ -142,7 +141,7 @@ namespace de.springwald.xml.editor
                         case XMLCursorPositionen.CursorInnerhalbDesTextNodes:
                         case XMLCursorPositionen.CursorVorDemNode:
                             // Ende des Einfügens liegt einem Text oder vor dem Node
-                            await this.editorStatus.CursorRoh.SetPositions(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode, throwChangedEventWhenValuesChanged:false);
+                            await this.editorStatus.CursorRoh.SetPositions(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode, throwChangedEventWhenValuesChanged: false);
                             break;
                         default:
                             // Ende des Einfügens liegt hinter dem letzten eingefügten Node
@@ -192,7 +191,7 @@ namespace de.springwald.xml.editor
             {
 
                 // den XML-Reader erzeugen
-                text =await  this.nativePlatform.Clipboard.GetText();
+                text = await this.nativePlatform.Clipboard.GetText();
                 var reader = new XmlTextReader(text, System.Xml.XmlNodeType.Element, null);
                 reader.MoveToContent(); //Move to the cd element node.
 
@@ -287,7 +286,7 @@ namespace de.springwald.xml.editor
                 if (this.editorStatus.RootNode.FirstChild != null)
                 {
                     // Vor das erste Child des Rootnodes
-                    await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode.FirstChild, XMLCursorPositionen.CursorVorDemNode,0, throwChangedEventWhenValuesChanged: true);
+                    await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode.FirstChild, XMLCursorPositionen.CursorVorDemNode, 0, throwChangedEventWhenValuesChanged: true);
                 }
                 else
                 {
@@ -399,7 +398,7 @@ namespace de.springwald.xml.editor
                     this.editorStatus.CursorRoh);
             }
 
-            await this.editorStatus.CursorRoh.TextEinfuegen(insertText, this.regelwerk);
+            await TextEinfuegen(this.editorStatus.CursorRoh, insertText, this.regelwerk);
             await this.editorStatus.FireContentChangedEvent();
             return true;
         }
@@ -587,13 +586,66 @@ namespace de.springwald.xml.editor
             }
 
             // Node an aktueller CursorPos einfügen
-            await this.editorStatus.CursorRoh.XMLNodeEinfuegen(node, this.regelwerk, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen);
+            await XMLNodeEinfuegen(this.editorStatus.CursorRoh, node, this.regelwerk, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen);
             await this.editorStatus.FireContentChangedEvent();
             return node;
         }
 
-        
 
-    
+        /// <summary>
+        /// Fügt den angegebenen Text an der aktuellen Cursorposition ein, sofern möglich
+        /// </summary>
+        private async Task TextEinfuegen(XMLCursor cursor, string text, de.springwald.xml.XMLRegelwerk regelwerk)
+        {
+            XMLCursorPos einfuegePos;
+
+            // Wenn etwas selektiert ist, dann zuerst das löschen, da es ja durch den neuen Text ersetzt wird
+            XMLCursor loeschbereich = cursor.Clone();
+            await loeschbereich.SelektionOptimieren();
+            var loeschResult = await loeschbereich.SelektionLoeschen();
+            if (loeschResult.Success)
+            {
+                einfuegePos = loeschResult.NeueCursorPosNachLoeschen;
+            }
+            else
+            {
+                einfuegePos = cursor.StartPos.Clone();
+            }
+
+            // den angegebenen Text an der CursorPosition einfügen
+            var ersatzNode = InsertAtCursorPosHelper.TextEinfuegen(einfuegePos, text, regelwerk).ErsatzNode;
+            if (ersatzNode != null)
+            {
+                // Text konnte nicht eingefügt werden, da aus der Texteingabe eine Node-Eingabe umgewandelt
+                // wurde. Beispiel: Im AIML-Template wird * gedrückt, und dort statt dessen ein <star> eingefügt
+                InsertAtCursorPosHelper.InsertXMLNode(einfuegePos, ersatzNode, regelwerk, false);
+            }
+
+            // anschließend wird der Cursor nur noch ein Strich hinter dem eingefügten
+            await cursor.SetPositions(einfuegePos.AktNode, einfuegePos.PosAmNode, einfuegePos.PosImTextnode, throwChangedEventWhenValuesChanged: false);
+        }
+
+        /// <summary>
+        /// Fügt den angegebenen Node an der aktuellen Cursorposition ein, sofern möglich
+        /// </summary>
+        private async Task XMLNodeEinfuegen(XMLCursor cursor, System.Xml.XmlNode node, de.springwald.xml.XMLRegelwerk regelwerk, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
+        {
+            // Wenn etwas selektiert ist, dann zuerst das löschen, da es ja durch den neuen Text ersetzt wird
+            XMLCursor loeschbereich = cursor.Clone();
+            await loeschbereich.SelektionOptimieren();
+            var loeschResult = await loeschbereich.SelektionLoeschen();
+            if (loeschResult.Success)
+            {
+                await cursor.SetPositions(loeschResult.NeueCursorPosNachLoeschen.AktNode, loeschResult.NeueCursorPosNachLoeschen.PosAmNode, loeschResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
+            }
+
+            // den angegebenen Node an der CursorPosition einfügen
+            if (InsertAtCursorPosHelper.InsertXMLNode(cursor.StartPos, node, regelwerk, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen))
+            {
+                // anschließen wird der Cursor nur noch ein Strich hinter dem eingefügten
+                cursor.EndPos.SetPos(cursor.StartPos.AktNode, cursor.StartPos.PosAmNode, cursor.StartPos.PosImTextnode);
+            }
+        }
+
     }
 }

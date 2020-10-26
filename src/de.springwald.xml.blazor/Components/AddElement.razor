@@ -1,8 +1,9 @@
 ﻿@using de.springwald.xml.editor
+@using de.springwald.xml.editor.actions
 @using de.springwald.xml.dtd
 @implements IDisposable
 
-<div class="addAttributes" >
+<div class="addAttributes">
     @foreach (var group in groups)
     {
         var elems = this.elements.Where(e => e.Group == group);
@@ -63,7 +64,7 @@
             try
             {
 #if CommentNichtZulassen
-            bool kommentareMitAuflisten = false;
+        bool kommentareMitAuflisten = false;
 #else
                 bool kommentareMitAuflisten = true;
 #endif
