@@ -5,11 +5,11 @@ namespace de.springwald.xml.rules.dtd
     /// <summary>
     /// Liefert zu einem angegebenen Childblock alle DTD-Elemente, welche dieser Block liefern könnte
     /// </summary>
-    public class AlleMoeglichenElementeEinesChildblocks
+    public class AllPossibleElementsOfAChildBlock
     {
         public HashSet<string> Elements { get; }
 
-        public AlleMoeglichenElementeEinesChildblocks(DTDChildElemente childBlock)
+        public AllPossibleElementsOfAChildBlock(DtdChildElements childBlock)
         {
             this.Elements = new HashSet<string>();
             this.Search(childBlock);
@@ -19,20 +19,20 @@ namespace de.springwald.xml.rules.dtd
         /// Durchsucht den Childblock nach neuen Elementen
         /// </summary>
         /// <param name="childBlock"></param>
-        private void Search(DTDChildElemente childBlock)
+        private void Search(DtdChildElements childBlock)
         {
-            switch (childBlock.Art)
+            switch (childBlock.ElementType)
             {
-                case DTDChildElemente.DTDChildElementArten.Leer:
+                case DtdChildElements.DtdChildElementTypes.Empty:
                     break;
 
-                case DTDChildElemente.DTDChildElementArten.EinzelChild:
+                case DtdChildElements.DtdChildElementTypes.SingleChild:
                     this.AddElement(childBlock.ElementName);
                     break;
 
-                case DTDChildElemente.DTDChildElementArten.ChildListe:
+                case DtdChildElements.DtdChildElementTypes.ChildList:
                     // Alle children dieses Childblocks durchlaufen
-                    for (int iChild = 0; iChild < childBlock.AnzahlChildren; iChild++)
+                    for (int iChild = 0; iChild < childBlock.ChildrenCount; iChild++)
                     {
                         this.Search(childBlock.Child(iChild));
                     }

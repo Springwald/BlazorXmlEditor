@@ -31,7 +31,7 @@
                             }
                             else
                             {
-                                @if (attribut.Pflicht == DTDAttribut.PflichtArten.Optional)
+                                @if (attribut.Pflicht == DtdAttribute.PflichtArten.Optional)
                                 {
                                     <option selected="@(string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value) ? true : false)" value=""></option>
                                 }

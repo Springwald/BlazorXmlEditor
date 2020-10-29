@@ -9,12 +9,10 @@
 
 namespace de.springwald.xml.rules.dtd
 {
-
     /// <summary>
     /// A single DTD attribute from a DTD
     /// </summary>
-    /// <remarks>
-    public class DTDAttribut
+    public class DtdAttribute
     {
         public enum PflichtArten { Pflicht, Optional, Konstante };
 
@@ -46,7 +44,7 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Erzeugt ein neues Attribut
         /// </summary>
-        public DTDAttribut()
+        public DtdAttribute()
         {
             Name = string.Empty;
             Pflicht = PflichtArten.Optional;

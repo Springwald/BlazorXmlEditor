@@ -19,26 +19,18 @@ namespace de.springwald.xml.rules.dtd
 {
 	public class DTDReaderDTD
 	{
-		private string _rohinhalt;			// Der eingelesene Rohinhalt der DTD
-		private string _workingInhalt;		// Der überarbeitete Inhalt der DTD
 		private List<DTDElement> _elemente;		// Die in dieser DTD verfügbaren Elemente
         private List<DTDEntity> _entities;		// Die bekannten Entity-Einträge dieser DTD
 
 		/// <summary>
 		/// Der eingelesene Rohinhalt der DTD
 		/// </summary>
-		public string RohInhalt
-		{
-			get { return _rohinhalt; }
-		}
+		public string RawContent { get; private set; }
 
 		/// <summary>
 		/// Der angepasste Inhalt, in welchem z.B. bereits alle Entities aufgelöst sind
 		/// </summary>
-		public string WorkingInhalt 
-		{
-			get { return _workingInhalt; }
-		}
+		public string WorkingContent { get; private set; }
 
 		public DTDReaderDTD()
 		{
@@ -47,7 +39,6 @@ namespace de.springwald.xml.rules.dtd
 		/// <summary>
 		/// Erzeugt ein DTD-Objekt auf Basis einer DTD-Datei
 		/// </summary>
-		/// <param name="dateiname">Der Dateiname der DTD-Datei</param>
 		public DTD GetDTDFromFile(string dateiname) 
 		{
 			string inhalt=""; // Der Inhalt der DTD-Datei
@@ -70,16 +61,16 @@ namespace de.springwald.xml.rules.dtd
 		/// <summary>
 		/// Erzeugt ein DTD-Objekt auf Basis einer DTD-Datei
 		/// </summary>
-		/// <param name="inhalt">Der Inhalt der DTD-Datei</param>
+		/// <param name="content">Der Inhalt der DTD-Datei</param>
 		/// <returns></returns>
-		public DTD GetDTDFromString(string inhalt) 
+		public DTD GetDTDFromString(string content) 
 		{
 			// Tabs aus dem inhalt durch Leerzeichen ersetzen
-			inhalt = inhalt.Replace ("\t"," ");
+			content = content.Replace ("\t"," ");
 
 			// Den gelesenen Inhalt merken
-			_rohinhalt = inhalt;
-			_workingInhalt = inhalt;
+			this.RawContent = content;
+			this.WorkingContent = content;
 
 			// Elemente suchen und in die DTD füllen
 			_elemente = new List<DTDElement>(); // Noch keine Elemente vorhanden
@@ -112,7 +103,7 @@ namespace de.springwald.xml.rules.dtd
 		{
 			// Buddy: <!--((?!-->|<!--)([\t\r\n]|.))*-->
 			string ausdruck =  "<!--((?!-->|<!--)([\\t\\r\\n]|.))*-->";
-			_workingInhalt =  Regex.Replace(_workingInhalt ,ausdruck,"");
+			this.WorkingContent =  Regex.Replace(this.WorkingContent, ausdruck,"");
 		}
 
 		#region ELEMENTE analysieren
@@ -131,7 +122,7 @@ namespace de.springwald.xml.rules.dtd
 
 			Regex reg = new Regex(ausdruck); //, RegexOptions.IgnoreCase);
 			// Auf den DTD-Inhalt anwenden
-			Match match = reg.Match(_workingInhalt );
+			Match match = reg.Match(this.WorkingContent);
 
             SortedList gefundene = new SortedList(); // Zuerst alles in eine sortierte Liste aufnehmen
 
@@ -172,7 +163,7 @@ namespace de.springwald.xml.rules.dtd
 			{
                 DTDElement element = new DTDElement();
 				element.Name = "#PCDATA";
-                element.ChildElemente = new DTDChildElemente("");
+                element.ChildElemente = new DtdChildElements("");
 				return element;
 			}
 
@@ -180,7 +171,7 @@ namespace de.springwald.xml.rules.dtd
             {
                 DTDElement element = new DTDElement();
                 element.Name = "#COMMENT";
-                element.ChildElemente = new DTDChildElemente("");
+                element.ChildElemente = new DtdChildElements("");
                 return element;
             }
 
@@ -256,7 +247,7 @@ namespace de.springwald.xml.rules.dtd
 		/// </example>
 		private void ChildElementeAuslesen(DTDElement element, string childElementeQuellcode) 
 		{
-			element.ChildElemente  = new DTDChildElemente(childElementeQuellcode);
+			element.ChildElemente  = new DtdChildElements(childElementeQuellcode);
 		}
 
 		#endregion
@@ -269,15 +260,15 @@ namespace de.springwald.xml.rules.dtd
 		private void EntitiesAustauschen() 
 		{
 			string vorher="";
-			while (vorher != _workingInhalt)   // Solange das Einsetzen der Enities noch Veränderung bewirkt hat
+			while (vorher != this.WorkingContent)   // Solange das Einsetzen der Enities noch Veränderung bewirkt hat
 			{
-				vorher = _workingInhalt;
+				vorher = this.WorkingContent;
 				foreach (DTDEntity entity in this._entities) // Alle Enities durchlaufen
 				{
 					if (entity.IstErsetzungsEntity ) // wenn es eine Ersetzung-Entity ist
 					{
 						// Nennung des Entity %name; durch den Inhalt der Entity ersetzen
-						_workingInhalt = _workingInhalt.Replace ("%"+entity.Name +";",entity.Inhalt ); 
+						this.WorkingContent = this.WorkingContent.Replace ("%"+entity.Name +";",entity.Inhalt ); 
 					}
 				}
 			}
@@ -297,7 +288,7 @@ namespace de.springwald.xml.rules.dtd
 
 			Regex reg = new Regex(ausdruck); //, RegexOptions.IgnoreCase);
 			// Auf den DTD-Inhalt anwenden
-			Match match = reg.Match(_workingInhalt);
+			Match match = reg.Match(this.WorkingContent);
 
 			// Alle RegEx-Treffer durchlaufen und daraus Elemente erzeugen
 			while (match.Success) 
@@ -389,7 +380,7 @@ namespace de.springwald.xml.rules.dtd
 		private void CreateDTDAttributesForElement(DTDElement element) 
 		{
 			
-			element.Attribute = new List<DTDAttribut> ();
+			element.Attribute = new List<DtdAttribute> ();
 
 			// Regulären Ausdruck zum finden der AttributList-Definition zusammenbauen
 			// (?<attributliste><!ATTLIST muster_titel[\t\r\n ]+(?<attribute>[^>]+?)[\t\r\n ]?>)
@@ -397,7 +388,7 @@ namespace de.springwald.xml.rules.dtd
 
 			Regex regList = new Regex(ausdruckListe); //, RegexOptions.IgnoreCase);
 			// Auf den DTD-Inhalt anwenden
-			Match match = regList.Match(_workingInhalt);
+			Match match = regList.Match(this.WorkingContent);
 
 			if (match.Success) 
 			{
@@ -416,7 +407,7 @@ namespace de.springwald.xml.rules.dtd
 				if (match.Success) 
 				{
 
-					DTDAttribut attribut;
+					DtdAttribute attribut;
 					string typ;
 					string[] werteListe;
 					string delimStr = "|";
@@ -426,21 +417,21 @@ namespace de.springwald.xml.rules.dtd
 					// Alle RegEx-Treffer durchlaufen und daraus Attribute für das Element erzeugen
 					while (match.Success) 
 					{
-						attribut = new DTDAttribut (); // Attribut erzeugen
+						attribut = new DtdAttribute (); // Attribut erzeugen
 						attribut.Name = match.Groups["name"].Value; // Name des Attributes
 						attribut.StandardWert = match.Groups["vorgabewert"].Value; // StandardWert des Attributes
 						// Die Anzahl / Pflicht des Attributes
 						switch (match.Groups["anzahl"].Value) 
 						{
 							case "#REQUIRED":
-								attribut.Pflicht = DTDAttribut.PflichtArten.Pflicht;
+								attribut.Pflicht = DtdAttribute.PflichtArten.Pflicht;
 								break;
 							case "#IMPLIED":
 							case "":
-								attribut.Pflicht = DTDAttribut.PflichtArten.Optional;
+								attribut.Pflicht = DtdAttribute.PflichtArten.Optional;
 								break;
 							case "#FIXED":
-								attribut.Pflicht = DTDAttribut.PflichtArten.Konstante;
+								attribut.Pflicht = DtdAttribute.PflichtArten.Konstante;
 								break;
 							default:
                                 //"Unbekannte AttributAnzahl '{0}' in Attribut '{1}' von Element {2}"
