@@ -63,7 +63,7 @@
 
         await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                 textNode,
-                rules.XMLCursorPos.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
+                rules.XmlCursorPos.XmlCursorPositions.CursorInsideTextNode,
                 textNode.InnerText.Length);
         await this.editorContext.Actions.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), EditorActions.UndoSnapshotSetzenOptionen.ja);
 

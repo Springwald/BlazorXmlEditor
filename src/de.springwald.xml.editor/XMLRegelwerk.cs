@@ -153,7 +153,7 @@ namespace de.springwald.xml
         /// <param name="tagname">Der Name des Tags</param>
         /// <param name="cursorPos">Die zu prüfende Position</param>
         /// <returns></returns>
-        public bool IstDiesesTagAnDieserStelleErlaubt(string tagname, XMLCursorPos zielPunkt)
+        public bool IstDiesesTagAnDieserStelleErlaubt(string tagname, XmlCursorPos zielPunkt)
         {
             // Die Liste der erlaubten Tags holen und schauen, ob darin das Tag vorkommt
             return (from e in ErlaubteEinfuegeElemente_(zielPunkt, true, true)
@@ -169,7 +169,7 @@ namespace de.springwald.xml
         /// <param name="pcDATAMitAuflisten">wenn true, wird PCDATA mit als Node aufgeführt, sofern er erlaubt ist</param>
         /// <returns>Eine Auflistung der Nodenamen. Null bedeutet, es sind keine Elemente zugelassen.
         /// Ist der Inhalt "", dann ist das Element frei einzugeben </returns>
-        public virtual string[] ErlaubteEinfuegeElemente_(XMLCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
+        public virtual string[] ErlaubteEinfuegeElemente_(XmlCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
         {
 #warning evtl. Optimierungs-TODO:
             // Wahrscheinlich (allein schon durch die Nutzung von IstDiesesTagAnDieserStelleErlaubt() etc.)
@@ -177,7 +177,7 @@ namespace de.springwald.xml
             // das letzte Ergebnis hier ggf. gebuffert würde. Dabei sollte aber ausgeschlossen werden, dass
             // sich der XML-Inhalt in der Zwischenzeit geändert hat!
 
-            if (zielPunkt.AktNode == null) return new string[] { }; // Wenn nichts gewählt ist, ist auch nichts erlaubt
+            if (zielPunkt.ActualNode == null) return new string[] { }; // Wenn nichts gewählt ist, ist auch nichts erlaubt
 
             if (this.DTD == null) // Keine DTD hinterlegt
             {
@@ -207,7 +207,7 @@ namespace de.springwald.xml
         /// <returns></returns>
         /// <param name="ersatzNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
         /// AIML-Template wir * gedrückt, dann wird ein STAR-Tag eingefügt</param>
-        public virtual string EinfuegeTextPreProcessing(string einfuegeText, XMLCursorPos woEinfuegen, out System.Xml.XmlNode ersatzNode)
+        public virtual string EinfuegeTextPreProcessing(string einfuegeText, XmlCursorPos woEinfuegen, out System.Xml.XmlNode ersatzNode)
         {
             ersatzNode = null;
             return einfuegeText; // In der Standardform geht der Text immer durch

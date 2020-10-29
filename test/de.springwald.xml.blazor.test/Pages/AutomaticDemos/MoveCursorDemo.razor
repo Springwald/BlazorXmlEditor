@@ -1,7 +1,6 @@
 ﻿@page "/MoveCursorDemo"
 @using de.springwald.xml.blazor
 @using de.springwald.xml.editor
-@using de.springwald.xml.editor.actions
 @using de.springwald.xml.blazor.test.DemoData
 @using System.Timers
 @using de.springwald.xml.blazor.test.Components
@@ -58,7 +57,7 @@
             await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
             await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                xmlDocument.DocumentElement,
-               rules.XMLCursorPos.XMLCursorPositionen.CursorVorDemNode,
+               rules.XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode,
                0);
         }
 
@@ -74,7 +73,7 @@
 
             var dummy = cursorStatus.StartPos.Clone();
             await this.editorContext.Actions.MoveRight(dummy);
-            await cursorStatus.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
+            await cursorStatus.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
         }
         else
         {
@@ -85,10 +84,10 @@
             }
             var dummy = cursorStatus.StartPos.Clone();
             await this.editorContext.Actions.MoveLeft(dummy);
-            await cursorStatus.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
+            await cursorStatus.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
         }
 
-        this.cursorPos = $"{cursorStatus.StartPos.AktNode.Name}:{cursorStatus.StartPos.PosAmNode}:{cursorStatus.StartPos.PosImTextnode}";
+        this.cursorPos = $"{cursorStatus.StartPos.ActualNode.Name}:{cursorStatus.StartPos.PosOnNode}:{cursorStatus.StartPos.PosInTextNode}";
         StateHasChanged();
 
         this.fpsCounter.Count();

@@ -9,100 +9,89 @@
 
 namespace de.springwald.xml.rules
 {
-    public partial class XMLCursorPos
+    public partial class XmlCursorPos
     {
-        public enum XMLCursorPositionen { CursorVorDemNode, CursorAufNodeSelbstVorderesTag, CursorAufNodeSelbstHinteresTag, CursorInDemLeeremNode, CursorInnerhalbDesTextNodes, CursorHinterDemNode };
-
-        private int posImTextnode;                 // Dort befindet sich der Cursor im Fließtext, wenn die Pos CursorInnerhalbDesTextNodes ist
+        public enum XmlCursorPositions { CursorInFrontOfNode, CursorOnNodeStartTag, CursorOnNodeEndTag, CursorInsideTheEmptyNode, CursorInsideTextNode, CursorBehindTheNode };
 
         /// <summary>
-        /// Auf diesem XML-Node liegt gerade der Fokus des XMLEditors
+        ///  This XML node is currently the focus of the XML editor
         /// </summary>
-        public System.Xml.XmlNode AktNode { get; private set; }
+        public System.Xml.XmlNode ActualNode { get; private set; }
 
         /// <summary>
-        /// Dort befindet sich der Cursor im Fließtext, wenn dei Pos CursorInnerhalbDesTextNodes ist
+        /// There the cursor is located in the continuous text, if the Pos is CursorInsideTextNodes
         /// </summary>
-        public int PosImTextnode { get; private set; }
+        public int PosInTextNode { get; private set; }
 
         /// <summary>
-        /// Dort befindet sich der Cursor innerhalb oder außerhalb des fokusierten XMLNodes
+        /// There the cursor is located inside or outside the focused XMLNode
         /// </summary>
-        public XMLCursorPositionen PosAmNode { get; private set; }
+        public XmlCursorPositions PosOnNode { get; private set; }
 
-        public XMLCursorPos()
+        public XmlCursorPos()
         {
-            this.AktNode = null;  // Kein Node angewählt
-            this.PosAmNode = XMLCursorPositionen.CursorAufNodeSelbstVorderesTag;
-            this.PosImTextnode = 0;
+            this.ActualNode = null;  // no node selected
+            this.PosOnNode = XmlCursorPositions.CursorOnNodeStartTag;
+            this.PosInTextNode = 0;
         }
 
         /// <summary>
-        /// Prüft ob diese Position mit einer zweiten inhaltsgleich ist
+        ///  Checks if this position is equal to a second one
         /// </summary>
-        /// <param name="zweitePos"></param>
-        public bool Equals(XMLCursorPos zweitePos)
+        public bool Equals(XmlCursorPos otherPos)
         {
-            if (this.AktNode != zweitePos.AktNode) return false;
-            if (this.PosAmNode != zweitePos.PosAmNode) return false;
-            if (this.PosImTextnode != zweitePos.PosImTextnode) return false;
+            if (this.ActualNode != otherPos.ActualNode) return false;
+            if (this.PosOnNode != otherPos.PosOnNode) return false;
+            if (this.PosInTextNode != otherPos.PosInTextNode) return false;
             return true;
         }
 
         /// <summary>
-        /// Erstellt eine Kopie des Cursors
+        /// Creates a copy of the cursor position
         /// </summary>
-        /// <returns></returns>
-        public XMLCursorPos Clone()
+        public XmlCursorPos Clone()
         {
-            XMLCursorPos klon = new XMLCursorPos();
-            klon.SetPos(this.AktNode, this.PosAmNode, this.PosImTextnode);
-            return klon;
+            var clone = new XmlCursorPos();
+            clone.SetPos(this.ActualNode, this.PosOnNode, this.PosInTextNode);
+            return clone;
         }
 
         /// <summary>
-        /// Prüft, ob der angegebene Node hinter dieser CursorPosition liegt
+        /// Checks whether the specified node lies behind this cursor position
         /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        public bool LiegtNodeHinterDieserPos(System.Xml.XmlNode node)
+        public bool LiesBehindThisPos(System.Xml.XmlNode node)
         {
-            return ToolboxXML.Node1LiegtVorNode2(AktNode, node);
+            return ToolboxXML.Node1LaysBeforeNode2(ActualNode, node);
         }
 
         /// <summary>
-        /// Prüft, ob der angegebene Node vor dieser CursorPosition liegt
+        ///  Checks whether the specified node lies before this cursor position
         /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        public bool LiegtNodeVorDieserPos(System.Xml.XmlNode node)
+        public bool LiesBeforeThisPos(System.Xml.XmlNode node)
         {
-            return ToolboxXML.Node1LiegtVorNode2(node, AktNode);
+            return ToolboxXML.Node1LaysBeforeNode2(node, ActualNode);
         }
 
         /// <summary>
         /// Sets new values to this cursor pos
         /// </summary>
-        /// <param name="aktNode"></param>
-        /// <param name="posAmNode"></param>
-        /// <param name="posImTextnode"></param>
         /// <returns>true, when values where other than before</returns>
-        public bool SetPos(System.Xml.XmlNode aktNode, XMLCursorPositionen posAmNode, int posImTextnode = 0)
+        public bool SetPos(System.Xml.XmlNode actualNode, XmlCursorPositions posAtNode, int posInTextNode = 0)
         {
             bool changed;
-            if (aktNode != this.AktNode)
+            if (actualNode != this.ActualNode)
             {
                 changed = true;
             }
             else
             {
-                if (posAmNode != this.PosAmNode)
+                if (posAtNode != this.PosOnNode)
                 {
                     changed = true;
                 }
                 else
                 {
-                    if (posImTextnode != this.PosImTextnode)
+                    if (posInTextNode != this.PosInTextNode)
                     {
                         changed = true;
                     }
@@ -112,45 +101,29 @@ namespace de.springwald.xml.rules
                     }
                 }
             }
-
-            this.AktNode = aktNode;
-            this.PosAmNode = posAmNode;
-            this.PosImTextnode = posImTextnode;
+            this.ActualNode = actualNode;
+            this.PosOnNode = posAtNode;
+            this.PosInTextNode = posInTextNode;
             return changed;
         }
 
         /// <summary>
-        /// Findet heraus, ob der Node oder einer seiner Parent-Nodes selektiert ist
+        /// Finds out if the node or one of its parent nodes is selected
         /// </summary>
-        public bool IstNodeInnerhalbDerSelektion(System.Xml.XmlNode node)
+        public bool IsNodeInsideSelection(System.Xml.XmlNode node)
         {
-            if (this.AktNode == null) // es ist gar kein Node selektiert
+            if (this.ActualNode == null) return false; // no node is selected at all
+            if (node == null) return false;// No node passed for test at all
+            if (node == this.ActualNode) // the passed node is the current one
             {
-                return false;
+                // Return whether the node itself is selected
+                return ((this.PosOnNode == XmlCursorPositions.CursorOnNodeStartTag) ||
+                    (this.PosOnNode == XmlCursorPositions.CursorOnNodeEndTag));
             }
             else
             {
-                if (node == null) // gar kein Node zum Test übergeben
-                {
-                    return false;
-                }
-                else
-                {
-                    if (node == this.AktNode) // der übergebene Node ist der aktuelle
-                    {
-                        // Zurückgeben, ob der Node selbst selektiert ist
-                        return ((this.PosAmNode == XMLCursorPositionen.CursorAufNodeSelbstVorderesTag) ||
-                            (this.PosAmNode == XMLCursorPositionen.CursorAufNodeSelbstHinteresTag));
-                    }
-                    else
-                    {
-                        return IstNodeInnerhalbDerSelektion(node.ParentNode); // Den Parentnode weitertesten
-                    }
-                }
+                return this.IsNodeInsideSelection(node.ParentNode); // Continue testing the parent node
             }
         }
-
-
-
     }
 }

@@ -153,7 +153,7 @@ namespace de.springwald.xml.editor
             else
             {
                 // Herausfinden, ob der Node dieses Elementes betroffen ist
-                if (this.editorContext.EditorStatus.CursorRoh.StartPos.AktNode != this.XMLNode)
+                if (this.editorContext.EditorStatus.CursorRoh.StartPos.ActualNode != this.XMLNode)
                 {
                     return;
                 }

@@ -15,7 +15,7 @@ using de.springwald.xml.editor.nativeplatform;
 using de.springwald.xml.events;
 using de.springwald.xml.rules;
 using static de.springwald.xml.editor.actions.EditorActions;
-using static de.springwald.xml.rules.XMLCursorPos;
+using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor
 {
@@ -60,7 +60,7 @@ namespace de.springwald.xml.editor
                 // Dieser Tastendruck wurde nicht vom Regelwerk verarbeitet
                 var useKeyContent = e.CtrlKey == false;
 
-                XMLCursorPos dummy;
+                XmlCursorPos dummy;
 
                 switch (e.Key)
                 {
@@ -101,7 +101,7 @@ namespace de.springwald.xml.editor
                         {
                             dummy = this.editorState.CursorRoh.StartPos.Clone();
                             await CursorPosMoveHelper.MoveLeft(dummy, this.editorState.RootNode, this.regelwerk);
-                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
+                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
                         }
                         useKeyContent = false;
                         break;
@@ -115,7 +115,7 @@ namespace de.springwald.xml.editor
                         {
                             dummy = this.editorState.CursorRoh.StartPos.Clone();
                             await CursorPosMoveHelper.MoveRight(dummy, this.editorState.RootNode, this.regelwerk);
-                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.AktNode, dummy.PosAmNode, dummy.PosImTextnode);
+                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
                         }
                         useKeyContent = false;
                         break;
@@ -133,7 +133,7 @@ namespace de.springwald.xml.editor
                         break;
 
                     case Keys.Tab: // Tab jumps to the next day
-                        System.Xml.XmlNode node = this.editorState.CursorRoh.StartPos.AktNode;
+                        System.Xml.XmlNode node = this.editorState.CursorRoh.StartPos.ActualNode;
                         bool abbruch = false;
                         if (node.FirstChild != null)
                         {
@@ -160,7 +160,7 @@ namespace de.springwald.xml.editor
                         }
                         if (!abbruch)
                         {
-                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(node, XMLCursorPositionen.CursorInDemLeeremNode);
+                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(node, XmlCursorPositions.CursorInsideTheEmptyNode);
                         }
                         _naechstesLostFokusVerhindern = true; // So that leaving the focus is ignored on TAB
                         useKeyContent = false;

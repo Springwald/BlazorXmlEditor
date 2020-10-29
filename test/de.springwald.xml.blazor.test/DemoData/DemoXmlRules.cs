@@ -237,19 +237,19 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// </summary>
         /// <param name="ersatzNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
         /// AIML-Template wir * gedrückt, dann wird ein STAR-Tag eingefügt</param>
-        public override string EinfuegeTextPreProcessing(string einfuegeText, XMLCursorPos woEinfuegen, out System.Xml.XmlNode ersatzNode)
+        public override string EinfuegeTextPreProcessing(string einfuegeText, XmlCursorPos woEinfuegen, out System.Xml.XmlNode ersatzNode)
         {
             XmlNode node;
 
-            if (woEinfuegen.AktNode is XmlText)
+            if (woEinfuegen.ActualNode is XmlText)
             { // Pos ist ein Textnode
                 // Node ist der Parent des Textnode
-                node = woEinfuegen.AktNode.ParentNode;
+                node = woEinfuegen.ActualNode.ParentNode;
             }
             else
             { // Pos ist kein Textnode
                 // Die Pos selbst ist der Node
-                node = woEinfuegen.AktNode;
+                node = woEinfuegen.ActualNode;
             }
 
             string ausgabe;
@@ -265,7 +265,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                         // Hier ist der normale Stern erlaub
                         break;
                     default:
-                        ersatzNode = woEinfuegen.AktNode.OwnerDocument.CreateElement("star");
+                        ersatzNode = woEinfuegen.ActualNode.OwnerDocument.CreateElement("star");
                         return ""; // Den einfüge-Text leeren, da er ja schon als Star-Node zurück gegeben wurde
                 }
             }
@@ -344,11 +344,11 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// <param name="pcDATAMitAuflisten"></param>
         /// <param name="kommentareMitAuflisten"></param>
         /// <returns></returns>
-        public override string[] ErlaubteEinfuegeElemente_(XMLCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
+        public override string[] ErlaubteEinfuegeElemente_(XmlCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
         {
-            if (zielPunkt.AktNode != null)
+            if (zielPunkt.ActualNode != null)
             {
-                if (zielPunkt.AktNode.Name.ToLower() == "category")
+                if (zielPunkt.ActualNode.Name.ToLower() == "category")
                 {
                     // Anstelle des Category-Tags werden keine anderen Tags
                     // alternativ angeboten. Sonst würde man bei der Bearbeitung

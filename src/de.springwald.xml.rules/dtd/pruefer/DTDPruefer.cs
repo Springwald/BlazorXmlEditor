@@ -8,7 +8,7 @@
 // Licensed under MIT License
 
 using System.Text;
-using static de.springwald.xml.rules.XMLCursorPos;
+using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.rules.dtd
 {
@@ -101,8 +101,8 @@ namespace de.springwald.xml.rules.dtd
                     {
                         // "Tag '{0}' hier nicht erlaubt: "
                         _fehlermeldungen.AppendFormat($"Tag '{node.Name}' hier nicht erlaubt");
-                        XMLCursorPos pos = new XMLCursorPos();
-                        pos.SetPos(node, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                        XmlCursorPos pos = new XmlCursorPos();
+                        pos.SetPos(node, XmlCursorPositions.CursorOnNodeStartTag);
                         var erlaubteTags = this.NodeChecker.AnDieserStelleErlaubteTags_(pos, false, false); // was ist an dieser Stelle erlaubt?
                         if (erlaubteTags.Length > 0)
                         {

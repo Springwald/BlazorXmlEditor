@@ -97,23 +97,23 @@
             if (this.EditorStatus.CursorRoh.StartPos.Equals(this.EditorStatus.CursorRoh.EndPos))  //  kein Bereich gewählt
             {
                 // Herausfinden, für welchen Node die Attribute angezeigt werden sollen
-                switch (this.EditorStatus.CursorRoh.StartPos.PosAmNode)
+                switch (this.EditorStatus.CursorRoh.StartPos.PosOnNode)
                 {
-                    case XMLCursorPos.XMLCursorPositionen.CursorInDemLeeremNode:
-                    case XMLCursorPos.XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
-                    case XMLCursorPos.XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
+                    case XmlCursorPos.XmlCursorPositions.CursorInsideTheEmptyNode:
+                    case XmlCursorPos.XmlCursorPositions.CursorOnNodeEndTag:
+                    case XmlCursorPos.XmlCursorPositions.CursorOnNodeStartTag:
                         // Der Node selbst ist selektiert
-                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.AktNode;
+                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.ActualNode;
                         break;
 
-                    case XMLCursorPos.XMLCursorPositionen.CursorInnerhalbDesTextNodes:
-                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.AktNode;
+                    case XmlCursorPos.XmlCursorPositions.CursorInsideTextNode:
+                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.ActualNode;
                         break;
 
-                    case XMLCursorPos.XMLCursorPositionen.CursorHinterDemNode:
-                    case XMLCursorPos.XMLCursorPositionen.CursorVorDemNode:
+                    case XmlCursorPos.XmlCursorPositions.CursorBehindTheNode:
+                    case XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode:
                         // Wir sind hinter oder vor dem Node, daher werden die Attribute des ParentNodes angezeigt
-                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.AktNode.ParentNode;
+                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.ActualNode.ParentNode;
                         break;
 
                     default:

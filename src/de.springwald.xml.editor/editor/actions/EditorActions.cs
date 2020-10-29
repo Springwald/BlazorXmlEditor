@@ -14,7 +14,7 @@ using de.springwald.xml.rules;
 using System;
 using System.Threading.Tasks;
 using System.Xml;
-using static de.springwald.xml.rules.XMLCursorPos;
+using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor.actions
 {
@@ -41,7 +41,7 @@ namespace de.springwald.xml.editor.actions
                 }
                 else
                 {
-                    return this.editorStatus.CursorRoh.StartPos.AktNode != null;
+                    return this.editorStatus.CursorRoh.StartPos.ActualNode != null;
                 }
             }
         }
@@ -52,12 +52,12 @@ namespace de.springwald.xml.editor.actions
         }
 
 
-        public async Task<bool> MoveRight(XMLCursorPos cursorPos)
+        public async Task<bool> MoveRight(XmlCursorPos cursorPos)
         {
             return await CursorPosMoveHelper.MoveRight(cursorPos, this.editorContext.EditorStatus.RootNode, this.editorContext.XmlRules);
         }
 
-        public async Task<bool> MoveLeft(XMLCursorPos cursorPos)
+        public async Task<bool> MoveLeft(XmlCursorPos cursorPos)
         {
             return await CursorPosMoveHelper.MoveLeft(cursorPos, this.editorContext.EditorStatus.RootNode, this.editorContext.XmlRules);
         }
@@ -77,8 +77,8 @@ namespace de.springwald.xml.editor.actions
             {
                 if (await this.nativePlatform.Clipboard.ContainsText()) // wenn Text in der Zwischenablage ist
                 {
-                    XMLCursorPos startPos;
-                    XMLCursorPos endPos;
+                    XmlCursorPos startPos;
+                    XmlCursorPos endPos;
 
                     if (this.editorStatus.IstRootNodeSelektiert) // Der Rootnode ist selektiert und soll daher durch den Clipboard-Inhalt ersetzt werden
                     {
@@ -150,16 +150,16 @@ namespace de.springwald.xml.editor.actions
                         }
                     }
 
-                    switch (this.editorStatus.CursorRoh.EndPos.PosAmNode)
+                    switch (this.editorStatus.CursorRoh.EndPos.PosOnNode)
                     {
-                        case XMLCursorPositionen.CursorInnerhalbDesTextNodes:
-                        case XMLCursorPositionen.CursorVorDemNode:
+                        case XmlCursorPositions.CursorInsideTextNode:
+                        case XmlCursorPositions.CursorInFrontOfNode:
                             // Ende des Einfügens liegt einem Text oder vor dem Node
-                            await this.editorStatus.CursorRoh.SetPositions(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode, throwChangedEventWhenValuesChanged: false);
+                            await this.editorStatus.CursorRoh.SetPositions(endPos.ActualNode, endPos.PosOnNode, endPos.PosInTextNode, throwChangedEventWhenValuesChanged: false);
                             break;
                         default:
                             // Ende des Einfügens liegt hinter dem letzten eingefügten Node
-                            await this.editorStatus.CursorRoh.SetPositions(endPos.AktNode, XMLCursorPositionen.CursorHinterDemNode, textPosInBothNodes: 0, throwChangedEventWhenValuesChanged: false);
+                            await this.editorStatus.CursorRoh.SetPositions(endPos.ActualNode, XmlCursorPositions.CursorBehindTheNode, textPosInBothNodes: 0, throwChangedEventWhenValuesChanged: false);
                             break;
                     }
                     await this.editorStatus.FireContentChangedEvent();
@@ -236,9 +236,9 @@ namespace de.springwald.xml.editor.actions
                     this.editorStatus.RootNode.Attributes.Append(attrib); // an richtigen Rootnode packen
                 }
 
-                var startPos = new XMLCursorPos();
-                startPos.SetPos(this.editorStatus.RootNode, XMLCursorPositionen.CursorInDemLeeremNode);
-                XMLCursorPos endPos;
+                var startPos = new XmlCursorPos();
+                startPos.SetPos(this.editorStatus.RootNode, XmlCursorPositions.CursorInsideTheEmptyNode);
+                XmlCursorPos endPos;
 
                 // Nun alle Children des virtuellen Root-Node nacheinander an der CursorPos einfügen
                 endPos = startPos.Clone(); // Vor dem Einfügen sind start- und endPos gleich
@@ -247,7 +247,7 @@ namespace de.springwald.xml.editor.actions
                     var child = pasteNode.RemoveChild(pasteNode.FirstChild);
                     this.editorStatus.RootNode.AppendChild(child);
                 }
-                await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, 0, throwChangedEventWhenValuesChanged: false);
+                await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode, XmlCursorPositions.CursorOnNodeStartTag, 0, throwChangedEventWhenValuesChanged: false);
                 await this.editorStatus.FireContentChangedEvent();
                 return true;
             }
@@ -302,12 +302,12 @@ namespace de.springwald.xml.editor.actions
                 if (this.editorStatus.RootNode.FirstChild != null)
                 {
                     // Vor das erste Child des Rootnodes
-                    await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode.FirstChild, XMLCursorPositionen.CursorVorDemNode, 0, throwChangedEventWhenValuesChanged: true);
+                    await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode.FirstChild, XmlCursorPositions.CursorInFrontOfNode, 0, throwChangedEventWhenValuesChanged: true);
                 }
                 else
                 {
                     // In den leeren Rootnode
-                    await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode, XMLCursorPositionen.CursorInDemLeeremNode, 0, throwChangedEventWhenValuesChanged: true);
+                    await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode, XmlCursorPositions.CursorInsideTheEmptyNode, 0, throwChangedEventWhenValuesChanged: true);
                 }
                 return true;
             }
@@ -320,7 +320,7 @@ namespace de.springwald.xml.editor.actions
         public virtual async Task<bool> AktionAllesMarkieren()
         {
             // Den Rootnode selbst markieren
-            await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, 0, throwChangedEventWhenValuesChanged: true);
+            await this.editorStatus.CursorRoh.SetPositions(this.editorStatus.RootNode, XmlCursorPositions.CursorOnNodeStartTag, 0, throwChangedEventWhenValuesChanged: true);
             return true;
         }
 
@@ -332,7 +332,7 @@ namespace de.springwald.xml.editor.actions
         {
             if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
-            if (this.editorStatus.CursorOptimiert.StartPos.AktNode == this.editorStatus.RootNode)
+            if (this.editorStatus.CursorOptimiert.StartPos.ActualNode == this.editorStatus.RootNode)
             {
                 // Der Root-Node kann nicht ausgeschnitten werden
                 return false;
@@ -385,7 +385,7 @@ namespace de.springwald.xml.editor.actions
             var deleteResult = await XmlCursorSelectionHelper.SelektionLoeschen(optimized);
             if (deleteResult.Success)
             {
-                await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
+                await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.ActualNode, deleteResult.NeueCursorPosNachLoeschen.PosOnNode, deleteResult.NeueCursorPosNachLoeschen.PosInTextNode, throwChangedEventWhenValuesChanged: false);
                 await this.editorStatus.FireContentChangedEvent();
                 return true;
             }
@@ -492,20 +492,20 @@ namespace de.springwald.xml.editor.actions
         /// Den Node oder das Zeichen vor dem Cursor löschen
         /// </summary>
         /// <param name="position"></param>
-        public async Task<bool> AktionNodeOderZeichenVorDerCursorPosLoeschen(XMLCursorPos position, UndoSnapshotSetzenOptionen setUnDoSnapshot)
+        public async Task<bool> AktionNodeOderZeichenVorDerCursorPosLoeschen(XmlCursorPos position, UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
 
             if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
             // Den Cursor eine Pos nach links
             var deleteArea = new XMLCursor();
-            deleteArea.StartPos.SetPos(position.AktNode, position.PosAmNode, position.PosImTextnode);
+            deleteArea.StartPos.SetPos(position.ActualNode, position.PosOnNode, position.PosInTextNode);
             var endPos = deleteArea.StartPos.Clone();
             await CursorPosMoveHelper.MoveLeft(endPos, this.editorStatus.RootNode, this.regelwerk);
-            deleteArea.EndPos.SetPos(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
+            deleteArea.EndPos.SetPos(endPos.ActualNode, endPos.PosOnNode, endPos.PosInTextNode);
             await deleteArea.SelektionOptimieren();
 
-            if (deleteArea.StartPos.AktNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
+            if (deleteArea.StartPos.ActualNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
 
             if (setUnDoSnapshot == UndoSnapshotSetzenOptionen.ja)
             {
@@ -518,7 +518,7 @@ namespace de.springwald.xml.editor.actions
             if (deleteResult.Success)
             {
                 // Nach erfolgreichem Löschen wird hier die neue CursorPos zurückgeholt
-                await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
+                await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.ActualNode, deleteResult.NeueCursorPosNachLoeschen.PosOnNode, deleteResult.NeueCursorPosNachLoeschen.PosInTextNode, throwChangedEventWhenValuesChanged: false);
                 await this.editorStatus.FireContentChangedEvent(); // Bescheid sagen, dass der Inhalt des XMLs sich geändert hat
                 return true;
             }
@@ -532,7 +532,7 @@ namespace de.springwald.xml.editor.actions
         /// Den Node oder das Zeichen hinter dem Cursor löschen
         /// </summary>
         /// <param name="position"></param>
-        public async Task<bool> AktionNodeOderZeichenHinterCursorPosLoeschen(XMLCursorPos position, UndoSnapshotSetzenOptionen setUnDoSnapshot)
+        public async Task<bool> AktionNodeOderZeichenHinterCursorPosLoeschen(XmlCursorPos position, UndoSnapshotSetzenOptionen setUnDoSnapshot)
         {
             if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
@@ -544,19 +544,19 @@ namespace de.springwald.xml.editor.actions
             }
 
             var deleteArea = new XMLCursor();
-            deleteArea.StartPos.SetPos(position.AktNode, position.PosAmNode, position.PosImTextnode);
+            deleteArea.StartPos.SetPos(position.ActualNode, position.PosOnNode, position.PosInTextNode);
             var endPos = deleteArea.StartPos.Clone();
             await CursorPosMoveHelper.MoveRight(endPos, this.editorStatus.RootNode, this.regelwerk);
-            deleteArea.EndPos.SetPos(endPos.AktNode, endPos.PosAmNode, endPos.PosImTextnode);
+            deleteArea.EndPos.SetPos(endPos.ActualNode, endPos.PosOnNode, endPos.PosInTextNode);
             await deleteArea.SelektionOptimieren();
 
-            if (deleteArea.StartPos.AktNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
+            if (deleteArea.StartPos.ActualNode == this.editorStatus.RootNode) return false; // Den Rootnot darf man nicht löschen
 
             var deleteResult = await XmlCursorSelectionHelper.SelektionLoeschen(deleteArea);
             if (deleteResult.Success)
             {
                 // Nach erfolgreichem Löschen wird hier die neue CursorPos zurückgeholt
-                await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.AktNode, deleteResult.NeueCursorPosNachLoeschen.PosAmNode, deleteResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
+                await this.editorStatus.CursorRoh.SetPositions(deleteResult.NeueCursorPosNachLoeschen.ActualNode, deleteResult.NeueCursorPosNachLoeschen.PosOnNode, deleteResult.NeueCursorPosNachLoeschen.PosInTextNode, throwChangedEventWhenValuesChanged: false);
                 await this.editorStatus.FireContentChangedEvent();
                 return true;
             }
@@ -613,7 +613,7 @@ namespace de.springwald.xml.editor.actions
         /// </summary>
         private async Task TextEinfuegen(XMLCursor cursor, string text, de.springwald.xml.XMLRegelwerk regelwerk)
         {
-            XMLCursorPos einfuegePos;
+            XmlCursorPos einfuegePos;
 
             // Wenn etwas selektiert ist, dann zuerst das löschen, da es ja durch den neuen Text ersetzt wird
             XMLCursor loeschbereich = cursor.Clone();
@@ -638,7 +638,7 @@ namespace de.springwald.xml.editor.actions
             }
 
             // anschließend wird der Cursor nur noch ein Strich hinter dem eingefügten
-            await cursor.SetPositions(einfuegePos.AktNode, einfuegePos.PosAmNode, einfuegePos.PosImTextnode, throwChangedEventWhenValuesChanged: false);
+            await cursor.SetPositions(einfuegePos.ActualNode, einfuegePos.PosOnNode, einfuegePos.PosInTextNode, throwChangedEventWhenValuesChanged: false);
         }
 
         /// <summary>
@@ -652,14 +652,14 @@ namespace de.springwald.xml.editor.actions
             var loeschResult = await XmlCursorSelectionHelper.SelektionLoeschen(loeschbereich);
             if (loeschResult.Success)
             {
-                await cursor.SetPositions(loeschResult.NeueCursorPosNachLoeschen.AktNode, loeschResult.NeueCursorPosNachLoeschen.PosAmNode, loeschResult.NeueCursorPosNachLoeschen.PosImTextnode, throwChangedEventWhenValuesChanged: false);
+                await cursor.SetPositions(loeschResult.NeueCursorPosNachLoeschen.ActualNode, loeschResult.NeueCursorPosNachLoeschen.PosOnNode, loeschResult.NeueCursorPosNachLoeschen.PosInTextNode, throwChangedEventWhenValuesChanged: false);
             }
 
             // den angegebenen Node an der CursorPosition einfügen
             if (InsertAtCursorPosHelper.InsertXMLNode(cursor.StartPos, node, regelwerk, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen))
             {
                 // anschließen wird der Cursor nur noch ein Strich hinter dem eingefügten
-                cursor.EndPos.SetPos(cursor.StartPos.AktNode, cursor.StartPos.PosAmNode, cursor.StartPos.PosImTextnode);
+                cursor.EndPos.SetPos(cursor.StartPos.ActualNode, cursor.StartPos.PosOnNode, cursor.StartPos.PosInTextNode);
             }
         }
 

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using static de.springwald.xml.rules.XMLCursorPos;
+using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.rules.dtd
 {
@@ -56,10 +56,10 @@ namespace de.springwald.xml.rules.dtd
         /// <param name="xmlPfad">Der XMLPfad</param>
         /// <param name="pcDATAMitAuflisten">wenn true, wird PCDATA mit als Node aufgeführt, sofern er erlaubt ist</param>
         /// <returns></returns>
-        public string[] AnDieserStelleErlaubteTags_(XMLCursorPos zuTestendeCursorPos, bool pcDATAMitAuflisten, bool kommentareMitAufListen)
+        public string[] AnDieserStelleErlaubteTags_(XmlCursorPos zuTestendeCursorPos, bool pcDATAMitAuflisten, bool kommentareMitAufListen)
         {
             // Damit nicht aus Versehen etwas an Änderungen zurückgeben wird, erstmal die CursorPos klonen
-            XMLCursorPos cursorPos = zuTestendeCursorPos.Clone();
+            XmlCursorPos cursorPos = zuTestendeCursorPos.Clone();
 
 #if DenkProtokoll
 			_denkProtokoll=new StringBuilder();
@@ -122,8 +122,8 @@ namespace de.springwald.xml.rules.dtd
             }
             else
             {
-                XMLCursorPos cursorPos = new XMLCursorPos();
-                cursorPos.SetPos(node, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag);
+                XmlCursorPos cursorPos = new XmlCursorPos();
+                cursorPos.SetPos(node, XmlCursorPositions.CursorOnNodeStartTag);
 
 #if DenkProtokoll
 				_denkProtokoll=new StringBuilder();
@@ -158,47 +158,47 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Erzeugt alle Testmuster inkl. der Ergebnisse, ob diese Zulässig sind
         /// </summary>
-        private List<DTDTestmuster> GetAlleTestmuster(XMLCursorPos cursorPos)
+        private List<DTDTestmuster> GetAlleTestmuster(XmlCursorPos cursorPos)
         {
             List<DTDTestmuster> zuTestendeMuster = new List<DTDTestmuster>();
             DTDTestmuster einMuster;
 
-            if (cursorPos.AktNode == null)
+            if (cursorPos.ActualNode == null)
             {
                 // Wie soll denn für einen nicht vorhandenen Node geschaut werden, was erlaubt ist???
                 throw new ApplicationException("GetAlleTestmuster: cursorPos.AktNode=NULL!");
             }
 
             // Löschen prüfen (Löschen-Testmuster anmelden)
-            switch (cursorPos.PosAmNode)
+            switch (cursorPos.PosOnNode)
             {
-                case XMLCursorPositionen.CursorInDemLeeremNode:
-                case XMLCursorPositionen.CursorVorDemNode:
-                case XMLCursorPositionen.CursorHinterDemNode:
-                case XMLCursorPositionen.CursorInnerhalbDesTextNodes:
+                case XmlCursorPositions.CursorInsideTheEmptyNode:
+                case XmlCursorPositions.CursorInFrontOfNode:
+                case XmlCursorPositions.CursorBehindTheNode:
+                case XmlCursorPositions.CursorInsideTextNode:
                     // Hier muss kein Löschen getestet werden, da kein Node selektiert ist
                     break;
-                case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
-                case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
+                case XmlCursorPositions.CursorOnNodeStartTag:
+                case XmlCursorPositions.CursorOnNodeEndTag:
                     // Löschen-Muster zum Testen bereitstellen, ob der selektierte Node gelöscht werden kann
                     //einMuster = CreateTestMuster(null,cursorPos);
                     //zuTestendeMuster.Add(einMuster);
                     break;
                 default:
-                    throw new ApplicationException(String.Format("unknown cursorPos.StartPos.PosAmNode '{0}' detected.", cursorPos.PosAmNode));
+                    throw new ApplicationException(String.Format("unknown cursorPos.StartPos.PosAmNode '{0}' detected.", cursorPos.PosOnNode));
             }
 
-            if (cursorPos.AktNode is System.Xml.XmlComment)
+            if (cursorPos.ActualNode is System.Xml.XmlComment)
             {
                 // In einem Kommantar können keine Tags eingefügt werden
             }
             else // Ist kein Kommentar
             {
                 string[] anDieserStelleErlaubteChildren;
-                if (cursorPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode)
+                if (cursorPos.PosOnNode == XmlCursorPositions.CursorInsideTheEmptyNode)
                 {
                     // Im Node sind alle Children dieses Nodes erlaubt
-                    DTDElement element = _dtd.DTDElementByName(cursorPos.AktNode.Name, false);
+                    DTDElement element = _dtd.DTDElementByName(cursorPos.ActualNode.Name, false);
                     if (element == null)
                     {
                         // Ein Element mit diesem Namen ist nicht bekannt
@@ -212,7 +212,7 @@ namespace de.springwald.xml.rules.dtd
                 else
                 {
                     // Welche Elemente sind *neben* dem Element erlaubt?   
-                    if (cursorPos.AktNode.OwnerDocument == null)
+                    if (cursorPos.ActualNode.OwnerDocument == null)
                     {
                         // Der AktNode hängt in keinem Dokument? Hm, sind wir vielleicht gerade mitten in einem
                         // einfüge-Prozess...
@@ -223,7 +223,7 @@ namespace de.springwald.xml.rules.dtd
                     }
                     else
                     {
-                        if (cursorPos.AktNode == cursorPos.AktNode.OwnerDocument.DocumentElement)
+                        if (cursorPos.ActualNode == cursorPos.ActualNode.OwnerDocument.DocumentElement)
                         {
                             // Bei diesem Node handelt es sich im das Dokument-Tag selbst. Dieses ist auf dem Root 
                             // exklusiv, daher kann es daneben keine anderen Elemente geben
@@ -233,7 +233,7 @@ namespace de.springwald.xml.rules.dtd
                         {
                             // Neben oder an der Stelle des Nodes sind alle Children des Parent erlaubt
                             // Zuerst herausfinden, welches das Parent-Element des Nodes ist, für den gecheckt werden soll
-                            DTDElement parentElement = _dtd.DTDElementByName(cursorPos.AktNode.ParentNode.Name, false);
+                            DTDElement parentElement = _dtd.DTDElementByName(cursorPos.ActualNode.ParentNode.Name, false);
                             if (parentElement == null)
                             {
                                 // Ein Element mit diesem Namen ist nicht bekannt
@@ -272,14 +272,14 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Prüft alle Testmuster darauf hin, sie es im Rahmen der eingelesenen DTD gültig sind
         /// </summary>
-        private void PruefeAlleTestmuster(List<DTDTestmuster> alleMuster, XMLCursorPos cursorPos)
+        private void PruefeAlleTestmuster(List<DTDTestmuster> alleMuster, XmlCursorPos cursorPos)
         {
 
-            System.Xml.XmlNode node = cursorPos.AktNode;
+            System.Xml.XmlNode node = cursorPos.ActualNode;
 
             DTDElement element_;
 
-            if (cursorPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode)
+            if (cursorPos.PosOnNode == XmlCursorPositions.CursorInsideTheEmptyNode)
             {
                 // Das DTDElement für den Node des Cursors holen 
                 element_ = _dtd.DTDElementByName(DTD.GetElementNameFromNode(node), false);
@@ -346,17 +346,17 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Fügt ein Testmuster hinzu
         /// </summary>
-        private DTDTestmuster CreateTestMuster(string elementName, XMLCursorPos cursorPos)
+        private DTDTestmuster CreateTestMuster(string elementName, XmlCursorPos cursorPos)
         {
             DTDTestmuster testMuster;
-            System.Xml.XmlNode node = cursorPos.AktNode;
+            System.Xml.XmlNode node = cursorPos.ActualNode;
 
             // Alle verfügbaren Elemente zum Testen bereitstellen
             System.Xml.XmlNode bruder;
 
-            switch (cursorPos.PosAmNode)
+            switch (cursorPos.PosOnNode)
             {
-                case XMLCursorPositionen.CursorInDemLeeremNode:
+                case XmlCursorPositions.CursorInsideTheEmptyNode:
                     // Der Parentnode ist leer, also müssen wir nur auf die erlaubten Elemente darin testen 
                     // und keine Bruder-Elemente auf gleicher Ebene erwarten
                     testMuster = new DTDTestmuster(elementName, DTD.GetElementNameFromNode(node));
@@ -400,11 +400,11 @@ namespace de.springwald.xml.rules.dtd
                                     }
                                     else
                                     {
-                                        switch (cursorPos.PosAmNode)
+                                        switch (cursorPos.PosOnNode)
                                         {
 
-                                            case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:	// Wenn der Node selbst ausgewählt ist und somit ersetzt werden soll
-                                            case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
+                                            case XmlCursorPositions.CursorOnNodeStartTag:	// Wenn der Node selbst ausgewählt ist und somit ersetzt werden soll
+                                            case XmlCursorPositions.CursorOnNodeEndTag:
                                                 if (elementName == null) // Das Löschen wird geprüft
                                                 {
                                                     // Element weglassen
@@ -417,7 +417,7 @@ namespace de.springwald.xml.rules.dtd
                                                 }
                                                 break;
 
-                                            case XMLCursorPositionen.CursorHinterDemNode:
+                                            case XmlCursorPositions.CursorBehindTheNode:
                                                 if (elementName == null) // Das Löschen wird geprüft
                                                 {
                                                     throw new ApplicationException("CreateTestMuster: Löschen darf bei XMLCursorPositionen.CursorHinterDemNode nicht geprüft werden!");
@@ -432,7 +432,7 @@ namespace de.springwald.xml.rules.dtd
                                                 }
                                                 break;
 
-                                            case XMLCursorPositionen.CursorInDemLeeremNode:
+                                            case XmlCursorPositions.CursorInsideTheEmptyNode:
                                                 if (elementName == null) // Das Löschen wird geprüft
                                                 {
                                                     throw new ApplicationException("CreateTestMuster: Löschen darf bei XMLCursorPositionen.CursorHinterDemNode nicht geprüft werden!");
@@ -443,7 +443,7 @@ namespace de.springwald.xml.rules.dtd
                                                 }
 
 
-                                            case XMLCursorPositionen.CursorVorDemNode:
+                                            case XmlCursorPositions.CursorInFrontOfNode:
                                                 if (elementName == null) // Das Löschen wird geprüft
                                                 {
                                                     throw new ApplicationException("CreateTestMuster: Löschen darf bei XMLCursorPositionen.CursorVorDemNode nicht geprüft werden!");
@@ -457,7 +457,7 @@ namespace de.springwald.xml.rules.dtd
                                                 }
                                                 break;
 
-                                            case XMLCursorPositionen.CursorInnerhalbDesTextNodes:
+                                            case XmlCursorPositions.CursorInsideTextNode:
                                                 if (elementName == null) // Das Löschen wird geprüft
                                                 {
                                                     throw new ApplicationException("CreateTestMuster: Löschen darf bei XMLCursorPositionen.CursorInnerhalbDesTextNodes nicht geprüft werden!");
@@ -479,7 +479,7 @@ namespace de.springwald.xml.rules.dtd
                                                 break;
 
                                             default:
-                                                throw new ApplicationException("Unknown XMLCursorPositionen value:" + cursorPos.PosAmNode);
+                                                throw new ApplicationException("Unknown XMLCursorPositionen value:" + cursorPos.PosOnNode);
                                         }
                                     }
                                 }

@@ -17,7 +17,7 @@ using de.springwald.xml.editor.xmlelements.StandardNode;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 using de.springwald.xml.editor.cursor;
-using static de.springwald.xml.rules.XMLCursorPos;
+using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor
 {
@@ -80,9 +80,9 @@ namespace de.springwald.xml.editor
             }
 
             // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
-            if (cursor.StartPos.AktNode == this.XMLNode)
+            if (cursor.StartPos.ActualNode == this.XMLNode)
             {
-                if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
+                if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInFrontOfNode)
                 {
                     // Position für Cursor-Strich vermerken
                     newCursorPaintPos = new Point(paintContext.PaintPosX + 1, paintContext.PaintPosY);
@@ -92,9 +92,9 @@ namespace de.springwald.xml.editor
             paintContext = await this.startTag.Paint(paintContext, alreadyUnpainted,  isSelected, gfx);
 
             // If the cursor is inside the empty node, then draw the cursor there
-            if (cursor.StartPos.AktNode == this.XMLNode)
+            if (cursor.StartPos.ActualNode == this.XMLNode)
             {
-                if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorInDemLeeremNode)
+                if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInsideTheEmptyNode)
                 {
                     // set position for cursor line
                     newCursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
@@ -109,9 +109,9 @@ namespace de.springwald.xml.editor
             }
 
             // If the cursor is behind the node, then also draw the cursor there
-            if (cursor.StartPos.AktNode == this.XMLNode)
+            if (cursor.StartPos.ActualNode == this.XMLNode)
             {
-                if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
+                if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode)
                 {
                     this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
@@ -241,7 +241,7 @@ namespace de.springwald.xml.editor
         {
             if (this.startTag.AreaTag?.Contains(point) == true) // er wurde auf das linke Tag geklickt
             {
-                await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, mouseAction);
+                await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorOnNodeStartTag, mouseAction);
                 xmlEditor.CursorBlink.ResetBlinkPhase();
                 return;
             }
@@ -251,14 +251,14 @@ namespace de.springwald.xml.editor
                 if (this.XMLNode.ChildNodes.Count > 0) // Children vorhanden
                 {
                     // vor das erste Child setzen
-                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.LastChild, XMLCursorPositionen.CursorHinterDemNode, mouseAction);
+                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.LastChild, XmlCursorPositions.CursorBehindTheNode, mouseAction);
                     xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
-                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInDemLeeremNode, mouseAction);
+                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorInsideTheEmptyNode, mouseAction);
                     xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
@@ -266,7 +266,7 @@ namespace de.springwald.xml.editor
 
             if (this.endTag?.AreaTag?.Contains(point) == true) // er wurde auf das rechte Tag geklickt
             {
-                await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstHinteresTag, mouseAction);
+                await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorOnNodeEndTag, mouseAction);
                 xmlEditor.CursorBlink.ResetBlinkPhase();
                 return;
             }
@@ -276,14 +276,14 @@ namespace de.springwald.xml.editor
                 if (this.XMLNode.ChildNodes.Count > 0) // Children vorhanden
                 {
                     // vor das erste Child setzen
-                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.FirstChild, XMLCursorPositionen.CursorVorDemNode, mouseAction);
+                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode.FirstChild, XmlCursorPositions.CursorInFrontOfNode, mouseAction);
                     xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
-                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInDemLeeremNode, mouseAction);
+                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorInsideTheEmptyNode, mouseAction);
                     xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }

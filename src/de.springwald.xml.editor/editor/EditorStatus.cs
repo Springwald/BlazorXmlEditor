@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform;
-using static de.springwald.xml.rules.XMLCursorPos;
+using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor
 {
@@ -97,12 +97,12 @@ namespace de.springwald.xml.editor
                 if (this.IstEtwasSelektiert) //  Anything selected
                 {
                     var startpos = CursorOptimiert.StartPos;
-                    if (startpos.AktNode == RootNode) // The root node is in the cursor
+                    if (startpos.ActualNode == RootNode) // The root node is in the cursor
                     {
-                        switch (startpos.PosAmNode)
+                        switch (startpos.PosOnNode)
                         {
-                            case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag:
-                            case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
+                            case XmlCursorPositions.CursorOnNodeStartTag:
+                            case XmlCursorPositions.CursorOnNodeEndTag:
                                 return true; // The root node is selected
                         }
                     }
@@ -140,8 +140,8 @@ namespace de.springwald.xml.editor
                 {
 
                     await this.CursorRoh.SetPositions(
-                        c.StartPos.AktNode, c.StartPos.PosAmNode, c.StartPos.PosImTextnode,
-                        c.EndPos.AktNode, c.EndPos.PosAmNode, c.EndPos.PosImTextnode,
+                        c.StartPos.ActualNode, c.StartPos.PosOnNode, c.StartPos.PosInTextNode,
+                        c.EndPos.ActualNode, c.EndPos.PosOnNode, c.EndPos.PosInTextNode,
                          throwChangedEventWhenValuesChanged: true);
                 }
                 await this.FireContentChangedEvent();

@@ -109,7 +109,7 @@
 
         this.UndoTitle = this.EditorStatus.UndoMoeglich ? this.EditorStatus.UndoSchrittName : null;
 
-        this.InsertPossible = await this.EditorContext.NativePlatform.Clipboard.ContainsText() && this.EditorStatus.CursorRoh.StartPos.AktNode != null;
+        this.InsertPossible = await this.EditorContext.NativePlatform.Clipboard.ContainsText() && this.EditorStatus.CursorRoh.StartPos.ActualNode != null;
 
         this.SomethingIsSelected = this.EditorStatus.IstEtwasSelektiert;
         this.StateHasChanged();

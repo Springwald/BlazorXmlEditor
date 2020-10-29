@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using de.springwald.xml.editor.cursor;
-using static de.springwald.xml.rules.XMLCursorPos;
+using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor.xmlelements.TextNode
 {
@@ -97,9 +97,9 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             int marginY = (paintContext.HoeheAktZeile - this.Config.FontTextNode.Height) / 2;
 
             // ggf. den Cursorstrich vor dem Node berechnen
-            if (this.XMLNode == cursor.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
+            if (this.XMLNode == cursor.StartPos.ActualNode)  // ist der Cursor im aktuellen Textnode
             {
-                if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorVorDemNode)
+                if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInFrontOfNode)
                 {
                     this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
@@ -170,9 +170,9 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             this.textParts = newTextParts;
 
             // ggf. den Cursorstrich hinter dem Node berechnen
-            if (this.XMLNode == cursor.StartPos.AktNode)  // ist der Cursor im aktuellen Textnode
+            if (this.XMLNode == cursor.StartPos.ActualNode)  // ist der Cursor im aktuellen Textnode
             {
-                if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorHinterDemNode)
+                if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode)
                 {
                     this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
@@ -217,14 +217,14 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                     CursorPos = -1,
                 };
 
-                if (this.XMLNode == cursor.StartPos.AktNode) // ist der Cursor im aktuellen Textnode
+                if (this.XMLNode == cursor.StartPos.ActualNode) // ist der Cursor im aktuellen Textnode
                 {
-                    if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorInnerhalbDesTextNodes)
+                    if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInsideTextNode)
                     {
                         // Checken, ob der Cursor innerhalb dieses Textteiles liegt
-                        if ((cursor.StartPos.PosImTextnode >= actualTextPartStartPos) && (cursor.StartPos.PosImTextnode <= actualTextPartStartPos + part.Text.Length))
+                        if ((cursor.StartPos.PosInTextNode >= actualTextPartStartPos) && (cursor.StartPos.PosInTextNode <= actualTextPartStartPos + part.Text.Length))
                         {
-                            textPart.CursorPos = (int)(cursor.StartPos.PosImTextnode - actualTextPartStartPos);
+                            textPart.CursorPos = (int)(cursor.StartPos.PosInTextNode - actualTextPartStartPos);
                             this.cursorPaintPos = new Point(
                                 textPart.Rectangle.X + (int)(textPart.CursorPos * lastCalculatedFontWidth),
                                 textPart.Rectangle.Y
@@ -251,7 +251,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 if (part.Rectangle.Contains(point)) // Wenn der Klick in diesem Textteil ist
                 {
                     posInLine += Math.Min(part.Text.Length - 1, (int)((point.X - part.Rectangle.X) / Math.Max(1, this.lastCalculatedFontWidth) + 0.5));
-                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorInnerhalbDesTextNodes, posInLine, action);
+                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorInsideTextNode, posInLine, action);
                     return;
                 }
                 else // In diesem Textteil war der Klick nicht
@@ -271,65 +271,65 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             selectionStart = -1;
             selectionEnd = 0;
 
-            if (cursor.StartPos.AktNode == this.XMLNode) // Der Start der Selektion liegt auf diesem Node
+            if (cursor.StartPos.ActualNode == this.XMLNode) // Der Start der Selektion liegt auf diesem Node
             {
-                switch (cursor.StartPos.PosAmNode)
+                switch (cursor.StartPos.PosOnNode)
                 {
-                    case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag: // Das Node selbst ist als Startnode selektiert
-                    case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
+                    case XmlCursorPositions.CursorOnNodeStartTag: // Das Node selbst ist als Startnode selektiert
+                    case XmlCursorPositions.CursorOnNodeEndTag:
                         selectionStart = 0;
                         selectionEnd = actualText.Length;
                         break;
 
-                    case XMLCursorPositionen.CursorHinterDemNode:
-                    case XMLCursorPositionen.CursorInDemLeeremNode:
+                    case XmlCursorPositions.CursorBehindTheNode:
+                    case XmlCursorPositions.CursorInsideTheEmptyNode:
                         // Da die CursorPosition sortiert ankommt, kann die EndPos nur hintet dem Node liegen
                         selectionStart = -1;
                         selectionEnd = 0;
                         break;
 
-                    case XMLCursorPositionen.CursorVorDemNode:
-                    case XMLCursorPositionen.CursorInnerhalbDesTextNodes:
+                    case XmlCursorPositions.CursorInFrontOfNode:
+                    case XmlCursorPositions.CursorInsideTextNode:
 
-                        if (cursor.StartPos.PosAmNode == XMLCursorPositionen.CursorInnerhalbDesTextNodes)
+                        if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInsideTextNode)
                         {
-                            selectionStart = Math.Max(0, cursor.StartPos.PosImTextnode); // im Textnode
+                            selectionStart = Math.Max(0, cursor.StartPos.PosInTextNode); // im Textnode
                         }
                         else
                         {
                             selectionStart = 0; // Vor dem Node
                         }
 
-                        if (cursor.EndPos.AktNode == this.XMLNode) // Wenn das Ende der Selektion auch in diesem Node liegt
+                        if (cursor.EndPos.ActualNode == this.XMLNode) // Wenn das Ende der Selektion auch in diesem Node liegt
                         {
-                            switch (cursor.EndPos.PosAmNode)
+                            switch (cursor.EndPos.PosOnNode)
                             {
-                                case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag: // Startnode liegt vor dem Node, Endnode dahiner: alles ist selektiert
-                                case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag:
-                                case XMLCursorPositionen.CursorHinterDemNode:
+                                case XmlCursorPositions.CursorOnNodeStartTag: // Startnode liegt vor dem Node, Endnode dahiner: alles ist selektiert
+                                case XmlCursorPositions.CursorOnNodeEndTag:
+                                case XmlCursorPositions.CursorBehindTheNode:
                                     selectionEnd = Math.Max(0, actualText.Length - selectionStart);
                                     break;
 
-                                case XMLCursorPositionen.CursorInDemLeeremNode:
+                                case XmlCursorPositions.CursorInsideTheEmptyNode:
                                     selectionStart = -1;
                                     selectionEnd = 0;
                                     break;
 
-                                case XMLCursorPositionen.CursorInnerhalbDesTextNodes:  // Bis zur Markierung im Text 
-                                    selectionEnd = Math.Max(0, cursor.EndPos.PosImTextnode - selectionStart);
+                                case XmlCursorPositions.CursorInsideTextNode:  // Bis zur Markierung im Text 
+                                    selectionEnd = Math.Max(0, cursor.EndPos.PosInTextNode - selectionStart);
                                     break;
 
-                                case XMLCursorPositionen.CursorVorDemNode:
+                                case XmlCursorPositions.CursorInFrontOfNode:
                                     selectionEnd = 0;
                                     break;
 
                                 default:
-                                    throw new ApplicationException("Unbekannte XMLCursorPosition.EndPos.PosAmNode '" + cursor.EndPos.PosAmNode + "'B");
+                                    throw new ApplicationException("Unbekannte XMLCursorPosition.EndPos.PosAmNode '" + cursor.EndPos.PosOnNode + "'B");
                             }
                         }
                         else // Das Ende der Selektion liegt nicht in diesem Node
                         {
-                            if (cursor.EndPos.AktNode.ParentNode == cursor.StartPos.AktNode.ParentNode) // Wenn Start und Ende zwar verschieden, aber direkt im selben Parent stecken
+                            if (cursor.EndPos.ActualNode.ParentNode == cursor.StartPos.ActualNode.ParentNode) // Wenn Start und Ende zwar verschieden, aber direkt im selben Parent stecken
                             {
                                 selectionEnd = Math.Max(0, actualText.Length - selectionStart); // Nur den selektierten Teil selektieren
                             }
@@ -342,32 +342,32 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                         break;
 
                     default:
-                        throw new ApplicationException("Unbekannte XMLCursorPosition.StartPos.PosAmNode '" + cursor.StartPos.PosAmNode + "'A");
+                        throw new ApplicationException("Unbekannte XMLCursorPosition.StartPos.PosAmNode '" + cursor.StartPos.PosOnNode + "'A");
                 }
             }
             else // Der Start der Selektion liegt nicht auf diesem Node
             {
-                if (cursor.EndPos.AktNode == this.XMLNode) // Das Ende der Selektion aber schon
+                if (cursor.EndPos.ActualNode == this.XMLNode) // Das Ende der Selektion aber schon
                 {
-                    switch (cursor.EndPos.PosAmNode)
+                    switch (cursor.EndPos.PosOnNode)
                     {
-                        case XMLCursorPositionen.CursorAufNodeSelbstVorderesTag: // Der Node selbst ist als End-Node selektiert
-                        case XMLCursorPositionen.CursorAufNodeSelbstHinteresTag: // Startnode liegt vor dem Node, Endnode dahiner: alles ist selektiert
-                        case XMLCursorPositionen.CursorHinterDemNode:
+                        case XmlCursorPositions.CursorOnNodeStartTag: // Der Node selbst ist als End-Node selektiert
+                        case XmlCursorPositions.CursorOnNodeEndTag: // Startnode liegt vor dem Node, Endnode dahiner: alles ist selektiert
+                        case XmlCursorPositions.CursorBehindTheNode:
                             selectionStart = 0;
                             selectionEnd = actualText.Length;
                             break;
 
-                        case XMLCursorPositionen.CursorInDemLeeremNode:
+                        case XmlCursorPositions.CursorInsideTheEmptyNode:
                             selectionStart = -1;
                             selectionEnd = 0;
                             break;
 
-                        case XMLCursorPositionen.CursorInnerhalbDesTextNodes:// Startnode liegt vor dem Node, Endnode mitten drin, also von vorn bis zur Mitte selektieren
-                            if (cursor.EndPos.AktNode.ParentNode == cursor.StartPos.AktNode.ParentNode) // Wenn Start und Ende zwar verschieden, aber direkt im selben Parent stecken
+                        case XmlCursorPositions.CursorInsideTextNode:// Startnode liegt vor dem Node, Endnode mitten drin, also von vorn bis zur Mitte selektieren
+                            if (cursor.EndPos.ActualNode.ParentNode == cursor.StartPos.ActualNode.ParentNode) // Wenn Start und Ende zwar verschieden, aber direkt im selben Parent stecken
                             {
                                 selectionStart = 0;
-                                selectionEnd = Math.Max(0, cursor.EndPos.PosImTextnode); // Nur den selektierten, vorderen Teil selektieren
+                                selectionEnd = Math.Max(0, cursor.EndPos.PosInTextNode); // Nur den selektierten, vorderen Teil selektieren
                             }
                             else // Start und Ende unterschiedlich und unterschiedliche Parents
                             {
@@ -376,13 +376,13 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                             }
                             break;
 
-                        case XMLCursorPositionen.CursorVorDemNode: // Startnode liegt vor dem Node, Endnoch auch
+                        case XmlCursorPositions.CursorInFrontOfNode: // Startnode liegt vor dem Node, Endnoch auch
                             selectionStart = -1;
                             selectionEnd = 0;
                             break;
 
                         default:
-                            throw new ApplicationException("Unbekannte XMLCursorPosition.EndPos.PosAmNode '" + cursor.EndPos.PosAmNode + "'X");
+                            throw new ApplicationException("Unbekannte XMLCursorPosition.EndPos.PosAmNode '" + cursor.EndPos.PosOnNode + "'X");
                     }
                 }
                 else // Weder der Start noch das Ende der Selektion liegen genau auf diesem Node

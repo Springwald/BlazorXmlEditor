@@ -46,8 +46,8 @@ namespace de.springwald.xml.editor.xmlelements.Caching
                 LastPaintTextFontHeight = fontHeight,
                 SelectionStart = selectionStart,
                 SelectionLength = selectionLength,
-                CursorInNode = cursor.StartPos.AktNode == node,
-                CursorPosInNode = cursor.StartPos.PosImTextnode,
+                CursorInNode = cursor.StartPos.ActualNode == node,
+                CursorPosInNode = cursor.StartPos.PosInTextNode,
             };
         }
     }

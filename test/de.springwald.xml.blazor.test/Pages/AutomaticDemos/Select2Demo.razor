@@ -11,9 +11,7 @@
 <p>@this.cursorPosStart > @this.cursorPosEnd</p>
 <de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext"  OnReady="this.EditorIsReady" />
 
-
 @code {
-
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
 
     private FpsCounter fpsCounter;
@@ -62,7 +60,7 @@
             var textNode = patternNode.ChildNodes[0];
             await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                 textNode,
-                rules.XMLCursorPos.XMLCursorPositionen.CursorInnerhalbDesTextNodes,
+                rules.XmlCursorPos.XmlCursorPositions.CursorInsideTextNode,
                 3);
         }
         var cursorStatus = this.editorContext.EditorStatus.CursorRoh;
@@ -87,8 +85,8 @@
             await this.editorContext.Actions.MoveLeft(cursorStatus.EndPos);
         }
 
-        this.cursorPosStart = $"{cursorStatus.StartPos.AktNode.Name}:{cursorStatus.StartPos.PosAmNode}:{cursorStatus.StartPos.PosImTextnode}";
-        this.cursorPosEnd = $"{cursorStatus.EndPos.AktNode.Name}:{cursorStatus.EndPos.PosAmNode}:{cursorStatus.EndPos.PosImTextnode}";
+        this.cursorPosStart = $"{cursorStatus.StartPos.ActualNode.Name}:{cursorStatus.StartPos.PosOnNode}:{cursorStatus.StartPos.PosInTextNode}";
+        this.cursorPosEnd = $"{cursorStatus.EndPos.ActualNode.Name}:{cursorStatus.EndPos.PosOnNode}:{cursorStatus.EndPos.PosInTextNode}";
         StateHasChanged();
 
         this.fpsCounter.Count();
