@@ -37,8 +37,8 @@ namespace de.springwald.xml.editor
 
         private EditorContext editorContext;
         protected EditorConfig Config => this.editorContext.EditorConfig;
-        protected XMLRegelwerk Regelwerk => this.editorContext.XmlRules;
-        protected EditorStatus EditorStatus => this.editorContext.EditorStatus;
+        protected XmlRules Regelwerk => this.editorContext.XmlRules;
+        protected EditorStatus EditorStatus => this.editorContext.EditorState;
 
         /// <summary>
         /// The XMLNode to be displayed with this element
@@ -53,7 +53,7 @@ namespace de.springwald.xml.editor
             this.XMLNode = xmlNode;
             this.xmlEditor = xmlEditor;
 
-            this.EditorStatus.CursorRoh.ChangedEvent.Add(this.Cursor_ChangedEvent);
+            this.EditorStatus.CursorRaw.ChangedEvent.Add(this.Cursor_ChangedEvent);
             this.xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
             this.xmlEditor.MouseHandler.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
             this.xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
@@ -63,7 +63,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Draws the XML element on the screen
         /// </summary>
-        public virtual async Task<PaintContext> Paint(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
+        public virtual async Task<PaintContext> Paint(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
             if (this._disposed) return paintContext;
             if (this.XMLNode == null) return paintContext;
@@ -76,7 +76,7 @@ namespace de.springwald.xml.editor
 
         internal abstract void UnPaint(IGraphics gfx);
 
-        protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode);
+        protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode);
 
         /// <summary>
         /// Draws the vertical cursor line
@@ -153,7 +153,7 @@ namespace de.springwald.xml.editor
             else
             {
                 // Herausfinden, ob der Node dieses Elementes betroffen ist
-                if (this.editorContext.EditorStatus.CursorRoh.StartPos.ActualNode != this.XMLNode)
+                if (this.editorContext.EditorState.CursorRaw.StartPos.ActualNode != this.XMLNode)
                 {
                     return;
                 }
@@ -196,7 +196,7 @@ namespace de.springwald.xml.editor
                 if (disposing) // Dispose managed resources.
                 {
                     // Von den Events abmelden
-                    editorContext.EditorStatus.CursorRoh.ChangedEvent.Remove(this.Cursor_ChangedEvent);
+                    editorContext.EditorState.CursorRaw.ChangedEvent.Remove(this.Cursor_ChangedEvent);
                     xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
                     xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
                     xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);

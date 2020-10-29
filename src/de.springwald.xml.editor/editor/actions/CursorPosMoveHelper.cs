@@ -7,9 +7,9 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.rules;
 using System;
 using System.Threading.Tasks;
+using de.springwald.xml.rules;
 using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor.actions
@@ -19,10 +19,9 @@ namespace de.springwald.xml.editor.actions
         /// <summary>
         /// bewegt den Cursor um eine Position nach links
         /// </summary>
-        /// <param name="cursor"></param>
-        internal static async Task<bool> MoveLeft(XmlCursorPos cursorPos, System.Xml.XmlNode rootnode, XMLRegelwerk regelwerk)
+        internal static async Task<bool> MoveLeft(XmlCursorPos cursorPos, System.Xml.XmlNode rootnode, XmlRules xmlRules)
         {
-            System.Xml.XmlNode node = cursorPos.ActualNode; // Der aktuelle Node
+            var actualNode = cursorPos.ActualNode; 
 
             switch (cursorPos.PosOnNode)
             {
@@ -33,16 +32,16 @@ namespace de.springwald.xml.editor.actions
                     break;
 
                 case XmlCursorPositions.CursorInFrontOfNode:
-                    if (node != rootnode)
+                    if (actualNode != rootnode)
                     {
-                        if (node.PreviousSibling != null) // Vorheriger Geschwisterknoten vorhanden
+                        if (actualNode.PreviousSibling != null) // Vorheriger Geschwisterknoten vorhanden
                         {
-                            cursorPos.SetPos(node.PreviousSibling, XmlCursorPositions.CursorBehindTheNode);
-                            await MoveLeft(cursorPos, rootnode, regelwerk);
+                            cursorPos.SetPos(actualNode.PreviousSibling, XmlCursorPositions.CursorBehindTheNode);
+                            await MoveLeft(cursorPos, rootnode, xmlRules);
                         }
                         else // kein vorheriger Geschwisterknoten vorhanden
                         {
-                            cursorPos.SetPos(node.ParentNode, XmlCursorPositions.CursorInFrontOfNode);
+                            cursorPos.SetPos(actualNode.ParentNode, XmlCursorPositions.CursorInFrontOfNode);
                         }
                     }
                     else
@@ -52,15 +51,15 @@ namespace de.springwald.xml.editor.actions
                     break;
 
                 case XmlCursorPositions.CursorBehindTheNode:
-                    if (ToolboxXML.IstTextOderKommentarNode(node)) // Bei einem Textnode wird der Cursor hinter das letzte Zeichen gesetzt
+                    if (ToolboxXML.IstTextOderKommentarNode(actualNode)) // Bei einem Textnode wird der Cursor hinter das letzte Zeichen gesetzt
                     {
-                        cursorPos.SetPos(node, XmlCursorPositions.CursorInsideTextNode, Math.Max(0, ToolboxXML.TextAusTextNodeBereinigt(node).Length - 1));
+                        cursorPos.SetPos(actualNode, XmlCursorPositions.CursorInsideTextNode, Math.Max(0, ToolboxXML.TextAusTextNodeBereinigt(actualNode).Length - 1));
                     }
                     else
                     {
-                        if (node.ChildNodes.Count < 1) // Im Node sind keine Children
+                        if (actualNode.ChildNodes.Count < 1) // Im Node sind keine Children
                         {
-                            if (regelwerk.IstSchliessendesTagSichtbar(node))
+                            if (xmlRules.HasEndTag(actualNode))
                             {
                                 // Wenn der Cursor ein Schließen-Tag anzeigt, dann in den leeren Node setzen
                                 cursorPos.SetPos(cursorPos.ActualNode, XmlCursorPositions.CursorInsideTheEmptyNode);
@@ -73,7 +72,7 @@ namespace de.springwald.xml.editor.actions
                         }
                         else // Im Node sind Children
                         {
-                            cursorPos.SetPos(node.LastChild, XmlCursorPositions.CursorBehindTheNode);
+                            cursorPos.SetPos(actualNode.LastChild, XmlCursorPositions.CursorBehindTheNode);
                         }
                     }
                     break;
@@ -84,7 +83,7 @@ namespace de.springwald.xml.editor.actions
                     break;
 
                 case XmlCursorPositions.CursorInsideTextNode:
-                    if (ToolboxXML.IstTextOderKommentarNode(node)) // Node ist Textnode 
+                    if (ToolboxXML.IstTextOderKommentarNode(actualNode)) // Node ist Textnode 
                     {
                         if (cursorPos.PosInTextNode > 1)
                         {  // Cursor ein Zeichen nach links
@@ -98,7 +97,7 @@ namespace de.springwald.xml.editor.actions
                     }
                     else // Kein Textnode
                     {
-                        throw new ApplicationException(string.Format("XMLCursorPos.MoveLeft: CursorPos ist XMLCursorPositionen.CursorInnerhalbDesTextNodes, es ist aber kein Textnode gewählt, sondern der Node {0}", node.OuterXml));
+                        throw new ApplicationException(string.Format("XMLCursorPos.MoveLeft: CursorPos ist XMLCursorPositionen.CursorInnerhalbDesTextNodes, es ist aber kein Textnode gewählt, sondern der Node {0}", actualNode.OuterXml));
                     }
                     break;
 
@@ -108,14 +107,10 @@ namespace de.springwald.xml.editor.actions
             return true;
         }
 
-
-
-
         /// <summary>
         /// bewegt den angegebenen Cursor um eine Position nach rechts
         /// </summary>
-        /// <param name="cursor"></param>
-        internal static async Task<bool> MoveRight(XmlCursorPos cursorPos, System.Xml.XmlNode rootnode, XMLRegelwerk regelwerk)
+        internal static async Task<bool> MoveRight(XmlCursorPos cursorPos, System.Xml.XmlNode rootnode, XmlRules xmlRules)
         {
             System.Xml.XmlNode node = cursorPos.ActualNode; // Der aktuelle Node
 
@@ -134,16 +129,16 @@ namespace de.springwald.xml.editor.actions
                         cursorPos.SetPos(node.NextSibling, XmlCursorPositions.CursorInFrontOfNode);
                         // Da "hinter dem ersten" genauso aussieht wie "vor dem zweiten", noch
                         // einen Schritt weiter nach rechts bewegen
-                        await MoveRight(cursorPos, rootnode, regelwerk);
+                        await MoveRight(cursorPos, rootnode, xmlRules);
                     }
                     else // Keine Folgegeschwister vorhanden, dann hinter den Parentnode setzen
                     {
                         if (node.ParentNode != rootnode)
                         {
                             cursorPos.SetPos(node.ParentNode, XmlCursorPositions.CursorBehindTheNode);
-                            if (!regelwerk.IstSchliessendesTagSichtbar(node.ParentNode))
+                            if (!xmlRules.HasEndTag(node.ParentNode))
                             { // Wenn für den Parent kein geschlossenes Tag angezeigt wird, dann noch einen weiter nach rechts
-                                await MoveRight(cursorPos, rootnode, regelwerk);
+                                await MoveRight(cursorPos, rootnode, xmlRules);
                             }
                         }
                         else
@@ -175,7 +170,7 @@ namespace de.springwald.xml.editor.actions
                     {
                         if (node.ChildNodes.Count < 1) // Keine Children vorhanden
                         {
-                            if (!regelwerk.IstSchliessendesTagSichtbar(node)) // Wenn für diesen Node kein geschlossenes Tag angezeigt wird, dann direkt hinter den Node
+                            if (!xmlRules.HasEndTag(node)) // Wenn für diesen Node kein geschlossenes Tag angezeigt wird, dann direkt hinter den Node
                             {
                                 // Hinter den Node setzen
                                 cursorPos.SetPos(cursorPos.ActualNode, XmlCursorPositions.CursorBehindTheNode);

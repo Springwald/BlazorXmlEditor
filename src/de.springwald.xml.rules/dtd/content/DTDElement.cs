@@ -73,14 +73,6 @@ namespace de.springwald.xml.rules.dtd
             }
         }
 
-
-        /// <summary>
-        /// Erzeugt ein DTDElement auf Basis des übergebenen DTD-Element-Quellcodes
-        /// </summary>
-        public DTDElement()
-        {
-        }
-
         /// <summary>
         /// Liefert die Liste aller in den Children erwähnten Elemente
         /// </summary>

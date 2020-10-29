@@ -54,16 +54,16 @@
         {
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
-            await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
+            await this.editorContext.EditorState.SetRootNode(xmlDocument.DocumentElement);
             var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
             var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
             var textNode = patternNode.ChildNodes[0];
-            await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                 textNode,
                 rules.XmlCursorPos.XmlCursorPositions.CursorInsideTextNode,
                 3);
         }
-        var cursorStatus = this.editorContext.EditorStatus.CursorRoh;
+        var cursorStatus = this.editorContext.EditorState.CursorRaw;
 
         if (forward)
         {

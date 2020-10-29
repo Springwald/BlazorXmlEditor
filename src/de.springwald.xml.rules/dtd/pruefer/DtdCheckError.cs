@@ -11,9 +11,9 @@ using System;
 
 namespace de.springwald.xml.rules.dtd
 {
-	public class DTDPruefFehler
+	public class DtdCheckError
 	{
-		public DTDPruefFehler()
+		public DtdCheckError()
 		{
 		}
 	}

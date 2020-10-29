@@ -14,11 +14,8 @@ namespace de.springwald.xml.editor.nativeplatform
     public interface IClipboard
     {
         Task<bool> ContainsText();
-
         Task Clear();
-
         Task<string> GetText();
-
         Task SetText(string text);
     }
 }

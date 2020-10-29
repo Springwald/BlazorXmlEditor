@@ -21,13 +21,13 @@
             this.editorContext = value;
             if (this.editorContext != null)
             {
-                this.editorContext.EditorStatus.CursorRoh.ChangedEvent.Add(this.OnChanged);
-                this.editorContext.EditorStatus.ContentChangedEvent.Add(this.OnChanged);
+                this.editorContext.EditorState.CursorRaw.ChangedEvent.Add(this.OnChanged);
+                this.editorContext.EditorState.ContentChangedEvent.Add(this.OnChanged);
             }
             this.UpdateButtonStates();
         }
     }
-    private EditorStatus EditorStatus => this.EditorContext?.EditorStatus;
+    private EditorStatus EditorStatus => this.EditorContext?.EditorState;
     private EditorContext editorContext;
 
     private bool IsDisabled = true;
@@ -43,8 +43,8 @@
 
     public void Dispose()
     {
-        this.editorContext?.EditorStatus.CursorRoh.ChangedEvent.Remove(this.OnChanged);
-        this.editorContext?.EditorStatus.ContentChangedEvent.Remove(this.OnChanged);
+        this.editorContext?.EditorState.CursorRaw.ChangedEvent.Remove(this.OnChanged);
+        this.editorContext?.EditorState.ContentChangedEvent.Remove(this.OnChanged);
     }
 
     private async Task OnChanged(EventArgs e)
@@ -66,19 +66,19 @@
 
     private async void UndoClicked()
     {
-        await this.EditorContext.EditorStatus.UnDo();
+        await this.EditorContext.EditorState.UnDo();
         await Task.CompletedTask;
     }
 
     private async void CutClicked()
     {
-        await this.EditorContext.Actions.AktionCutToClipboard(EditorActions.UndoSnapshotSetzenOptionen.ja);
+        await this.EditorContext.Actions.AktionCutToClipboard(EditorActions.SetUndoSnapshotOptions.Yes);
         await Task.CompletedTask;
     }
 
     private async void PasteClicked()
     {
-        await this.EditorContext.Actions.AktionPasteFromClipboard(EditorActions.UndoSnapshotSetzenOptionen.ja);
+        await this.EditorContext.Actions.AktionPasteFromClipboard(EditorActions.SetUndoSnapshotOptions.Yes);
         await Task.CompletedTask;
     }
 
@@ -90,7 +90,7 @@
 
     private async void DeleteClicked()
     {
-        await this.EditorContext.Actions.AktionDelete(EditorActions.UndoSnapshotSetzenOptionen.ja);
+        await this.EditorContext.Actions.AktionDelete(EditorActions.SetUndoSnapshotOptions.Yes);
         await Task.CompletedTask;
     }
 
@@ -109,9 +109,9 @@
 
         this.UndoTitle = this.EditorStatus.UndoMoeglich ? this.EditorStatus.UndoSchrittName : null;
 
-        this.InsertPossible = await this.EditorContext.NativePlatform.Clipboard.ContainsText() && this.EditorStatus.CursorRoh.StartPos.ActualNode != null;
+        this.InsertPossible = await this.EditorContext.NativePlatform.Clipboard.ContainsText() && this.EditorStatus.CursorRaw.StartPos.ActualNode != null;
 
-        this.SomethingIsSelected = this.EditorStatus.IstEtwasSelektiert;
+        this.SomethingIsSelected = this.EditorStatus.IsSomethingSelected;
         this.StateHasChanged();
     }
 

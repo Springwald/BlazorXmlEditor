@@ -18,7 +18,6 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         public int Y1 { get; set; }
         public int X2 { get; set; }
         public int Y2 { get; set; }
-
         public override string SortKey => $"{this.Color}";
     }
 }

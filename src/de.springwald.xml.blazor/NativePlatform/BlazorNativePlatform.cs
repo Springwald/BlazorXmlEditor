@@ -43,7 +43,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
 #endif 
 
-        public void ProtokolliereFehler(string v)
+        public void LogError(string v)
         {
 
         }

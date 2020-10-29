@@ -23,7 +23,7 @@ namespace de.springwald.xml
             Gray
         };
 
-        private XMLRegelwerk _xmlRules;                // Das Regelwerk zur Beurteilung der Gültigkeit
+        private XmlRules _xmlRules;                // Das Regelwerk zur Beurteilung der Gültigkeit
         private bool _showLineNumbers = true;     // Zeilennummern anzeigen
 
         private int _lineNumber;                      // Der Counter für die jeweils aktuelle Zeilennummer des Quellcodes
@@ -40,7 +40,7 @@ namespace de.springwald.xml
         /// <summary>
         /// Das Regelwerk zur Beurteilung der Gültigkeit
         /// </summary>
-        public XMLRegelwerk XmlRules
+        public XmlRules XmlRules
         {
             set { _xmlRules = value; }
         }
@@ -156,7 +156,7 @@ namespace de.springwald.xml
             else
             {
                 var pruefer = _xmlRules.DTDPruefer;
-                if (pruefer.IstXmlNodeOk(node, posBereitsAlsOKGeprueft))
+                if (pruefer.IsXmlNodeOk(node, posBereitsAlsOKGeprueft))
                 {
                     nodeFehlerhaft = false;
                     nodeErrorMsg = null;
@@ -165,23 +165,23 @@ namespace de.springwald.xml
                 else
                 {
                     nodeFehlerhaft = true;
-                    nodeErrorMsg = pruefer.Fehlermeldungen;
+                    nodeErrorMsg = pruefer.ErrorMessages;
                     nodeColor = Colors.Red;
                 }
             }
 
-            var renderType = _xmlRules.DarstellungsArt(node);
+            var renderType = _xmlRules.DisplayType(node);
 
             switch (renderType)
             {
-                case DarstellungsArten.Fliesselement:
-                case DarstellungsArten.EigeneZeile:
+                case DisplayTypes.FloatingElement:
+                case DisplayTypes.OwnRow:
                     break;
                 default:
-                    throw new ApplicationException("unknown render type: " + _xmlRules.DarstellungsArt(node));
+                    throw new ApplicationException("unknown render type: " + _xmlRules.DisplayType(node));
             }
 
-            if (newLineNeeded || renderType == DarstellungsArten.EigeneZeile) quellcode.Append(StartNewLine() + einzug);
+            if (newLineNeeded || renderType == DisplayTypes.OwnRow) quellcode.Append(StartNewLine() + einzug);
 
             quellcode.Append($"<span style=\"{GetCss(nodeColor)}\">");  // start node color
 
@@ -195,7 +195,7 @@ namespace de.springwald.xml
             }
             else  // not a text node
             {
-                var closingTagVisible = _xmlRules.IstSchliessendesTagSichtbar(node);
+                var closingTagVisible = _xmlRules.HasEndTag(node);
 
                 quellcode.Append($"&lt;{node.Name}{GetAttributeAlsQuellText(node.Attributes)}{(closingTagVisible ? "" : "/")}&gt;");
 

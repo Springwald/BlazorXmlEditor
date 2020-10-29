@@ -26,7 +26,7 @@ namespace de.springwald.xml
         /// <param name="node1"></param>
         /// <param name="node2"></param>
         /// <returns></returns>
-        public static bool Node1LaysBeforeNode2(System.Xml.XmlNode node1, System.Xml.XmlNode node2)
+        public static bool Node1LaisBeforeNode2(System.Xml.XmlNode node1, System.Xml.XmlNode node2)
         {
             if (node1 == null || node2 == null)
             {

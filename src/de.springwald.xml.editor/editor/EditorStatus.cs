@@ -50,17 +50,17 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Dort befindet sich der der Cursor aktuell innerhalb des XML-Dokumentes
         /// </summary>
-        public XMLCursor CursorRoh { get; }
+        public XmlCursor CursorRaw { get; }
 
         /// <summary>
         /// Dies ist die CursorPosition, optmimiert darauf, dass die StartPos auch vor der EndPos liegt
         /// </summary>
-        public XMLCursor CursorOptimiert
+        public XmlCursor CursorOptimiert
         {
             get
             {
-                var cursor = this.CursorRoh.Clone();
-                cursor.SelektionOptimieren().Wait();
+                var cursor = this.CursorRaw.Clone();
+                cursor.OptimizeSelection().Wait();
                 return cursor;
             }
         }
@@ -73,9 +73,9 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Indicates whether something is selected in the editor
         /// </summary>
-        public bool IstEtwasSelektiert => this.CursorOptimiert.IstEtwasSelektiert;
+        public bool IsSomethingSelected => this.CursorOptimiert.IstEtwasSelektiert;
 
-        public XMLUndoHandler UndoHandler { get; internal set; }
+        public XmlUndoHandler UndoHandler { get; internal set; }
 
         /// <summary>
         /// Das Name des nächstemöglichen UndoSchrittes
@@ -94,7 +94,7 @@ namespace de.springwald.xml.editor
         {
             get
             {
-                if (this.IstEtwasSelektiert) //  Anything selected
+                if (this.IsSomethingSelected) //  Anything selected
                 {
                     var startpos = CursorOptimiert.StartPos;
                     if (startpos.ActualNode == RootNode) // The root node is in the cursor
@@ -115,7 +115,7 @@ namespace de.springwald.xml.editor
 
         public EditorStatus()
         {
-            this.CursorRoh = new XMLCursor();
+            this.CursorRaw = new XmlCursor();
         }
 
         public void Dispose()
@@ -135,11 +135,11 @@ namespace de.springwald.xml.editor
             }
             else
             {
-                XMLCursor c = this.UndoHandler.Undo();
+                XmlCursor c = this.UndoHandler.Undo();
                 if (c != null) // Wenn für diesen UndoSchritt eine CursorPos gespeichert war
                 {
 
-                    await this.CursorRoh.SetPositions(
+                    await this.CursorRaw.SetPositions(
                         c.StartPos.ActualNode, c.StartPos.PosOnNode, c.StartPos.PosInTextNode,
                         c.EndPos.ActualNode, c.EndPos.PosOnNode, c.EndPos.PosInTextNode,
                          throwChangedEventWhenValuesChanged: true);

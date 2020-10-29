@@ -32,34 +32,32 @@
 
     [Parameter]
     public EditorContext EditorContext { get; set; }
-    private EditorStatus EditorStatus => this.EditorContext.EditorStatus;
+    private EditorStatus EditorStatus => this.EditorContext.EditorState;
 
     private Element[] elements = new Element[] { };
     private XMLElementGruppe[] groups = new XMLElementGruppe[] { };
 
     protected override Task OnInitializedAsync()
     {
-        this.EditorStatus.CursorRoh.ChangedEvent.Add(this.Show);
+        this.EditorStatus.CursorRaw.ChangedEvent.Add(this.Show);
         return base.OnInitializedAsync();
     }
 
     public void Dispose()
     {
-        this.EditorStatus.CursorRoh.ChangedEvent.Remove(this.Show);
+        this.EditorStatus.CursorRaw.ChangedEvent.Remove(this.Show);
     }
 
     protected async Task ClickElement(string element)
     {
-        await this.EditorContext.Actions.AktionNeuesElementAnAktCursorPosEinfuegen(element, EditorActions.UndoSnapshotSetzenOptionen.ja, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen: false);
+        await this.EditorContext.Actions.AktionNeuesElementAnAktCursorPosEinfuegen(element, EditorActions.SetUndoSnapshotOptions.Yes, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen: false);
         StateHasChanged();
     }
 
     public async Task Show(EventArgs eventArgs)
     {
-        if ((this.EditorContext.EditorStatus.RootNode != null))  //  genug Daten, um einzufügenden Elemente aufzulisten
+        if ((this.EditorContext.EditorState.RootNode != null))  //  genug Daten, um einzufügenden Elemente aufzulisten
         {
-            string[] elemente = null;
-
             try
             {
 #if CommentNichtZulassen

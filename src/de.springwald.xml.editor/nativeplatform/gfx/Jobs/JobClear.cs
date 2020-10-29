@@ -15,7 +15,6 @@ namespace de.springwald.xml.editor.nativeplatform.gfxobs
     {
         public override JobTypes JobType => JobTypes.Clear;
         public Color FillColor { get; set; }
-
         public override string SortKey => $"{this.FillColor.AsHtml}";
     }
 }

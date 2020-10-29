@@ -84,9 +84,6 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         public bool Erfolgreich { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="element">Das zum Test eingefügte Element. Ist es NULL, bedeutet das, dass statt Einfügen das Löschen geprüft wurde</param>
         /// <param name="parentElementName">Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)</param>
         public DTDTestmuster(string elementName, string parentElementName)

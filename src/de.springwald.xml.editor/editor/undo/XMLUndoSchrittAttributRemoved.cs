@@ -11,7 +11,7 @@ using System;
 
 namespace de.springwald.xml.editor
 {
-    public class XMLUndoSchrittAttributRemoved : XMLUndoSchritt
+    public class XMLUndoSchrittAttributRemoved : XmlUndoStep
     {
         private System.Xml.XmlAttribute deletedAttribute;
         private System.Xml.XmlNode ownerElement;

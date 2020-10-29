@@ -21,15 +21,15 @@ namespace de.springwald.xml
     /// <summary>
     /// Diese Arten der Darstellung kann ein XML-Element im Editor annehmen
     /// </summary>
-	public enum DarstellungsArten { Fliesselement = 1, EigeneZeile };
+	public enum DisplayTypes { FloatingElement = 1, OwnRow };
 
     /// <summary>
     /// Die Beschreibung der Regeln für Anlage und Abhängigkeiten der ucXMLElemente.
     /// </summary>
-    public class XMLRegelwerk
+    public class XmlRules
     {
-        private DTDPruefer _dtdPruefer;
-        private DTDNodeEditCheck _checker;
+        private DtdChecker _dtdPruefer;
+        private DtdNodeEditCheck _checker;
 
         /// <summary>Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können</summary>
         protected List<XMLElementGruppe> _elementGruppen;
@@ -37,7 +37,7 @@ namespace de.springwald.xml
         /// <summary>
         /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
         /// </summary>
-        public DTDPruefer DTDPruefer
+        public DtdChecker DTDPruefer
         {
             get
             {
@@ -47,7 +47,7 @@ namespace de.springwald.xml
                     {
                         throw new ApplicationException("No DTD attached!");
                     }
-                    _dtdPruefer = new DTDPruefer(this.DTD); // Neuen DTD-Prüfer für die DTD erzeugen
+                    _dtdPruefer = new DtdChecker(this.DTD); // Neuen DTD-Prüfer für die DTD erzeugen
                 }
                 return _dtdPruefer;
             }
@@ -73,14 +73,9 @@ namespace de.springwald.xml
             }
         }
 
-        public XMLRegelwerk(DTD dtd)
+        public XmlRules(DTD dtd)
         {
             this.DTD = dtd;
-        }
-
-        public XMLRegelwerk()
-        {
-            this.DTD = null;
         }
 
         /// <summary>
@@ -105,19 +100,18 @@ namespace de.springwald.xml
         /// </summary>
         /// <param name="xmlNode"></param>
         /// <returns></returns>
-        public virtual DarstellungsArten DarstellungsArt(System.Xml.XmlNode xmlNode)
+        public virtual DisplayTypes DisplayType(System.Xml.XmlNode xmlNode)
         {
-            if (xmlNode is System.Xml.XmlText) return DarstellungsArten.Fliesselement;
-            if (xmlNode is System.Xml.XmlWhitespace) return DarstellungsArten.Fliesselement;
-            if (xmlNode is System.Xml.XmlComment) return DarstellungsArten.EigeneZeile;
-
-            if (IstSchliessendesTagSichtbar(xmlNode))
+            if (xmlNode is System.Xml.XmlText) return DisplayTypes.FloatingElement;
+            if (xmlNode is System.Xml.XmlWhitespace) return DisplayTypes.FloatingElement;
+            if (xmlNode is System.Xml.XmlComment) return DisplayTypes.OwnRow;
+            if (HasEndTag(xmlNode))
             {
-                return DarstellungsArten.EigeneZeile;
+                return DisplayTypes.OwnRow;
             }
             else
             {
-                return DarstellungsArten.Fliesselement;
+                return DisplayTypes.FloatingElement;
             }
         }
 
@@ -126,7 +120,7 @@ namespace de.springwald.xml
         /// </summary>
         /// <param name="xmlNode"></param>
         /// <returns></returns>
-        public virtual bool IstSchliessendesTagSichtbar(System.Xml.XmlNode xmlNode)
+        public virtual bool HasEndTag(System.Xml.XmlNode xmlNode)
         {
             if (xmlNode is System.Xml.XmlText) return false;
 
@@ -156,11 +150,8 @@ namespace de.springwald.xml
         public bool IstDiesesTagAnDieserStelleErlaubt(string tagname, XmlCursorPos zielPunkt)
         {
             // Die Liste der erlaubten Tags holen und schauen, ob darin das Tag vorkommt
-            return (from e in ErlaubteEinfuegeElemente_(zielPunkt, true, true)
-                    where e == tagname
-                    select e).Count() > 0;
+            return ErlaubteEinfuegeElemente_(zielPunkt, true, true).Contains(tagname);
         }
-
 
         /// <summary>
         /// Definiert, welche XML-Elemente an dieser Stelle eingefügt werden dürfen
@@ -187,7 +178,7 @@ namespace de.springwald.xml
             {
                 if (_checker == null)
                 {
-                    _checker = new DTDNodeEditCheck(this.DTD);
+                    _checker = new DtdNodeEditCheck(this.DTD);
                 }
                 return _checker.AnDieserStelleErlaubteTags_(zielPunkt, pcDATAMitAuflisten, kommentareMitAuflisten);
             }

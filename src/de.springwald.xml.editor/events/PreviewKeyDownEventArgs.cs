@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace de.springwald.xml.events
+﻿namespace de.springwald.xml.events
 {
     public enum Keys
     {
@@ -22,12 +18,12 @@ namespace de.springwald.xml.events
         X,
         Y,
         Z,
-        
-    }
-
-    public class PreviewKeyDownEventArgs
-    {
-        public Keys KeyData { get; set; }
 
     }
+
+    //public class PreviewKeyDownEventArgs
+    //{
+    //    public Keys KeyData { get; set; }
+
+    //}
 }

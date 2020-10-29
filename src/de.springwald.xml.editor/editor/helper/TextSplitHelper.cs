@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace de.springwald.xml.editor.helper
 {

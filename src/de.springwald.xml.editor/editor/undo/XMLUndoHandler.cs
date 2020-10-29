@@ -17,7 +17,7 @@ namespace de.springwald.xml.editor
     /// <summary>
     /// Allows logging of undo steps and execution of undo and redo
     /// </summary>
-    public class XMLUndoHandler : IDisposable
+    public class XmlUndoHandler : IDisposable
     {
         private bool disposed = false;
 
@@ -25,10 +25,9 @@ namespace de.springwald.xml.editor
         /// Where are we in the Undo steps right now? With Undo it goes backwards, with Redo forward
         /// </summary>
         private int pos = 0;
-
        
         private XmlDocument document;
-        private List<XMLUndoSchritt> undoSteps;
+        private List<XmlUndoStep> undoSteps = new List<XmlUndoStep>();
         private bool working = false;
 
         /// <summary>
@@ -42,7 +41,7 @@ namespace de.springwald.xml.editor
                 do
                 {
                     run--; // go to previous step
-                } while ((run > 0) && (!undoSteps[run].IstSnapshot)); // Until the next snapshot
+                } while ((run > 0) && (!undoSteps[run].IsSnapshot)); // Until the next snapshot
                 return run;
             }
         }
@@ -77,11 +76,9 @@ namespace de.springwald.xml.editor
         /// <summary>
         ///  Creates an XMLUndo handler that logs all changes starting from the specified root node
         /// </summary>
-		public XMLUndoHandler(XmlNode rootNode)
+		public XmlUndoHandler(XmlNode rootNode)
         {
-            this.undoSteps = new List<XMLUndoSchritt>();
-            this.undoSteps.Add(new XMLUndoSchritt()); // Insert the basic step for snapshot and cursor; it does not have undo data
-
+            this.undoSteps.Add(new XmlUndoStep()); // Insert the basic step for snapshot and cursor; it does not have undo data
             this.RootNode = rootNode;
             this.document = this.RootNode.OwnerDocument;
 
@@ -100,17 +97,17 @@ namespace de.springwald.xml.editor
             this.document.NodeRemoving -= new XmlNodeChangedEventHandler(this.document_NodeRemoving);
         }
 
-        public void SnapshotSetzen(string snapShotName, XMLCursor cursor)
+        public void SetSnapshot(string snapShotName, XmlCursor cursor)
         {
             this.undoSteps[pos].SnapShotName = snapShotName;
-            this.undoSteps[pos].CursorVorher = cursor;
+            this.undoSteps[pos].CursorBefore = cursor;
         }
 
         /// <summary>
         /// Undo the last step 
         /// </summary>
         /// <returns>The new cursor after successful undo</returns>
-        public XMLCursor Undo()
+        public XmlCursor Undo()
         {
             if (this.UndoMoeglich)
             {
@@ -119,10 +116,10 @@ namespace de.springwald.xml.editor
                 {
                     this.undoSteps[this.pos].UnDo();  // Undo this step
                     this.pos--; // go to previous step
-                } while ((this.pos != 0) && (!this.undoSteps[pos].IstSnapshot)); // Until the next snapshot
+                } while ((this.pos != 0) && (!this.undoSteps[pos].IsSnapshot)); // Until the next snapshot
 
                 this.working = false;
-                return this.undoSteps[this.pos].CursorVorher; // Return cursor from previous step for restore
+                return this.undoSteps[this.pos].CursorBefore; // Return cursor from previous step for restore
             }
             else
             {
@@ -160,15 +157,15 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Adds an Undo step
         /// </summary>
-        private void AddNewUndoStep(XMLUndoSchritt newUndoStep)
+        private void AddNewUndoStep(XmlUndoStep newUndoStep)
         {
             // If there are still redo's following at the current position, then all redo's become obsolete
-            var delete = new List<XMLUndoSchritt>();
+            var delete = new List<XmlUndoStep>();
             for (int i = pos + 1; i < this.undoSteps.Count; i++)
             {
                 delete.Add(undoSteps[i]);
             }
-            foreach (XMLUndoSchritt schritt in delete)
+            foreach (XmlUndoStep schritt in delete)
             {
                 this.undoSteps.Remove(schritt);
             }

@@ -13,6 +13,5 @@ namespace de.springwald.xml.events
     {
         public int X { get; set; }
         public int Y { get; set; }
-        // public int Delta { get; set; }
     }
 }

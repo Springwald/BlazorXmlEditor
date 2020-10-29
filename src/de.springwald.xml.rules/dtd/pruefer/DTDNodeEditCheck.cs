@@ -20,7 +20,7 @@ namespace de.springwald.xml.rules.dtd
     /// <summary>
     /// Prüft gegen eine DTD, ob und welche Veränderungen an einem XML-Dom erlaubt sind
     /// </summary>
-    public class DTDNodeEditCheck
+    public class DtdNodeEditCheck
     {
         private DTD _dtd; // The DTD to be checked against
 
@@ -43,7 +43,7 @@ namespace de.springwald.xml.rules.dtd
             }
         }
 
-        public DTDNodeEditCheck(DTD dtd)
+        public DtdNodeEditCheck(DTD dtd)
         {
             this._dtd = dtd;
 
@@ -112,7 +112,7 @@ namespace de.springwald.xml.rules.dtd
         /// Ist das angegeben Element an dieser Stelle im XML erlaubt?
         /// </summary>
         /// <returns></returns>
-        public bool IstDerNodeAnDieserStelleErlaubt(System.Xml.XmlNode node)
+        public bool IsTheNodeAllowedAtThisPos(System.Xml.XmlNode node)
         {
             if (node.ParentNode is System.Xml.XmlDocument)
             {   // Es handelt sich um das root-Element, dieses kann nicht gegen den Parent-Node geprüft

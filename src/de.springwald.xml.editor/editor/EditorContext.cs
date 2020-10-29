@@ -6,11 +6,11 @@ namespace de.springwald.xml.editor
 {
     public class EditorContext : IDisposable
     {
-        public EditorContext(EditorConfig editorConfig, XMLRegelwerk xmlRules)
+        public EditorContext(EditorConfig editorConfig, XmlRules xmlRules)
         {
             this.EditorConfig = editorConfig;
             this.XmlRules = xmlRules;
-            this.EditorStatus = new EditorStatus();
+            this.EditorState = new EditorStatus();
             this.Actions = new EditorActions(this);
         }
 
@@ -18,15 +18,15 @@ namespace de.springwald.xml.editor
 
         public EditorConfig EditorConfig { get; }
 
-        public EditorStatus EditorStatus { get; }
+        public EditorStatus EditorState { get; }
 
         public EditorActions Actions { get; }
 
-        public XMLRegelwerk XmlRules { get;  }
+        public XmlRules XmlRules { get;  }
 
         public void Dispose()
         {
-            this.EditorStatus.Dispose();
+            this.EditorState.Dispose();
         }
     }
 }

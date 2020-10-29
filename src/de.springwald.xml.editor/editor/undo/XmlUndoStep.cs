@@ -14,14 +14,14 @@ namespace de.springwald.xml.editor
     /// <summary>
     /// A single step in the undo history 
     /// </summary>
-    public  class XMLUndoSchritt
+    public  class XmlUndoStep
     {
-        protected XMLCursor previousCursor;// Cursor vor der Änderung
+        protected XmlCursor previousCursor;// Cursor vor der Änderung
 
         /// <summary>
         /// Is this step a named snapshot?
         /// </summary>
-        public bool IstSnapshot => !string.IsNullOrEmpty(this.SnapShotName);
+        public bool IsSnapshot => !string.IsNullOrEmpty(this.SnapShotName);
 
         /// <summary>
         /// If this step is a snapshot, then here is the name of the snapshot
@@ -31,13 +31,13 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Cursor before the change
         /// </summary>
-        public XMLCursor CursorVorher
+        public XmlCursor CursorBefore
         {
             set { previousCursor = value.Clone(); }
             get { return previousCursor; }
         }
 
-        public XMLUndoSchritt()
+        public XmlUndoStep()
         {
              this.SnapShotName = null;
         }

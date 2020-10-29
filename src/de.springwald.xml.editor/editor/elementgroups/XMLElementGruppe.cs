@@ -19,25 +19,13 @@ namespace de.springwald.xml.editor
     {
 
         /// <summary>Diese Elementnamen sind in der Gruppe zulässig</summary>
-        private Hashtable _elemente;
+        private Hashtable _elemente = new Hashtable();
 
         /// <summary>Der anzeigbare Titel dieser Gruppe</summary>
-        private string _titel;
+        public string Titel { get; }
 
         /// <summary>Ist diese Gruppe beim Start erstmal zusammen geklappt?</summary>
-        private bool _standardMaessigZusammengeklappt;
-
-        /// <summary>Der anzeigbare Titel dieser Gruppe</summary>
-        public string Titel
-        {
-            get { return _titel; }
-        }
-
-        /// <summary>Ist diese Gruppe beim Start erstmal zusammen geklappt?</summary>
-        public bool StandardMaessigZusammengeklappt
-        {
-            get { return _standardMaessigZusammengeklappt; }
-        }
+        public bool StandardMaessigZusammengeklappt { get; }
 
         /// <summary>
         /// Stellt eine neue Instanz einer Sortierungs-Gruppe bereit
@@ -46,9 +34,8 @@ namespace de.springwald.xml.editor
         /// <param name="standardMaessigZusammengeklappt"> Ist diese Gruppe beim Start erstmal zusammen geklappt?</param>
         public XMLElementGruppe(string titel, bool standardMaessigZusammengeklappt)
         {
-            _titel = titel;
-            _elemente = new Hashtable();
-            _standardMaessigZusammengeklappt = standardMaessigZusammengeklappt;
+            this.Titel = titel;
+            this.StandardMaessigZusammengeklappt = standardMaessigZusammengeklappt;
         }
 
         /// <summary>

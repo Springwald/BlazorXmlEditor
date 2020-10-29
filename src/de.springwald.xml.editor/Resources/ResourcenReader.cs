@@ -57,15 +57,19 @@ namespace de.springwald.toolbox
         public string GetRessourcenDateiInhalt(Assembly assembly, string ressourcenname)
         {
 
-            Stream fs = assembly.GetManifestResourceStream(ressourcenname);
-            if (fs == null)
+            using (var fs = assembly.GetManifestResourceStream(ressourcenname))
             {
-                return String.Format("ResNotFound:{0}({1})", ressourcenname, _sourceName);
-            }
-            else
-            {
-                StreamReader sr = new StreamReader(fs, System.Text.Encoding.GetEncoding("ISO-8859-15"));
-                return sr.ReadToEnd();
+                if (fs == null)
+                {
+                    return String.Format("ResNotFound:{0}({1})", ressourcenname, _sourceName);
+                }
+                else
+                {
+                    using (var sr = new StreamReader(fs, System.Text.Encoding.GetEncoding("ISO-8859-15")))
+                    {
+                        return sr.ReadToEnd();
+                    }
+                }
             }
         }
 

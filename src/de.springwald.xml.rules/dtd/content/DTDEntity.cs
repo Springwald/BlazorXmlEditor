@@ -28,12 +28,5 @@ namespace de.springwald.xml.rules.dtd
         /// Ist eine eine % - Entity, d.h.enthält nur einen zu ersetzenden String und bleibt nicht unter ihrem Namen als einzufügen bestehen?
         /// </summary>
         public bool IstErsetzungsEntity { get; set; }
-
-        /// <summary>
-        /// Erzeugt eine DTD-Entity auf Basis des übergebenen DTD-Entity-Quellcodes
-        /// </summary>
-        public DTDEntity()
-        {
-        }
     }
 }

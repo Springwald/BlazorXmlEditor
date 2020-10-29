@@ -315,7 +315,7 @@ namespace de.springwald.xml.rules.dtd
 			// inhalt=der Inhalt der entity
 			// prozent=das Prozent-Zeichen, das angibt, ob es eine Ersetzungs-Entity oder eine Baustein-Entity ist
 			//(?<entity><!ENTITY[\t\r\n ]+(?:(?<prozent>%)[\t\r\n ]+)?(?<entityname>[\w-_]+?)[\t\r\n ]+"(?<inhalt>[^>]+)"[\t\r\n ]?>)
-			string regpatternelement = "(?<entity><!ENTITY[\\t\\r\\n ]+(?:(?<prozent>%)[\\t\\r\\n ]+)?(?<entityname>[\\w-_]+?)[\\t\\r\\n ]+\"(?<inhalt>[^>]+)\"[\\t\\r\\n ]?>)";
+			const string  regpatternelement = "(?<entity><!ENTITY[\\t\\r\\n ]+(?:(?<prozent>%)[\\t\\r\\n ]+)?(?<entityname>[\\w-_]+?)[\\t\\r\\n ]+\"(?<inhalt>[^>]+)\"[\\t\\r\\n ]?>)";
 
 			// Regulären Ausdruck zum Finden der Entity-Teile zusammenbauen
 			Regex reg = new Regex(regpatternelement); //, RegexOptions.IgnoreCase);
@@ -398,7 +398,7 @@ namespace de.springwald.xml.rules.dtd
 				// In der Liste der Attribute die einzelnen Attribute isolieren
 				// Regulären Ausdruck zum finden der einzelnen Attribute in der AttribuList zusammenbauen
 				// [\t\r\n ]?(?<name>[\w-_]+)[\t\r\n ]+(?<typ>CDATA|ID|IDREF|IDREFS|NMTOKEN|NMTOKENS|ENTITY|ENTITIES|NOTATION|xml:|[(][|\w-_ \t\r\n]+[)])[\t\r\n ]+(?:(?<anzahl>#REQUIRED|#IMPLIED|#FIXED)[\t\r\n ]+)?(?:"(?<vorgabewert>[\w-_]+)")?[\t\r\n ]?
-				string ausdruckEinzel =  "[\\t\\r\\n ]?(?<name>[\\w-_]+)[\\t\\r\\n ]+(?<typ>CDATA|ID|IDREF|IDREFS|NMTOKEN|NMTOKENS|ENTITY|ENTITIES|NOTATION|xml:|[(][|\\w-_ \\t\\r\\n]+[)])[\\t\\r\\n ]+(?:(?<anzahl>#REQUIRED|#IMPLIED|#FIXED)[\\t\\r\\n ]+)?(?:\"(?<vorgabewert>[\\w-_]+)\")?[\\t\\r\\n ]?";
+				const string ausdruckEinzel =  "[\\t\\r\\n ]?(?<name>[\\w-_]+)[\\t\\r\\n ]+(?<typ>CDATA|ID|IDREF|IDREFS|NMTOKEN|NMTOKENS|ENTITY|ENTITIES|NOTATION|xml:|[(][|\\w-_ \\t\\r\\n]+[)])[\\t\\r\\n ]+(?:(?<anzahl>#REQUIRED|#IMPLIED|#FIXED)[\\t\\r\\n ]+)?(?:\"(?<vorgabewert>[\\w-_]+)\")?[\\t\\r\\n ]?";
 
 				Regex regEinzel = new Regex(ausdruckEinzel); //, RegexOptions.IgnoreCase);
 				// Auf den DTD-Inhalt anwenden
@@ -434,7 +434,6 @@ namespace de.springwald.xml.rules.dtd
 								attribut.Pflicht = DtdAttribute.PflichtArten.Konstante;
 								break;
 							default:
-                                //"Unbekannte AttributAnzahl '{0}' in Attribut '{1}' von Element {2}"
                                 throw new ApplicationException($"Unbekannte AttributAnzahl '{match.Groups["anzahl"].Value}' in Attribut '{match.Value}' von Element {element.Name}" );
 
 						}
@@ -465,16 +464,13 @@ namespace de.springwald.xml.rules.dtd
 				} 
 				else 
 				{
-                    //
-					throw new ApplicationException($"Keine Attribute in der AttribuListe '{attributListeCode}' gefunden!");
+					throw new ApplicationException($"No attributes found in the AttributeList '{attributListeCode}'!");
 				}
 
 			} 
 			else 
 			{
-				// Zu diesem Element wurden keine Attribute gefunden
-                // "Keine Attribute für Element {0} vorhanden."
-				Trace.WriteLine (String.Format("Keine Attribute für Element {0} vorhanden.",element.Name));
+				Trace.WriteLine ($"No attributes available for element {element.Name}.");
 			}
 		}
 

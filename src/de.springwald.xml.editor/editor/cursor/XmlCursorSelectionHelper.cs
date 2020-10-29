@@ -16,14 +16,14 @@ namespace de.springwald.xml.editor.cursor
         /// Liefert den selektierten XML-Inhalt als String 
         /// </summary>
         /// <returns></returns>
-        public static async Task<string> GetSelektionAlsString(XMLCursor cursor)
+        public static async Task<string> GetSelektionAlsString(XmlCursor cursor)
         {
             if (cursor. IstEtwasSelektiert) // Es ist was selektiert
             {
                 StringBuilder ergebnis = new StringBuilder();
 
-                XMLCursor optimiert = cursor.Clone();
-                await optimiert.SelektionOptimieren();
+                XmlCursor optimiert = cursor.Clone();
+                await optimiert.OptimizeSelection();
 
                 System.Xml.XmlNode node = optimiert.StartPos.ActualNode; // Beim Startnode anfangen
 
@@ -154,7 +154,7 @@ namespace de.springwald.xml.editor.cursor
         /// </summary>
         /// <param name="cursor"></param>
         /// <param name="neueCursorPosNachLoeschen"></param>
-        internal static async Task<SelectionLoeschenResult> SelektionLoeschen(XMLCursor cursor)
+        internal static async Task<SelectionLoeschenResult> SelektionLoeschen(XmlCursor cursor)
         {
             // Wenn der Cursor gar keine Auswahl enthält
             if (!cursor.IstEtwasSelektiert)
@@ -287,7 +287,7 @@ namespace de.springwald.xml.editor.cursor
                             if (startpos == 0 && endpos >= cursor.StartPos.ActualNode.InnerText.Length)
                             {	// Der ganze Textnode ist zu löschen, das geben wir weiter an die Methode zum löschen
                                 // einzeln selektierter Nodes
-                                XMLCursor einNodeSelektiertCursor = new XMLCursor();
+                                XmlCursor einNodeSelektiertCursor = new XmlCursor();
                                 await einNodeSelektiertCursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
                                 return await SelektionLoeschen(einNodeSelektiertCursor);
                             }
@@ -320,7 +320,7 @@ namespace de.springwald.xml.editor.cursor
                             if (cursor.EndPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode ||
                                 cursor.EndPos.PosOnNode == XmlCursorPositions.CursorInFrontOfNode)
                             {
-                                XMLCursor neucursor = new XMLCursor();
+                                XmlCursor neucursor = new XmlCursor();
                                 await neucursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag, 0);
                                 return await SelektionLoeschen(neucursor);
                             }
@@ -345,7 +345,7 @@ namespace de.springwald.xml.editor.cursor
                     }
 
                     // den Endnode oder einen Teil von ihm löschen
-                    XMLCursor temp = cursor.Clone();
+                    XmlCursor temp = cursor.Clone();
                     temp.StartPos.SetPos(cursor.EndPos.ActualNode, XmlCursorPositions.CursorInFrontOfNode);
                     await SelektionLoeschen(temp);
 
@@ -388,7 +388,7 @@ namespace de.springwald.xml.editor.cursor
         /// </summary>
         /// <param name="Node"></param>
         /// <returns></returns>
-        public static bool IstNodeInnerhalbDerSelektion(XMLCursor cursor, System.Xml.XmlNode node)
+        public static bool IstNodeInnerhalbDerSelektion(XmlCursor cursor, System.Xml.XmlNode node)
         {
             // Prüfen, ob der Node selbst oder einer seiner Parents direkt selektiert sind
             if (cursor.StartPos.IsNodeInsideSelection(node)) return true;

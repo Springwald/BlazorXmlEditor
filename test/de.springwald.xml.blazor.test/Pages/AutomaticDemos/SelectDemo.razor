@@ -49,7 +49,7 @@
         {
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
-            await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
+            await this.editorContext.EditorState.SetRootNode(xmlDocument.DocumentElement);
         }
 
         var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
@@ -59,13 +59,13 @@
         flipFlop = !flipFlop;
         if (flipFlop)
         {
-            await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                             patternNode,
                             rules.XmlCursorPos.XmlCursorPositions.CursorOnNodeStartTag);
         }
         else
         {
-            await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                             templateNode,
                             rules.XmlCursorPos.XmlCursorPositions.CursorOnNodeStartTag);
         }

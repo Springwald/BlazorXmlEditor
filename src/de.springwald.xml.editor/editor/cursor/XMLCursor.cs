@@ -18,7 +18,7 @@ namespace de.springwald.xml.cursor
 {
     public enum MausKlickAktionen { MouseDown, MouseDownMove, MouseUp };
 
-    public partial class XMLCursor : IDisposable
+    public partial class XmlCursor : IDisposable
     {
         /// <summary>
         /// Event definieren, wenn sich der Cursor geändert hat
@@ -36,7 +36,7 @@ namespace de.springwald.xml.cursor
         /// </summary>
         public XmlCursorPos EndPos { get; private set; }
 
-        public XMLCursor()
+        public XmlCursor()
         {
             EndPos = new XmlCursorPos();
             StartPos = new XmlCursorPos();
@@ -70,7 +70,7 @@ namespace de.springwald.xml.cursor
             if (changed) await ChangedEvent.Trigger(EventArgs.Empty);
         }
 
-        public bool Equals(XMLCursor second)
+        public bool Equals(XmlCursor second)
         {
             return second != null && this.StartPos.Equals(second.StartPos) && this.EndPos.Equals(second.EndPos);
         }
@@ -79,9 +79,9 @@ namespace de.springwald.xml.cursor
         /// Erzeugt eine Kopie dieses Cursors
         /// </summary>
         /// <returns></returns>
-        public XMLCursor Clone()
+        public XmlCursor Clone()
         {
-            XMLCursor klon = new XMLCursor();
+            XmlCursor klon = new XmlCursor();
             klon.StartPos.SetPos(StartPos.ActualNode, StartPos.PosOnNode, StartPos.PosInTextNode);
             klon.EndPos.SetPos(EndPos.ActualNode, EndPos.PosOnNode, EndPos.PosInTextNode);
             return klon;
@@ -227,25 +227,10 @@ namespace de.springwald.xml.cursor
             await CursorPosSetzenDurchMausAktion(xmlNode, cursorPos, 0, aktion);
         }
 
-        private async Task endPos_ChangedEvent(EventArgs e)
-        {
-            if (!_cursorWirdGeradeGesetzt)
-            {
-                await this.ChangedEvent.Trigger(EventArgs.Empty); // Bescheid geben, dass nun der Cursor geändert wurde
-            }
-        }
-
-        private async Task startPos_ChangedEvent(EventArgs e)
-        {
-            if (!_cursorWirdGeradeGesetzt)
-            {
-                await this.ChangedEvent.Trigger(EventArgs.Empty); // Bescheid geben, dass nun der Cursor geändert wurde
-            }
-        }
         /// <summary>
         /// Optimiert den selektierten Bereich 
         /// </summary>
-        public async Task SelektionOptimieren()
+        public async Task OptimizeSelection()
         {
             // Tauschbuffer-Variablen definieren
             XmlCursorPositions dummyPos;
@@ -281,7 +266,7 @@ namespace de.springwald.xml.cursor
             else // Beide Nodes sind nicht gleich
             {
                 // Wenn die Nodes in der Reihenfolge falsch sind, dann beide vertauschen
-                if (ToolboxXML.Node1LaysBeforeNode2(EndPos.ActualNode, StartPos.ActualNode))
+                if (ToolboxXML.Node1LaisBeforeNode2(EndPos.ActualNode, StartPos.ActualNode))
                 {
                     XmlCursorPos tempPos = StartPos;
                     StartPos = EndPos;

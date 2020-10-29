@@ -58,7 +58,7 @@
 
     [Parameter]
     public EditorContext EditorContext { get; set; }
-    private EditorStatus EditorStatus => this.EditorContext?.EditorStatus;
+    private EditorStatus EditorStatus => this.EditorContext?.EditorState;
 
     private string[] attributes;
     private System.Xml.XmlNode actualNode;
@@ -81,39 +81,39 @@
 
     protected override Task OnInitializedAsync()
     {
-        this.EditorStatus.CursorRoh.ChangedEvent.Add(this.ShowAttributes);
+        this.EditorStatus.CursorRaw.ChangedEvent.Add(this.ShowAttributes);
         return base.OnInitializedAsync();
     }
 
     public void Dispose()
     {
-        this.EditorStatus.CursorRoh.ChangedEvent.Remove(this.ShowAttributes);
+        this.EditorStatus.CursorRaw.ChangedEvent.Remove(this.ShowAttributes);
     }
 
     private async Task ShowAttributes(EventArgs eventArgs)
     {
         if ((this.EditorStatus != null) && (this.EditorStatus.RootNode != null)) // genug Daten, um Attribute aufzulisten
         {
-            if (this.EditorStatus.CursorRoh.StartPos.Equals(this.EditorStatus.CursorRoh.EndPos))  //  kein Bereich gewählt
+            if (this.EditorStatus.CursorRaw.StartPos.Equals(this.EditorStatus.CursorRaw.EndPos))  //  kein Bereich gewählt
             {
                 // Herausfinden, für welchen Node die Attribute angezeigt werden sollen
-                switch (this.EditorStatus.CursorRoh.StartPos.PosOnNode)
+                switch (this.EditorStatus.CursorRaw.StartPos.PosOnNode)
                 {
                     case XmlCursorPos.XmlCursorPositions.CursorInsideTheEmptyNode:
                     case XmlCursorPos.XmlCursorPositions.CursorOnNodeEndTag:
                     case XmlCursorPos.XmlCursorPositions.CursorOnNodeStartTag:
                         // Der Node selbst ist selektiert
-                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.ActualNode;
+                        this.actualNode = this.EditorStatus.CursorRaw.StartPos.ActualNode;
                         break;
 
                     case XmlCursorPos.XmlCursorPositions.CursorInsideTextNode:
-                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.ActualNode;
+                        this.actualNode = this.EditorStatus.CursorRaw.StartPos.ActualNode;
                         break;
 
                     case XmlCursorPos.XmlCursorPositions.CursorBehindTheNode:
                     case XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode:
                         // Wir sind hinter oder vor dem Node, daher werden die Attribute des ParentNodes angezeigt
-                        this.actualNode = this.EditorStatus.CursorRoh.StartPos.ActualNode.ParentNode;
+                        this.actualNode = this.EditorStatus.CursorRaw.StartPos.ActualNode.ParentNode;
                         break;
 
                     default:

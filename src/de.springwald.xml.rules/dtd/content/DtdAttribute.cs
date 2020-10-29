@@ -19,39 +19,26 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Der Name des Attributes
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Ist das Attribut Pflicht?
         /// </summary>
-        public PflichtArten Pflicht { get; set; }
+        public PflichtArten Pflicht { get; set; } = PflichtArten.Optional;
 
         /// <summary>
         /// Die Werte, welche für dieses Attribut erlaubt sind. NULL=Keine Vorgabe, alles ist erlaubt
         /// </summary>
-        public string[] ErlaubteWerte { get; set; }
+        public string[] ErlaubteWerte { get; set; } = new string[] { };
 
         /// <summary>
         /// Der Vorgabewert
         /// </summary>
-        public string StandardWert { get; set; }
+        public string StandardWert { get; set; } = string.Empty;
 
         /// <summary>
         /// Der Typ des Attributes
         /// </summary>
         public string Typ { set; get; }
-
-        /// <summary>
-        /// Erzeugt ein neues Attribut
-        /// </summary>
-        public DtdAttribute()
-        {
-            Name = string.Empty;
-            Pflicht = PflichtArten.Optional;
-            StandardWert = string.Empty;
-            ErlaubteWerte = new string[] { };
-        }
-
-
     }
 }

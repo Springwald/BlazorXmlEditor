@@ -1,7 +1,8 @@
-﻿using CurrieTechnologies.Razor.Clipboard;
+﻿
+
 using System;
 using System.Threading.Tasks;
-
+using CurrieTechnologies.Razor.Clipboard;
 
 namespace de.springwald.xml.blazor.NativePlatform
 {

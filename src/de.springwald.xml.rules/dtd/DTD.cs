@@ -46,11 +46,7 @@ namespace de.springwald.xml.rules.dtd
         {
             this.Elemente = elemente;
             this.Entities = entities;
-            _elementeNachNamen = new Dictionary<string, DTDElement>();
-        }
-
-        public DTD()
-        {
+            this._elementeNachNamen = new Dictionary<string, DTDElement>();
         }
 
         /// <summary>
@@ -123,7 +119,6 @@ namespace de.springwald.xml.rules.dtd
         /// <param name="elementName"></param>
         public DTDElement DTDElementByNameIntern_(string elementName, bool fehlerWennNichtVorhanden)
         {
-
             if (this._elementeNachNamen.TryGetValue(elementName, out DTDElement elementInBuffer))
             {
                 return elementInBuffer;

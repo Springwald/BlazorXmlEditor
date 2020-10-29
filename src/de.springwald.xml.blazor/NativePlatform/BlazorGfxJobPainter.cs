@@ -1,8 +1,9 @@
-﻿using de.springwald.xml.editor.nativeplatform.gfx.Jobs;
-using de.springwald.xml.editor.nativeplatform.gfx;
-using de.springwald.xml.editor.nativeplatform.gfxobs;
+﻿
 using System;
 using System.Threading.Tasks;
+using de.springwald.xml.editor.nativeplatform.gfx.Jobs;
+using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.editor.nativeplatform.gfxobs;
 
 namespace de.springwald.xml.blazor.NativePlatform
 {

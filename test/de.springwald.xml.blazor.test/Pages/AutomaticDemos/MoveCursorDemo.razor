@@ -54,14 +54,14 @@
         {
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
-            await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
-            await this.editorContext.EditorStatus.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorState.SetRootNode(xmlDocument.DocumentElement);
+            await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(
                xmlDocument.DocumentElement,
                rules.XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode,
                0);
         }
 
-        var cursorStatus = this.editorContext.EditorStatus.CursorRoh;
+        var cursorStatus = this.editorContext.EditorState.CursorRaw;
 
         if (forward)
         {

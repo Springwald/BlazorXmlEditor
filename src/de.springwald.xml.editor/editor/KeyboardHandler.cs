@@ -23,7 +23,7 @@ namespace de.springwald.xml.editor
     {
         private bool _naechstesLostFokusVerhindern = false; // So that leaving the focus is ignored on TAB
         private INativePlatform nativePlatform;
-        private XMLRegelwerk regelwerk;
+        private XmlRules regelwerk;
         private EditorActions actions;
         private EditorStatus editorState;
 
@@ -33,7 +33,7 @@ namespace de.springwald.xml.editor
         public KeyboardHandler(EditorContext editorContext)
         {
             this.actions = editorContext.Actions;
-            this.editorState = editorContext.EditorStatus;
+            this.editorState = editorContext.EditorState;
             this.regelwerk = editorContext.XmlRules;
 
             this.nativePlatform = editorContext.NativePlatform;
@@ -75,11 +75,11 @@ namespace de.springwald.xml.editor
                         break;
 
                     case (Keys.V): // CTRL-V -> paste
-                        if (e.CtrlKey)  await this.actions.AktionPasteFromClipboard(UndoSnapshotSetzenOptionen.ja);
+                        if (e.CtrlKey)  await this.actions.AktionPasteFromClipboard(SetUndoSnapshotOptions.Yes);
                         break;
 
                     case (Keys.X): // CTRL-X -> cut
-                        if (e.CtrlKey) await this.actions.AktionCutToClipboard(UndoSnapshotSetzenOptionen.ja);
+                        if (e.CtrlKey) await this.actions.AktionCutToClipboard(SetUndoSnapshotOptions.Yes);
                         break;
 
                     case (Keys.Y): //CTRL-Y -> ReDo (not implemented yet)
@@ -95,13 +95,13 @@ namespace de.springwald.xml.editor
                     case Keys.Left: // move cursor to left
                         if (e.ShiftKey)
                         {
-                            await CursorPosMoveHelper.MoveLeft(this.editorState.CursorRoh.EndPos, this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveLeft(this.editorState.CursorRaw.EndPos, this.editorState.RootNode, this.regelwerk);
                         }
                         else
                         {
-                            dummy = this.editorState.CursorRoh.StartPos.Clone();
+                            dummy = this.editorState.CursorRaw.StartPos.Clone();
                             await CursorPosMoveHelper.MoveLeft(dummy, this.editorState.RootNode, this.regelwerk);
-                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
+                            await this.editorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
                         }
                         useKeyContent = false;
                         break;
@@ -109,13 +109,13 @@ namespace de.springwald.xml.editor
                     case Keys.Right: // move cursor to right
                         if (e.ShiftKey)
                         {
-                            await CursorPosMoveHelper.MoveRight(this.editorState.CursorRoh.EndPos, this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveRight(this.editorState.CursorRaw.EndPos, this.editorState.RootNode, this.regelwerk);
                         }
                         else
                         {
-                            dummy = this.editorState.CursorRoh.StartPos.Clone();
+                            dummy = this.editorState.CursorRaw.StartPos.Clone();
                             await CursorPosMoveHelper.MoveRight(dummy, this.editorState.RootNode, this.regelwerk);
-                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
+                            await this.editorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
                         }
                         useKeyContent = false;
                         break;
@@ -133,7 +133,7 @@ namespace de.springwald.xml.editor
                         break;
 
                     case Keys.Tab: // Tab jumps to the next day
-                        System.Xml.XmlNode node = this.editorState.CursorRoh.StartPos.ActualNode;
+                        System.Xml.XmlNode node = this.editorState.CursorRaw.StartPos.ActualNode;
                         bool abbruch = false;
                         if (node.FirstChild != null)
                         {
@@ -160,32 +160,32 @@ namespace de.springwald.xml.editor
                         }
                         if (!abbruch)
                         {
-                            await this.editorState.CursorRoh.BeideCursorPosSetzenMitChangeEventWennGeaendert(node, XmlCursorPositions.CursorInsideTheEmptyNode);
+                            await this.editorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(node, XmlCursorPositions.CursorInsideTheEmptyNode);
                         }
                         _naechstesLostFokusVerhindern = true; // So that leaving the focus is ignored on TAB
                         useKeyContent = false;
                         break;
 
                     case Keys.Back:  
-                        if (this.editorState.CursorRoh.IstEtwasSelektiert)
+                        if (this.editorState.CursorRaw.IstEtwasSelektiert)
                         {
-                            await this.actions.AktionDelete(UndoSnapshotSetzenOptionen.ja);
+                            await this.actions.AktionDelete(SetUndoSnapshotOptions.Yes);
                         }
                         else
                         {
-                            await this.actions.AktionNodeOderZeichenVorDerCursorPosLoeschen(this.editorState.CursorRoh.StartPos, UndoSnapshotSetzenOptionen.ja);
+                            await this.actions.AktionNodeOderZeichenVorDerCursorPosLoeschen(this.editorState.CursorRaw.StartPos, SetUndoSnapshotOptions.Yes);
                         }
                         useKeyContent = false;
                         break;
 
                     case Keys.Delete:          
-                        if (this.editorState.CursorRoh.IstEtwasSelektiert)
+                        if (this.editorState.CursorRaw.IstEtwasSelektiert)
                         {
-                            await this.actions.AktionDelete(UndoSnapshotSetzenOptionen.ja);
+                            await this.actions.AktionDelete(SetUndoSnapshotOptions.Yes);
                         }
                         else
                         {
-                            await this.actions.AktionNodeOderZeichenHinterCursorPosLoeschen(this.editorState.CursorRoh.StartPos, UndoSnapshotSetzenOptionen.ja);
+                            await this.actions.AktionNodeOderZeichenHinterCursorPosLoeschen(this.editorState.CursorRaw.StartPos, SetUndoSnapshotOptions.Yes);
                         }
                         useKeyContent = false;
                         break;
@@ -200,7 +200,7 @@ namespace de.springwald.xml.editor
 
                 if (useKeyContent)
                 {
-                    await this.actions.AktionTextAnCursorPosEinfuegen(e.Content, UndoSnapshotSetzenOptionen.ja);
+                    await this.actions.AktionTextAnCursorPosEinfuegen(e.Content, SetUndoSnapshotOptions.Yes);
                 }
             }
         }

@@ -23,7 +23,7 @@ namespace de.springwald.xml.editor
 
         private EditorContext editorContext;
 
-        private EditorStatus EditorStatus => this.editorContext.EditorStatus;
+        private EditorStatus EditorStatus => this.editorContext.EditorState;
 
         private EditorConfig EditorConfig => this.editorContext.EditorConfig;
 
@@ -42,8 +42,8 @@ namespace de.springwald.xml.editor
             this.editorContext = editorContext;
             this.NativePlatform.ControlElement.Enabled = false; // Bis zu einer Content-Zuweisung erstmal deaktiviert */
 
-            this.editorContext.EditorStatus.CursorRoh.ChangedEvent.Add(this.CursorChangedEvent);
-            this.editorContext.EditorStatus.ContentChangedEvent.Add(this.OnContentChanged);
+            this.editorContext.EditorState.CursorRaw.ChangedEvent.Add(this.CursorChangedEvent);
+            this.editorContext.EditorState.ContentChangedEvent.Add(this.OnContentChanged);
 
             this.CursorBlink = new CursorBlink();
             this.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
@@ -60,8 +60,8 @@ namespace de.springwald.xml.editor
             if (!_disposed)
             {
                 this.CleanUpXmlElements();
-                this.editorContext.EditorStatus.CursorRoh.ChangedEvent.Remove(this.CursorChangedEvent);
-                this.editorContext.EditorStatus.ContentChangedEvent.Remove(this.OnContentChanged);
+                this.editorContext.EditorState.CursorRaw.ChangedEvent.Remove(this.CursorChangedEvent);
+                this.editorContext.EditorState.ContentChangedEvent.Remove(this.OnContentChanged);
 
                 this.CursorBlink.Dispose();
 
@@ -115,7 +115,7 @@ namespace de.springwald.xml.editor
 
                 if (this.EditorStatus.UndoHandler == null)
                 {
-                    this.EditorStatus.UndoHandler = new XMLUndoHandler(this.EditorStatus.RootNode);
+                    this.EditorStatus.UndoHandler = new XmlUndoHandler(this.EditorStatus.RootNode);
                 }
 
                 this.NativePlatform.ControlElement.Enabled = true;

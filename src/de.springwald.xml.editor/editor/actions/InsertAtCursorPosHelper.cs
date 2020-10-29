@@ -28,7 +28,7 @@ namespace de.springwald.xml.editor.actions
         /// <param name="cursor">An dieser Stelle soll eingefügt werden</param>
         /// <param name="ersatzNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
         /// AIML-Template wir * gedrückt, dann wird ein STAR-Tag eingefügt</param>
-        internal static TextEinfuegeResult TextEinfuegen(XmlCursorPos cursorPos, string rohText, XMLRegelwerk regelwerk)
+        internal static TextEinfuegeResult InsertText(XmlCursorPos cursorPos, string rohText, XmlRules regelwerk)
         {
             // Den eingegebenen Text im Preprocessing ggf. überarbeiten.
             // In einer AIML-DTD kann dies z.B. bedeuten, dass der
@@ -102,7 +102,7 @@ namespace de.springwald.xml.editor.actions
         /// </summary>
         /// <param name="node">Dieses XML-Element soll eingefügt werden</param>
         /// <returns></returns>
-        internal static bool InsertXMLNode(XmlCursorPos cursorPos, System.Xml.XmlNode node, XMLRegelwerk regelwerk, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
+        internal static bool InsertXMLNode(XmlCursorPos cursorPos, System.Xml.XmlNode node, XmlRules regelwerk, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
         {
             System.Xml.XmlNode parentNode = cursorPos.ActualNode.ParentNode;
 
@@ -156,7 +156,7 @@ namespace de.springwald.xml.editor.actions
             }
             else
             {
-                if (regelwerk.IstSchliessendesTagSichtbar(node))
+                if (regelwerk.HasEndTag(node))
                 {
                     // Cursor in den neuen Node setzen
                     cursorPos.SetPos(node, XmlCursorPositions.CursorInsideTheEmptyNode);
@@ -177,7 +177,7 @@ namespace de.springwald.xml.editor.actions
         /// <param name="nodeVorher"></param>
         /// <param name="nodeNachher"></param>
         /// <param name="text"></param>
-        internal static void TextZwischenZweiNodesEinfuegen(XmlCursorPos cursorPos, System.Xml.XmlNode nodeVorher, System.Xml.XmlNode nodeNachher, string text, XMLRegelwerk regelwerk)
+        internal static void TextZwischenZweiNodesEinfuegen(XmlCursorPos cursorPos, System.Xml.XmlNode nodeVorher, System.Xml.XmlNode nodeNachher, string text, XmlRules regelwerk)
         {
             if (ToolboxXML.IstTextOderKommentarNode(nodeVorher))  // wenn der Node vorher schon Text ist, dann einfach an ihn anhängen
             {

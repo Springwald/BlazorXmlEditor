@@ -35,7 +35,7 @@ namespace de.springwald.xml.editor.xmlelements.Caching
             return true;
         }
 
-        public static LastPaintingDataText CalculateActualPaintData(PaintContext paintContext, XmlNode node, string actualText, int fontHeight, XMLCursor cursor, int selectionStart, int selectionLength)
+        public static LastPaintingDataText CalculateActualPaintData(PaintContext paintContext, XmlNode node, string actualText, int fontHeight, XmlCursor cursor, int selectionStart, int selectionLength)
         {
             return new LastPaintingDataText
             {

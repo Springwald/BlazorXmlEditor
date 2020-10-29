@@ -1,18 +1,14 @@
-using de.springwald.xml.rules.dtd;
+
+
 using System.IO;
 using System.Reflection;
+using de.springwald.xml.rules.dtd;
 
 namespace de.springwald.xml.blazor.test.DemoData
 {
     /// <summary>
     /// delivers a demo dtd
     /// </summary>
-    /// <remarks>
-    /// (C)2006 Daniel Springwald, Bochum Germany
-    /// Springwald Software  -  www.springwald.de
-    /// daniel@springwald.de  -   0234 298 788 47
-    /// all rights reserved
-    /// </remarks>
     public static class DemoDtd
     {
         private static string _dtdInhalt;       // the dtd content
@@ -44,12 +40,10 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// <summary>
         /// loads the dtd
         /// </summary>
-        /// <returns></returns>
         public static DTD LoadDemoDtd()
         {
             // nun daraus die DTD erzeugen und zurückgeben
-            var reader = new DTDReaderDTD();
-            return reader.GetDTDFromString(DTDInhalt);
+            return new DTDReaderDTD().GetDTDFromString(DTDInhalt);
         }
 
     }

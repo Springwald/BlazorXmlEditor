@@ -13,13 +13,7 @@ namespace de.springwald.xml.blazor.test.DemoData
     /// <summary>
     /// Die Regeln, wie die AIML-XML-Elemente im Zusammenhang stehen
     /// </summary>
-    /// <remarks>
-    /// (C)2006 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
-    public class DemoXmlRules : de.springwald.xml.XMLRegelwerk
+    public class DemoXmlRules : de.springwald.xml.XmlRules
     {
         /// <summary>
         /// Die Gruppierungen, in welchen die XML-Elemente zum Einfügen angeboten werden
@@ -133,7 +127,7 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// </summary>
         /// <param name="xmlNode"></param>
         /// <returns></returns>
-        public override bool IstSchliessendesTagSichtbar(XmlNode xmlNode)
+        public override bool HasEndTag(XmlNode xmlNode)
         {
             switch (xmlNode.Name)
             {
@@ -149,7 +143,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     }
 
                 default:
-                    return base.IstSchliessendesTagSichtbar(xmlNode);
+                    return base.HasEndTag(xmlNode);
             }
         }
 
@@ -158,7 +152,7 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// </summary>
         /// <param name="xmlNode"></param>
         /// <returns></returns>
-        public override DarstellungsArten DarstellungsArt(System.Xml.XmlNode xmlNode)
+        public override DisplayTypes DisplayType(System.Xml.XmlNode xmlNode)
         {
 
             if (xmlNode is System.Xml.XmlElement)
@@ -172,7 +166,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     case "gender":
                     case "person":
                     case "person2":
-                        return DarstellungsArten.Fliesselement;
+                        return DisplayTypes.FloatingElement;
 
                     case "think": // Kommt ein think direkt nach dem Template vor, dann erhält es eine eigene Zeile, kommt es im Fließtext vor, dann nicht
 
@@ -188,28 +182,28 @@ namespace de.springwald.xml.blazor.test.DemoData
                                 }
                                 else
                                 {
-                                    if (DarstellungsArt(xmlNode.PreviousSibling) == DarstellungsArten.Fliesselement)
+                                    if (DisplayType(xmlNode.PreviousSibling) == DisplayTypes.FloatingElement)
                                     {
                                         // direkt vor dem Think liegt ein Fliesstextelement, also ist das Think auch eines
-                                        return DarstellungsArten.Fliesselement;
+                                        return DisplayTypes.FloatingElement;
                                     }
                                 }
                             }
 
                             if (xmlNode.NextSibling != null) // es gibt ein Element nach dem Think
                             {
-                                if (DarstellungsArt(xmlNode.NextSibling) == DarstellungsArten.Fliesselement)
+                                if (DisplayType(xmlNode.NextSibling) == DisplayTypes.FloatingElement)
                                 {
                                     // direkt vor dem Think liegt ein Fliesstextelement, also ist das Think auch eines
-                                    return DarstellungsArten.Fliesselement;
+                                    return DisplayTypes.FloatingElement;
                                 }
                             }
 
-                            return DarstellungsArten.EigeneZeile;
+                            return DisplayTypes.OwnRow;
                         }
                         else
                         {
-                            return DarstellungsArten.Fliesselement;  // steckt nicht im Template-Tag
+                            return DisplayTypes.FloatingElement;  // steckt nicht im Template-Tag
                         }
 
 
@@ -217,17 +211,17 @@ namespace de.springwald.xml.blazor.test.DemoData
 
                         if (xmlNode.ParentNode.Name == "template")  // that liegt im template node
                         {
-                            return DarstellungsArten.Fliesselement;
+                            return DisplayTypes.FloatingElement;
                         }
                         else  // steckt nicht im Template-Tag
                         {
-                            return DarstellungsArten.EigeneZeile;
+                            return DisplayTypes.OwnRow;
                         }
 
-                    default: return base.DarstellungsArt(xmlNode);
+                    default: return base.DisplayType(xmlNode);
                 }
             }
-            return base.DarstellungsArt(xmlNode);
+            return base.DisplayType(xmlNode);
         }
 
         /// <summary>

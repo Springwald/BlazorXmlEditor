@@ -51,7 +51,7 @@
         this.IncrementDocumentIndex();
         var xmlDocument = new System.Xml.XmlDocument();
         xmlDocument.LoadXml(this.documents[this.actualDocumentIndex]);
-        await this.editorContext.EditorStatus.SetRootNode(xmlDocument.DocumentElement);
+        await this.editorContext.EditorState.SetRootNode(xmlDocument.DocumentElement);
 
         this.loadDocumentTimer.Start();
     }

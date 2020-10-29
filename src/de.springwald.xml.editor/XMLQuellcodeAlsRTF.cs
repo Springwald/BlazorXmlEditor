@@ -32,7 +32,7 @@ namespace de.springwald.xml
             }
         }
 
-        private XMLRegelwerk _regelwerk;                // Das Regelwerk zur Beurteilung der Gültigkeit
+        private XmlRules _regelwerk;                // Das Regelwerk zur Beurteilung der Gültigkeit
         private bool _zeilenNummernAnzeigen = true;     // Zeilennummern anzeigen
 
         private int _zeilenNummer;                      // Der Counter für die jeweils aktuelle Zeilennummer des Quellcodes
@@ -62,7 +62,7 @@ namespace de.springwald.xml
         /// <summary>
         /// Das Regelwerk zur Beurteilung der Gültigkeit
         /// </summary>
-        public XMLRegelwerk Regelwerk
+        public XmlRules Regelwerk
         {
             set { _regelwerk = value; }
         }
@@ -200,8 +200,8 @@ namespace de.springwald.xml
             }
             else
             {
-                DTDPruefer pruefer = _regelwerk.DTDPruefer;
-                if (pruefer.IstXmlNodeOk(node, posBereitsAlsOKGeprueft))
+                DtdChecker pruefer = _regelwerk.DTDPruefer;
+                if (pruefer.IsXmlNodeOk(node, posBereitsAlsOKGeprueft))
                 {
                     nodeFehlerhaft = false;
                     nodeFehlerMsg = null;
@@ -210,7 +210,7 @@ namespace de.springwald.xml
                 else
                 {
                     nodeFehlerhaft = true;
-                    nodeFehlerMsg = pruefer.Fehlermeldungen;
+                    nodeFehlerMsg = pruefer.ErrorMessages;
                     nodeFarbe = RTFFarbe(RtfFarben.rot);
                 }
             }
@@ -232,13 +232,13 @@ namespace de.springwald.xml
             {
 
                 // Den Node selbst zeichnen
-                if (_regelwerk.IstSchliessendesTagSichtbar(node))
+                if (_regelwerk.HasEndTag(node))
                 {
 
                     // Schauen, wie das Element gezeichnet werden soll
-                    switch (_regelwerk.DarstellungsArt(node))
+                    switch (_regelwerk.DisplayType(node))
                     {
-                        case DarstellungsArten.EigeneZeile:
+                        case DisplayTypes.OwnRow:
 
                             quellcode.Append(GetNeueZeile());
                             quellcode.Append(nodeFarbe);
@@ -262,7 +262,7 @@ namespace de.springwald.xml
 
                             break;
 
-                        case DarstellungsArten.Fliesselement:
+                        case DisplayTypes.FloatingElement:
 
                             if (neueZeileNotwendig) quellcode.Append(GetNeueZeile() + einzug);
 
@@ -277,7 +277,7 @@ namespace de.springwald.xml
                             break;
 
                         default:
-                            throw new ApplicationException("Unbekannte Darstellungsart " + _regelwerk.DarstellungsArt(node));
+                            throw new ApplicationException("Unbekannte Darstellungsart " + _regelwerk.DisplayType(node));
                     }
                 }
                 else

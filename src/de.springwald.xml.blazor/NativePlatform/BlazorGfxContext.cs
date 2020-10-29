@@ -1,9 +1,10 @@
-﻿using Blazor.Extensions;
-using Blazor.Extensions.Canvas.Canvas2D;
-using de.springwald.xml.editor.nativeplatform.gfx;
+﻿
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Blazor.Extensions;
+using Blazor.Extensions.Canvas.Canvas2D;
+using de.springwald.xml.editor.nativeplatform.gfx;
 
 namespace de.springwald.xml.blazor.NativePlatform
 {

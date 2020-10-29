@@ -11,7 +11,7 @@ using System;
 
 namespace de.springwald.xml.editor
 {
-    public class XMLUndoSchrittNodeInserted : XMLUndoSchritt
+    public class XMLUndoSchrittNodeInserted : XmlUndoStep
     {
         private System.Xml.XmlNode insertedNode;
         private System.Xml.XmlNode parentNode;

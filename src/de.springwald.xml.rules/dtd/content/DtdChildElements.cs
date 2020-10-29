@@ -10,6 +10,7 @@
 using System;
 using System.Text;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace de.springwald.xml.rules.dtd
 {
@@ -39,8 +40,8 @@ namespace de.springwald.xml.rules.dtd
         public enum DtdChildElementOperators { FollowedBy = 0, Or = -1 };
 
         private string sourceCode;
-        private ArrayList _children;		// The children of this child area
-        private DTD _dtd;                   // The DTD, on which everything is based
+        private List<DtdChildElements> _children;		    // The children of this child area
+        private DTD _dtd;                                   // The DTD, on which everything is based
 
         private AllPossibleElementsOfAChildBlock allPossibleElements; // Determines all elements which this childblock can ever cover / contain
 
@@ -186,6 +187,10 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         public string ElementName { get; protected set; }
 
+        private DtdChildElements()
+        {
+        }
+
         /// <summary>
         /// Stellt einen ChildElemente-Block auf Basis des übergebenen DTD-Quellcodes bereit
         /// </summary>
@@ -200,7 +205,7 @@ namespace de.springwald.xml.rules.dtd
         {
             // Grundwerte initialisieren
             this.ElementType = DtdChildElementTypes.Empty;
-            this._children = new ArrayList();
+            this._children = new List<DtdChildElements>();
             this.DefCount = DtdChildElementAmounts.ExactOnce;
             this.ElementName = "";
             this.Operator = DtdChildElementOperators.Or;
@@ -223,14 +228,6 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        ///  Provides a ChildElement block based on the passed DTD source code
-        /// </summary>
-        protected DtdChildElements()
-        {
-        }
-
-
-        /// <summary>
         /// Creates a copy of this ChildBlock
         /// </summary>
         public DtdChildElements Clone()
@@ -245,7 +242,8 @@ namespace de.springwald.xml.rules.dtd
                 _dtd = this._dtd,
                 sourceCode = this.sourceCode,
             };
-            clone._children = (ArrayList)_children.Clone();
+            clone._children = new List<DtdChildElements>();
+            clone._children.AddRange(this._children);
             return clone;
         }
 

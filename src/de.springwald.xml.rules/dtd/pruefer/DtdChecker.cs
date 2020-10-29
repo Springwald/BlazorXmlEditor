@@ -16,36 +16,36 @@ namespace de.springwald.xml.rules.dtd
     /// <summary>
     /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
     /// </summary>
-    public class DTDPruefer
+    public class DtdChecker
     {
         private DTD _dtd; // Die DTD, gegen die geprüft werden soll
-        private DTDNodeEditCheck _nodeCheckerintern;
-        private StringBuilder _fehlermeldungen;
+        private DtdNodeEditCheck _nodeCheckerintern;
+        private StringBuilder errorMessages;
 
-        private DTDNodeEditCheck NodeChecker
+        private DtdNodeEditCheck NodeChecker
         {
             get
             {
-                if (_nodeCheckerintern == null)
+                if (this._nodeCheckerintern == null)
                 {
-                    _nodeCheckerintern = new DTDNodeEditCheck(_dtd);
+                    this._nodeCheckerintern = new DtdNodeEditCheck(_dtd);
                 }
-                return _nodeCheckerintern;
+                return this._nodeCheckerintern;
             }
         }
 
-        public string Fehlermeldungen
+        public string ErrorMessages
         {
-            get { return this._fehlermeldungen.ToString(); }
+            get { return this.errorMessages.ToString(); }
         }
 
         /// <summary>
         /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
         /// </summary>
         /// <param name="dtd">Die DTD, gegen die geprüft werden soll</param>
-        public DTDPruefer(DTD dtd)
+        public DtdChecker(DTD dtd)
         {
-            _dtd = dtd;
+            this._dtd = dtd;
             this.Reset();
         }
 
@@ -53,10 +53,10 @@ namespace de.springwald.xml.rules.dtd
         /// Prüft, ob das übergebene XML-Objekt lt. der angegebenen DTD ok ist.
         /// </summary>
         /// <returns></returns>
-        public bool IstXmlAttributOk(System.Xml.XmlAttribute xmlAttribut)
+        public bool IsXmlAttributOk(System.Xml.XmlAttribute xmlAttribut)
         {
             this.Reset();
-            return this.PruefeAttribut(xmlAttribut);
+            return this.CheckAttribute(xmlAttribut);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         /// <param name="posBereitsGeprueft">Ist für diesen Node bereits bekannt, ob er dort stehen darf wo er steht?</param>
         /// <returns></returns>
-        public bool IstXmlNodeOk(System.Xml.XmlNode xmlNode, bool posBereitsAlsOKBestaetigt)
+        public bool IsXmlNodeOk(System.Xml.XmlNode xmlNode, bool posBereitsAlsOKBestaetigt)
         {
             this.Reset();
             if (posBereitsAlsOKBestaetigt)
@@ -73,7 +73,7 @@ namespace de.springwald.xml.rules.dtd
             }
             else
             {
-                return this.PruefeNodePos(xmlNode);
+                return this.CheckNodePos(xmlNode);
             }
         }
 
@@ -81,7 +81,7 @@ namespace de.springwald.xml.rules.dtd
         /// Prüft einen XML-Node gegen die DTD
         /// <param name="node"></param>
         /// <returns></returns>
-        private bool PruefeNodePos(System.Xml.XmlNode node)
+        private bool CheckNodePos(System.Xml.XmlNode node)
         {
             // Kommentar ist immer ok
             //if (node is System.Xml.XmlComment) return true;
@@ -92,30 +92,30 @@ namespace de.springwald.xml.rules.dtd
             {
                 try
                 {
-                    if (this.NodeChecker.IstDerNodeAnDieserStelleErlaubt(node))
+                    if (this.NodeChecker.IsTheNodeAllowedAtThisPos(node))
                     {
                         return true;
                     }
                     else
                     {
                         // "Tag '{0}' hier nicht erlaubt: "
-                        _fehlermeldungen.AppendFormat($"Tag '{node.Name}' hier nicht erlaubt");
-                        XmlCursorPos pos = new XmlCursorPos();
+                        errorMessages.AppendFormat($"Tag '{node.Name}' hier nicht erlaubt");
+                        var pos = new XmlCursorPos();
                         pos.SetPos(node, XmlCursorPositions.CursorOnNodeStartTag);
-                        var erlaubteTags = this.NodeChecker.AnDieserStelleErlaubteTags_(pos, false, false); // was ist an dieser Stelle erlaubt?
-                        if (erlaubteTags.Length > 0)
+                        var allowedTags = this.NodeChecker.AnDieserStelleErlaubteTags_(pos, false, false); // was ist an dieser Stelle erlaubt?
+                        if (allowedTags.Length > 0)
                         {
                             // "An dieser Stelle erlaubte Tags: "
-                            _fehlermeldungen.Append("An dieser Stelle erlaubte Tags:");
-                            foreach (string tag in erlaubteTags)
+                            errorMessages.Append("An dieser Stelle erlaubte Tags:");
+                            foreach (string tag in allowedTags)
                             {
-                                _fehlermeldungen.AppendFormat("{0} ", tag);
+                                errorMessages.AppendFormat("{0} ", tag);
                             }
                         }
                         else
                         {
                             //"An dieser Stelle sind keine Tags erlaubt. Wahrscheinlich ist das Parent-Tag bereits defekt."
-                            _fehlermeldungen.Append("An dieser Stelle sind keine Tags erlaubt. Wahrscheinlich ist das Parent-Tag bereits defekt.");
+                            errorMessages.Append("An dieser Stelle sind keine Tags erlaubt. Wahrscheinlich ist das Parent-Tag bereits defekt.");
                         }
                         return false;
                     }
@@ -123,14 +123,14 @@ namespace de.springwald.xml.rules.dtd
                 catch (DTD.XMLUnknownElementException e)
                 {
                     // "Unbekanntes Element '{0}'"
-                    _fehlermeldungen.AppendFormat($"Unbekanntes Element '{e.ElementName}'");
+                    errorMessages.AppendFormat($"Unbekanntes Element '{e.ElementName}'");
                     return false;
                 }
             }
             else // Das Element dieses Nodes ist in der DTD gar nicht bekannt
             {
                 //  "Unbekanntes Element '{0}'"
-                _fehlermeldungen.AppendFormat($"Unbekanntes Element '{DTD.GetElementNameFromNode(node)}'");
+                errorMessages.AppendFormat($"Unbekanntes Element '{DTD.GetElementNameFromNode(node)}'");
                 return false;
             }
         }
@@ -140,7 +140,7 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         /// <param name="attribut"></param>
         /// <returns></returns>
-        private bool PruefeAttribut(System.Xml.XmlAttribute attribut)
+        private bool CheckAttribute(System.Xml.XmlAttribute attribut)
         {
             return false;
         }
@@ -150,7 +150,7 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         private void Reset()
         {
-            _fehlermeldungen = new StringBuilder();
+            errorMessages = new StringBuilder();
         }
     }
 }

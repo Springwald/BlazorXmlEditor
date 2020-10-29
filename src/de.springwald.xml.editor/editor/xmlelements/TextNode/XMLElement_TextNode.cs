@@ -51,7 +51,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             this.colorBackground = this.Config.ColorBackground;
         }
 
-        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XMLCursor cursor, IGraphics gfx, PaintModes paintMode)
+        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
             paintContext.PaintPosX += 3;
             var actualText = ToolboxXML.TextAusTextNodeBereinigt(XMLNode);
@@ -191,7 +191,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             }
         }
 
-        private IEnumerable<TextPart> GetTextLinesFromTextParts(TextSplitHelper.TextPartRaw[] parts, PaintContext paintContext, XMLCursor cursor, int fontHeight, double fontWidth)
+        private IEnumerable<TextPart> GetTextLinesFromTextParts(TextSplitHelper.TextPartRaw[] parts, PaintContext paintContext, XmlCursor cursor, int fontHeight, double fontWidth)
         {
             paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.Config.MinLineHeight);
             var x = paintContext.PaintPosX;
@@ -251,7 +251,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 if (part.Rectangle.Contains(point)) // Wenn der Klick in diesem Textteil ist
                 {
                     posInLine += Math.Min(part.Text.Length - 1, (int)((point.X - part.Rectangle.X) / Math.Max(1, this.lastCalculatedFontWidth) + 0.5));
-                    await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorInsideTextNode, posInLine, action);
+                    await EditorStatus.CursorRaw.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorInsideTextNode, posInLine, action);
                     return;
                 }
                 else // In diesem Textteil war der Klick nicht
@@ -266,7 +266,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
         /// </summary>
         /// <param name="selectionStart"></param>
         /// <param name="selektionEnde"></param>
-        private void CalculateStartAndEndOfSelection(string actualText, out int selectionStart, out int selectionEnd, XMLCursor cursor)
+        private void CalculateStartAndEndOfSelection(string actualText, out int selectionStart, out int selectionEnd, XmlCursor cursor)
         {
             selectionStart = -1;
             selectionEnd = 0;
