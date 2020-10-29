@@ -16,7 +16,6 @@ namespace de.springwald.xml.rules.dtd
     /// <summary>
     /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
     /// </summary>
-
     public class DTDPruefer
     {
         private DTD _dtd; // Die DTD, gegen die geprüft werden soll

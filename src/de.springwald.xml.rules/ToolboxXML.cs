@@ -9,6 +9,8 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Xml;
 using System.Xml.XPath;
 
 namespace de.springwald.xml
@@ -39,7 +41,6 @@ namespace de.springwald.xml
             else
             {
                 if (node1 == node2) return false; // Beide Nodes gleich, dann natürlich nicht node1 vor node2
-
                 XPathNavigator naviNode1 = node1.CreateNavigator();
                 XPathNavigator naviNode2 = node2.CreateNavigator();
                 return naviNode1.ComparePosition(naviNode2) == System.Xml.XmlNodeOrder.Before;
@@ -68,11 +69,10 @@ namespace de.springwald.xml
         /// <returns></returns>
         public static string TextAusTextNodeBereinigt(System.Xml.XmlNode textNode)
         {
-
             if (!(textNode is System.Xml.XmlText) && !(textNode is System.Xml.XmlComment) && !(textNode is System.Xml.XmlWhitespace))
             {
                 //"Erhaltener Node ist kein Textnode ({0})"
-                throw (new ApplicationException(String.Format("Received node is not a textnode  ({0})", textNode.OuterXml)));
+                throw (new ApplicationException($"Received node is not a textnode  ({textNode.OuterXml})"));
             }
             else
             {
@@ -98,22 +98,22 @@ namespace de.springwald.xml
         /// <summary>
         /// Behandelt die Whitespaces und lässt nur sichtbare SPACE Whitespaces übrig. Alle Umbrüche und Tabs werden entfernt
         /// </summary>
-        public static void WhitespacesBereinigen(System.Xml.XmlNode node)
+        public static void CleanUpWhitespaces(System.Xml.XmlNode node)
         {
             if (node == null) return;
 
-            ArrayList whites = new ArrayList();
-            ArrayList restChildren = new ArrayList();
+            var whites = new List<XmlNode>();
+            var restChildren = new List<XmlNode>();
 
-            foreach (System.Xml.XmlNode child in node.ChildNodes)
+            foreach (XmlNode child in node.ChildNodes)
             {
-                if (child is System.Xml.XmlWhitespace)
+                if (child is XmlWhitespace)
                 {
                     whites.Add(child);
                 }
                 else
                 {
-                    if (child is System.Xml.XmlElement)
+                    if (child is XmlElement)
                     {
                         restChildren.Add(child);
                     }
@@ -121,13 +121,13 @@ namespace de.springwald.xml
             }
 
             // Whitespaces behandeln
-            foreach (System.Xml.XmlWhitespace white in whites)
+            foreach (XmlWhitespace white in whites)
             {
                 if (white.Data.IndexOf(" ") != -1)
                 {
                     // Wenn ein Leerzeichen drin ist, wird das Whitespace auf dieses reduziert, egal
                     // ob noch Umbrüche, Tabs oder ähnliches drin sind
-                    System.Xml.XmlText textnode = white.OwnerDocument.CreateTextNode(" ");
+                    XmlText textnode = white.OwnerDocument.CreateTextNode(" ");
                     white.ParentNode.ReplaceChild(textnode, white);
                 }
                 else
@@ -138,9 +138,9 @@ namespace de.springwald.xml
             }
 
             // In den unter-Children die Whitespaces behandeln lassen
-            foreach (System.Xml.XmlNode child in restChildren)
+            foreach (XmlNode child in restChildren)
             {
-                WhitespacesBereinigen(child);
+                CleanUpWhitespaces(child);
             }
 
         }

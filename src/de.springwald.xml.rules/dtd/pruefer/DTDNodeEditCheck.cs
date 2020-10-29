@@ -1,5 +1,13 @@
-//#define DenkProtokoll // Soll das getestete Geschehen protokolliert werden?
+// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
 
+//#define DenkProtokoll // Soll das getestete Geschehen protokolliert werden?
 
 using System;
 using System.Collections.Generic;
@@ -12,15 +20,9 @@ namespace de.springwald.xml.rules.dtd
     /// <summary>
     /// Prüft gegen eine DTD, ob und welche Veränderungen an einem XML-Dom erlaubt sind
     /// </summary>
-    /// <remarks>
-    /// (C)2006 Daniel Springwald, Herne Germany
-    /// Springwald Software  - www.springwald.de
-    /// daniel@springwald.de -   0700-SPRINGWALD
-    /// all rights reserved
-    /// </remarks>
     public class DTDNodeEditCheck
     {
-        private DTD _dtd; // Die DTD, gegen die geprüft werden soll
+        private DTD _dtd; // The DTD to be checked against
 
 #if DenkProtokoll
 		private StringBuilder _denkProtokoll; // Aufgrund welcher Annahmen wurde das Ergebnis von AnDieserStelleErlaubteTags erzeugt?
@@ -36,14 +38,14 @@ namespace de.springwald.xml.rules.dtd
 #if DenkProtokoll
                         return _denkProtokoll.ToString(); 
 #else
-                return "DenkProtokoll istper Define deaktiviert (DTDNodeEditCheck.cs)";
+                return "DenkProtokoll is per Define deaktivated (DTDNodeEditCheck.cs)";
 #endif
             }
         }
 
         public DTDNodeEditCheck(DTD dtd)
         {
-            _dtd = dtd;
+            this._dtd = dtd;
 
 #if DenkProtokoll
 			_denkProtokoll= new StringBuilder(); // Aufgrund welcher Annahmen wurde das Ergebnis von AnDieserStelleErlaubteTags erzeugt?
@@ -65,11 +67,11 @@ namespace de.springwald.xml.rules.dtd
 			_denkProtokoll=new StringBuilder();
 #endif
 
-            List<DTDTestmuster> zuTestendeMuster = GetAlleTestmuster(cursorPos);
+            var zuTestendeMuster = GetAlleTestmuster(cursorPos);
 
             // Elemente der gültigen Testmuster ins das Ergebnis schreiben
             var ergebnis = new List<string>();
-            foreach (DTDTestmuster muster in zuTestendeMuster)
+            foreach (var muster in zuTestendeMuster)
             {
                 if (muster.Erfolgreich)
                 {
@@ -153,7 +155,6 @@ namespace de.springwald.xml.rules.dtd
                 }
             }
         }
-
 
         /// <summary>
         /// Erzeugt alle Testmuster inkl. der Ergebnisse, ob diese Zulässig sind

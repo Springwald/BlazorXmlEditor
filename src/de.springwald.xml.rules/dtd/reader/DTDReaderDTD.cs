@@ -39,23 +39,25 @@ namespace de.springwald.xml.rules.dtd
 		/// <summary>
 		/// Erzeugt ein DTD-Objekt auf Basis einer DTD-Datei
 		/// </summary>
-		public DTD GetDTDFromFile(string dateiname) 
+		public DTD GetDTDFromFile(string filename) 
 		{
-			string inhalt=""; // Der Inhalt der DTD-Datei
+			string content=""; // Der Inhalt der DTD-Datei
 			
 			try
 			{
-				StreamReader reader = new StreamReader(dateiname,System.Text.Encoding.GetEncoding("ISO-8859-15")); // Datei öffnen
-				inhalt = reader.ReadToEnd();
-				reader.Close();
+				using (var reader = new StreamReader(filename, System.Text.Encoding.GetEncoding("ISO-8859-15")))  // Datei öffnen
+				{
+					content = reader.ReadToEnd();
+					reader.Close();
+				}
 			}
 			catch (FileNotFoundException exc) // Falls die Datei nicht gefunden wurde
 			{
                 // 
-				throw new ApplicationException($"Konnte Datei '{dateiname}' nicht einlesen:\n{exc.Message}" );
+				throw new ApplicationException($"Could not read in file '{filename}:\n{exc.Message}" );
 			}
 
-			return GetDTDFromString(inhalt);
+			return this.GetDTDFromString(content);
 		}
 
 		/// <summary>
@@ -80,9 +82,7 @@ namespace de.springwald.xml.rules.dtd
 			_elemente.Add(CreateElementFromQuellcode("#PCDATA")); // um das Element #PCDATA ergänzen
             _elemente.Add(CreateElementFromQuellcode("#COMMENT")); // um das Element #COMMENT ergänzen
 
-            DTD dtd = new DTD(_elemente,_entities);
-
-            return dtd;
+            return  new DTD(_elemente,_entities);
 		}
 
 		/// <summary>
@@ -102,8 +102,8 @@ namespace de.springwald.xml.rules.dtd
 		private void KommentareEntfernen() 
 		{
 			// Buddy: <!--((?!-->|<!--)([\t\r\n]|.))*-->
-			string ausdruck =  "<!--((?!-->|<!--)([\\t\\r\\n]|.))*-->";
-			this.WorkingContent =  Regex.Replace(this.WorkingContent, ausdruck,"");
+			const string regex =  "<!--((?!-->|<!--)([\\t\\r\\n]|.))*-->";
+			this.WorkingContent =  Regex.Replace(this.WorkingContent, regex,"");
 		}
 
 		#region ELEMENTE analysieren
@@ -118,9 +118,9 @@ namespace de.springwald.xml.rules.dtd
 
 			// Regulären Ausdruck zum finden von DTD-Elementen zusammenbauen
 			// (?<element><!ELEMENT[\t\r\n ]+[^>]+>)
-			string ausdruck =  "(?<element><!ELEMENT[\\t\\r\\n ]+[^>]+>)";
+			const string regex =  "(?<element><!ELEMENT[\\t\\r\\n ]+[^>]+>)";
 
-			Regex reg = new Regex(ausdruck); //, RegexOptions.IgnoreCase);
+			Regex reg = new Regex(regex); //, RegexOptions.IgnoreCase);
 			// Auf den DTD-Inhalt anwenden
 			Match match = reg.Match(this.WorkingContent);
 
@@ -196,7 +196,7 @@ namespace de.springwald.xml.rules.dtd
 			{
 
 				//Element bereitstellen
-                DTDElement element = new DTDElement();
+                var element = new DTDElement();
 
 				// Name des Elementes herausfinden
 				if (!match.Groups["elementname"].Success) 
@@ -284,9 +284,9 @@ namespace de.springwald.xml.rules.dtd
 
 			// Regulären Ausdruck zum finden von DTD-Entities zusammenbauen
 			// (?<entity><!ENTITY[\t\r\n ]+[^>]+>)
-			string ausdruck =  "(?<entity><!ENTITY[\\t\\r\\n ]+[^>]+>)";
+			const string regex =  "(?<entity><!ENTITY[\\t\\r\\n ]+[^>]+>)";
 
-			Regex reg = new Regex(ausdruck); //, RegexOptions.IgnoreCase);
+			Regex reg = new Regex(regex); //, RegexOptions.IgnoreCase);
 			// Auf den DTD-Inhalt anwenden
 			Match match = reg.Match(this.WorkingContent);
 
