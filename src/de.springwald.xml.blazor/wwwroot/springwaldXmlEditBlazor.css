@@ -13,15 +13,15 @@
 
 .canvasOuter {
     border: solid 1px red;
-    position: relative;
-    width: 100%;
-    height: 400px;
+  /*  position: relative;*/
+  /*  width: 100%;*/
+    /*height: 400px;*/
     /*  padding-bottom: 100%;*/
 }
 
     .canvasOuter canvas {
-        position: absolute;
+        /*position: absolute;*/
         border: solid 1px blue;
-        width: 100%;
-        height: 100%;
+     /*   width: 100%;
+        height: 100%;*/
     }

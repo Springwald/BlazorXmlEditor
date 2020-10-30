@@ -7,10 +7,11 @@
 // All rights reserved
 // Licensed under MIT License
 
-using System;
-using System.Threading.Tasks;
 using de.springwald.xml.editor.cursor;
 using de.springwald.xml.editor.nativeplatform;
+using de.springwald.xml.editor.nativeplatform.gfxobs;
+using System;
+using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
 {
@@ -28,6 +29,11 @@ namespace de.springwald.xml.editor
         private EditorConfig EditorConfig => this.editorContext.EditorConfig;
 
         public INativePlatform NativePlatform => this.editorContext.NativePlatform;
+
+        public int VirtualWidth { get; private set; }
+        public int VirtualHeight { get; private set; }
+
+        public XmlAsyncEvent<EventArgs> VirtualSizeChanged { get; } = new XmlAsyncEvent<EventArgs>();
 
         /// <summary>
         /// let all XML elements know that you are cleaning up
@@ -49,10 +55,8 @@ namespace de.springwald.xml.editor
             this.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
 
             this.MouseHandler = new MouseHandler(editorContext.NativePlatform);
-          //   this.EditorActions = new EditorActions(nativePlatform, this.EditorStatus, this.regelwerk);
+            //   this.EditorActions = new EditorActions(nativePlatform, this.EditorStatus, this.regelwerk);
             this.KeyboardHandler = new KeyboardHandler(this.editorContext);
-
-            InitScrolling();
         }
 
         public void Dispose()
@@ -129,7 +133,65 @@ namespace de.springwald.xml.editor
         /// </summary>
         internal XMLElement CreateElement(System.Xml.XmlNode xmlNode)
         {
-            return new ElementCreator(this,  this.editorContext).CreatePaintElementForNode(xmlNode);
+            return new ElementCreator(this, this.editorContext).CreatePaintElementForNode(xmlNode);
+        }
+
+        private bool sizeChangedSinceLastPaint = true;
+
+        public void SizeHasChanged()
+        {
+            this.sizeChangedSinceLastPaint = true;
+        }
+
+        private bool virtualSizeChangedSinceLastPaint;
+
+        public async Task Paint(int limitRight)
+        {
+            var paintMode = XMLElement.PaintModes.OnlyPaintWhenChanged;
+
+            if (this.virtualSizeChangedSinceLastPaint)
+            {
+                await this.VirtualSizeChanged.Trigger(EventArgs.Empty);
+            }
+
+            if (this.sizeChangedSinceLastPaint)
+            {
+                this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = this.EditorConfig.ColorBackground });
+                this.sizeChangedSinceLastPaint = false;
+                paintMode = XMLElement.PaintModes.ForcePaintNoUnPaintNeeded;
+            }
+
+            if (this.EditorStatus.RootElement != null)
+            {
+                var paintContext = new PaintContext
+                {
+                    LimitLeft = 0,
+                    LimitRight = limitRight,
+                    PaintPosX = 10,
+                    PaintPosY = 10 ,
+                    ZeilenStartX = 10 ,
+                };
+
+                var context1 = await this.EditorStatus.RootElement.Paint(paintContext.Clone(), this.EditorStatus.CursorOptimiert, this.NativePlatform.Gfx, paintMode);
+                var newVirtualWidth = context1.BisherMaxX + 50;
+                var newVirtualHeight = context1.PaintPosY + 50;
+                if (this.VirtualWidth != newVirtualWidth || this.VirtualHeight != newVirtualHeight)
+                {
+                    this.VirtualWidth = newVirtualWidth;
+                    this.VirtualHeight = newVirtualHeight;
+                    this.virtualSizeChangedSinceLastPaint = true;
+                }
+            }
+            await this.NativePlatform.Gfx.PaintJobs(EditorConfig.ColorBackground);
+            
+        }
+
+        public void FokusAufEingabeFormularSetzen()
+        {
+            /*if (this._zeichnungsSteuerelement != null)
+            {
+                this._zeichnungsSteuerelement.Focus();
+            }*/
         }
 
         private async Task OnContentChanged(EventArgs e)
@@ -153,8 +215,6 @@ namespace de.springwald.xml.editor
         {
             // Nach einer Cursorbewegung wird der Cursor zunächst als Strich gezeichnet
             this.CursorBlink.ResetBlinkPhase();
-
-            ScrollingNotwendig();
             if (this.NativePlatform.ControlElement != null)
             {
                 var limitRight = this.NativePlatform.Gfx.Width;

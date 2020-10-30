@@ -99,9 +99,6 @@ namespace de.springwald.xml.editor
                 X2 = cursorPaintPos.X,
                 Y2 = cursorPaintPos.Y + height - margin
             });
-
-            // remember where the cursor is currently drawn, so that you can scroll there when the cursor is moved out of the visible area
-            xmlEditor.AktScrollingCursorPos = cursorPaintPos;
         }
 
         /// <summary>

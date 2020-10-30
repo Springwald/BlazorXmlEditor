@@ -9,12 +9,12 @@
 
 <h1>insert element demo</h1>
 <FpsCounter @ref="fpsCounter" />
-<de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
+<de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" Style="max-height: 500px; height: 500px; width: 100%; min-width: 100%" />
 
 @code {
 
     private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet <star/> lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
-    private string[] elementNames = new[] { "star", "br", "img", "table", "p" };
+    private string[] elementNames = new[] { "p" };  @*, "star", "br", "img", "table" };*@
 
     private FpsCounter fpsCounter;
     private EditorContext editorContext;

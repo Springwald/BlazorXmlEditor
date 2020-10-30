@@ -14,16 +14,13 @@
     <div>Right click menu</div>
 }
 
-<div class="card">
-    <div class="card-body">
-        <div tabindex="0" class="canvasOuter"
-             @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
-             @oncontextmenu="HandleRightClick" @oncontextmenu:preventDefault="true"
-             @onkeydown="EventOnKeyDown" @onkeydown:preventDefault
-             @ref="_canvasDivReference">
-            <BECanvas Width="@canvasWidth" Height="@canvasHeight" @ref="_canvasReference">
-            </BECanvas>
-        </div>
+<div style="overflow: auto; @this.Style" @ref="_canvasDivReference" >
+    <div tabindex="0" class="canvasOuter" style="width:@(canvasWidth)px; min-width:@(canvasWidth)px; height: @(canvasHeight)px; max-height:@(canvasHeight)px"
+         @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
+         @oncontextmenu="HandleRightClick" @oncontextmenu:preventDefault="true"
+         @onkeydown="EventOnKeyDown" @onkeydown:preventDefault >
+        <BECanvas Width="@canvasWidth" Height="@canvasHeight" @ref="_canvasReference">
+        </BECanvas>
     </div>
 </div>
 
@@ -34,13 +31,17 @@
     protected BECanvasComponent _canvasReference;
     protected ElementReference _canvasDivReference;
 
-    protected int canvasWidth;
-    protected int canvasHeight;
+    protected int outerWidth = 10;
+    protected int canvasWidth = 10;
+    protected int canvasHeight = 10;
 
     public de.springwald.xml.editor.XMLEditor Editor;
 
     [Parameter]
     public EditorContext EditorContext { get; set; }
+
+    [Parameter]
+    public string Style { get; set; }
 
     [Parameter] public EventCallback OnReady { get; set; }
 
@@ -55,7 +56,7 @@
         {
             await this.Init();
             await JSRuntime.InvokeVoidAsync("browserResize.registerResizeCallback");
-            BrowserResize.OnResize += this.Resized;
+            BrowserResize.OnResize += this.OuterResized;
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -66,23 +67,56 @@
         this.EditorContext.NativePlatform = new BlazorNativePlatform(_canvasReference, new BlazorClipboard(this.clipboardService));
         this.Editor = new XMLEditor(this.EditorContext);
         this.EditorContext.EditorState.RootNodeChanged.Add(this.RootNodeChanged);
+        this.Editor.VirtualSizeChanged.Add(this.VirtualSizeChanged);
         await OnReady.InvokeAsync(EventArgs.Empty);
     }
 
-
-
     public void Dispose()
     {
-        BrowserResize.OnResize -= this.Resized;
+        BrowserResize.OnResize -= this.OuterResized;
         this.EditorContext?.EditorState.RootNodeChanged.Remove(this.RootNodeChanged);
+        this.Editor.VirtualSizeChanged.Remove(this.VirtualSizeChanged);
         this.Editor.Dispose();
     }
 
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
     {
         await this.Editor.SetRootNode(rootNode);
-        await this.Resized();
+        await this.OuterResized();
         StateHasChanged();
+    }
+
+    private async Task VirtualSizeChanged(EventArgs e)
+    {
+        var changed = false;
+        const int tolerance = 30;
+        if (Math.Abs((this.Editor.VirtualHeight + tolerance) - this.canvasHeight) > tolerance)
+        {
+            changed = true;
+            this.canvasHeight = this.Editor.VirtualHeight + tolerance;
+        }
+
+        if (this.outerWidth > this.canvasWidth)
+        {
+            this.canvasWidth = this.outerWidth;
+            changed = true;
+        }
+        else
+        {
+            var targetWidth = Math.Max(this.outerWidth, this.Editor.VirtualWidth + tolerance);
+            if (Math.Abs(targetWidth - this.canvasWidth) > tolerance)
+            {
+                this.canvasWidth = targetWidth;
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            await this.EditorContext.NativePlatform.SetSize(this.canvasWidth, this.canvasHeight);
+            this.StateHasChanged();
+            this.Editor.SizeHasChanged();
+        }
     }
 
     public class BoundingClientRect
@@ -97,18 +131,12 @@
         public double Left { get; set; }
     }
 
-    private async Task Resized()
+    private async Task OuterResized()
     {
         var size = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
         if (size == null) return;
-        if (size.Width != this.canvasWidth || size.Height != this.canvasHeight)
-        {
-            this.canvasWidth = (int)size.Width;
-            this.canvasHeight = (int)size.Height;
-            await this.EditorContext.NativePlatform.SetSize(this.canvasWidth, this.canvasHeight - 10);
-            this.Editor.SizeHasChanged();
-            this.StateHasChanged();
-        }
+        this.outerWidth = (int)size.Width - 40;
+        await this.VirtualSizeChanged(EventArgs.Empty);
     }
 
     #region key events
