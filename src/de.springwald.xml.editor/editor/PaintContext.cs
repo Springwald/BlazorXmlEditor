@@ -10,36 +10,37 @@
 namespace de.springwald.xml.editor
 {
     /// <summary>
-    /// Stellt Informationen über die aktuellen Zeichenpositionen der aktuellen XML-Zeile und des nächsten
-    /// Fließtext-Elementes bereit
+    /// Provides information about the current character positions of the current XML line and the next continuous text element
     /// </summary>
-
     public class PaintContext
     {
+        public bool CursorBlinkOn { get; set; }
+
         public int LimitLeft { get; set; }
         public int LimitRight { get; set; }
 
         public int PaintPosX { get; set; }
         public int PaintPosY { get; set; }
 
-        public int ZeilenStartX { get; set; }
+        public int RowStartX { get; set; }
 
-        public int HoeheAktZeile { get; set; }
+        public int HeightActualRow { get; set; }
 
-        public int BisherMaxX { get; set; }
+        public int FoundMaxX { get; set; }
 
 
         public PaintContext Clone()
         {
             return new PaintContext
             {
+                CursorBlinkOn = this.CursorBlinkOn,
                 LimitLeft = this.LimitLeft,
                 LimitRight = this.LimitRight,
                 PaintPosX = this.PaintPosX,
                 PaintPosY = this.PaintPosY,
-                ZeilenStartX = this.ZeilenStartX,
-                HoeheAktZeile = this.HoeheAktZeile,
-                BisherMaxX = this.BisherMaxX,
+                RowStartX = this.RowStartX,
+                HeightActualRow = this.HeightActualRow,
+                FoundMaxX = this.FoundMaxX,
             };
         }
     }

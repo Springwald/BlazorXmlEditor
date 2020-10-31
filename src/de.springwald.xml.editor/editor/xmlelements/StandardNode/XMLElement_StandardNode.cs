@@ -157,8 +157,8 @@ namespace de.springwald.xml.editor
                         // Neue Zeile beginnen
                         childPaintContext.LimitLeft = paintContext.LimitLeft + this.Config.ChildIndentX;
                         childPaintContext.PaintPosX = childPaintContext.LimitLeft;
-                        childPaintContext.PaintPosY += this.Config.SpaceYBetweenLines + paintContext.HoeheAktZeile; // Zeilenumbruch
-                        childPaintContext.HoeheAktZeile = 0; // noch kein Element in dieser Zeile, daher Hoehe 0
+                        childPaintContext.PaintPosY += this.Config.SpaceYBetweenLines + paintContext.HeightActualRow; // Zeilenumbruch
+                        childPaintContext.HeightActualRow = 0; // noch kein Element in dieser Zeile, daher Hoehe 0
                                                              // X-Cursor auf den Start der neuen Zeile setzen
                                                              // Linie nach unten und dann nach rechts ins ChildElement
                                                              // Linie nach unten
@@ -200,9 +200,9 @@ namespace de.springwald.xml.editor
                         if (childPaintContext.PaintPosX > paintContext.LimitRight) // Wenn die Zeile bereits zu voll ist
                         {
                             // in nächste Zeile
-                            paintContext.PaintPosY += paintContext.HoeheAktZeile + this.Config.SpaceYBetweenLines;
-                            paintContext.HoeheAktZeile = 0;
-                            paintContext.PaintPosX = paintContext.ZeilenStartX;
+                            paintContext.PaintPosY += paintContext.HeightActualRow + this.Config.SpaceYBetweenLines;
+                            paintContext.HeightActualRow = 0;
+                            paintContext.PaintPosX = paintContext.RowStartX;
                         }
                         else // es passt noch etwas in diese Zeile
                         {
@@ -241,7 +241,7 @@ namespace de.springwald.xml.editor
             if (this.startTag.AreaTag?.Contains(point) == true) // er wurde auf das linke Tag geklickt
             {
                 await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode, XmlCursorPositions.CursorOnNodeStartTag, mouseAction);
-                xmlEditor.CursorBlink.ResetBlinkPhase();
+                EditorState.CursorBlink.ResetBlinkPhase();
                 return;
             }
 
@@ -251,14 +251,14 @@ namespace de.springwald.xml.editor
                 {
                     // vor das erste Child setzen
                     await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode.LastChild, XmlCursorPositions.CursorBehindTheNode, mouseAction);
-                    xmlEditor.CursorBlink.ResetBlinkPhase();
+                    EditorState.CursorBlink.ResetBlinkPhase();
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
                     await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode, XmlCursorPositions.CursorInsideTheEmptyNode, mouseAction);
-                    xmlEditor.CursorBlink.ResetBlinkPhase();
+                    EditorState.CursorBlink.ResetBlinkPhase();
                     return;
                 }
             }
@@ -266,7 +266,7 @@ namespace de.springwald.xml.editor
             if (this.endTag?.AreaTag?.Contains(point) == true) // er wurde auf das rechte Tag geklickt
             {
                 await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode, XmlCursorPositions.CursorOnNodeEndTag, mouseAction);
-                xmlEditor.CursorBlink.ResetBlinkPhase();
+                EditorState.CursorBlink.ResetBlinkPhase();
                 return;
             }
 
@@ -276,14 +276,14 @@ namespace de.springwald.xml.editor
                 {
                     // vor das erste Child setzen
                     await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode.FirstChild, XmlCursorPositions.CursorInFrontOfNode, mouseAction);
-                    xmlEditor.CursorBlink.ResetBlinkPhase();
+                    EditorState.CursorBlink.ResetBlinkPhase();
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
                     await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode, XmlCursorPositions.CursorInsideTheEmptyNode, mouseAction);
-                    xmlEditor.CursorBlink.ResetBlinkPhase();
+                    EditorState.CursorBlink.ResetBlinkPhase();
                     return;
                 }
             }

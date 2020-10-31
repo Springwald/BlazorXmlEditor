@@ -71,7 +71,7 @@ namespace de.springwald.xml.editor.xmlelements
             if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight && paintContext.PaintPosX != paintContext.LimitLeft)
             {
                 paintContext.PaintPosX = paintContext.LimitLeft + this.config.ChildIndentX;
-                paintContext.PaintPosY += paintContext.HoeheAktZeile;
+                paintContext.PaintPosY += paintContext.HeightActualRow;
             }
 
             // vor dem Noderahmen einen Pfeil nach links zeichnen
@@ -122,7 +122,7 @@ namespace de.springwald.xml.editor.xmlelements
             this.AreaTag = new Rectangle(startX, paintContext.PaintPosY, paintContext.PaintPosX - startX, this.config.TagHeight);
             //this._klickBereiche = this._klickBereiche.Append(_tagBereichRechts).ToArray(); // original:  _klickBereiche.Add(_tagBereichRechts);
 
-            paintContext.BisherMaxX = System.Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
+            paintContext.FoundMaxX = System.Math.Max(paintContext.FoundMaxX, paintContext.PaintPosX);
 
             this.lastPaintContextResult = paintContext.Clone();
             return paintContext;

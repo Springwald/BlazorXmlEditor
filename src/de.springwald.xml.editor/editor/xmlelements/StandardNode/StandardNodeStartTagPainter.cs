@@ -130,12 +130,12 @@ namespace de.springwald.xml.editor.xmlelements
                 this.AreaArrow = null;
             }
 
-            paintContext.HoeheAktZeile = System.Math.Max(paintContext.HoeheAktZeile, this.config.MinLineHeight); // See how high the current line is
+            paintContext.HeightActualRow = System.Math.Max(paintContext.HeightActualRow, this.config.MinLineHeight); // See how high the current line is
 
             // Remember where the mouse areas are
             this.AreaTag = new Rectangle(startX-2, startY, paintContext.PaintPosX + 2 - (startX), this.config.TagHeight);
 
-            paintContext.BisherMaxX = System.Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
+            paintContext.FoundMaxX = System.Math.Max(paintContext.FoundMaxX, paintContext.PaintPosX);
 
             this.lastPaintContextResult = paintContext.Clone();
             return paintContext.Clone();

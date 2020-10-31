@@ -87,9 +87,9 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 lastCalculatedFontWidth = await this.xmlEditor.NativePlatform.Gfx.MeasureDisplayStringWidthAsync("W", this.Config.FontTextNode);
             }
 
-            paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.Config.MinLineHeight);
+            paintContext.HeightActualRow = Math.Max(paintContext.HeightActualRow, this.Config.MinLineHeight);
 
-            int marginY = (paintContext.HoeheAktZeile - this.Config.FontTextNode.Height) / 2;
+            int marginY = (paintContext.HeightActualRow - this.Config.FontTextNode.Height) / 2;
 
             // ggf. den Cursorstrich vor dem Node berechnen
             if (this.XmlNode == cursor.StartPos.ActualNode)  // ist der Cursor im aktuellen Textnode
@@ -151,7 +151,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 }
                 paintContext.PaintPosY = newPart.Rectangle.Y;
                 paintContext.PaintPosX = newPart.Rectangle.X + newPart.Rectangle.Width;
-                paintContext.BisherMaxX = Math.Max(paintContext.BisherMaxX, paintContext.PaintPosX);
+                paintContext.FoundMaxX = Math.Max(paintContext.FoundMaxX, paintContext.PaintPosX);
             }
 
             if (this.textParts != null) // unpaint old textparts out of new parts range
@@ -188,7 +188,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
 
         private IEnumerable<TextPart> GetTextLinesFromTextParts(TextSplitHelper.TextPartRaw[] parts, PaintContext paintContext, XmlCursor cursor, int fontHeight, double fontWidth)
         {
-            paintContext.HoeheAktZeile = Math.Max(paintContext.HoeheAktZeile, this.Config.MinLineHeight);
+            paintContext.HeightActualRow = Math.Max(paintContext.HeightActualRow, this.Config.MinLineHeight);
             var x = paintContext.PaintPosX;
             var y = paintContext.PaintPosY;
             var actualLine = 0;
@@ -200,7 +200,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 if (newLine)
                 {
                     actualLine = part.LineNo;
-                    y += paintContext.HoeheAktZeile;
+                    y += paintContext.HeightActualRow;
                     x = paintContext.LimitLeft;
                 }
                 var width = (int)(part.Text.Length * fontWidth);
@@ -208,7 +208,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 {
                     Text = part.Text,
                     Inverted = part.Inverted,
-                    Rectangle = new Rectangle(x, y, width, paintContext.HoeheAktZeile),
+                    Rectangle = new Rectangle(x, y, width, paintContext.HeightActualRow),
                     CursorPos = -1,
                 };
 

@@ -11,12 +11,15 @@ using System;
 using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.cursor;
+using de.springwald.xml.editor.cursor;
 using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor
 {
     public class EditorState : IDisposable
     {
+        internal CursorBlink CursorBlink { get; }
+
         public async Task SetRootNode(XmlNode rootNode)
         {
             if (this.RootNode != rootNode)
@@ -61,6 +64,7 @@ namespace de.springwald.xml.editor
                 return cursor;
             }
         }
+
 
         /// <summary>
         /// Indicates whether something is selected in the editor
@@ -108,10 +112,13 @@ namespace de.springwald.xml.editor
         public EditorState()
         {
             this.CursorRaw = new XmlCursor();
+            this.CursorBlink = new CursorBlink();
+          
         }
 
         public void Dispose()
         {
+            this.CursorBlink.Dispose();
         }
 
         internal async Task FireContentChangedEvent()

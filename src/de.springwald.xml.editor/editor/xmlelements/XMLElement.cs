@@ -81,7 +81,7 @@ namespace de.springwald.xml.editor
         protected virtual void PaintCursor(IGraphics gfx)
         {
             if (this.cursorPaintPos == null) return;
-            if (this.xmlEditor.CursorBlink.PaintCursor == false) return;
+            if (this.EditorState.CursorBlink.PaintCursor == false) return;
 
             var height = (int)(Math.Max(this.editorContext.EditorConfig.FontTextNode.Height, this.editorContext.EditorConfig.FontNodeName.Height) * 1.6);
             var margin = height / 5;

@@ -16,7 +16,7 @@ namespace de.springwald.xml.editor.cursor
         private System.Timers.Timer blinkTimer;
         private bool active = true;
 
-        public XmlAsyncEvent<EventArgs> BlinkIntervalChanged = new XmlAsyncEvent<EventArgs>();
+        public XmlAsyncEvent<bool> BlinkIntervalChanged = new XmlAsyncEvent<bool>();
 
         /// <summary>
         /// true = phase 1, paint cursor line; false = phase 2, dont paint cursor line
@@ -65,7 +65,7 @@ namespace de.springwald.xml.editor.cursor
             {
                 this.PaintCursor = false;
             }
-            await this.BlinkIntervalChanged.Trigger(EventArgs.Empty);
+            await this.BlinkIntervalChanged.Trigger(this.PaintCursor);
         }
 
         public void Dispose()

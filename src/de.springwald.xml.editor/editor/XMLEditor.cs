@@ -7,24 +7,23 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.editor.cursor;
-using de.springwald.xml.editor.nativeplatform;
-using de.springwald.xml.editor.nativeplatform.gfxobs;
 using System;
 using System.Threading.Tasks;
+using de.springwald.xml.editor.nativeplatform;
+using de.springwald.xml.editor.nativeplatform.gfxobs;
 
 namespace de.springwald.xml.editor
 {
     public partial class XmlEditor : IDisposable
     {
         private bool _disposed;
-        internal CursorBlink CursorBlink { get; }
+
         internal MouseHandler MouseHandler { get; }
         internal KeyboardHandler KeyboardHandler { get; }
 
         private EditorContext editorContext;
 
-        private EditorState EditorStatus => this.editorContext.EditorState;
+        private EditorState EditorState => this.editorContext.EditorState;
 
         private EditorConfig EditorConfig => this.editorContext.EditorConfig;
 
@@ -40,23 +39,15 @@ namespace de.springwald.xml.editor
         /// </summary>
         public event EventHandler CleanUpXmlElementsEvent;
 
-        /// <summary>
-        /// Stellt einen XML-Editor bereit
-        /// </summary>
         public XmlEditor(EditorContext editorContext)
         {
             this.editorContext = editorContext;
-            this.NativePlatform.ControlElement.Enabled = false; // Bis zu einer Content-Zuweisung erstmal deaktiviert */
-
+            this.NativePlatform.ControlElement.Enabled = false; 
             this.editorContext.EditorState.CursorRaw.ChangedEvent.Add(this.CursorChangedEvent);
             this.editorContext.EditorState.ContentChangedEvent.Add(this.OnContentChanged);
-
-            this.CursorBlink = new CursorBlink();
-            this.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
-
             this.MouseHandler = new MouseHandler(editorContext.NativePlatform);
-            //   this.EditorActions = new EditorActions(nativePlatform, this.EditorStatus, this.regelwerk);
             this.KeyboardHandler = new KeyboardHandler(this.editorContext);
+            this.EditorState.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
         }
 
         public void Dispose()
@@ -66,9 +57,6 @@ namespace de.springwald.xml.editor
                 this.CleanUpXmlElements();
                 this.editorContext.EditorState.CursorRaw.ChangedEvent.Remove(this.CursorChangedEvent);
                 this.editorContext.EditorState.ContentChangedEvent.Remove(this.OnContentChanged);
-
-                this.CursorBlink.Dispose();
-
                 this.MouseHandler.Dispose();
                 this.KeyboardHandler.Dispose();
                 this.editorContext.Dispose();
@@ -78,14 +66,14 @@ namespace de.springwald.xml.editor
 
         public async Task SetRootNode(System.Xml.XmlNode value)
         {
-            await this.EditorStatus.SetRootNode(value);
+            await this.EditorState.SetRootNode(value);
 
-            if (this.EditorStatus.RootNode == null)
+            if (this.EditorState.RootNode == null)
             {
-                if (this.EditorStatus.RootElement != null)
+                if (this.EditorState.RootElement != null)
                 {
-                    this.EditorStatus.RootElement.Dispose();
-                    this.EditorStatus.RootElement = null;
+                    this.EditorState.RootElement.Dispose();
+                    this.EditorState.RootElement = null;
                 }
                 this.NativePlatform.ControlElement.Enabled = false;
             }
@@ -93,39 +81,39 @@ namespace de.springwald.xml.editor
             {
                 // Provide the Root Element
                 // If the current XML element is no longer the same, destroy the previous one so that it can be recreated
-                if (this.EditorStatus.RootElement != null)
+                if (this.EditorState.RootElement != null)
                 {
-                    if (this.EditorStatus.RootElement.XmlNode != this.EditorStatus.RootNode)
+                    if (this.EditorState.RootElement.XmlNode != this.EditorState.RootNode)
                     {
-                        this.EditorStatus.RootElement.Dispose();
-                        this.EditorStatus.RootElement = null;
+                        this.EditorState.RootElement.Dispose();
+                        this.EditorState.RootElement = null;
                     }
                 }
                 // If XML element is (yet) not instantiated, then create
-                if (this.EditorStatus.RootElement == null)
+                if (this.EditorState.RootElement == null)
                 {
-                    this.EditorStatus.RootElement = CreateElement(this.EditorStatus.RootNode);
+                    this.EditorState.RootElement = CreateElement(this.EditorState.RootNode);
                 }
 
                 // provide a suitable Undo-Handler
-                if (this.EditorStatus.UndoHandler != null)
+                if (this.EditorState.UndoHandler != null)
                 {
-                    if (this.EditorStatus.UndoHandler.RootNode != this.EditorStatus.RootNode)
+                    if (this.EditorState.UndoHandler.RootNode != this.EditorState.RootNode)
                     {
-                        this.EditorStatus.UndoHandler.Dispose();
-                        this.EditorStatus.UndoHandler = null;
+                        this.EditorState.UndoHandler.Dispose();
+                        this.EditorState.UndoHandler = null;
                     }
                 }
 
-                if (this.EditorStatus.UndoHandler == null)
+                if (this.EditorState.UndoHandler == null)
                 {
-                    this.EditorStatus.UndoHandler = new XmlUndoHandler(this.EditorStatus.RootNode);
+                    this.EditorState.UndoHandler = new XmlUndoHandler(this.EditorState.RootNode);
                 }
 
                 this.NativePlatform.ControlElement.Enabled = true;
             }
 
-            await this.EditorStatus.FireContentChangedEvent();
+            await this.EditorState.FireContentChangedEvent();
         }
 
         /// <summary>
@@ -161,7 +149,7 @@ namespace de.springwald.xml.editor
                 paintMode = XmlElement.PaintModes.ForcePaintNoUnPaintNeeded;
             }
 
-            if (this.EditorStatus.RootElement != null)
+            if (this.EditorState.RootElement != null)
             {
                 var paintContext = new PaintContext
                 {
@@ -169,11 +157,11 @@ namespace de.springwald.xml.editor
                     LimitRight = limitRight,
                     PaintPosX = 10,
                     PaintPosY = 10 ,
-                    ZeilenStartX = 10 ,
+                    RowStartX = 10 ,
                 };
 
-                var context1 = await this.EditorStatus.RootElement.Paint(paintContext.Clone(), this.EditorStatus.CursorOptimized, this.NativePlatform.Gfx, paintMode);
-                var newVirtualWidth = context1.BisherMaxX + 50;
+                var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), this.EditorState.CursorOptimized, this.NativePlatform.Gfx, paintMode);
+                var newVirtualWidth = context1.FoundMaxX + 50;
                 var newVirtualHeight = context1.PaintPosY + 50;
                 if (this.VirtualWidth != newVirtualWidth || this.VirtualHeight != newVirtualHeight)
                 {
@@ -186,23 +174,15 @@ namespace de.springwald.xml.editor
             
         }
 
-        public void FokusAufEingabeFormularSetzen()
-        {
-            /*if (this._zeichnungsSteuerelement != null)
-            {
-                this._zeichnungsSteuerelement.Focus();
-            }*/
-        }
-
         private async Task OnContentChanged(EventArgs e)
         {
             var limitRight = this.NativePlatform.Gfx.Width;
             await this.Paint(limitRight: limitRight);
-            this.CursorBlink.Active = true;  // After a change, the cursor line is drawn directly
+            this.EditorState.CursorBlink.Active = true;  // After a change, the cursor line is drawn directly
             this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
         }
 
-        private async Task CursorBlinkedEvent(EventArgs e)
+        private async Task CursorBlinkedEvent(bool blinkOn)
         {
             if (this.NativePlatform.ControlElement != null)
             {
@@ -214,7 +194,7 @@ namespace de.springwald.xml.editor
         private async Task CursorChangedEvent(EventArgs e)
         {
             // Nach einer Cursorbewegung wird der Cursor zunächst als Strich gezeichnet
-            this.CursorBlink.ResetBlinkPhase();
+            this.EditorState.CursorBlink.ResetBlinkPhase();
             if (this.NativePlatform.ControlElement != null)
             {
                 var limitRight = this.NativePlatform.Gfx.Width;
