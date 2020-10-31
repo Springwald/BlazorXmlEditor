@@ -8,6 +8,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
         public Rectangle Rectangle { get; set; }
         public bool Inverted { get; set; }
         public int CursorPos { get; set; } = -1;
+        public bool CursorBlink { get; set; }
 
         public bool Equals(TextPart second)
         {
@@ -15,6 +16,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             if (this.Inverted != second.Inverted) return false;
             if (this.Text != second.Text) return false;
             if (this.CursorPos != second.CursorPos) return false;
+            if (this.CursorPos >= 0 && this.CursorBlink != second.CursorBlink) return false;
             if (!this.Rectangle.Equals(second.Rectangle)) return false;
             return true;
         }

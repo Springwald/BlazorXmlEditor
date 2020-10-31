@@ -11,8 +11,6 @@ namespace de.springwald.xml.blazor.NativePlatform
     internal class BlazorGfxContext
     {
         private Font actualFont = null;
-        private Color actualStrokeColor = null;
-        private Color actualFillColor = null;
         private float actualLineWidth = 0;
 
         private Canvas2DContext ctx;
@@ -43,20 +41,12 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         internal async Task SetStrokeColor(Color color)
         {
-            if (color != this.actualStrokeColor)
-            {
-                await ctx.SetStrokeStyleAsync(color.AsHtml);
-                this.actualStrokeColor = color;
-            }
+            await ctx.SetStrokeStyleAsync(color.AsHtml);
         }
 
         internal async Task SetFillColor(Color color)
         {
-            if (color != this.actualFillColor)
-            {
-                await ctx.SetFillStyleAsync(color.AsHtml);
-                this.actualFillColor = color;
-            }
+            await ctx.SetFillStyleAsync(color.AsHtml);
         }
 
         internal async Task SetLineWidth(float width)
@@ -67,8 +57,6 @@ namespace de.springwald.xml.blazor.NativePlatform
                 this.actualLineWidth = width;
             }
         }
-
-
 
         internal async Task DrawLineAsync(Color color, float lineWidth, int x1, int y1, int x2, int y2)
         {

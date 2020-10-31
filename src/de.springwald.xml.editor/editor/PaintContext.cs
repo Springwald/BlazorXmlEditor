@@ -14,8 +14,6 @@ namespace de.springwald.xml.editor
     /// </summary>
     public class PaintContext
     {
-        public bool CursorBlinkOn { get; set; }
-
         public int LimitLeft { get; set; }
         public int LimitRight { get; set; }
 
@@ -32,7 +30,6 @@ namespace de.springwald.xml.editor
         {
             return new PaintContext
             {
-                CursorBlinkOn = this.CursorBlinkOn,
                 LimitLeft = this.LimitLeft,
                 LimitRight = this.LimitRight,
                 PaintPosX = this.PaintPosX,

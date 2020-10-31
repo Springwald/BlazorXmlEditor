@@ -46,12 +46,12 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             this.colorBackground = this.Config.ColorBackground;
         }
 
-        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode)
+        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth)
         {
             paintContext.PaintPosX += 3;
             var actualText = ToolboxXML.TextAusTextNodeBereinigt(XmlNode);
             this.CalculateStartAndEndOfSelection(actualText, out int selektionStart, out int selektionLaenge, cursor);
-            var actualPaintData = LastPaintingDataText.CalculateActualPaintData(paintContext, this.XmlNode, actualText, this.Config.FontTextNode.Height, cursor, selektionStart, selektionLaenge);
+            var actualPaintData = LastPaintingDataText.CalculateActualPaintData(paintContext, cursorBlinkOn, this.XmlNode, actualText, this.Config.FontTextNode.Height, cursor, selektionStart, selektionLaenge);
 
             var alreadyUnpainted = false;
 
@@ -75,8 +75,13 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
 
             if (this.lastPaintData != null && this.lastPaintContextResult != null)
             {
-                return this.lastPaintContextResult.Clone();
+                return lastPaintContextResult.Clone();
             }
+
+            //if (depth == 2)
+            //{
+            //    Console.WriteLine(cursorBlinkOn + " " + DateTime.Now.Ticks);
+            //}
 
             this.lastPaintData = actualPaintData;
             this.cursorPaintPos = null;
@@ -110,7 +115,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 maxLengthFirstLine: (int)((paintContext.LimitRight - paintContext.PaintPosX) / lastCalculatedFontWidth) - charMarginRight)
                 .ToArray();
 
-            var newTextParts = this.GetTextLinesFromTextParts(textPartsRaw, paintContext, cursor, lastFontHeight, lastCalculatedFontWidth).ToArray();
+            var newTextParts = this.GetTextLinesFromTextParts(textPartsRaw, paintContext, cursorBlinkOn, cursor, lastFontHeight, lastCalculatedFontWidth).ToArray();
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
             for (int i = 0; i < newTextParts.Length; i++)
@@ -158,7 +163,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             {
                 for (int i = newTextParts.Length; i < this.textParts.Length; i++)
                 {
-                    gfx.UnPaintRectangle(this.textParts[i].Rectangle);
+                     gfx.UnPaintRectangle(this.textParts[i].Rectangle);
                 }
             }
 
@@ -173,7 +178,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 }
             }
 
-      
+         
 
             paintContext.PaintPosX += 3;
             this.lastPaintContextResult = paintContext.Clone();
@@ -184,11 +189,11 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
         {
             foreach (var textPart in this.textParts)
             {
-                gfx.UnPaintRectangle(textPart.Rectangle);
+                 gfx.UnPaintRectangle(textPart.Rectangle);
             }
         }
 
-        private IEnumerable<TextPart> GetTextLinesFromTextParts(TextSplitHelper.TextPartRaw[] parts, PaintContext paintContext, XmlCursor cursor, int fontHeight, double fontWidth)
+        private IEnumerable<TextPart> GetTextLinesFromTextParts(TextSplitHelper.TextPartRaw[] parts, PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, int fontHeight, double fontWidth)
         {
             paintContext.HeightActualRow = Math.Max(paintContext.HeightActualRow, this.Config.MinLineHeight);
             var x = paintContext.PaintPosX;
@@ -212,6 +217,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                     Inverted = part.Inverted,
                     Rectangle = new Rectangle(x, y, width, paintContext.HeightActualRow),
                     CursorPos = -1,
+                    CursorBlink = cursorBlinkOn,
                 };
 
                 if (this.XmlNode == cursor.StartPos.ActualNode) // ist der Cursor im aktuellen Textnode

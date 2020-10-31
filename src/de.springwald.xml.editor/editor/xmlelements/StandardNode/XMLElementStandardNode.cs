@@ -54,9 +54,9 @@ namespace de.springwald.xml.editor
             base.Dispose(disposing);
         }
 
-        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode)
+        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth)
         {
-           
+            
 
             this.nodeDimensions.Update();
             var isSelected = XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(cursor, this.XmlNode);
@@ -101,7 +101,8 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            paintContext = await this.PaintSubNodes(paintContext, cursor, gfx, paintMode);
+ 
+            paintContext = await this.PaintSubNodes(paintContext, cursorBlinkOn, cursor, gfx, paintMode, depth);
 
             if (this.endTag != null)
             {
@@ -130,7 +131,7 @@ namespace de.springwald.xml.editor
         }
 
 
-        protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode)
+        protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth)
         {
             if (this.XmlNode == null)
             {
@@ -142,8 +143,6 @@ namespace de.springwald.xml.editor
 
             for (int childLauf = 0; childLauf < this.XmlNode.ChildNodes.Count; childLauf++)
             {
-               
-
                 // An dieser Stelle sollte im Objekt ChildControl die entsprechends
                 // Instanz des XMLElement-Controls für den aktuellen XMLChildNode stehen
                 var childElement = (XmlElement)childElements[childLauf];
@@ -190,7 +189,7 @@ namespace de.springwald.xml.editor
                             });
                         }
 
-                        childPaintContext = await childElement.Paint(childPaintContext, cursor, gfx, paintMode);
+                        childPaintContext = await childElement.Paint(childPaintContext, cursorBlinkOn, cursor, gfx, paintMode, depth+1);
                         break;
 
                     case DisplayTypes.FloatingElement:
@@ -209,7 +208,7 @@ namespace de.springwald.xml.editor
                             // das Child rechts daneben setzen	
                         }
 
-                        childPaintContext = await childElement.Paint(childPaintContext, cursor, gfx, paintMode);
+                        childPaintContext = await childElement.Paint(childPaintContext, cursorBlinkOn, cursor, gfx, paintMode, depth+1);
                         break;
 
                     default:

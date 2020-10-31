@@ -158,10 +158,13 @@ namespace de.springwald.xml.editor
                     PaintPosX = 10,
                     PaintPosY = 10 ,
                     RowStartX = 10 ,
-                    CursorBlinkOn = EditorState.CursorBlink.PaintCursor,
+                    
+
                 };
 
-                var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), this.EditorState.CursorOptimized, this.NativePlatform.Gfx, paintMode);
+                
+
+                var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), EditorState.CursorBlink.PaintCursor, this.EditorState.CursorOptimized, this.NativePlatform.Gfx, paintMode, depth: 0);
                 var newVirtualWidth = context1.FoundMaxX + 50;
                 var newVirtualHeight = context1.PaintPosY + 50;
                 if (this.VirtualWidth != newVirtualWidth || this.VirtualHeight != newVirtualHeight)
@@ -178,7 +181,7 @@ namespace de.springwald.xml.editor
         {
             var limitRight = this.NativePlatform.Gfx.Width;
             await this.Paint(limitRight: limitRight);
-            this.EditorState.CursorBlink.Active = true;  // After a change, the cursor line is drawn directly
+            this.EditorState.CursorBlink.ResetBlinkPhase();  // After a change, the cursor line is drawn directly
             this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
         }
 

@@ -60,20 +60,20 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Draws the XML element on the screen
         /// </summary>
-        public virtual async Task<PaintContext> Paint(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode)
+        public async Task<PaintContext> Paint(PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth)
         {
             if (this.disposed) return paintContext;
             if (this.XmlNode == null) return paintContext;
             if (this.xmlEditor == null) return paintContext;
 
-            paintContext = await PaintInternal(paintContext, cursor, gfx, paintMode);
-            if (this.cursorPaintPos != null) this.PaintCursor(gfx);
+            paintContext = await PaintInternal(paintContext, cursorBlinkOn, cursor, gfx, paintMode, depth);
+            if (this.cursorPaintPos != null && cursorBlinkOn) this.PaintCursor(gfx);
             return paintContext;
         }
 
         internal abstract void UnPaint(IGraphics gfx);
 
-        protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode);
+        protected abstract Task<PaintContext> PaintInternal(PaintContext paintContext,bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth);
 
         /// <summary>
         /// Draws the vertical cursor line

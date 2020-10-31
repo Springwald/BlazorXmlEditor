@@ -1,5 +1,4 @@
 ﻿using de.springwald.xml.cursor;
-using de.springwald.xml.editor.cursor;
 using System.Xml;
 
 namespace de.springwald.xml.editor.xmlelements.Caching
@@ -31,14 +30,15 @@ namespace de.springwald.xml.editor.xmlelements.Caching
             {
                 if (second.CursorInNode == false || second.CursorPosInNode != this.CursorPosInNode) return false;
                 if (second.CursorBlinkOn != this.CursorBlinkOn) return false;
-            } else
+            }
+            else
             {
                 if (second.CursorInNode) return false;
             }
             return true;
         }
 
-        public static LastPaintingDataText CalculateActualPaintData(PaintContext paintContext, XmlNode node, string actualText, int fontHeight, XmlCursor cursor, int selectionStart, int selectionLength)
+        public static LastPaintingDataText CalculateActualPaintData(PaintContext paintContext, bool cursorBlinkOn, XmlNode node, string actualText, int fontHeight, XmlCursor cursor, int selectionStart, int selectionLength)
         {
             return new LastPaintingDataText
             {
@@ -50,8 +50,8 @@ namespace de.springwald.xml.editor.xmlelements.Caching
                 SelectionStart = selectionStart,
                 SelectionLength = selectionLength,
                 CursorInNode = cursor.StartPos.ActualNode == node,
-                CursorBlinkOn = paintContext.CursorBlinkOn,
                 CursorPosInNode = cursor.StartPos.PosInTextNode,
+                CursorBlinkOn = cursorBlinkOn
             };
         }
     }
