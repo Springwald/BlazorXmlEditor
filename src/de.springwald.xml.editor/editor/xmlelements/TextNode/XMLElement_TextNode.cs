@@ -23,7 +23,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
     /// <summary>
     /// XML element for displaying a text node
     /// </summary>
-    public partial class XMLElement_TextNode : XMLElement
+    public partial class XMLElement_TextNode : XmlElement
     {
         protected Color colorText;
         protected Color colorBackground;
@@ -35,12 +35,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
 
         private TextPart[] textParts;  // Buffer of the single, drawn lines. Each corresponds to a click area
 
-        /// <summary>
-        /// Der offizielle Inhalt dieses textnodes
-        /// </summary>
-        //private string ActualText => 
-
-        public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor,  EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
+        public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XmlEditor xmlEditor,  EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
         {
             this.SetColors();
         }
@@ -54,9 +49,9 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
             paintContext.PaintPosX += 3;
-            var actualText = ToolboxXML.TextAusTextNodeBereinigt(XMLNode);
+            var actualText = ToolboxXML.TextAusTextNodeBereinigt(XmlNode);
             this.CalculateStartAndEndOfSelection(actualText, out int selektionStart, out int selektionLaenge, cursor);
-            var actualPaintData = LastPaintingDataText.CalculateActualPaintData(paintContext, this.XMLNode, actualText, this.Config.FontTextNode.Height, cursor, selektionStart, selektionLaenge);
+            var actualPaintData = LastPaintingDataText.CalculateActualPaintData(paintContext, this.XmlNode, actualText, this.Config.FontTextNode.Height, cursor, selektionStart, selektionLaenge);
 
             var alreadyUnpainted = false;
 
@@ -97,7 +92,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             int marginY = (paintContext.HoeheAktZeile - this.Config.FontTextNode.Height) / 2;
 
             // ggf. den Cursorstrich vor dem Node berechnen
-            if (this.XMLNode == cursor.StartPos.ActualNode)  // ist der Cursor im aktuellen Textnode
+            if (this.XmlNode == cursor.StartPos.ActualNode)  // ist der Cursor im aktuellen Textnode
             {
                 if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInFrontOfNode)
                 {
@@ -170,7 +165,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             this.textParts = newTextParts;
 
             // ggf. den Cursorstrich hinter dem Node berechnen
-            if (this.XMLNode == cursor.StartPos.ActualNode)  // ist der Cursor im aktuellen Textnode
+            if (this.XmlNode == cursor.StartPos.ActualNode)  // ist der Cursor im aktuellen Textnode
             {
                 if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode)
                 {
@@ -217,7 +212,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                     CursorPos = -1,
                 };
 
-                if (this.XMLNode == cursor.StartPos.ActualNode) // ist der Cursor im aktuellen Textnode
+                if (this.XmlNode == cursor.StartPos.ActualNode) // ist der Cursor im aktuellen Textnode
                 {
                     if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInsideTextNode)
                     {
@@ -242,7 +237,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
         /// <summary>
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
         /// </summary>
-        protected override async Task OnMouseAction(Point point, MausKlickAktionen action)
+        protected override async Task OnMouseAction(Point point, MouseClickActions action)
         {
             // Herausfinden, an welcher Position des Textes geklickt wurde
             int posInLine = 0;
@@ -251,7 +246,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 if (part.Rectangle.Contains(point)) // Wenn der Klick in diesem Textteil ist
                 {
                     posInLine += Math.Min(part.Text.Length - 1, (int)((point.X - part.Rectangle.X) / Math.Max(1, this.lastCalculatedFontWidth) + 0.5));
-                    await EditorStatus.CursorRaw.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorInsideTextNode, posInLine, action);
+                    await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode, XmlCursorPositions.CursorInsideTextNode, posInLine, action);
                     return;
                 }
                 else // In diesem Textteil war der Klick nicht
@@ -271,7 +266,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             selectionStart = -1;
             selectionEnd = 0;
 
-            if (cursor.StartPos.ActualNode == this.XMLNode) // Der Start der Selektion liegt auf diesem Node
+            if (cursor.StartPos.ActualNode == this.XmlNode) // Der Start der Selektion liegt auf diesem Node
             {
                 switch (cursor.StartPos.PosOnNode)
                 {
@@ -300,7 +295,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                             selectionStart = 0; // Vor dem Node
                         }
 
-                        if (cursor.EndPos.ActualNode == this.XMLNode) // Wenn das Ende der Selektion auch in diesem Node liegt
+                        if (cursor.EndPos.ActualNode == this.XmlNode) // Wenn das Ende der Selektion auch in diesem Node liegt
                         {
                             switch (cursor.EndPos.PosOnNode)
                             {
@@ -347,7 +342,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             }
             else // Der Start der Selektion liegt nicht auf diesem Node
             {
-                if (cursor.EndPos.ActualNode == this.XMLNode) // Das Ende der Selektion aber schon
+                if (cursor.EndPos.ActualNode == this.XmlNode) // Das Ende der Selektion aber schon
                 {
                     switch (cursor.EndPos.PosOnNode)
                     {
@@ -387,7 +382,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 }
                 else // Weder der Start noch das Ende der Selektion liegen genau auf diesem Node
                 {
-                    if (XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(EditorStatus.CursorOptimiert,this.XMLNode))
+                    if (XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(EditorState.CursorOptimized,this.XmlNode))
                     {
                         selectionStart = 0;
                         selectionEnd = actualText.Length;   // Ganzen Textnode selektieren

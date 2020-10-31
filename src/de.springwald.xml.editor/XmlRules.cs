@@ -32,7 +32,7 @@ namespace de.springwald.xml
         private DtdNodeEditCheck _checker;
 
         /// <summary>Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können</summary>
-        protected List<XMLElementGruppe> _elementGruppen;
+        protected List<XmlElementGroup> _elementGruppen;
 
         /// <summary>
         /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
@@ -61,13 +61,13 @@ namespace de.springwald.xml
         /// <summary>
         /// Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können
         /// </summary>
-        public virtual List<XMLElementGruppe> ElementGruppen
+        public virtual List<XmlElementGroup> ElementGruppen
         {
             get
             {
                 if (_elementGruppen == null)
                 {
-                    _elementGruppen = new List<XMLElementGruppe>();
+                    _elementGruppen = new List<XmlElementGroup>();
                 }
                 return _elementGruppen;
             }

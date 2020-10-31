@@ -18,7 +18,7 @@ namespace de.springwald.xml.editor.cursor
         /// <returns></returns>
         public static async Task<string> GetSelektionAlsString(XmlCursor cursor)
         {
-            if (cursor. IstEtwasSelektiert) // Es ist was selektiert
+            if (cursor. IsSomethingSelected) // Es ist was selektiert
             {
                 StringBuilder ergebnis = new StringBuilder();
 
@@ -157,7 +157,7 @@ namespace de.springwald.xml.editor.cursor
         internal static async Task<SelectionLoeschenResult> SelektionLoeschen(XmlCursor cursor)
         {
             // Wenn der Cursor gar keine Auswahl enthält
-            if (!cursor.IstEtwasSelektiert)
+            if (!cursor.IsSomethingSelected)
             {
                 return new SelectionLoeschenResult
                 {

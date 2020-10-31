@@ -18,19 +18,19 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// <summary>
         /// Die Gruppierungen, in welchen die XML-Elemente zum Einfügen angeboten werden
         /// </summary>
-        public override List<XMLElementGruppe> ElementGruppen
+        public override List<XmlElementGroup> ElementGruppen
         {
             get
             {
                 if (_elementGruppen == null)
                 {
-                    _elementGruppen = new List<XMLElementGruppe>();
+                    _elementGruppen = new List<XmlElementGroup>();
 
                     // Unwichtige Gruppen zuerst mal zusammenklappen?
                     const bool zusammengeklappt = true;
 
                     // Die Gruppe der Standard-Elemente
-                    XMLElementGruppe standard = new XMLElementGruppe("standard", false);
+                    XmlElementGroup standard = new XmlElementGroup("standard", false);
                     standard.AddElementName("bot");
                     standard.AddElementName("get");
                     standard.AddElementName("li");
@@ -47,7 +47,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     _elementGruppen.Add(standard);
 
                     // Die Gruppe der Fortgeschrittenen-Elemente
-                    XMLElementGruppe fortschritten = new XMLElementGruppe("advanced", zusammengeklappt);
+                    XmlElementGroup fortschritten = new XmlElementGroup("advanced", zusammengeklappt);
                     fortschritten.AddElementName("condition");
                     fortschritten.AddElementName("formal");
                     fortschritten.AddElementName("gender");
@@ -58,7 +58,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     _elementGruppen.Add(fortschritten);
 
                     // Die Gruppe der HTML-Elemente
-                    XMLElementGruppe html = new XMLElementGruppe("html", zusammengeklappt);
+                    XmlElementGroup html = new XmlElementGroup("html", zusammengeklappt);
                     html.AddElementName("a");
                     html.AddElementName("applet");
                     html.AddElementName("br");
@@ -70,7 +70,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     _elementGruppen.Add(html);
 
                     // Die Gruppe der besonderen GaitoBot-Elemente
-                    XMLElementGruppe gaitobot = new XMLElementGruppe("GaitoBot", zusammengeklappt);
+                    XmlElementGroup gaitobot = new XmlElementGroup("GaitoBot", zusammengeklappt);
                     gaitobot.AddElementName("script");
                     _elementGruppen.Add(gaitobot);
                 }

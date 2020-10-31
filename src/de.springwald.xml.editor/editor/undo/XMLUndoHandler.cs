@@ -51,7 +51,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Are Undo steps currently available?
         /// </summary>
-        public bool UndoMoeglich => this.pos > 0;
+        public bool UndoPossible => this.pos > 0;
 
         /// <summary>
         /// The name of the next undo step (if a name was assigned via snapshot)
@@ -60,7 +60,7 @@ namespace de.springwald.xml.editor
         {
             get
             {
-                if (this.UndoMoeglich)
+                if (this.UndoPossible)
                 {
                     return String.Format(
                         ResReader.Reader.GetString("NameUndoSchritt"),
@@ -109,7 +109,7 @@ namespace de.springwald.xml.editor
         /// <returns>The new cursor after successful undo</returns>
         public XmlCursor Undo()
         {
-            if (this.UndoMoeglich)
+            if (this.UndoPossible)
             {
                 this.working = true;
                 do

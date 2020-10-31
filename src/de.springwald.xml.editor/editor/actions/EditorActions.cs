@@ -22,7 +22,7 @@ namespace de.springwald.xml.editor.actions
     {
         private XmlRules xmlRules => this.editorContext.XmlRules;
         private INativePlatform nativePlatform => this.editorContext.NativePlatform;
-        private EditorStatus editorState => this.editorContext.EditorState;
+        private EditorState editorState => this.editorContext.EditorState;
 
         private EditorContext editorContext;
 
@@ -80,7 +80,7 @@ namespace de.springwald.xml.editor.actions
                     XmlCursorPos startPos;
                     XmlCursorPos endPos;
 
-                    if (this.editorState.IstRootNodeSelektiert) // Der Rootnode ist selektiert und soll daher durch den Clipboard-Inhalt ersetzt werden
+                    if (this.editorState.IsRootNodeSelected) // Der Rootnode ist selektiert und soll daher durch den Clipboard-Inhalt ersetzt werden
                     {
                         return await AktionRootNodeDurchClipboardInhaltErsetzen(setUnDoSnapshot);
                     }
@@ -100,7 +100,7 @@ namespace de.springwald.xml.editor.actions
                         }
                         else // Nichts selektiert
                         {
-                            startPos = this.editorState.CursorOptimiert.StartPos;
+                            startPos = this.editorState.CursorOptimized.StartPos;
                         }
                     }
 
@@ -330,7 +330,7 @@ namespace de.springwald.xml.editor.actions
         {
             if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
-            if (this.editorState.CursorOptimiert.StartPos.ActualNode == this.editorState.RootNode)
+            if (this.editorState.CursorOptimized.StartPos.ActualNode == this.editorState.RootNode)
             {
                 // Der Root-Node kann nicht ausgeschnitten werden
                 return false;
@@ -368,7 +368,7 @@ namespace de.springwald.xml.editor.actions
         {
             if (!this.ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
 
-            if (this.editorState.IstRootNodeSelektiert) return false; // Der Root-Node soll gelöscht werden:  Nicht erlaubt
+            if (this.editorState.IsRootNodeSelected) return false; // Der Root-Node soll gelöscht werden:  Nicht erlaubt
 
             if (setUnDoSnapshot == SetUndoSnapshotOptions.Yes)
             {

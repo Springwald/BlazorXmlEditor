@@ -2,8 +2,8 @@
 @using Blazor.Extensions.Canvas
 @using de.springwald.xml.blazor.NativePlatform
 @using de.springwald.xml.editor
-@using Microsoft.JSInterop;
-@using de.springwald.xml.blazor.Code;
+@using Microsoft.JSInterop
+@using de.springwald.xml.blazor.Code
 @using CurrieTechnologies.Razor.Clipboard
 @inject IJSRuntime JSRuntime
 @inject ClipboardService clipboardService
@@ -35,7 +35,7 @@
     protected int canvasWidth = 10;
     protected int canvasHeight = 10;
 
-    public de.springwald.xml.editor.XMLEditor Editor;
+    public de.springwald.xml.editor.XmlEditor Editor;
 
     [Parameter]
     public EditorContext EditorContext { get; set; }
@@ -65,7 +65,7 @@
     {
         if (this.EditorContext == null) throw new ArgumentNullException(nameof(this.EditorContext));
         this.EditorContext.NativePlatform = new BlazorNativePlatform(_canvasReference, new BlazorClipboard(this.clipboardService));
-        this.Editor = new XMLEditor(this.EditorContext);
+        this.Editor = new editor.XmlEditor(this.EditorContext);
         this.EditorContext.EditorState.RootNodeChanged.Add(this.RootNodeChanged);
         this.Editor.VirtualSizeChanged.Add(this.VirtualSizeChanged);
         await OnReady.InvokeAsync(EventArgs.Empty);

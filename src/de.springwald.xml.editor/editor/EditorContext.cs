@@ -10,7 +10,7 @@ namespace de.springwald.xml.editor
         {
             this.EditorConfig = editorConfig;
             this.XmlRules = xmlRules;
-            this.EditorState = new EditorStatus();
+            this.EditorState = new EditorState();
             this.Actions = new EditorActions(this);
         }
 
@@ -18,7 +18,7 @@ namespace de.springwald.xml.editor
 
         public EditorConfig EditorConfig { get; }
 
-        public EditorStatus EditorState { get; }
+        public EditorState EditorState { get; }
 
         public EditorActions Actions { get; }
 

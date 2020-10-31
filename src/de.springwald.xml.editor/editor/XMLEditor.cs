@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
 {
-    public partial class XMLEditor : IDisposable
+    public partial class XmlEditor : IDisposable
     {
         private bool _disposed;
         internal CursorBlink CursorBlink { get; }
@@ -24,7 +24,7 @@ namespace de.springwald.xml.editor
 
         private EditorContext editorContext;
 
-        private EditorStatus EditorStatus => this.editorContext.EditorState;
+        private EditorState EditorStatus => this.editorContext.EditorState;
 
         private EditorConfig EditorConfig => this.editorContext.EditorConfig;
 
@@ -43,7 +43,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Stellt einen XML-Editor bereit
         /// </summary>
-        public XMLEditor(EditorContext editorContext)
+        public XmlEditor(EditorContext editorContext)
         {
             this.editorContext = editorContext;
             this.NativePlatform.ControlElement.Enabled = false; // Bis zu einer Content-Zuweisung erstmal deaktiviert */
@@ -95,7 +95,7 @@ namespace de.springwald.xml.editor
                 // If the current XML element is no longer the same, destroy the previous one so that it can be recreated
                 if (this.EditorStatus.RootElement != null)
                 {
-                    if (this.EditorStatus.RootElement.XMLNode != this.EditorStatus.RootNode)
+                    if (this.EditorStatus.RootElement.XmlNode != this.EditorStatus.RootNode)
                     {
                         this.EditorStatus.RootElement.Dispose();
                         this.EditorStatus.RootElement = null;
@@ -131,7 +131,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// Provides an XML control element
         /// </summary>
-        internal XMLElement CreateElement(System.Xml.XmlNode xmlNode)
+        internal XmlElement CreateElement(System.Xml.XmlNode xmlNode)
         {
             return new ElementCreator(this, this.editorContext).CreatePaintElementForNode(xmlNode);
         }
@@ -147,7 +147,7 @@ namespace de.springwald.xml.editor
 
         public async Task Paint(int limitRight)
         {
-            var paintMode = XMLElement.PaintModes.OnlyPaintWhenChanged;
+            var paintMode = XmlElement.PaintModes.OnlyPaintWhenChanged;
 
             if (this.virtualSizeChangedSinceLastPaint)
             {
@@ -158,7 +158,7 @@ namespace de.springwald.xml.editor
             {
                 this.NativePlatform.Gfx.AddJob(new JobClear { FillColor = this.EditorConfig.ColorBackground });
                 this.sizeChangedSinceLastPaint = false;
-                paintMode = XMLElement.PaintModes.ForcePaintNoUnPaintNeeded;
+                paintMode = XmlElement.PaintModes.ForcePaintNoUnPaintNeeded;
             }
 
             if (this.EditorStatus.RootElement != null)
@@ -172,7 +172,7 @@ namespace de.springwald.xml.editor
                     ZeilenStartX = 10 ,
                 };
 
-                var context1 = await this.EditorStatus.RootElement.Paint(paintContext.Clone(), this.EditorStatus.CursorOptimiert, this.NativePlatform.Gfx, paintMode);
+                var context1 = await this.EditorStatus.RootElement.Paint(paintContext.Clone(), this.EditorStatus.CursorOptimized, this.NativePlatform.Gfx, paintMode);
                 var newVirtualWidth = context1.BisherMaxX + 50;
                 var newVirtualHeight = context1.PaintPosY + 50;
                 if (this.VirtualWidth != newVirtualWidth || this.VirtualHeight != newVirtualHeight)

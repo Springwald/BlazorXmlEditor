@@ -7,21 +7,18 @@
 // All rights reserved
 // Licensed under MIT License
 
-#define klickbereicheRotAnzeigen // Sollen die klickbaren Bereiche rot angezeigt werden?
-
 using System;
 using System.Threading.Tasks;
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.events;
 
-
 namespace de.springwald.xml.editor
 {
     /// <summary>
     /// Basic element for drawing XML editor elements
     /// </summary>
-    public abstract class XMLElement : IDisposable
+    public abstract class XmlElement : IDisposable
     {
         public enum PaintModes
         {
@@ -30,34 +27,34 @@ namespace de.springwald.xml.editor
             OnlyPaintWhenChanged
         }
 
-        private bool _disposed = false;
+        private bool disposed = false;
 
         protected Point cursorPaintPos;  // there the cursor is drawn in this node, if it is the current node
-        protected XMLEditor xmlEditor;
+        protected XmlEditor xmlEditor;
 
         private EditorContext editorContext;
         protected EditorConfig Config => this.editorContext.EditorConfig;
-        protected XmlRules Regelwerk => this.editorContext.XmlRules;
-        protected EditorStatus EditorStatus => this.editorContext.EditorState;
+        protected XmlRules XmlRules => this.editorContext.XmlRules;
+        protected EditorState EditorState => this.editorContext.EditorState;
 
         /// <summary>
         /// The XMLNode to be displayed with this element
         /// </summary>
-        public System.Xml.XmlNode XMLNode { get; }
+        public System.Xml.XmlNode XmlNode { get; }
 
         /// <param name="xmlNode">The XML-Node to be drawn</param>
         /// <param name="xmlEditor">The editor for which the node is to be drawn</param>
-        public XMLElement(System.Xml.XmlNode xmlNode, XMLEditor xmlEditor, EditorContext editorContext)
+        public XmlElement(System.Xml.XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext)
         {
             this.editorContext = editorContext;
-            this.XMLNode = xmlNode;
+            this.XmlNode = xmlNode;
             this.xmlEditor = xmlEditor;
 
-            this.EditorStatus.CursorRaw.ChangedEvent.Add(this.Cursor_ChangedEvent);
+            this.EditorState.CursorRaw.ChangedEvent.Add(this.Cursor_ChangedEvent);
             this.xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
             this.xmlEditor.MouseHandler.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
             this.xmlEditor.MouseHandler.MouseDownMoveEvent.Add(this._xmlEditor_MouseDownMoveEvent);
-            this.xmlEditor.CleanUpXmlElementsEvent += new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
+            this.xmlEditor.CleanUpXmlElementsEvent += new EventHandler(_xmlEditor_xmlElementsCleanUpEvent);
         }
 
         /// <summary>
@@ -65,8 +62,8 @@ namespace de.springwald.xml.editor
         /// </summary>
         public virtual async Task<PaintContext> Paint(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
-            if (this._disposed) return paintContext;
-            if (this.XMLNode == null) return paintContext;
+            if (this.disposed) return paintContext;
+            if (this.XmlNode == null) return paintContext;
             if (this.xmlEditor == null) return paintContext;
 
             paintContext = await PaintInternal(paintContext, cursor, gfx, paintMode);
@@ -102,55 +99,55 @@ namespace de.springwald.xml.editor
         }
 
         /// <summary>
-        /// Der Editor hat darum gebeten, dass alle Elemente, welche nicht mehr verwendet werden, entladen werden
+        /// The editor has asked to unload all elements that are no longer used
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void _xmlEditor_xmlElementeAufraeumenEvent(object sender, EventArgs e)
+        void _xmlEditor_xmlElementsCleanUpEvent(object sender, EventArgs e)
         {
-            if (this.XMLNode == null)
+            if (this.XmlNode == null)
             {
                 Dispose();
                 return;
             }
 
-            if (this.XMLNode.ParentNode == null)
+            if (this.XmlNode.ParentNode == null)
             {
                 Dispose();
                 return;
             }
         }
 
-        protected abstract Task OnMouseAction(Point point, MausKlickAktionen mouseAction);
+        protected abstract Task OnMouseAction(Point point, MouseClickActions mouseAction);
 
         /// <summary>
         /// Ein Mausklick ist eingegangen
         /// </summary>
-        private async Task _xmlEditor_MouseDownEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MausKlickAktionen.MouseDown);
+        private async Task _xmlEditor_MouseDownEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MouseClickActions.MouseDown);
 
         /// <summary>
         /// Die Maus wurde von einem Mausklick wieder gelöst
         /// </summary>
-        async Task _xmlEditor_MouseUpEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MausKlickAktionen.MouseUp);
+        async Task _xmlEditor_MouseUpEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MouseClickActions.MouseUp);
 
         /// <summary>
         /// Die Maus wurde mit gedrückter Maustaste bewegt
         /// </summary>
-        async Task _xmlEditor_MouseDownMoveEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MausKlickAktionen.MouseDownMove);
+        async Task _xmlEditor_MouseDownMoveEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MouseClickActions.MouseDownMove);
 
         /// <summary>
         /// Der XML-Cursor hat sich geändert
         /// </summary>
         private async Task Cursor_ChangedEvent(EventArgs e)
         {
-            if (this.XMLNode.ParentNode == null) // Wenn der betreffene Node gerade gelöscht wurde
+            if (this.XmlNode.ParentNode == null) // Wenn der betreffene Node gerade gelöscht wurde
             {   // Dann auch das XML-Anzeige-Objekt für den Node zerstören
                 this.Dispose();
             }
             else
             {
                 // Herausfinden, ob der Node dieses Elementes betroffen ist
-                if (this.editorContext.EditorState.CursorRaw.StartPos.ActualNode != this.XMLNode)
+                if (this.editorContext.EditorState.CursorRaw.StartPos.ActualNode != this.XmlNode)
                 {
                     return;
                 }
@@ -186,7 +183,7 @@ namespace de.springwald.xml.editor
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._disposed)
+            if (!this.disposed)
             {
                 // If disposing equals true, dispose all managed 
                 // and unmanaged resources.
@@ -197,13 +194,13 @@ namespace de.springwald.xml.editor
                     xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
                     xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
                     xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
-                    xmlEditor.CleanUpXmlElementsEvent -= new EventHandler(_xmlEditor_xmlElementeAufraeumenEvent);
+                    xmlEditor.CleanUpXmlElementsEvent -= new EventHandler(_xmlEditor_xmlElementsCleanUpEvent);
 
                     // Referenzen lösen
                     this.xmlEditor = null;
                 }
             }
-            _disposed = true;
+            disposed = true;
         }
     }
 }

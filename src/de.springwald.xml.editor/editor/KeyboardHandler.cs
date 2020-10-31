@@ -25,7 +25,7 @@ namespace de.springwald.xml.editor
         private INativePlatform nativePlatform;
         private XmlRules regelwerk;
         private EditorActions actions;
-        private EditorStatus editorState;
+        private EditorState editorState;
 
         public XmlAsyncEvent<KeyEventArgs> KeyDownEvent = new XmlAsyncEvent<KeyEventArgs>();
         public XmlAsyncEvent<KeyEventArgs> KeyPressEvent = new XmlAsyncEvent<KeyEventArgs>();
@@ -167,7 +167,7 @@ namespace de.springwald.xml.editor
                         break;
 
                     case Keys.Back:  
-                        if (this.editorState.CursorRaw.IstEtwasSelektiert)
+                        if (this.editorState.CursorRaw.IsSomethingSelected)
                         {
                             await this.actions.AktionDelete(SetUndoSnapshotOptions.Yes);
                         }
@@ -179,7 +179,7 @@ namespace de.springwald.xml.editor
                         break;
 
                     case Keys.Delete:          
-                        if (this.editorState.CursorRaw.IstEtwasSelektiert)
+                        if (this.editorState.CursorRaw.IsSomethingSelected)
                         {
                             await this.actions.AktionDelete(SetUndoSnapshotOptions.Yes);
                         }

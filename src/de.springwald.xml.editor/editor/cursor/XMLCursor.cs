@@ -7,39 +7,29 @@
 // All rights reserved
 // Licensed under MIT License
 
-using de.springwald.xml.editor.cursor;
-using de.springwald.xml.rules;
 using System;
 using System.Threading.Tasks;
 using System.Xml;
+using de.springwald.xml.editor.cursor;
+using de.springwald.xml.rules;
 using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.cursor
 {
-    public enum MausKlickAktionen { MouseDown, MouseDownMove, MouseUp };
+    public enum MouseClickActions { MouseDown, MouseDownMove, MouseUp };
 
     public partial class XmlCursor : IDisposable
     {
-        /// <summary>
-        /// Event definieren, wenn sich der Cursor geändert hat
-        /// </summary>
-        // public event System.EventHandler ChangedEvent;
-        public XmlAsyncEvent<EventArgs> ChangedEvent { get; }
+        public XmlAsyncEvent<EventArgs> ChangedEvent { get;  }
 
-        private bool _cursorWirdGeradeGesetzt = false; // Um Doppelevents zu vermeiden
+        public XmlCursorPos StartPos { get;  }
 
-        // Beginn des aktuell ausgewählten Bereiches
-        public XmlCursorPos StartPos { get; private set; }
-
-        /// <summary>
-        /// Ende des aktuell ausgewählten Bereiches
-        /// </summary>
-        public XmlCursorPos EndPos { get; private set; }
+        public XmlCursorPos EndPos { get; }
 
         public XmlCursor()
         {
-            EndPos = new XmlCursorPos();
-            StartPos = new XmlCursorPos();
+            this.EndPos = new XmlCursorPos();
+            this.StartPos = new XmlCursorPos();
             this.ChangedEvent = new XmlAsyncEvent<EventArgs>();
         }
 
@@ -75,10 +65,6 @@ namespace de.springwald.xml.cursor
             return second != null && this.StartPos.Equals(second.StartPos) && this.EndPos.Equals(second.EndPos);
         }
 
-        /// <summary>
-        /// Erzeugt eine Kopie dieses Cursors
-        /// </summary>
-        /// <returns></returns>
         public XmlCursor Clone()
         {
             XmlCursor klon = new XmlCursor();
@@ -88,26 +74,18 @@ namespace de.springwald.xml.cursor
         }
 
         /// <summary>
-        /// Löst den Cursor-Changed-Event manuell aus
+        /// Triggers the Cursor-Changed-Event manually
         /// </summary>
-        public async Task ErzwingeChanged()
+        public async Task ForceChangedEvent()
         {
             await this.ChangedEvent.Trigger(EventArgs.Empty);
         }
 
-        /// <summary>
-        /// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
-        /// </summary>
-        /// <param name="aktNode"></param>
-        /// <param name="posInNode"></param>
-        /// <param name="posImTextnode"></param>
         public void BeideCursorPosSetzenOhneChangeEvent(XmlNode node, XmlCursorPositions posAmNode, int posImTextnode)
         {
             // Cursor setzen
-            _cursorWirdGeradeGesetzt = true;
-            StartPos.SetPos(node, posAmNode, posImTextnode);
-            EndPos.SetPos(node, posAmNode, posImTextnode);
-            _cursorWirdGeradeGesetzt = false;
+            this.StartPos.SetPos(node, posAmNode, posImTextnode);
+            this.EndPos.SetPos(node, posAmNode, posImTextnode);
         }
 
         /// <summary>
@@ -177,19 +155,9 @@ namespace de.springwald.xml.cursor
         /// </summary>
         /// <param name="aktNode"></param>
         /// <param name="posInNode"></param>
-        public async Task BeideCursorPosSetzenMitChangeEventWennGeaendert(System.Xml.XmlNode node, XmlCursorPositions posAmNode)
+        public async Task BeideCursorPosSetzenMitChangeEventWennGeaendert(XmlNode node, XmlCursorPositions posAmNode)
         {
             await BeideCursorPosSetzenMitChangeEventWennGeaendert(node, posAmNode, 0);
-        }
-
-        /// <summary>
-        /// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
-        /// </summary>
-        /// <param name="aktNode"></param>
-        /// <param name="posInNode"></param>
-        public void BeideCursorPosSetzenOhneChangeEvent(System.Xml.XmlNode node, XmlCursorPositions posAmNode)
-        {
-            BeideCursorPosSetzenOhneChangeEvent(node, posAmNode, 0);
         }
 
         /// <summary>
@@ -197,20 +165,20 @@ namespace de.springwald.xml.cursor
         /// Bei MausDown StartUndEndpos, bei Move und Up nur die Endpos
         /// </summary>
         /// <param name="action"></param>
-        public async Task CursorPosSetzenDurchMausAktion(System.Xml.XmlNode xmlNode, XmlCursorPositions cursorPos, int posInZeile, MausKlickAktionen action)
+        public async Task CursorPosSetzenDurchMausAktion(System.Xml.XmlNode xmlNode, XmlCursorPositions cursorPos, int posInZeile, MouseClickActions action)
         {
             switch (action)
             {
-                case MausKlickAktionen.MouseDown:
+                case MouseClickActions.MouseDown:
                     // den Cursor an die neue Position setzen
                     await SetPositions(xmlNode, cursorPos, posInZeile, throwChangedEventWhenValuesChanged: true);
                     break;
-                case MausKlickAktionen.MouseDownMove:
-                case MausKlickAktionen.MouseUp:
+                case MouseClickActions.MouseDownMove:
+                case MouseClickActions.MouseUp:
                     // Ende des Select-Cursors setzen
                     if (EndPos.SetPos(xmlNode, cursorPos, posInZeile))
                     {
-                        await this.ErzwingeChanged();
+                        await this.ForceChangedEvent();
                     }
                     //Debug.WriteLine(SelektionAlsString);
                     break;
@@ -222,7 +190,7 @@ namespace de.springwald.xml.cursor
         /// Bei MausDown StartUndEndpos, bei Move und Up nur die Endpos
         /// </summary>
         /// <param name="aktion"></param>
-        public async Task CursorPosSetzenDurchMausAktion(System.Xml.XmlNode xmlNode, XmlCursorPositions cursorPos, MausKlickAktionen aktion)
+        public async Task CursorPosSetzenDurchMausAktion(System.Xml.XmlNode xmlNode, XmlCursorPositions cursorPos, MouseClickActions aktion)
         {
             await CursorPosSetzenDurchMausAktion(xmlNode, cursorPos, 0, aktion);
         }
@@ -268,9 +236,9 @@ namespace de.springwald.xml.cursor
                 // Wenn die Nodes in der Reihenfolge falsch sind, dann beide vertauschen
                 if (ToolboxXML.Node1LaisBeforeNode2(EndPos.ActualNode, StartPos.ActualNode))
                 {
-                    XmlCursorPos tempPos = StartPos;
-                    StartPos = EndPos;
-                    EndPos = tempPos;
+                    var tempPos = this.StartPos.Clone();
+                    this.StartPos.SetPos(this.EndPos.ActualNode, this.EndPos.PosOnNode, this.EndPos.PosInTextNode);
+                    this.EndPos.SetPos(tempPos.ActualNode, tempPos.PosOnNode, tempPos.PosInTextNode);
                 }
 
                 // Wenn der EndNode im StartNode liegt, den gesamten, umgebenden Startnode selektieren
@@ -305,7 +273,7 @@ namespace de.springwald.xml.cursor
         /// Entweder ist ein einzelner Node von der Startpos selektiert, oder die selektierten Bereiche liegen
         /// zwischen StartPos und EndPos
         /// </remarks>
-        public  bool IstEtwasSelektiert
+        public  bool IsSomethingSelected
         {
             get
             {

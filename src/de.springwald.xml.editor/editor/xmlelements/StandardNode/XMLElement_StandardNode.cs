@@ -24,18 +24,18 @@ namespace de.springwald.xml.editor
     /// <summary>
     /// Draws a standard node for the editor
     /// </summary>
-    public partial class XMLElement_StandardNode : XMLElement
+    public partial class XMLElement_StandardNode : XmlElement
     {
         private StandardNodeDimensionsAndColor nodeDimensions;
         private StandardNodeStartTagPainter startTag;
         private StandardNodeEndTagPainter endTag;
 
-        protected List<XMLElement> childElements = new List<XMLElement>();   // Die ChildElemente in diesem Steuerelement
+        protected List<XmlElement> childElements = new List<XmlElement>();   // Die ChildElemente in diesem Steuerelement
 
-        public XMLElement_StandardNode(XmlNode xmlNode, XMLEditor xmlEditor, EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
+        public XMLElement_StandardNode(XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
         {
-            var isClosingTagVisible = this.Regelwerk.HasEndTag(xmlNode);
-            var colorTagBackground = this.Regelwerk.NodeFarbe(this.XMLNode, selektiert: false);
+            var isClosingTagVisible = this.XmlRules.HasEndTag(xmlNode);
+            var colorTagBackground = this.XmlRules.NodeFarbe(this.XmlNode, selektiert: false);
             this.nodeDimensions = new StandardNodeDimensionsAndColor(editorContext.EditorConfig, colorTagBackground);
             this.startTag = new StandardNodeStartTagPainter(this.Config, this.nodeDimensions, xmlNode, isClosingTagVisible);
             if (isClosingTagVisible)
@@ -59,7 +59,7 @@ namespace de.springwald.xml.editor
            
 
             this.nodeDimensions.Update();
-            var isSelected = XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(cursor, this.XMLNode);
+            var isSelected = XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(cursor, this.XmlNode);
             this.CreateChildElementsIfNeeded(gfx);
 
             Point newCursorPaintPos = null;
@@ -80,7 +80,7 @@ namespace de.springwald.xml.editor
             }
 
             // Falls der Cursor innherlb des leeren Nodes steht, dann den Cursor auch dahin zeichnen
-            if (cursor.StartPos.ActualNode == this.XMLNode)
+            if (cursor.StartPos.ActualNode == this.XmlNode)
             {
                 if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInFrontOfNode)
                 {
@@ -92,7 +92,7 @@ namespace de.springwald.xml.editor
             paintContext = await this.startTag.Paint(paintContext, alreadyUnpainted,  isSelected, gfx);
 
             // If the cursor is inside the empty node, then draw the cursor there
-            if (cursor.StartPos.ActualNode == this.XMLNode)
+            if (cursor.StartPos.ActualNode == this.XmlNode)
             {
                 if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInsideTheEmptyNode)
                 {
@@ -109,7 +109,7 @@ namespace de.springwald.xml.editor
             }
 
             // If the cursor is behind the node, then also draw the cursor there
-            if (cursor.StartPos.ActualNode == this.XMLNode)
+            if (cursor.StartPos.ActualNode == this.XmlNode)
             {
                 if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode)
                 {
@@ -132,7 +132,7 @@ namespace de.springwald.xml.editor
 
         protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, XmlCursor cursor, IGraphics gfx, PaintModes paintMode)
         {
-            if (this.XMLNode == null)
+            if (this.XmlNode == null)
             {
                 throw new ApplicationException("UnternodesZeichnen:XMLNode ist leer");
             }
@@ -140,14 +140,14 @@ namespace de.springwald.xml.editor
             var childPaintContext = paintContext.Clone();
             childPaintContext.LimitLeft = paintContext.LimitLeft + this.Config.ChildIndentX;
 
-            for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
+            for (int childLauf = 0; childLauf < this.XmlNode.ChildNodes.Count; childLauf++)
             {
                
 
                 // An dieser Stelle sollte im Objekt ChildControl die entsprechends
                 // Instanz des XMLElement-Controls für den aktuellen XMLChildNode stehen
-                var childElement = (XMLElement)childElements[childLauf];
-                var displayType = this.Regelwerk.DisplayType(childElement.XMLNode);
+                var childElement = (XmlElement)childElements[childLauf];
+                var displayType = this.XmlRules.DisplayType(childElement.XmlNode);
                 switch (displayType)
                 {
                     case DisplayTypes.OwnRow:
@@ -221,7 +221,7 @@ namespace de.springwald.xml.editor
 
             // Sollten wir mehr ChildControls als XMLChildNodes haben, dann diese
             // am Ende der ChildControlListe löschen
-            while (this.XMLNode.ChildNodes.Count < childElements.Count)
+            while (this.XmlNode.ChildNodes.Count < childElements.Count)
             {
                 var deleteChildElement = childElements[childElements.Count - 1];
                 deleteChildElement.UnPaint(gfx);
@@ -236,28 +236,28 @@ namespace de.springwald.xml.editor
         /// Wird aufgerufen, wenn auf dieses Element geklickt wurde
         /// </summary>
         /// <param name="point"></param>
-        protected override async Task OnMouseAction(Point point, MausKlickAktionen mouseAction)
+        protected override async Task OnMouseAction(Point point, MouseClickActions mouseAction)
         {
             if (this.startTag.AreaTag?.Contains(point) == true) // er wurde auf das linke Tag geklickt
             {
-                await EditorStatus.CursorRaw.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorOnNodeStartTag, mouseAction);
+                await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode, XmlCursorPositions.CursorOnNodeStartTag, mouseAction);
                 xmlEditor.CursorBlink.ResetBlinkPhase();
                 return;
             }
 
             if (this.startTag.AreaArrow?.Contains(point) == true) // er wurde auf den linken, öffnenden Pfeil geklickt
             {
-                if (this.XMLNode.ChildNodes.Count > 0) // Children vorhanden
+                if (this.XmlNode.ChildNodes.Count > 0) // Children vorhanden
                 {
                     // vor das erste Child setzen
-                    await EditorStatus.CursorRaw.CursorPosSetzenDurchMausAktion(this.XMLNode.LastChild, XmlCursorPositions.CursorBehindTheNode, mouseAction);
+                    await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode.LastChild, XmlCursorPositions.CursorBehindTheNode, mouseAction);
                     xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
-                    await EditorStatus.CursorRaw.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorInsideTheEmptyNode, mouseAction);
+                    await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode, XmlCursorPositions.CursorInsideTheEmptyNode, mouseAction);
                     xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
@@ -265,24 +265,24 @@ namespace de.springwald.xml.editor
 
             if (this.endTag?.AreaTag?.Contains(point) == true) // er wurde auf das rechte Tag geklickt
             {
-                await EditorStatus.CursorRaw.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorOnNodeEndTag, mouseAction);
+                await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode, XmlCursorPositions.CursorOnNodeEndTag, mouseAction);
                 xmlEditor.CursorBlink.ResetBlinkPhase();
                 return;
             }
 
             if (this.endTag?.AreaArrow?.Contains(point) == true) // es wurde auf den rechten, schließenden Pfeil geklickt
             {
-                if (this.XMLNode.ChildNodes.Count > 0) // Children vorhanden
+                if (this.XmlNode.ChildNodes.Count > 0) // Children vorhanden
                 {
                     // vor das erste Child setzen
-                    await EditorStatus.CursorRaw.CursorPosSetzenDurchMausAktion(this.XMLNode.FirstChild, XmlCursorPositions.CursorInFrontOfNode, mouseAction);
+                    await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode.FirstChild, XmlCursorPositions.CursorInFrontOfNode, mouseAction);
                     xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
                 else // Kein Child vorhanden
                 {
                     // In den Node selbst setzen
-                    await EditorStatus.CursorRaw.CursorPosSetzenDurchMausAktion(this.XMLNode, XmlCursorPositions.CursorInsideTheEmptyNode, mouseAction);
+                    await EditorState.CursorRaw.CursorPosSetzenDurchMausAktion(this.XmlNode, XmlCursorPositions.CursorInsideTheEmptyNode, mouseAction);
                     xmlEditor.CursorBlink.ResetBlinkPhase();
                     return;
                 }
@@ -296,30 +296,30 @@ namespace de.springwald.xml.editor
         private void CreateChildElementsIfNeeded(IGraphics gfx)
         {
             // Alle Child-Controls anzeigen und ggf. vorher anlegen
-            for (int childLauf = 0; childLauf < this.XMLNode.ChildNodes.Count; childLauf++)
+            for (int childLauf = 0; childLauf < this.XmlNode.ChildNodes.Count; childLauf++)
             {
                 if (childLauf >= childElements.Count)
                 {   // Wenn noch nicht so viele ChildControls angelegt sind, wie
                     // es ChildXMLNodes gibt
-                    var childElement = this.xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
+                    var childElement = this.xmlEditor.CreateElement(this.XmlNode.ChildNodes[childLauf]);
                     childElements.Add(childElement);
                 }
                 else
                 {   // es gibt schon ein Control an dieser Stelle
-                    var childElement = (XMLElement)childElements[childLauf];
+                    var childElement = (XmlElement)childElements[childLauf];
 
                     if (childElement == null)
                     {
-                        throw new ApplicationException($"UnternodesZeichnen:childElement ist leer: outerxml:{this.XMLNode.OuterXml} >> innerxml {this.XMLNode.InnerXml}");
+                        throw new ApplicationException($"UnternodesZeichnen:childElement ist leer: outerxml:{this.XmlNode.OuterXml} >> innerxml {this.XmlNode.InnerXml}");
                     }
 
                     // prüfen, ob es auch den selben XML-Node vertritt
-                    if (childElement.XMLNode != this.XMLNode.ChildNodes[childLauf])
+                    if (childElement.XmlNode != this.XmlNode.ChildNodes[childLauf])
                     {   // Das ChildControl enthält nicht den selben ChildNode, also 
                         // löschen und neu machen
                         childElement.UnPaint(gfx);
                         childElement.Dispose(); // altes Löschen
-                        childElements[childLauf] = this.xmlEditor.CreateElement(this.XMLNode.ChildNodes[childLauf]);
+                        childElements[childLauf] = this.xmlEditor.CreateElement(this.XmlNode.ChildNodes[childLauf]);
                     }
                 }
             }

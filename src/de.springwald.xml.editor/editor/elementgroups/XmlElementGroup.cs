@@ -15,14 +15,14 @@ namespace de.springwald.xml.editor
     /// Eine Gruppierung für XML-Elemente, damit diese in der Liste der angebotenen Elemente
     /// zum Einfügen gruppiert dargestellt werden können
     /// </summary>
-    public class XMLElementGruppe
+    public class XmlElementGroup
     {
 
         /// <summary>Diese Elementnamen sind in der Gruppe zulässig</summary>
-        private Hashtable _elemente = new Hashtable();
+        private Hashtable elements = new Hashtable();
 
         /// <summary>Der anzeigbare Titel dieser Gruppe</summary>
-        public string Titel { get; }
+        public string Title { get; }
 
         /// <summary>Ist diese Gruppe beim Start erstmal zusammen geklappt?</summary>
         public bool StandardMaessigZusammengeklappt { get; }
@@ -32,9 +32,9 @@ namespace de.springwald.xml.editor
         /// </summary>
         /// <param name="name"></param>
         /// <param name="standardMaessigZusammengeklappt"> Ist diese Gruppe beim Start erstmal zusammen geklappt?</param>
-        public XMLElementGruppe(string titel, bool standardMaessigZusammengeklappt)
+        public XmlElementGroup(string titel, bool standardMaessigZusammengeklappt)
         {
-            this.Titel = titel;
+            this.Title = titel;
             this.StandardMaessigZusammengeklappt = standardMaessigZusammengeklappt;
         }
 
@@ -44,7 +44,7 @@ namespace de.springwald.xml.editor
         /// <param name="name"></param>
         public void AddElementName(string name)
         {
-            _elemente.Add(name.ToLower(), null);
+            elements.Add(name.ToLower(), null);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace de.springwald.xml.editor
         /// <returns></returns>
         public bool ContainsElement(string name)
         {
-            return _elemente.ContainsKey(name.ToLower());
+            return elements.ContainsKey(name.ToLower());
         }
     }
 }

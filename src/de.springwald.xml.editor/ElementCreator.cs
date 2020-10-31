@@ -15,9 +15,9 @@ namespace de.springwald.xml
     class ElementCreator
     {
         private EditorContext editorContext;
-        private XMLEditor xmlEditor;
+        private XmlEditor xmlEditor;
 
-        public ElementCreator(XMLEditor xmlEditor, EditorContext editorContext)
+        public ElementCreator(XmlEditor xmlEditor, EditorContext editorContext)
         {
             this.editorContext = editorContext;
             this.xmlEditor = xmlEditor;
@@ -29,7 +29,7 @@ namespace de.springwald.xml
         /// In dieser Grundkonfiguration gibt die Methode erst einmal nur das Standard-Steuerelement zurück
         /// </summary>
         /// <param name="XMLNode">Der anzuzeigende Node</param>
-        public XMLElement CreatePaintElementForNode(System.Xml.XmlNode xmlNode) //, de.springwald.xml.XMLEditorPaintPos paintPos ) 
+        public XmlElement CreatePaintElementForNode(System.Xml.XmlNode xmlNode) //, de.springwald.xml.XMLEditorPaintPos paintPos ) 
         {
             if (xmlNode is System.Xml.XmlElement) return new XMLElement_StandardNode(xmlNode, this.xmlEditor, this.editorContext);
             if (xmlNode is System.Xml.XmlText) return new XMLElement_TextNode(xmlNode, this.xmlEditor, this.editorContext);

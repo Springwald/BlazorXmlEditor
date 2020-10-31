@@ -11,15 +11,12 @@ using System;
 using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.cursor;
-using de.springwald.xml.editor.nativeplatform;
 using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor
 {
-    public class EditorStatus : IDisposable
+    public class EditorState : IDisposable
     {
-        // private INativePlatform nativePlatform;
-
         public async Task SetRootNode(XmlNode rootNode)
         {
             if (this.RootNode != rootNode)
@@ -35,7 +32,7 @@ namespace de.springwald.xml.editor
         /// </summary>
         public XmlNode RootNode { get; private set; }
 
-        internal XMLElement RootElement { get; set; }
+        internal XmlElement RootElement { get; set; }
 
         ///// <summary>
         ///// The set of rules on which the XML processing is based
@@ -48,14 +45,14 @@ namespace de.springwald.xml.editor
         public bool ReadOnly { get; set; }
 
         /// <summary>
-        /// Dort befindet sich der der Cursor aktuell innerhalb des XML-Dokumentes
+        /// This is where the cursor is currently located within the XML document
         /// </summary>
         public XmlCursor CursorRaw { get; }
 
         /// <summary>
-        /// Dies ist die CursorPosition, optmimiert darauf, dass die StartPos auch vor der EndPos liegt
+        /// This is the cursor position, optimizes that the StartPos is also before the EndPos
         /// </summary>
-        public XmlCursor CursorOptimiert
+        public XmlCursor CursorOptimized
         {
             get
             {
@@ -65,38 +62,33 @@ namespace de.springwald.xml.editor
             }
         }
 
-        ///// <summary>
-        ///// Indicates whether something is on the clipboard for the editor
-        ///// </summary>
-        //public bool IstEtwasInZwischenablage => this.nativePlatform.Clipboard.ContainsText;
-
         /// <summary>
         /// Indicates whether something is selected in the editor
         /// </summary>
-        public bool IsSomethingSelected => this.CursorOptimiert.IstEtwasSelektiert;
+        public bool IsSomethingSelected => this.CursorOptimized.IsSomethingSelected;
 
         public XmlUndoHandler UndoHandler { get; internal set; }
 
         /// <summary>
-        /// Das Name des nächstemöglichen UndoSchrittes
+        ///  The name of the next possible undo step
         /// </summary>
-        public string UndoSchrittName => this.UndoMoeglich ? this.UndoHandler.NextUndoSnapshotName : ResReader.Reader.GetString("KeinUndoSchrittVerfuegbar");
+        public string UndoStepName => this.UndoPossible ? this.UndoHandler.NextUndoSnapshotName : "no undo step available";
 
         /// <summary>
-        /// Ist nun ein Undo möglich?
+        /// Is an Undo now possible?
         /// </summary>
-        public bool UndoMoeglich => this.UndoHandler == null ? false : this.UndoHandler.UndoMoeglich;
+        public bool UndoPossible => this.UndoHandler == null ? false : this.UndoHandler.UndoPossible;
 
         /// <summary>
         /// Specifies whether the root node is selected 
         /// </summary>
-        public bool IstRootNodeSelektiert
+        public bool IsRootNodeSelected
         {
             get
             {
-                if (this.IsSomethingSelected) //  Anything selected
+                if (this.IsSomethingSelected) //  something is selected
                 {
-                    var startpos = CursorOptimiert.StartPos;
+                    var startpos = CursorOptimized.StartPos;
                     if (startpos.ActualNode == RootNode) // The root node is in the cursor
                     {
                         switch (startpos.PosOnNode)
@@ -113,7 +105,7 @@ namespace de.springwald.xml.editor
 
         public XmlAsyncEvent<EventArgs> ContentChangedEvent = new XmlAsyncEvent<EventArgs>();
 
-        public EditorStatus()
+        public EditorState()
         {
             this.CursorRaw = new XmlCursor();
         }
@@ -136,7 +128,7 @@ namespace de.springwald.xml.editor
             else
             {
                 XmlCursor c = this.UndoHandler.Undo();
-                if (c != null) // Wenn für diesen UndoSchritt eine CursorPos gespeichert war
+                if (c != null) // If a CursorPos was stored for this undo step
                 {
 
                     await this.CursorRaw.SetPositions(
