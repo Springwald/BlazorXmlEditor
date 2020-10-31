@@ -23,7 +23,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
     /// <summary>
     /// XML element for displaying a text node
     /// </summary>
-    public partial class XMLElement_TextNode : XmlElement
+    public partial class XmlElementTextNode : XmlElement
     {
         protected Color colorText;
         protected Color colorBackground;
@@ -35,7 +35,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
 
         private TextPart[] textParts;  // Buffer of the single, drawn lines. Each corresponds to a click area
 
-        public XMLElement_TextNode(System.Xml.XmlNode xmlNode, XmlEditor xmlEditor,  EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
+        public XmlElementTextNode(System.Xml.XmlNode xmlNode, XmlEditor xmlEditor,  EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
         {
             this.SetColors();
         }
@@ -172,6 +172,8 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                     this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
             }
+
+      
 
             paintContext.PaintPosX += 3;
             this.lastPaintContextResult = paintContext.Clone();

@@ -31,10 +31,10 @@ namespace de.springwald.xml
         /// <param name="XMLNode">Der anzuzeigende Node</param>
         public XmlElement CreatePaintElementForNode(System.Xml.XmlNode xmlNode) //, de.springwald.xml.XMLEditorPaintPos paintPos ) 
         {
-            if (xmlNode is System.Xml.XmlElement) return new XMLElement_StandardNode(xmlNode, this.xmlEditor, this.editorContext);
-            if (xmlNode is System.Xml.XmlText) return new XMLElement_TextNode(xmlNode, this.xmlEditor, this.editorContext);
-            if (xmlNode is System.Xml.XmlComment) return new XMLElement_Kommentar(xmlNode, this.xmlEditor, this.editorContext);
-            return new XMLElement_StandardNode(xmlNode, this.xmlEditor, this.editorContext);
+            if (xmlNode is System.Xml.XmlElement) return new XMLElementStandardNode(xmlNode, this.xmlEditor, this.editorContext);
+            if (xmlNode is System.Xml.XmlText) return new XmlElementTextNode(xmlNode, this.xmlEditor, this.editorContext);
+            if (xmlNode is System.Xml.XmlComment) return new XmlElementComment(xmlNode, this.xmlEditor, this.editorContext);
+            return new XMLElementStandardNode(xmlNode, this.xmlEditor, this.editorContext);
         }
     }
 }

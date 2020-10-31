@@ -158,6 +158,7 @@ namespace de.springwald.xml.editor
                     PaintPosX = 10,
                     PaintPosY = 10 ,
                     RowStartX = 10 ,
+                    CursorBlinkOn = EditorState.CursorBlink.PaintCursor,
                 };
 
                 var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), this.EditorState.CursorOptimized, this.NativePlatform.Gfx, paintMode);
@@ -171,7 +172,6 @@ namespace de.springwald.xml.editor
                 }
             }
             await this.NativePlatform.Gfx.PaintJobs(EditorConfig.ColorBackground);
-            
         }
 
         private async Task OnContentChanged(EventArgs e)

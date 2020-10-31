@@ -12,9 +12,9 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
     /// <summary>
     /// Draws a comment in the editor
     /// </summary>
-    class XMLElement_Kommentar : XMLElement_TextNode
+    class XmlElementComment : XmlElementTextNode
     {
-        public XMLElement_Kommentar(System.Xml.XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
+        public XmlElementComment(System.Xml.XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
         {
         }
 

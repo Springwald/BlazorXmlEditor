@@ -28,7 +28,6 @@ namespace de.springwald.xml.editor
 
         public int FoundMaxX { get; set; }
 
-
         public PaintContext Clone()
         {
             return new PaintContext
