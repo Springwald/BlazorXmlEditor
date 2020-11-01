@@ -8,19 +8,27 @@
 
 <XmlEditorStandardLayout EditorContext="this.editorContext" OnReady="this.EditorIsReady" />
 
+<div style="width:50%; background-color: lightgray; margin: 10px;">
+    <h4>diagnostic information:</h4>
+    <p>Cursor: @this.cursorPos</p>
+
+</div>
+
 @code {
 
     private string documentContent =    "<category>" +
                                             "<pattern>Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern>" +
-                                            "<template>Lorem<script>lorem</script> ipsum <star/> ipsum Dolor sit amet</template>" +
+                                            "<template>Lorem<script>lorem</script>ipsum<star/>ipsum Dolor sit amet</template>" +
                                         "</category>";
     private EditorContext editorContext;
     private System.Xml.XmlDocument xmlDocument;
+    private string cursorPos;
 
     protected override async Task OnInitializedAsync()
     {
         var demoDtd = DemoDtd.LoadDemoDtd();
         this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRules(demoDtd));
+        this.editorContext.EditorState.CursorRaw.ChangedEvent.Add(this.CursorChanged);
         this.xmlDocument = new System.Xml.XmlDocument();
         this.xmlDocument.LoadXml(this.documentContent);
         await base.OnInitializedAsync();
@@ -30,5 +38,13 @@
     {
         await this.editorContext.EditorState.SetRootNode(xmlDocument.DocumentElement);
         await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.ChildNodes[1].ChildNodes[2], rules.XmlCursorPos.XmlCursorPositions.CursorInsideTextNode, 2);
+    }
+
+    private async Task CursorChanged(EventArgs e)
+    {
+        var cursorStatus = this.editorContext.EditorState.CursorRaw;
+        this.cursorPos = $"{cursorStatus.StartPos.ActualNode.Name}:{cursorStatus.StartPos.PosOnNode}:{cursorStatus.StartPos.PosInTextNode}";
+        this.StateHasChanged();
+        await Task.CompletedTask;
     }
 }

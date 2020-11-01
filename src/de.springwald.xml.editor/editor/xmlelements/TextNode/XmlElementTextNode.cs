@@ -110,7 +110,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 maxLengthFirstLine: (int)((paintContext.LimitRight - paintContext.PaintPosX) / lastCalculatedFontWidth) - charMarginRight)
                 .ToArray();
 
-            var newTextParts = this.GetTextLinesFromTextParts(textPartsRaw, paintContext, cursorBlinkOn, cursor, lastFontHeight, lastCalculatedFontWidth).ToArray();
+            var newTextParts = this.GetTextLinesFromTextParts(textPartsRaw, paintContext, cursorBlinkOn, cursor, lastCalculatedFontWidth).ToArray();
 
             // Nun den Inhalt zeichnen, ggf. auf mehrere Textteile und Zeilen umbrochen
             for (int i = 0; i < newTextParts.Length; i++)
@@ -169,7 +169,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             {
                 if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode)
                 {
-                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
+                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 2, paintContext.PaintPosY);
                 }
             }
             
@@ -186,7 +186,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             }
         }
 
-        private IEnumerable<TextPart> GetTextLinesFromTextParts(TextSplitHelper.TextPartRaw[] parts, PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, int fontHeight, double fontWidth)
+        private IEnumerable<TextPart> GetTextLinesFromTextParts(TextSplitHelper.TextPartRaw[] parts, PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, double fontWidth)
         {
             paintContext.HeightActualRow = Math.Max(paintContext.HeightActualRow, this.Config.MinLineHeight);
             var x = paintContext.PaintPosX;
@@ -218,13 +218,32 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                     if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInsideTextNode)
                     {
                         // Checken, ob der Cursor innerhalb dieses Textteiles liegt
-                        if ((cursor.StartPos.PosInTextNode >= actualTextPartStartPos) && (cursor.StartPos.PosInTextNode <= actualTextPartStartPos + part.Text.Length))
+                        var cursorPos = -1;
+                        if (cursor.StartPos.ActualNode == this.XmlNode && !cursor.IsSomethingSelected)
                         {
-                            textPart.CursorPos = (int)(cursor.StartPos.PosInTextNode - actualTextPartStartPos);
+                            switch (cursor.StartPos.PosOnNode)
+                            {
+                                case XmlCursorPositions.CursorInFrontOfNode:
+                                    if (part == parts.First()) cursorPos = 0;
+                                    break;
+                                case XmlCursorPositions.CursorBehindTheNode:
+                                    if (part == parts.Last()) cursorPos = part.Text.Length;
+                                    break;
+                                case XmlCursorPositions.CursorInsideTextNode:
+                                    if ((cursor.StartPos.PosInTextNode >= actualTextPartStartPos) && (cursor.StartPos.PosInTextNode <= actualTextPartStartPos + part.Text.Length))
+                                    {
+                                        cursorPos = (int)(cursor.StartPos.PosInTextNode - actualTextPartStartPos);
+                                    }
+                                    break;
+                            }
+                        }
+                        if (cursorPos != -1)
+                        {
+                            textPart.CursorPos = cursorPos;
                             this.cursorPaintPos = new Point(
-                                textPart.Rectangle.X + (int)(textPart.CursorPos * lastCalculatedFontWidth),
-                                textPart.Rectangle.Y
-                                );
+                                    textPart.Rectangle.X + (int)(textPart.CursorPos * lastCalculatedFontWidth),
+                                    textPart.Rectangle.Y
+                                    );
                         }
                     }
                 }

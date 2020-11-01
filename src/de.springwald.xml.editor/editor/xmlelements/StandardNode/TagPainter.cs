@@ -22,13 +22,15 @@ namespace de.springwald.xml.editor.xmlelements
         protected XmlNode node;
         protected bool isClosingTagVisible;
 
-        protected string lastAttributeString;
         protected PaintContext lastPaintContextResult;
-        protected bool lastPaintWasSelected;
+        protected string lastAttributeString;
         protected int lastPaintY;
         protected int lastPaintX;
-        protected bool lastCursorBlinkOn;
+        protected bool lastPaintWasSelected;
         protected int lastTextWidthFontHeight;
+
+        protected bool lastCursorBlinkOn;
+        protected bool lastCursorWasOnThisNode;
 
         protected int nodeNameTextWidth;
         public Rectangle AreaTag { get; protected set; }
@@ -59,12 +61,22 @@ namespace de.springwald.xml.editor.xmlelements
                 lastPaintContextResult = null;
             }
 
+            var cursorChanged = false;
+            if (cursorIsOnThisNode)
+            {
+                cursorChanged = cursorBlinkOn != this.lastCursorBlinkOn;
+            }
+            else
+            {
+                cursorChanged = cursorIsOnThisNode != this.lastCursorWasOnThisNode;
+            }
+
             if (lastPaintContextResult != null &&
                 this.lastPaintX == startX &&
                 this.lastPaintY == startY &&
                 this.lastPaintWasSelected == isSelected &&
                 this.lastAttributeString == attributesString &&
-                this.lastCursorBlinkOn == cursorBlinkOn)
+                cursorChanged == false)
             {
                 return lastPaintContextResult.Clone();
             }
@@ -76,6 +88,7 @@ namespace de.springwald.xml.editor.xmlelements
             this.lastPaintWasSelected = isSelected;
             this.lastAttributeString = attributesString;
             this.lastCursorBlinkOn = cursorBlinkOn;
+            this.lastCursorWasOnThisNode = cursorIsOnThisNode;
 
             paintContext.PaintPosX += this.dimensions.InnerMarginX;  // margin to left border
 
