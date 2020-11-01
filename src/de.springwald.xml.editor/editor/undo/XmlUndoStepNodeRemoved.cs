@@ -11,7 +11,7 @@ using System;
 
 namespace de.springwald.xml.editor
 {
-    public class XMLUndoSchrittNodeRemoved : XmlUndoStep
+    public class XmlUndoStepNodeRemoved : XmlUndoStep
     {
         private System.Xml.XmlNode deletedNode;
         private System.Xml.XmlNode parentNode;
@@ -22,7 +22,7 @@ namespace de.springwald.xml.editor
         /// Erzeugt einen neuen Undoschritt für das Löschen eines Nodes
         /// </summary>
         /// <param name="deletedNode">Dieser Node wurde gelöscht</param>
-        public XMLUndoSchrittNodeRemoved(System.Xml.XmlNode deletedNode) : base()
+        public XmlUndoStepNodeRemoved(System.Xml.XmlNode deletedNode) : base()
         {
             this.deletedNode = deletedNode;
             this.parentNode = deletedNode.ParentNode;

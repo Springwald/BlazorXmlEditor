@@ -14,7 +14,7 @@ namespace de.springwald.xml.rules.dtd
     /// <summary>
     /// An XML block of what it might look like after the intended change. This pattern is chased through the validator. All patterns, which were subsequently flagged as "confirmed", are permitted according to the DTD
     /// </summary>
-    public class DTDTestmuster
+    public class DtdTestpattern
     {
         private string _parentElementName;	    // Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)
 
@@ -86,7 +86,7 @@ namespace de.springwald.xml.rules.dtd
 
         /// <param name="element">Das zum Test eingefügte Element. Ist es NULL, bedeutet das, dass statt Einfügen das Löschen geprüft wurde</param>
         /// <param name="parentElementName">Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)</param>
-        public DTDTestmuster(string elementName, string parentElementName)
+        public DtdTestpattern(string elementName, string parentElementName)
         {
             _elementNamenListe = new StringBuilder();
             _elementNamenListe.Append(">");

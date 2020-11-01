@@ -11,7 +11,7 @@ using System;
 
 namespace de.springwald.xml.editor
 {
-    public class XMLUndoSchrittNodeChanged : XmlUndoStep
+    public class XmlUndoStepNodeChanged : XmlUndoStep
     {
         private System.Xml.XmlNode changedNode;
         private string previousValue;
@@ -20,7 +20,7 @@ namespace de.springwald.xml.editor
         /// Creates a new undo step for changing a node value
         /// </summary>
         /// <param name="changedNode">This node was changed</param>
-        public XMLUndoSchrittNodeChanged(System.Xml.XmlNode changedNode, string previousValue) : base()
+        public XmlUndoStepNodeChanged(System.Xml.XmlNode changedNode, string previousValue) : base()
         {
             this.changedNode = changedNode;
             this.previousValue = previousValue;

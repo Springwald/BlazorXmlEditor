@@ -11,7 +11,7 @@ using System;
 
 namespace de.springwald.xml.editor
 {
-    public class XMLUndoSchrittNodeInserted : XmlUndoStep
+    public class XmlUndoStepNodeInserted : XmlUndoStep
     {
         private System.Xml.XmlNode insertedNode;
         private System.Xml.XmlNode parentNode;
@@ -20,7 +20,7 @@ namespace de.springwald.xml.editor
         /// Creates a new undo step for inserting a new node
         /// </summary>
         /// <param name="insertedNode">This node was inserted</param>
-        public XMLUndoSchrittNodeInserted(System.Xml.XmlNode insertedNode, System.Xml.XmlNode parentNode) : base()
+        public XmlUndoStepNodeInserted(System.Xml.XmlNode insertedNode, System.Xml.XmlNode parentNode) : base()
         {
             this.insertedNode = insertedNode;
             this.parentNode = parentNode;

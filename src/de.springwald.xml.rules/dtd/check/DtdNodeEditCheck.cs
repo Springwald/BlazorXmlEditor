@@ -133,10 +133,10 @@ namespace de.springwald.xml.rules.dtd
 
                 // Die Testmuster zum Einfügen für alle verfügbaren Elemente erstellen
                 string elementName = DTD.GetElementNameFromNode(node);
-                DTDTestmuster muster = CreateTestMuster(elementName, cursorPos);
+                DtdTestpattern muster = CreateTestMuster(elementName, cursorPos);
 
                 // Zur Prüfung in eine Testmusterliste packen und die Liste zur Prüfung absenden
-                List<DTDTestmuster> liste = new List<DTDTestmuster>();
+                List<DtdTestpattern> liste = new List<DtdTestpattern>();
                 liste.Add(muster);
                 PruefeAlleTestmuster(liste, cursorPos);
 
@@ -159,10 +159,10 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Erzeugt alle Testmuster inkl. der Ergebnisse, ob diese Zulässig sind
         /// </summary>
-        private List<DTDTestmuster> GetAlleTestmuster(XmlCursorPos cursorPos)
+        private List<DtdTestpattern> GetAlleTestmuster(XmlCursorPos cursorPos)
         {
-            List<DTDTestmuster> zuTestendeMuster = new List<DTDTestmuster>();
-            DTDTestmuster einMuster;
+            List<DtdTestpattern> zuTestendeMuster = new List<DtdTestpattern>();
+            DtdTestpattern einMuster;
 
             if (cursorPos.ActualNode == null)
             {
@@ -273,7 +273,7 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Prüft alle Testmuster darauf hin, sie es im Rahmen der eingelesenen DTD gültig sind
         /// </summary>
-        private void PruefeAlleTestmuster(List<DTDTestmuster> alleMuster, XmlCursorPos cursorPos)
+        private void PruefeAlleTestmuster(List<DtdTestpattern> alleMuster, XmlCursorPos cursorPos)
         {
 
             System.Xml.XmlNode node = cursorPos.ActualNode;
@@ -297,7 +297,7 @@ namespace de.springwald.xml.rules.dtd
                     if (node == node.OwnerDocument.DocumentElement) // Der Node ist das Root-Element
                     {
                         // An der Stelle des Root-Elementes ist nur das Root-Element erlaubt
-                        foreach (DTDTestmuster muster in alleMuster)  // alle zu testenden Muster durchlaufen
+                        foreach (DtdTestpattern muster in alleMuster)  // alle zu testenden Muster durchlaufen
                         {
                             if (muster.ElementName == node.Name) // wenn es das Root-Element ist
                             {
@@ -315,7 +315,7 @@ namespace de.springwald.xml.rules.dtd
             }
 
             // Prüfen, ob der aktuelle DTD-Durchlauf zu einem der gesuchten Testmuster geführt hat
-            foreach (DTDTestmuster muster in alleMuster)  // alle zu testenden Muster durchlaufen
+            foreach (DtdTestpattern muster in alleMuster)  // alle zu testenden Muster durchlaufen
             {
 
                 if (element_ == null)
@@ -338,7 +338,7 @@ namespace de.springwald.xml.rules.dtd
             }
         }
 
-        private bool PasstMusterInElement(DTDTestmuster muster, DTDElement element)
+        private bool PasstMusterInElement(DtdTestpattern muster, DTDElement element)
         {
             Match match = element.ChildrenRegExObjekt.Match(muster.VergleichStringFuerRegEx);
             return match.Success;
@@ -347,9 +347,9 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Fügt ein Testmuster hinzu
         /// </summary>
-        private DTDTestmuster CreateTestMuster(string elementName, XmlCursorPos cursorPos)
+        private DtdTestpattern CreateTestMuster(string elementName, XmlCursorPos cursorPos)
         {
-            DTDTestmuster testMuster;
+            DtdTestpattern testMuster;
             System.Xml.XmlNode node = cursorPos.ActualNode;
 
             // Alle verfügbaren Elemente zum Testen bereitstellen
@@ -360,7 +360,7 @@ namespace de.springwald.xml.rules.dtd
                 case XmlCursorPositions.CursorInsideTheEmptyNode:
                     // Der Parentnode ist leer, also müssen wir nur auf die erlaubten Elemente darin testen 
                     // und keine Bruder-Elemente auf gleicher Ebene erwarten
-                    testMuster = new DTDTestmuster(elementName, DTD.GetElementNameFromNode(node));
+                    testMuster = new DtdTestpattern(elementName, DTD.GetElementNameFromNode(node));
                     testMuster.AddElement(elementName);
                     break;
 
@@ -373,7 +373,7 @@ namespace de.springwald.xml.rules.dtd
                         throw new ApplicationException("Für das Root-Element kann kein Testmuster erstellt werden. Seine Gültigkeit muss durch Vergleich mit dem DTD-Root-Element gewährleistet werden.");
                     }
 
-                    testMuster = new DTDTestmuster(elementName, DTD.GetElementNameFromNode(node.ParentNode));
+                    testMuster = new DtdTestpattern(elementName, DTD.GetElementNameFromNode(node.ParentNode));
 
                     // Alle Elemente innerhalb des Parent-Elementes durchlaufen
                     bruder = node.ParentNode.FirstChild;

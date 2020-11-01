@@ -23,7 +23,7 @@ namespace de.springwald.xml.editor
     /// <summary>
     /// Draws a standard node for the editor
     /// </summary>
-    public partial class XMLElementStandardNode : XmlElement
+    public partial class XmlElementStandardNode : XmlElement
     {
         private StandardNodeDimensionsAndColor nodeDimensions;
         private StandardNodeStartTagPainter startTag;
@@ -31,7 +31,7 @@ namespace de.springwald.xml.editor
 
         protected List<XmlElement> childElements = new List<XmlElement>();   // Die ChildElemente in diesem Steuerelement
 
-        public XMLElementStandardNode(XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
+        public XmlElementStandardNode(XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
         {
             var IsEndTagVisible = this.XmlRules.HasEndTag(xmlNode);
             var colorTagBackground = this.XmlRules.NodeColor(this.XmlNode, selektiert: false);

@@ -133,25 +133,25 @@ namespace de.springwald.xml.editor
             if (e.Node is XmlAttribute)
             {
                 // The removed node was an attribute
-                this.AddNewUndoStep(new XMLUndoSchrittAttributRemoved((XmlAttribute)e.Node));
+                this.AddNewUndoStep(new XmlUndoStepAttributeRemoved((XmlAttribute)e.Node));
             }
             else
             {
                 // the remote node was not an attribute
-                this.AddNewUndoStep(new XMLUndoSchrittNodeRemoved(e.Node));
+                this.AddNewUndoStep(new XmlUndoStepNodeRemoved(e.Node));
             }
         }
 
         private void dokument_NodeChanging(object sender, XmlNodeChangedEventArgs e)
         {
             if (this.working) return;
-            this.AddNewUndoStep(new XMLUndoSchrittNodeChanged(e.Node, e.OldValue));
+            this.AddNewUndoStep(new XmlUndoStepNodeChanged(e.Node, e.OldValue));
         }
 
         private void dokument_NodeInserted(object sender, XmlNodeChangedEventArgs e)
         {
             if (this.working) return;
-            this.AddNewUndoStep(new XMLUndoSchrittNodeInserted(e.Node, e.NewParent));
+            this.AddNewUndoStep(new XmlUndoStepNodeInserted(e.Node, e.NewParent));
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ using System;
 
 namespace de.springwald.xml.editor
 {
-    public class XMLUndoSchrittAttributRemoved : XmlUndoStep
+    public class XmlUndoStepAttributeRemoved : XmlUndoStep
     {
         private System.Xml.XmlAttribute deletedAttribute;
         private System.Xml.XmlNode ownerElement;
@@ -20,7 +20,7 @@ namespace de.springwald.xml.editor
         /// Creates a new undo step to delete attributes
         /// </summary>
         /// <param name="attributeBeforeDeleting">This attribute was deleted</param>
-        public XMLUndoSchrittAttributRemoved(System.Xml.XmlAttribute attributeBeforeDeleting) : base()
+        public XmlUndoStepAttributeRemoved(System.Xml.XmlAttribute attributeBeforeDeleting) : base()
         {
             this.deletedAttribute = attributeBeforeDeleting;
             this.ownerElement = attributeBeforeDeleting.OwnerElement;
