@@ -40,7 +40,7 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// <summary>
         /// loads the dtd
         /// </summary>
-        public static DTD LoadDemoDtd()
+        public static Dtd LoadDemoDtd()
         {
             // nun daraus die DTD erzeugen und zurückgeben
             return new DTDReaderDTD().GetDTDFromString(DTDInhalt);

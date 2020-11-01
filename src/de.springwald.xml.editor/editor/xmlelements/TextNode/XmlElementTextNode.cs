@@ -78,11 +78,6 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 return lastPaintContextResult.Clone();
             }
 
-            //if (depth == 2)
-            //{
-            //    Console.WriteLine(cursorBlinkOn + " " + DateTime.Now.Ticks);
-            //}
-
             this.lastPaintData = actualPaintData;
             this.cursorPaintPos = null;
 
@@ -177,9 +172,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                     this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
             }
-
-         
-
+            
             paintContext.PaintPosX += 3;
             this.lastPaintContextResult = paintContext.Clone();
             return paintContext.Clone();
@@ -327,7 +320,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                                     break;
 
                                 default:
-                                    throw new ApplicationException("Unbekannte XMLCursorPosition.EndPos.PosAmNode '" + cursor.EndPos.PosOnNode + "'B");
+                                    throw new ApplicationException("unknown cursor.EndPos.PosOnNode '" + cursor.EndPos.PosOnNode + "'B");
                             }
                         }
                         else // Das Ende der Selektion liegt nicht in diesem Node
@@ -345,7 +338,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                         break;
 
                     default:
-                        throw new ApplicationException("Unbekannte XMLCursorPosition.StartPos.PosAmNode '" + cursor.StartPos.PosOnNode + "'A");
+                        throw new ApplicationException("unknown cursor.StartPos.PosOnNode '" + cursor.StartPos.PosOnNode + "'A");
                 }
             }
             else // Der Start der Selektion liegt nicht auf diesem Node
@@ -385,12 +378,12 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                             break;
 
                         default:
-                            throw new ApplicationException("Unbekannte XMLCursorPosition.EndPos.PosAmNode '" + cursor.EndPos.PosOnNode + "'X");
+                            throw new ApplicationException("unknown cursor.EndPos.PosOnNode '" + cursor.EndPos.PosOnNode + "'X");
                     }
                 }
                 else // Weder der Start noch das Ende der Selektion liegen genau auf diesem Node
                 {
-                    if (XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(EditorState.CursorOptimized,this.XmlNode))
+                    if (XmlCursorSelectionHelper.IsThisNodeInsideSelection(EditorState.CursorOptimized,this.XmlNode))
                     {
                         selectionStart = 0;
                         selectionEnd = actualText.Length;   // Ganzen Textnode selektieren

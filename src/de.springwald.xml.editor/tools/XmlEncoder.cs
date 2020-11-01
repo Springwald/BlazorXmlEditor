@@ -8,7 +8,6 @@
 // Licensed under MIT License
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
 
@@ -96,6 +95,5 @@ namespace de.springwald.xml
             byte[] convertedBytes = Encoding.Convert(sourceEncoding, Encoding.UTF8, sourceBytes);
             return Encoding.UTF8.GetString(convertedBytes);
         }
-
     }
 }

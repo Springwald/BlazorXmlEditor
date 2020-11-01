@@ -18,7 +18,7 @@ namespace de.springwald.xml.rules.dtd
     /// <summary>
     /// A single DTD element from a DTD
     /// </summary>
-    public class DTDElement
+    public class DtdElement
     {
         private Regex _childrenRegExObjekt;         // Liefert ein RegEx-Objekt, mit welchem man Childfolgen darauf hin prüfen kann, ob sie für dieses Element gültig sind
         private string[] _alleElementNamenWelcheAlsDirektesChildZulaessigSind; // Diese DTD-Elemente dürfen innerhalb dieses Elementes vorkommen

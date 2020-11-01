@@ -19,7 +19,7 @@ namespace de.springwald.xml.rules.dtd
 {
 	public class DTDReaderDTD
 	{
-		private List<DTDElement> _elemente;		// Die in dieser DTD verfügbaren Elemente
+		private List<DtdElement> _elemente;		// Die in dieser DTD verfügbaren Elemente
         private List<DTDEntity> _entities;		// Die bekannten Entity-Einträge dieser DTD
 
 		/// <summary>
@@ -39,7 +39,7 @@ namespace de.springwald.xml.rules.dtd
 		/// <summary>
 		/// Erzeugt ein DTD-Objekt auf Basis einer DTD-Datei
 		/// </summary>
-		public DTD GetDTDFromFile(string filename) 
+		public Dtd GetDTDFromFile(string filename) 
 		{
 			string content=""; // Der Inhalt der DTD-Datei
 			
@@ -65,7 +65,7 @@ namespace de.springwald.xml.rules.dtd
 		/// </summary>
 		/// <param name="content">Der Inhalt der DTD-Datei</param>
 		/// <returns></returns>
-		public DTD GetDTDFromString(string content) 
+		public Dtd GetDTDFromString(string content) 
 		{
 			// Tabs aus dem inhalt durch Leerzeichen ersetzen
 			content = content.Replace ("\t"," ");
@@ -75,14 +75,14 @@ namespace de.springwald.xml.rules.dtd
 			this.WorkingContent = content;
 
 			// Elemente suchen und in die DTD füllen
-			_elemente = new List<DTDElement>(); // Noch keine Elemente vorhanden
+			_elemente = new List<DtdElement>(); // Noch keine Elemente vorhanden
             _entities = new List<DTDEntity>();
 			InhaltAnalysieren();	// definierte Elemente einlesen
 
 			_elemente.Add(CreateElementFromQuellcode("#PCDATA")); // um das Element #PCDATA ergänzen
             _elemente.Add(CreateElementFromQuellcode("#COMMENT")); // um das Element #COMMENT ergänzen
 
-            return  new DTD(_elemente,_entities);
+            return  new Dtd(_elemente,_entities);
 		}
 
 		/// <summary>
@@ -113,7 +113,7 @@ namespace de.springwald.xml.rules.dtd
 		/// </summary>
 		private void ElementeAuslesen() 
 		{
-			DTDElement element;
+			DtdElement element;
 			string elementCode;
 
 			// Regulären Ausdruck zum finden von DTD-Elementen zusammenbauen
@@ -145,7 +145,7 @@ namespace de.springwald.xml.rules.dtd
             // Nun die sortierte Liste in die Elementliste überführen
             for (int i  = 0; i <gefundene.Count;i++) 
             {
-                _elemente.Add((DTDElement)gefundene[gefundene.GetKey(i)]);
+                _elemente.Add((DtdElement)gefundene[gefundene.GetKey(i)]);
             }
 
 		}
@@ -157,11 +157,11 @@ namespace de.springwald.xml.rules.dtd
 		/// z.B. so etwas könnte im Element-Quellcode stehen:
 		/// <!ELEMENT template  (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*>
 		/// </example>
-		private DTDElement CreateElementFromQuellcode(string elementQuellcode) 
+		private DtdElement CreateElementFromQuellcode(string elementQuellcode) 
 		{
 			if (elementQuellcode=="#PCDATA") // Es ist kein in der DTD definiertes Element, sondern das PCDATA-Element
 			{
-                DTDElement element = new DTDElement();
+                DtdElement element = new DtdElement();
 				element.Name = "#PCDATA";
                 element.ChildElemente = new DtdChildElements("");
 				return element;
@@ -169,7 +169,7 @@ namespace de.springwald.xml.rules.dtd
 
             if (elementQuellcode == "#COMMENT") // Es ist kein in der DTD definiertes Element, sondern das COMMENT-Element
             {
-                DTDElement element = new DTDElement();
+                DtdElement element = new DtdElement();
                 element.Name = "#COMMENT";
                 element.ChildElemente = new DtdChildElements("");
                 return element;
@@ -196,7 +196,7 @@ namespace de.springwald.xml.rules.dtd
 			{
 
 				//Element bereitstellen
-                var element = new DTDElement();
+                var element = new DtdElement();
 
 				// Name des Elementes herausfinden
 				if (!match.Groups["elementname"].Success) 
@@ -245,7 +245,7 @@ namespace de.springwald.xml.rules.dtd
 		/// würde als ChildElementQuellCode erwartet
 		/// (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*
 		/// </example>
-		private void ChildElementeAuslesen(DTDElement element, string childElementeQuellcode) 
+		private void ChildElementeAuslesen(DtdElement element, string childElementeQuellcode) 
 		{
 			element.ChildElemente  = new DtdChildElements(childElementeQuellcode);
 		}
@@ -377,7 +377,7 @@ namespace de.springwald.xml.rules.dtd
 		/// </summary>
 		/// <param name="element"></param>
 		/// <returns></returns>
-		private void CreateDTDAttributesForElement(DTDElement element) 
+		private void CreateDTDAttributesForElement(DtdElement element) 
 		{
 			
 			element.Attribute = new List<DtdAttribute> ();

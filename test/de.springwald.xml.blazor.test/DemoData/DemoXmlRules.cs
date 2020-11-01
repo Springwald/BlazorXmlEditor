@@ -1,4 +1,5 @@
-using de.springwald.xml.cursor;
+
+
 using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.rules;
@@ -13,18 +14,18 @@ namespace de.springwald.xml.blazor.test.DemoData
     /// <summary>
     /// Die Regeln, wie die AIML-XML-Elemente im Zusammenhang stehen
     /// </summary>
-    public class DemoXmlRules : de.springwald.xml.XmlRules
+    public class DemoXmlRules : XmlRules
     {
         /// <summary>
         /// Die Gruppierungen, in welchen die XML-Elemente zum Einfügen angeboten werden
         /// </summary>
-        public override List<XmlElementGroup> ElementGruppen
+        public override List<XmlElementGroup> ElementGroups
         {
             get
             {
-                if (_elementGruppen == null)
+                if (elementGroups == null)
                 {
-                    _elementGruppen = new List<XmlElementGroup>();
+                    elementGroups = new List<XmlElementGroup>();
 
                     // Unwichtige Gruppen zuerst mal zusammenklappen?
                     const bool zusammengeklappt = true;
@@ -44,7 +45,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     standard.AddElementName("that");
                     standard.AddElementName("thatstar");
                     standard.AddElementName("think");
-                    _elementGruppen.Add(standard);
+                    elementGroups.Add(standard);
 
                     // Die Gruppe der Fortgeschrittenen-Elemente
                     XmlElementGroup fortschritten = new XmlElementGroup("advanced", zusammengeklappt);
@@ -55,7 +56,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     fortschritten.AddElementName("person");
                     fortschritten.AddElementName("person2");
                     fortschritten.AddElementName("sentence");
-                    _elementGruppen.Add(fortschritten);
+                    elementGroups.Add(fortschritten);
 
                     // Die Gruppe der HTML-Elemente
                     XmlElementGroup html = new XmlElementGroup("html", zusammengeklappt);
@@ -67,18 +68,18 @@ namespace de.springwald.xml.blazor.test.DemoData
                     html.AddElementName("p");
                     html.AddElementName("table");
                     html.AddElementName("ul");
-                    _elementGruppen.Add(html);
+                    elementGroups.Add(html);
 
                     // Die Gruppe der besonderen GaitoBot-Elemente
                     XmlElementGroup gaitobot = new XmlElementGroup("GaitoBot", zusammengeklappt);
                     gaitobot.AddElementName("script");
-                    _elementGruppen.Add(gaitobot);
+                    elementGroups.Add(gaitobot);
                 }
-                return _elementGruppen;
+                return elementGroups;
             }
         }
 
-        public DemoXmlRules(DTD dtd) : base(dtd) { }
+        public DemoXmlRules(Dtd dtd) : base(dtd) { }
 
         /// <summary>
         /// Findet heraus, welche Farbe der Node haben soll
@@ -86,41 +87,33 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// <param name="node"></param>
         /// <param name="selektiert"></param>
         /// <returns></returns>
-        public override Color NodeColor(XmlNode node, bool selektiert)
+        public override Color NodeColor(XmlNode node)
         {
-            if (!selektiert) // Erstmal verändern wir nur die Farben der Nodes im unselektierten Zustand
+            switch (node.Name)
             {
-                switch (node.Name)
-                {
+                case "condition":
+                    return Color.FromArgb(150,
+                                          221,
+                                          220);
 
-                    case "condition":
-                        return Color.FromArgb(150,
-                                              221,
-                                              220);
+                case "li":
+                    switch (node.ParentNode.Name)
+                    {
+                        case "random":
+                            return Color.FromArgb(255, 243, 187);
+                        case "condition":
+                            return Color.FromArgb(200, 250, 250);
+                    }
+                    break;
 
-                    case "li":
-                        switch (node.ParentNode.Name)
-                        {
-                            case "random":
-                                return Color.FromArgb(255, 243, 187);
-                            case "condition":
-                                return Color.FromArgb(200, 250, 250);
-                        }
-                        break;
+                case "random":
+                    return Color.FromArgb(255, 211, 80);
 
-                    case "random":
-                        return Color.FromArgb(255, 211, 80);
-
-                    case "think":
-                        return Color.FromArgb(200, 200, 200);
-
-                }
+                case "think":
+                    return Color.FromArgb(200, 200, 200);
             }
-
-            return base.NodeColor(node, selektiert);
+            return base.NodeColor(node);
         }
-
-
 
         /// <summary>
         /// Wird der übergebene Node 2x gezeichnet, einmal mit > und einmal mit < ?
@@ -152,9 +145,8 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// </summary>
         /// <param name="xmlNode"></param>
         /// <returns></returns>
-        public override DisplayTypes DisplayType(System.Xml.XmlNode xmlNode)
+        public override DisplayTypes DisplayType(XmlNode xmlNode)
         {
-
             if (xmlNode is System.Xml.XmlElement)
             {
                 switch (xmlNode.Name)
@@ -198,7 +190,6 @@ namespace de.springwald.xml.blazor.test.DemoData
                                     return DisplayTypes.FloatingElement;
                                 }
                             }
-
                             return DisplayTypes.OwnRow;
                         }
                         else
@@ -231,7 +222,7 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// </summary>
         /// <param name="ersatzNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
         /// AIML-Template wir * gedrückt, dann wird ein STAR-Tag eingefügt</param>
-        public override string EinfuegeTextPreProcessing(string einfuegeText, XmlCursorPos woEinfuegen, out System.Xml.XmlNode ersatzNode)
+        public override string InsertTextTextPreProcessing(string einfuegeText, XmlCursorPos woEinfuegen, out XmlNode ersatzNode)
         {
             XmlNode node;
 
@@ -327,7 +318,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                     return ausgabe;
 
                 default:
-                    return base.EinfuegeTextPreProcessing(einfuegeText, woEinfuegen, out ersatzNode);
+                    return base.InsertTextTextPreProcessing(einfuegeText, woEinfuegen, out ersatzNode);
             }
         }
 
@@ -338,7 +329,7 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// <param name="pcDATAMitAuflisten"></param>
         /// <param name="kommentareMitAuflisten"></param>
         /// <returns></returns>
-        public override string[] ErlaubteEinfuegeElemente_(XmlCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
+        public override string[] AllowedInsertElements(XmlCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
         {
             if (zielPunkt.ActualNode != null)
             {
@@ -352,7 +343,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                 }
             }
 
-            return base.ErlaubteEinfuegeElemente_(zielPunkt, pcDATAMitAuflisten, kommentareMitAuflisten);
+            return base.AllowedInsertElements(zielPunkt, pcDATAMitAuflisten, kommentareMitAuflisten);
         }
 
         /* 

@@ -1,7 +1,13 @@
-﻿
+﻿// A platform indepentend tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2020 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.editor.nativeplatform.gfx;
@@ -22,7 +28,6 @@ namespace de.springwald.xml.editor.xmlelements
         protected int lastPaintY;
         protected int lastPaintX;
         protected bool lastCursorBlinkOn;
-        protected bool lastCursorOnThisNode;
         protected int lastTextWidthFontHeight;
 
         protected int nodeNameTextWidth;

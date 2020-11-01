@@ -28,54 +28,54 @@ namespace de.springwald.xml
     /// </summary>
     public class XmlRules
     {
-        private DtdChecker _dtdPruefer;
-        private DtdNodeEditCheck _checker;
+        private DtdChecker dtdChecker;
+        private DtdNodeEditCheck dtdNodeEditChecker;
 
         /// <summary>Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können</summary>
-        protected List<XmlElementGroup> _elementGruppen;
+        protected List<XmlElementGroup> elementGroups;
 
         /// <summary>
         /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
         /// </summary>
-        public DtdChecker DTDPruefer
+        public DtdChecker DtdChecker
         {
             get
             {
-                if (_dtdPruefer == null) // Noch kein DTD-Prüfer instanziert
+                if (dtdChecker == null) // Noch kein DTD-Prüfer instanziert
                 {
-                    if (this.DTD == null) // Noch keine DTD zugewiesen
+                    if (this.Dtd == null) // Noch keine DTD zugewiesen
                     {
                         throw new ApplicationException("No DTD attached!");
                     }
-                    _dtdPruefer = new DtdChecker(this.DTD); // Neuen DTD-Prüfer für die DTD erzeugen
+                    dtdChecker = new DtdChecker(this.Dtd); // Neuen DTD-Prüfer für die DTD erzeugen
                 }
-                return _dtdPruefer;
+                return dtdChecker;
             }
         }
 
         /// <summary>
         /// Wenn eine DTD zugewiesen ist, dann steht diese hier
         /// </summary>
-        public DTD DTD { get; }
+        public Dtd Dtd { get; }
 
         /// <summary>
         /// Die Gruppen, in welchen XML-Elemente gruppiert zum Einfügen vorgeschlagen werden können
         /// </summary>
-        public virtual List<XmlElementGroup> ElementGruppen
+        public virtual List<XmlElementGroup> ElementGroups
         {
             get
             {
-                if (_elementGruppen == null)
+                if (elementGroups == null)
                 {
-                    _elementGruppen = new List<XmlElementGroup>();
+                    elementGroups = new List<XmlElementGroup>();
                 }
-                return _elementGruppen;
+                return elementGroups;
             }
         }
 
-        public XmlRules(DTD dtd)
+        public XmlRules(Dtd dtd)
         {
-            this.DTD = dtd;
+            this.Dtd = dtd;
         }
 
         /// <summary>
@@ -83,48 +83,31 @@ namespace de.springwald.xml
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public virtual Color NodeColor(System.Xml.XmlNode node, bool selektiert)
+        public virtual Color NodeColor(System.Xml.XmlNode node)
         {
-            if (selektiert)
-            {
-                return Color.DarkBlue;
-            }
-            else
-            {
-                return Color.FromArgb(245, 245, 255);
-            }
+            return Color.LightBlue;
         }
 
         /// <summary>
         /// In welcher Art soll der übergebene Node gezeichnet werden?
         /// </summary>
-        /// <param name="xmlNode"></param>
-        /// <returns></returns>
         public virtual DisplayTypes DisplayType(System.Xml.XmlNode xmlNode)
         {
             if (xmlNode is System.Xml.XmlText) return DisplayTypes.FloatingElement;
             if (xmlNode is System.Xml.XmlWhitespace) return DisplayTypes.FloatingElement;
             if (xmlNode is System.Xml.XmlComment) return DisplayTypes.OwnRow;
-            if (HasEndTag(xmlNode))
-            {
-                return DisplayTypes.OwnRow;
-            }
-            else
-            {
-                return DisplayTypes.FloatingElement;
-            }
+            if (HasEndTag(xmlNode)) return DisplayTypes.OwnRow;
+            return DisplayTypes.FloatingElement;
         }
 
         /// <summary>
         /// Wird der übergebene Node 2x gezeichnet, einmal mit > und einmal mit < ?
         /// </summary>
-        /// <param name="xmlNode"></param>
-        /// <returns></returns>
         public virtual bool HasEndTag(System.Xml.XmlNode xmlNode)
         {
             if (xmlNode is System.Xml.XmlText) return false;
 
-            DTDElement element = this.DTD.DTDElementByNode_(xmlNode, false); // Das betroffene DTD-Element holen
+            var element = this.Dtd.DTDElementByNode_(xmlNode, false); // Das betroffene DTD-Element holen
 
             if (element != null)
             {
@@ -137,30 +120,28 @@ namespace de.springwald.xml
                     return false;
                 }
             }
-
             return true;
         }
 
         /// <summary>
         /// Ermittelt, ob das angegebene Tag an dieser Stelle erlaubt ist
         /// </summary>
-        /// <param name="tagname">Der Name des Tags</param>
+        /// <param name="tagName">Der Name des Tags</param>
         /// <param name="cursorPos">Die zu prüfende Position</param>
-        /// <returns></returns>
-        public bool IstDiesesTagAnDieserStelleErlaubt(string tagname, XmlCursorPos zielPunkt)
+        public bool IsThisTagAllowedAtThisPos(string tagName, XmlCursorPos targetPos)
         {
             // Die Liste der erlaubten Tags holen und schauen, ob darin das Tag vorkommt
-            return ErlaubteEinfuegeElemente_(zielPunkt, true, true).Contains(tagname);
+            return this.AllowedInsertElements(targetPos, true, true).Contains(tagName);
         }
 
         /// <summary>
         /// Definiert, welche XML-Elemente an dieser Stelle eingefügt werden dürfen
         /// </summary>
-        /// <param name="zielPunkt"></param>
-        /// <param name="pcDATAMitAuflisten">wenn true, wird PCDATA mit als Node aufgeführt, sofern er erlaubt ist</param>
+        /// <param name="targetPos"></param>
+        /// <param name="alsoListPpcData">wenn true, wird PCDATA mit als Node aufgeführt, sofern er erlaubt ist</param>
         /// <returns>Eine Auflistung der Nodenamen. Null bedeutet, es sind keine Elemente zugelassen.
         /// Ist der Inhalt "", dann ist das Element frei einzugeben </returns>
-        public virtual string[] ErlaubteEinfuegeElemente_(XmlCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
+        public virtual string[] AllowedInsertElements(XmlCursorPos targetPos, bool alsoListPpcData, bool alsoListComments)
         {
 #warning evtl. Optimierungs-TODO:
             // Wahrscheinlich (allein schon durch die Nutzung von IstDiesesTagAnDieserStelleErlaubt() etc.)
@@ -168,40 +149,37 @@ namespace de.springwald.xml
             // das letzte Ergebnis hier ggf. gebuffert würde. Dabei sollte aber ausgeschlossen werden, dass
             // sich der XML-Inhalt in der Zwischenzeit geändert hat!
 
-            if (zielPunkt.ActualNode == null) return new string[] { }; // Wenn nichts gewählt ist, ist auch nichts erlaubt
+            if (targetPos.ActualNode == null) return new string[] { }; // Wenn nichts gewählt ist, ist auch nichts erlaubt
 
-            if (this.DTD == null) // Keine DTD hinterlegt
+            if (this.Dtd == null) // Keine DTD hinterlegt
             {
                 return new string[] { "" }; // Freie Eingabe erlaubt
             }
             else
             {
-                if (_checker == null)
+                if (dtdNodeEditChecker == null)
                 {
-                    _checker = new DtdNodeEditCheck(this.DTD);
+                    dtdNodeEditChecker = new DtdNodeEditCheck(this.Dtd);
                 }
-                return _checker.AnDieserStelleErlaubteTags_(zielPunkt, pcDATAMitAuflisten, kommentareMitAuflisten);
+                return dtdNodeEditChecker.AtThisPosAllowedTags(targetPos, alsoListPpcData, alsoListComments);
             }
-
             //string[] s = {"","node1","node2"}; // Freie Eingabe oder Node1 oder Node2 erlaubt
-
         }
-
 
         /// <summary>
         /// Konvertiert / Formatiert einen Text, welcher an eine bestimmte Stelle eingefügt werden soll
         /// so, wie es diese Stelle erfordert. In einer AIML-DTD kann dies z.B. bedeuten, dass der
         /// Text zum Einfügen in das PATTERN Tag auf Großbuchstaben umgestellt wird
         /// </summary>
-        /// <param name="einfuegeText"></param>
-        /// <param name="woEinfuegen"></param>
+        /// <param name="textToInsert"></param>
+        /// <param name="insertWhere"></param>
         /// <returns></returns>
-        /// <param name="ersatzNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
+        /// <param name="replacementNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
         /// AIML-Template wir * gedrückt, dann wird ein STAR-Tag eingefügt</param>
-        public virtual string EinfuegeTextPreProcessing(string einfuegeText, XmlCursorPos woEinfuegen, out System.Xml.XmlNode ersatzNode)
+        public virtual string InsertTextTextPreProcessing(string textToInsert, XmlCursorPos insertWhere, out System.Xml.XmlNode replacementNode)
         {
-            ersatzNode = null;
-            return einfuegeText; // In der Standardform geht der Text immer durch
+            replacementNode = null;
+            return textToInsert; // In der Standardform geht der Text immer durch
         }
 
 

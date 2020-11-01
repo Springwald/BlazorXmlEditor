@@ -33,7 +33,7 @@ namespace de.springwald.xml.editor.actions
             // Den eingegebenen Text im Preprocessing ggf. überarbeiten.
             // In einer AIML-DTD kann dies z.B. bedeuten, dass der
             // Text zum Einfügen in das PATTERN Tag auf Großbuchstaben umgestellt wird
-            string text = regelwerk.EinfuegeTextPreProcessing(rohText, cursorPos, out System.Xml.XmlNode ersatzNode);
+            string text = regelwerk.InsertTextTextPreProcessing(rohText, cursorPos, out System.Xml.XmlNode ersatzNode);
 
             if (ersatzNode != null)
             {
@@ -49,7 +49,7 @@ namespace de.springwald.xml.editor.actions
                     case XmlCursorPositions.CursorOnNodeStartTag:
                     case XmlCursorPositions.CursorOnNodeEndTag:
                         // Zuerst checken, ob dieser Node durch durch einen Textnode ersetzt werden darf
-                        if (regelwerk.IstDiesesTagAnDieserStelleErlaubt("#PCDATA", cursorPos))
+                        if (regelwerk.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
                         {
                             // Den gewählten Node durch einen neu erzeugten Textnode 
                             System.Xml.XmlText neuerTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text);
@@ -68,7 +68,7 @@ namespace de.springwald.xml.editor.actions
 
                     case XmlCursorPositions.CursorInsideTheEmptyNode:
                         // Zuerst checken, ob innerhalb des leeren Nodes Text erlaubt ist
-                        if (regelwerk.IstDiesesTagAnDieserStelleErlaubt("#PCDATA", cursorPos))
+                        if (regelwerk.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
                         {
                             // Dann innerhalb des leeren Nodes einen Textnode mit dem gewünschten Textinhalt erzeugen
                             System.Xml.XmlText neuerTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text);
@@ -194,7 +194,7 @@ namespace de.springwald.xml.editor.actions
                 else // der Node dahinter ist auch kein Text
                 {
                     // Zwischen zwei Nicht-Text-Nodes einfügen
-                    if (regelwerk.IstDiesesTagAnDieserStelleErlaubt("#PCDATA", cursorPos))
+                    if (regelwerk.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
                     {
                         System.Xml.XmlText neuerTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text); // Text als Textnode
                         InsertXMLNode(cursorPos, neuerTextNode, regelwerk, false);

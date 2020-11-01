@@ -12,10 +12,10 @@ using de.springwald.xml.editor.xmlelements.TextNode;
 
 namespace de.springwald.xml
 {
-    class ElementCreator
+    internal class ElementCreator
     {
-        private EditorContext editorContext;
-        private XmlEditor xmlEditor;
+        private readonly EditorContext editorContext;
+        private readonly XmlEditor xmlEditor;
 
         public ElementCreator(XmlEditor xmlEditor, EditorContext editorContext)
         {
@@ -29,7 +29,7 @@ namespace de.springwald.xml
         /// In dieser Grundkonfiguration gibt die Methode erst einmal nur das Standard-Steuerelement zurück
         /// </summary>
         /// <param name="XMLNode">Der anzuzeigende Node</param>
-        public XmlElement CreatePaintElementForNode(System.Xml.XmlNode xmlNode) //, de.springwald.xml.XMLEditorPaintPos paintPos ) 
+        public XmlElement CreatePaintElementForNode(System.Xml.XmlNode xmlNode) 
         {
             if (xmlNode is System.Xml.XmlElement) return new XmlElementStandardNode(xmlNode, this.xmlEditor, this.editorContext);
             if (xmlNode is System.Xml.XmlText) return new XmlElementTextNode(xmlNode, this.xmlEditor, this.editorContext);

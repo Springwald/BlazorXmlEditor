@@ -155,7 +155,7 @@ namespace de.springwald.xml
             }
             else
             {
-                var pruefer = _xmlRules.DTDPruefer;
+                var pruefer = _xmlRules.DtdChecker;
                 if (pruefer.IsXmlNodeOk(node, posBereitsAlsOKGeprueft))
                 {
                     nodeFehlerhaft = false;

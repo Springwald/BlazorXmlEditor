@@ -25,16 +25,16 @@ namespace de.springwald.xml.editor
     /// </summary>
     public partial class XmlElementStandardNode : XmlElement
     {
-        private StandardNodeDimensionsAndColor nodeDimensions;
-        private StandardNodeStartTagPainter startTag;
-        private StandardNodeEndTagPainter endTag;
+        private readonly StandardNodeDimensionsAndColor nodeDimensions;
+        private readonly StandardNodeStartTagPainter startTag;
+        private readonly StandardNodeEndTagPainter endTag;
 
         protected List<XmlElement> childElements = new List<XmlElement>();   // Die ChildElemente in diesem Steuerelement
 
         public XmlElementStandardNode(XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
         {
             var IsEndTagVisible = this.XmlRules.HasEndTag(xmlNode);
-            var colorTagBackground = this.XmlRules.NodeColor(this.XmlNode, selektiert: false);
+            var colorTagBackground = this.XmlRules.NodeColor(this.XmlNode);
             this.nodeDimensions = new StandardNodeDimensionsAndColor(editorContext.EditorConfig, colorTagBackground);
             this.startTag = new StandardNodeStartTagPainter(this.Config, this.nodeDimensions, xmlNode, IsEndTagVisible);
             if (IsEndTagVisible)
@@ -56,7 +56,7 @@ namespace de.springwald.xml.editor
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth)
         {
             this.nodeDimensions.Update();
-            var isSelected = XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(cursor, this.XmlNode);
+            var isSelected = XmlCursorSelectionHelper.IsThisNodeInsideSelection(cursor, this.XmlNode);
             this.CreateChildElementsIfNeeded(gfx);
 
             Point newCursorPaintPos = null;
@@ -114,19 +114,15 @@ namespace de.springwald.xml.editor
                     this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
             }
-
             this.cursorPaintPos = newCursorPaintPos;
-
             return paintContext.Clone();
         }
-
 
         internal override void UnPaint(IGraphics gfx)
         {
             this.startTag.Unpaint(gfx);
             this.endTag?.Unpaint(gfx);
         }
-
 
         protected async Task<PaintContext> PaintSubNodes(PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth)
         {
@@ -283,10 +279,6 @@ namespace de.springwald.xml.editor
                     return;
                 }
             }
-
-            // Nicht auf Pfeil geklickt, dann Event weiterreichen an Base-Klasse
-            //await EditorStatus.CursorRoh.CursorPosSetzenDurchMausAktion(this.XMLNode, XMLCursorPositionen.CursorAufNodeSelbstVorderesTag, mouseAction);
-            //xmlEditor.CursorBlink.ResetBlinkPhase();
         }
 
         private void CreateChildElementsIfNeeded(IGraphics gfx)
@@ -306,7 +298,7 @@ namespace de.springwald.xml.editor
 
                     if (childElement == null)
                     {
-                        throw new ApplicationException($"UnternodesZeichnen:childElement ist leer: outerxml:{this.XmlNode.OuterXml} >> innerxml {this.XmlNode.InnerXml}");
+                        throw new ApplicationException($"CreateChildElementsIfNeeded:childElement is empty: outerxml:{this.XmlNode.OuterXml} >> innerxml {this.XmlNode.InnerXml}");
                     }
 
                     // prüfen, ob es auch den selben XML-Node vertritt

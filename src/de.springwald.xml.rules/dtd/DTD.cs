@@ -15,7 +15,7 @@ namespace de.springwald.xml.rules.dtd
     /// <summary>
     /// Der Inhalt einer DTD
     /// </summary>
-    public class DTD
+    public class Dtd
     {
         /// <summary>
         /// Diese Ausnahme wird geworfen, wenn ein Element erfragt wurde, welches in der DTD nicht definiert ist
@@ -30,23 +30,23 @@ namespace de.springwald.xml.rules.dtd
             }
         }
 
-        private Dictionary<string, DTDElement> _elementeNachNamen;
+        private Dictionary<string, DtdElement> _elementeNachNamen;
 
         /// <summary>
         /// Die in dieser DTD verfügbaren Elemente
         /// </summary>
-        public List<DTDElement> Elemente { get; }
+        public List<DtdElement> Elemente { get; }
 
         /// <summary>
         /// Die in dieser DTD verfügbaren Entities
         /// </summary>
         public List<DTDEntity> Entities { get; }
 
-        public DTD(List<DTDElement> elemente, List<DTDEntity> entities)
+        public Dtd(List<DtdElement> elemente, List<DTDEntity> entities)
         {
             this.Elemente = elemente;
             this.Entities = entities;
-            this._elementeNachNamen = new Dictionary<string, DTDElement>();
+            this._elementeNachNamen = new Dictionary<string, DtdElement>();
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace de.springwald.xml.rules.dtd
         /// Findet das dem angegebenen Node entsprechende DTD-Element
         /// </summary>
         /// <param name="elementName"></param>
-        public DTDElement DTDElementByNode_(System.Xml.XmlNode node, bool fehlerWennNichtVorhanden)
+        public DtdElement DTDElementByNode_(System.Xml.XmlNode node, bool fehlerWennNichtVorhanden)
         {
             return DTDElementByNameIntern_(GetElementNameFromNode(node), fehlerWennNichtVorhanden);
         }
@@ -72,7 +72,7 @@ namespace de.springwald.xml.rules.dtd
         /// Findet das dem angegebenen Namen entsprechende DTD-Element
         /// </summary>
         /// <param name="elementName"></param>
-        public DTDElement DTDElementByName(string elementName, bool fehlerWennNichtVorhanden)
+        public DtdElement DTDElementByName(string elementName, bool fehlerWennNichtVorhanden)
         {
             return DTDElementByNameIntern_(elementName, fehlerWennNichtVorhanden);
         }
@@ -117,9 +117,9 @@ namespace de.springwald.xml.rules.dtd
         /// Findet das dem angegebenen Namen entsprechende DTD-Element
         /// </summary>
         /// <param name="elementName"></param>
-        public DTDElement DTDElementByNameIntern_(string elementName, bool fehlerWennNichtVorhanden)
+        public DtdElement DTDElementByNameIntern_(string elementName, bool fehlerWennNichtVorhanden)
         {
-            if (this._elementeNachNamen.TryGetValue(elementName, out DTDElement elementInBuffer))
+            if (this._elementeNachNamen.TryGetValue(elementName, out DtdElement elementInBuffer))
             {
                 return elementInBuffer;
             }

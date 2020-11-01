@@ -18,7 +18,7 @@ namespace de.springwald.xml.rules.dtd
     /// </summary>
     public class DtdChecker
     {
-        private DTD _dtd; // Die DTD, gegen die geprüft werden soll
+        private Dtd _dtd; // Die DTD, gegen die geprüft werden soll
         private DtdNodeEditCheck _nodeCheckerintern;
         private StringBuilder errorMessages;
 
@@ -43,7 +43,7 @@ namespace de.springwald.xml.rules.dtd
         /// Prüft Nodes und Attribute etc. innerhalb eines Dokumentes darauf hin, ob sie erlaubt sind
         /// </summary>
         /// <param name="dtd">Die DTD, gegen die geprüft werden soll</param>
-        public DtdChecker(DTD dtd)
+        public DtdChecker(Dtd dtd)
         {
             this._dtd = dtd;
             this.Reset();
@@ -88,7 +88,7 @@ namespace de.springwald.xml.rules.dtd
             // Whitespace ist immer ok
             if (node is System.Xml.XmlWhitespace) return true;
 
-            if (_dtd.IstDTDElementBekannt(DTD.GetElementNameFromNode(node)))// Das Element dieses Nodes ist in der DTD bekannt 
+            if (_dtd.IstDTDElementBekannt(Dtd.GetElementNameFromNode(node)))// Das Element dieses Nodes ist in der DTD bekannt 
             {
                 try
                 {
@@ -102,7 +102,7 @@ namespace de.springwald.xml.rules.dtd
                         errorMessages.AppendFormat($"Tag '{node.Name}' hier nicht erlaubt");
                         var pos = new XmlCursorPos();
                         pos.SetPos(node, XmlCursorPositions.CursorOnNodeStartTag);
-                        var allowedTags = this.NodeChecker.AnDieserStelleErlaubteTags_(pos, false, false); // was ist an dieser Stelle erlaubt?
+                        var allowedTags = this.NodeChecker.AtThisPosAllowedTags(pos, false, false); // was ist an dieser Stelle erlaubt?
                         if (allowedTags.Length > 0)
                         {
                             // "An dieser Stelle erlaubte Tags: "
@@ -120,7 +120,7 @@ namespace de.springwald.xml.rules.dtd
                         return false;
                     }
                 }
-                catch (DTD.XMLUnknownElementException e)
+                catch (Dtd.XMLUnknownElementException e)
                 {
                     // "Unbekanntes Element '{0}'"
                     errorMessages.AppendFormat($"Unbekanntes Element '{e.ElementName}'");
@@ -130,7 +130,7 @@ namespace de.springwald.xml.rules.dtd
             else // Das Element dieses Nodes ist in der DTD gar nicht bekannt
             {
                 //  "Unbekanntes Element '{0}'"
-                errorMessages.AppendFormat($"Unbekanntes Element '{DTD.GetElementNameFromNode(node)}'");
+                errorMessages.AppendFormat($"Unbekanntes Element '{Dtd.GetElementNameFromNode(node)}'");
                 return false;
             }
         }

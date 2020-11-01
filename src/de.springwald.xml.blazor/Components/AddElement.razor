@@ -65,12 +65,12 @@
 #else
                 bool showCommentsToo = true;
 #endif
-                var elementsRaw = this.EditorContext.XmlRules.ErlaubteEinfuegeElemente_(this.EditorState.CursorOptimized.StartPos, false, showCommentsToo); // die Liste der erlaubten Tags holen
-                this.groups = this.EditorContext.XmlRules.ElementGruppen.Append(null).ToArray();
+                var elementsRaw = this.EditorContext.XmlRules.AllowedInsertElements(this.EditorState.CursorOptimized.StartPos, false, showCommentsToo); // die Liste der erlaubten Tags holen
+                this.groups = this.EditorContext.XmlRules.ElementGroups.Append(null).ToArray();
                 this.elements = elementsRaw.Select(e => new Element { Title = e, Group = groups.Where(g => g != null && g.ContainsElement(e)).FirstOrDefault() }).ToArray();
                 this.StateHasChanged();
             }
-            catch (rules.dtd.DTD.XMLUnknownElementException e)
+            catch (rules.dtd.Dtd.XMLUnknownElementException e)
             {
                 var error = $"unknown element '{e.ElementName}'";
                 //Debugger.GlobalDebugger.Protokolliere(String.Format("unknown element {0} in {1}->{2}", e.ElementName, this.Name, "Aktualisieren"));  //Eines der bezogenen Elemente ist in der DTD unbekannt
@@ -80,6 +80,4 @@
             await Task.CompletedTask;
         }
     }
-
-
 }

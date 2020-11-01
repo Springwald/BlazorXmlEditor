@@ -62,7 +62,7 @@
 
     private string[] attributes;
     private System.Xml.XmlNode actualNode;
-    private DTDElement actualNodeDtdElement;
+    private DtdElement actualNodeDtdElement;
     private string errorMessage;
 
     private async Task ValueSelected(string name, string value)
@@ -137,9 +137,9 @@
                     // Die DTD-Definitionen für den aktuellen Node holen
                     try
                     {
-                        this.actualNodeDtdElement = this.EditorContext.XmlRules.DTD.DTDElementByName(this.actualNode.Name, true);
+                        this.actualNodeDtdElement = this.EditorContext.XmlRules.Dtd.DTDElementByName(this.actualNode.Name, true);
                     }
-                    catch (DTD.XMLUnknownElementException e)
+                    catch (Dtd.XMLUnknownElementException e)
                     {
                         // Debugger.GlobalDebugger.Protokolliere(String.Format("unknown element {0} in {1}->{2}", e.ElementName, this.Name, "AttributeNeuAnzeigen"));  //Eines der bezogenen Elemente ist in der DTD unbekannt
                         this.errorMessage = $"unknown element '{e.ElementName}'";

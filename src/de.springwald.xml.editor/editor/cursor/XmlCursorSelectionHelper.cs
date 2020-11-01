@@ -388,7 +388,7 @@ namespace de.springwald.xml.editor.cursor
         /// </summary>
         /// <param name="Node"></param>
         /// <returns></returns>
-        public static bool IstNodeInnerhalbDerSelektion(XmlCursor cursor, System.Xml.XmlNode node)
+        public static bool IsThisNodeInsideSelection(XmlCursor cursor, System.Xml.XmlNode node)
         {
             // Prüfen, ob der Node selbst oder einer seiner Parents direkt selektiert sind
             if (cursor.StartPos.IsNodeInsideSelection(node)) return true;

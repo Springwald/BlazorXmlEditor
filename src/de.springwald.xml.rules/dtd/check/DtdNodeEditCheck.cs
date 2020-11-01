@@ -22,7 +22,7 @@ namespace de.springwald.xml.rules.dtd
     /// </summary>
     public class DtdNodeEditCheck
     {
-        private DTD _dtd; // The DTD to be checked against
+        private Dtd _dtd; // The DTD to be checked against
 
 #if DenkProtokoll
 		private StringBuilder _denkProtokoll; // Aufgrund welcher Annahmen wurde das Ergebnis von AnDieserStelleErlaubteTags erzeugt?
@@ -43,7 +43,7 @@ namespace de.springwald.xml.rules.dtd
             }
         }
 
-        public DtdNodeEditCheck(DTD dtd)
+        public DtdNodeEditCheck(Dtd dtd)
         {
             this._dtd = dtd;
 
@@ -58,7 +58,7 @@ namespace de.springwald.xml.rules.dtd
         /// <param name="xmlPfad">Der XMLPfad</param>
         /// <param name="pcDATAMitAuflisten">wenn true, wird PCDATA mit als Node aufgeführt, sofern er erlaubt ist</param>
         /// <returns></returns>
-        public string[] AnDieserStelleErlaubteTags_(XmlCursorPos zuTestendeCursorPos, bool pcDATAMitAuflisten, bool kommentareMitAufListen)
+        public string[] AtThisPosAllowedTags(XmlCursorPos zuTestendeCursorPos, bool pcDATAMitAuflisten, bool kommentareMitAufListen)
         {
             // Damit nicht aus Versehen etwas an Änderungen zurückgeben wird, erstmal die CursorPos klonen
             XmlCursorPos cursorPos = zuTestendeCursorPos.Clone();
@@ -132,7 +132,7 @@ namespace de.springwald.xml.rules.dtd
 #endif
 
                 // Die Testmuster zum Einfügen für alle verfügbaren Elemente erstellen
-                string elementName = DTD.GetElementNameFromNode(node);
+                string elementName = Dtd.GetElementNameFromNode(node);
                 DtdTestpattern muster = CreateTestMuster(elementName, cursorPos);
 
                 // Zur Prüfung in eine Testmusterliste packen und die Liste zur Prüfung absenden
@@ -199,7 +199,7 @@ namespace de.springwald.xml.rules.dtd
                 if (cursorPos.PosOnNode == XmlCursorPositions.CursorInsideTheEmptyNode)
                 {
                     // Im Node sind alle Children dieses Nodes erlaubt
-                    DTDElement element = _dtd.DTDElementByName(cursorPos.ActualNode.Name, false);
+                    DtdElement element = _dtd.DTDElementByName(cursorPos.ActualNode.Name, false);
                     if (element == null)
                     {
                         // Ein Element mit diesem Namen ist nicht bekannt
@@ -234,7 +234,7 @@ namespace de.springwald.xml.rules.dtd
                         {
                             // Neben oder an der Stelle des Nodes sind alle Children des Parent erlaubt
                             // Zuerst herausfinden, welches das Parent-Element des Nodes ist, für den gecheckt werden soll
-                            DTDElement parentElement = _dtd.DTDElementByName(cursorPos.ActualNode.ParentNode.Name, false);
+                            DtdElement parentElement = _dtd.DTDElementByName(cursorPos.ActualNode.ParentNode.Name, false);
                             if (parentElement == null)
                             {
                                 // Ein Element mit diesem Namen ist nicht bekannt
@@ -278,12 +278,12 @@ namespace de.springwald.xml.rules.dtd
 
             System.Xml.XmlNode node = cursorPos.ActualNode;
 
-            DTDElement element_;
+            DtdElement element_;
 
             if (cursorPos.PosOnNode == XmlCursorPositions.CursorInsideTheEmptyNode)
             {
                 // Das DTDElement für den Node des Cursors holen 
-                element_ = _dtd.DTDElementByName(DTD.GetElementNameFromNode(node), false);
+                element_ = _dtd.DTDElementByName(Dtd.GetElementNameFromNode(node), false);
             }
             else
             {
@@ -309,7 +309,7 @@ namespace de.springwald.xml.rules.dtd
                     else // Der node ist nicht das Root-Element
                     {
                         // Das DTDElement für den Parent-Node des Cursors holen 
-                        element_ = _dtd.DTDElementByName(DTD.GetElementNameFromNode(node.ParentNode), false);
+                        element_ = _dtd.DTDElementByName(Dtd.GetElementNameFromNode(node.ParentNode), false);
                     }
                 }
             }
@@ -338,7 +338,7 @@ namespace de.springwald.xml.rules.dtd
             }
         }
 
-        private bool PasstMusterInElement(DtdTestpattern muster, DTDElement element)
+        private bool PasstMusterInElement(DtdTestpattern muster, DtdElement element)
         {
             Match match = element.ChildrenRegExObjekt.Match(muster.VergleichStringFuerRegEx);
             return match.Success;
@@ -360,7 +360,7 @@ namespace de.springwald.xml.rules.dtd
                 case XmlCursorPositions.CursorInsideTheEmptyNode:
                     // Der Parentnode ist leer, also müssen wir nur auf die erlaubten Elemente darin testen 
                     // und keine Bruder-Elemente auf gleicher Ebene erwarten
-                    testMuster = new DtdTestpattern(elementName, DTD.GetElementNameFromNode(node));
+                    testMuster = new DtdTestpattern(elementName, Dtd.GetElementNameFromNode(node));
                     testMuster.AddElement(elementName);
                     break;
 
@@ -373,7 +373,7 @@ namespace de.springwald.xml.rules.dtd
                         throw new ApplicationException("Für das Root-Element kann kein Testmuster erstellt werden. Seine Gültigkeit muss durch Vergleich mit dem DTD-Root-Element gewährleistet werden.");
                     }
 
-                    testMuster = new DtdTestpattern(elementName, DTD.GetElementNameFromNode(node.ParentNode));
+                    testMuster = new DtdTestpattern(elementName, Dtd.GetElementNameFromNode(node.ParentNode));
 
                     // Alle Elemente innerhalb des Parent-Elementes durchlaufen
                     bruder = node.ParentNode.FirstChild;
@@ -393,7 +393,7 @@ namespace de.springwald.xml.rules.dtd
                                 }
                                 else
                                 {
-                                    if (this._dtd.DTDElementByName(DTD.GetElementNameFromNode(node), false) == null)
+                                    if (this._dtd.DTDElementByName(Dtd.GetElementNameFromNode(node), false) == null)
                                     {
                                         // Dieses Element ist gar nicht bekannt, daher wird das 
                                         // Element mal nicht aufgenommen
@@ -428,7 +428,7 @@ namespace de.springwald.xml.rules.dtd
                                                     // Hinter Stelle vorhandenen Elementes wird hinter das
                                                     // zu testende Element eingesetzt
 
-                                                    testMuster.AddElement(DTD.GetElementNameFromNode(node));
+                                                    testMuster.AddElement(Dtd.GetElementNameFromNode(node));
                                                     testMuster.AddElement(elementName);
                                                 }
                                                 break;
@@ -454,7 +454,7 @@ namespace de.springwald.xml.rules.dtd
                                                     // Hinter Stelle vorhandenen Elementes wird vor das
                                                     // zu testende Element eingesetzt
                                                     testMuster.AddElement(elementName);
-                                                    testMuster.AddElement(DTD.GetElementNameFromNode(node));
+                                                    testMuster.AddElement(Dtd.GetElementNameFromNode(node));
                                                 }
                                                 break;
 
@@ -465,9 +465,9 @@ namespace de.springwald.xml.rules.dtd
                                                 }
                                                 else
                                                 {
-                                                    if (DTD.GetElementNameFromNode(node) != "#PCDATA")
+                                                    if (Dtd.GetElementNameFromNode(node) != "#PCDATA")
                                                     {
-                                                        throw new ApplicationException("CreateTestMuster: CursorInnerhalbDesTextNodes angegeben, aber node.name=" + DTD.GetElementNameFromNode(node));
+                                                        throw new ApplicationException("CreateTestMuster: CursorInnerhalbDesTextNodes angegeben, aber node.name=" + Dtd.GetElementNameFromNode(node));
                                                     }
                                                     else
                                                     {
@@ -487,7 +487,7 @@ namespace de.springwald.xml.rules.dtd
                             }
                             else // einfach normal weiter die Elemente aufzählen
                             {
-                                testMuster.AddElement(DTD.GetElementNameFromNode(bruder));
+                                testMuster.AddElement(Dtd.GetElementNameFromNode(bruder));
                             }
                         }
                         bruder = bruder.NextSibling; // zum nächsten Element
@@ -502,7 +502,7 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
-        private string ElementName(DTDElement element)
+        private string ElementName(DtdElement element)
         {
             if (element == null)
             {

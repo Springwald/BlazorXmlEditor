@@ -41,7 +41,7 @@ namespace de.springwald.xml.rules.dtd
 
         private string sourceCode;
         private List<DtdChildElements> _children;		    // The children of this child area
-        private DTD _dtd;                                   // The DTD, on which everything is based
+        private Dtd _dtd;                                   // The DTD, on which everything is based
 
         private AllPossibleElementsOfAChildBlock allPossibleElements; // Determines all elements which this childblock can ever cover / contain
 
@@ -251,7 +251,7 @@ namespace de.springwald.xml.rules.dtd
         /// Assigns this child which DTD it belongs to
         /// </summary>
         /// <param name="dtd"></param>
-        public void AssignDtd(DTD dtd)
+        public void AssignDtd(Dtd dtd)
         {
             // Pass on to the sub-children
             foreach (DtdChildElements child in _children)
