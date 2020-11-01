@@ -86,7 +86,7 @@ namespace de.springwald.xml.blazor.test.DemoData
         /// <param name="node"></param>
         /// <param name="selektiert"></param>
         /// <returns></returns>
-        public override Color NodeFarbe(XmlNode node, bool selektiert)
+        public override Color NodeColor(XmlNode node, bool selektiert)
         {
             if (!selektiert) // Erstmal verändern wir nur die Farben der Nodes im unselektierten Zustand
             {
@@ -117,7 +117,7 @@ namespace de.springwald.xml.blazor.test.DemoData
                 }
             }
 
-            return base.NodeFarbe(node, selektiert);
+            return base.NodeColor(node, selektiert);
         }
 
 

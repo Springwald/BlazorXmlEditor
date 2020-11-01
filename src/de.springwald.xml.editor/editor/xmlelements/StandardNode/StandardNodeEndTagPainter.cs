@@ -14,61 +14,15 @@ using de.springwald.xml.editor.nativeplatform.gfx;
 
 namespace de.springwald.xml.editor.xmlelements
 {
-    internal class StandardNodeEndTagPainter
+    internal class StandardNodeEndTagPainter : TagPainter
     {
-        private EditorConfig config;
-        private StandardNodeDimensionsAndColor dimensions;
-        private XmlNode node;
-
-        private int lastPaintX;
-        private int lastPaintY;
-        private bool lastPaintWasSelected;
-        private bool lastCursorBlinkOn;
-        private PaintContext lastPaintContextResult;
-
-        private int nodeNameTextWidth;
-        private int lastTextWidthFontHeight;
-
-        public Rectangle AreaTag { get; private set; }
-        public Rectangle AreaArrow { get; private set; }
-
-        public StandardNodeEndTagPainter(EditorConfig config, StandardNodeDimensionsAndColor dimensions, XmlNode node)
+        public StandardNodeEndTagPainter(EditorConfig config, StandardNodeDimensionsAndColor dimensions, XmlNode node, bool isEndTagVisible): base(config, dimensions, node, isEndTagVisible)
         {
-            this.config = config;
-            this.dimensions = dimensions;
-            this.node = node;
         }
 
-        public async Task<PaintContext> Paint(PaintContext paintContext, bool cursorBlinkOn, bool alreadyUnpainted, bool isSelected, IGraphics gfx)
+        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, string attributesString, bool isSelected, IGraphics gfx)
         {
             var startX = paintContext.PaintPosX;
-            var startY = paintContext.PaintPosY;
-
-            if (alreadyUnpainted) this.lastPaintContextResult = null;
-
-            // Die Breite vorausberechnen
-            if (this.lastTextWidthFontHeight != this.config.FontNodeName.Height)
-            {
-                this.nodeNameTextWidth = (int)(await gfx.MeasureDisplayStringWidthAsync(this.node.Name, this.config.FontNodeName));
-                this.lastTextWidthFontHeight = this.config.FontNodeName.Height;
-                this.lastPaintContextResult = null;
-            }
-
-            if (lastPaintContextResult != null &&
-                this.lastPaintX == startX &&
-                this.lastPaintY == startY &&
-                this.lastPaintWasSelected == isSelected &&
-                this.lastCursorBlinkOn == cursorBlinkOn)
-            {
-                return lastPaintContextResult.Clone();
-            }
-
-            this.lastPaintX = startX;
-            this.lastPaintY = startY;
-            this.lastPaintWasSelected = isSelected;
-            this.lastCursorBlinkOn = cursorBlinkOn;
-
-            if (!alreadyUnpainted) this.Unpaint(gfx);
 
             var esteemedWidth = this.nodeNameTextWidth + this.dimensions.InnerMarginX * 3;
             if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight && paintContext.PaintPosX != paintContext.LimitLeft)
@@ -131,11 +85,6 @@ namespace de.springwald.xml.editor.xmlelements
             return paintContext;
         }
 
-        public void Unpaint(IGraphics gfx)
-        {
-            gfx.UnPaintRectangle(this.AreaArrow);
-            gfx.UnPaintRectangle(this.AreaTag);
-            this.lastPaintContextResult = null;
-        }
+        protected override string GetAttributesString() => string.Empty;
     }
 }

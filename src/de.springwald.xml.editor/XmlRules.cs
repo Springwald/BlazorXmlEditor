@@ -83,7 +83,7 @@ namespace de.springwald.xml
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public virtual Color NodeFarbe(System.Xml.XmlNode node, bool selektiert)
+        public virtual Color NodeColor(System.Xml.XmlNode node, bool selektiert)
         {
             if (selektiert)
             {

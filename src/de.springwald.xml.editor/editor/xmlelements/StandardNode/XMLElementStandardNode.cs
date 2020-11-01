@@ -12,11 +12,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.cursor;
+using de.springwald.xml.editor.cursor;
+using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.editor.xmlelements;
 using de.springwald.xml.editor.xmlelements.StandardNode;
-using de.springwald.xml.editor.nativeplatform.gfx;
-using de.springwald.xml.events;
-using de.springwald.xml.editor.cursor;
 using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor
@@ -34,13 +33,13 @@ namespace de.springwald.xml.editor
 
         public XMLElementStandardNode(XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
         {
-            var isClosingTagVisible = this.XmlRules.HasEndTag(xmlNode);
-            var colorTagBackground = this.XmlRules.NodeFarbe(this.XmlNode, selektiert: false);
+            var IsEndTagVisible = this.XmlRules.HasEndTag(xmlNode);
+            var colorTagBackground = this.XmlRules.NodeColor(this.XmlNode, selektiert: false);
             this.nodeDimensions = new StandardNodeDimensionsAndColor(editorContext.EditorConfig, colorTagBackground);
-            this.startTag = new StandardNodeStartTagPainter(this.Config, this.nodeDimensions, xmlNode, isClosingTagVisible);
-            if (isClosingTagVisible)
+            this.startTag = new StandardNodeStartTagPainter(this.Config, this.nodeDimensions, xmlNode, IsEndTagVisible);
+            if (IsEndTagVisible)
             {
-                this.endTag = new StandardNodeEndTagPainter(this.Config, this.nodeDimensions, xmlNode);
+                this.endTag = new StandardNodeEndTagPainter(this.Config, this.nodeDimensions, xmlNode, IsEndTagVisible);
             }
         }
 
@@ -87,7 +86,8 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            paintContext = await this.startTag.Paint(paintContext, cursorBlinkOn, alreadyUnpainted,  isSelected, gfx);
+            var cursorIsOnThisNode = cursor.StartPos.ActualNode == this.XmlNode || cursor.EndPos.ActualNode == this.XmlNode;
+            paintContext = await this.startTag.Paint(paintContext, cursorIsOnThisNode, cursorBlinkOn, alreadyUnpainted, isSelected, gfx);
 
             // If the cursor is inside the empty node, then draw the cursor there
             if (cursor.StartPos.ActualNode == this.XmlNode)
@@ -99,12 +99,11 @@ namespace de.springwald.xml.editor
                 }
             }
 
- 
             paintContext = await this.PaintSubNodes(paintContext, cursorBlinkOn, cursor, gfx, paintMode, depth);
 
             if (this.endTag != null)
             {
-                paintContext = await this.endTag.Paint(paintContext, cursorBlinkOn, alreadyUnpainted, isSelected, gfx);
+                paintContext = await this.endTag.Paint(paintContext, cursorIsOnThisNode,  cursorBlinkOn, alreadyUnpainted, isSelected, gfx);
             }
 
             // If the cursor is behind the node, then also draw the cursor there
@@ -156,9 +155,9 @@ namespace de.springwald.xml.editor
                         childPaintContext.PaintPosX = childPaintContext.LimitLeft;
                         childPaintContext.PaintPosY += this.Config.SpaceYBetweenLines + paintContext.HeightActualRow; // Zeilenumbruch
                         childPaintContext.HeightActualRow = 0; // noch kein Element in dieser Zeile, daher Hoehe 0
-                                                             // X-Cursor auf den Start der neuen Zeile setzen
-                                                             // Linie nach unten und dann nach rechts ins ChildElement
-                                                             // Linie nach unten
+                                                               // X-Cursor auf den Start der neuen Zeile setzen
+                                                               // Linie nach unten und dann nach rechts ins ChildElement
+                                                               // Linie nach unten
                         const bool paintLines = false;
 
                         if (paintLines)
@@ -187,7 +186,7 @@ namespace de.springwald.xml.editor
                             });
                         }
 
-                        childPaintContext = await childElement.Paint(childPaintContext, cursorBlinkOn, cursor, gfx, paintMode, depth+1);
+                        childPaintContext = await childElement.Paint(childPaintContext, cursorBlinkOn, cursor, gfx, paintMode, depth + 1);
                         break;
 
                     case DisplayTypes.FloatingElement:
@@ -206,7 +205,7 @@ namespace de.springwald.xml.editor
                             // das Child rechts daneben setzen	
                         }
 
-                        childPaintContext = await childElement.Paint(childPaintContext, cursorBlinkOn, cursor, gfx, paintMode, depth+1);
+                        childPaintContext = await childElement.Paint(childPaintContext, cursorBlinkOn, cursor, gfx, paintMode, depth + 1);
                         break;
 
                     default:

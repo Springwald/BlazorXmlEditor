@@ -15,69 +15,16 @@ using de.springwald.xml.editor.nativeplatform.gfx;
 
 namespace de.springwald.xml.editor.xmlelements
 {
-    internal class StandardNodeStartTagPainter
+    internal class StandardNodeStartTagPainter : TagPainter
     {
-        private EditorConfig config;
-        private StandardNodeDimensionsAndColor dimensions;
-        private XmlNode node;
-        private bool isClosingTagVisible;
-
-        private string lastAttributeString;
-        private PaintContext lastPaintContextResult;
-        private bool lastPaintWasSelected;
-        private int lastPaintY;
-        private int lastPaintX;
-        private bool lastCursorBlinkOn;
-        private bool lastCursorOnThisNode;
-        private int nodeNameTextWidth;
-        private int lastTextWidthFontHeight;
-
-        public Rectangle AreaTag { get; private set; }
-        public Rectangle AreaArrow { get; private set; }
-
-        public StandardNodeStartTagPainter(EditorConfig config, StandardNodeDimensionsAndColor dimensions, XmlNode node, bool isClosingTagVisible)
+        public StandardNodeStartTagPainter(EditorConfig config, StandardNodeDimensionsAndColor dimensions, XmlNode node, bool isClosingTagVisible): base(config, dimensions, node, isClosingTagVisible)
         {
-            this.config = config;
-            this.dimensions = dimensions;
-            this.node = node;
-            this.isClosingTagVisible = isClosingTagVisible;
         }
 
-        public async Task<PaintContext> Paint(PaintContext paintContext, bool cursorIsOnThisNode, bool cursorBlinkOn, bool alreadyUnpainted, bool isSelected, IGraphics gfx)
+        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, string attributesString,  bool isSelected, IGraphics gfx)
         {
-            paintContext.PaintPosX += 3;
-
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
-            var attributesString = this.GetAttributesString();
-
-            if (alreadyUnpainted) this.lastPaintContextResult = null;
-
-            if (this.lastTextWidthFontHeight != this.config.FontNodeName.Height)
-            {
-                this.nodeNameTextWidth = (int)(await gfx.MeasureDisplayStringWidthAsync(this.node.Name, this.config.FontNodeName));
-                this.lastTextWidthFontHeight = this.config.FontNodeName.Height;
-                lastPaintContextResult = null;
-            }
-
-
-            if (lastPaintContextResult != null &&
-                this.lastPaintX == startX &&
-                this.lastPaintY == startY &&
-                this.lastPaintWasSelected == isSelected &&
-                this.lastAttributeString == attributesString &&
-                this.lastCursorBlinkOn == cursorBlinkOn)
-            {
-                return lastPaintContextResult.Clone();
-            }
-
-            if (!alreadyUnpainted) this.Unpaint(gfx);
-
-            this.lastPaintX = startX;
-            this.lastPaintY = startY;
-            this.lastPaintWasSelected = isSelected;
-            this.lastAttributeString = attributesString;
-            this.lastCursorBlinkOn = cursorBlinkOn;
 
             paintContext.PaintPosX += this.dimensions.InnerMarginX;  // margin to left border
 
@@ -146,13 +93,7 @@ namespace de.springwald.xml.editor.xmlelements
             return paintContext.Clone();
         }
 
-        public void Unpaint(IGraphics gfx)
-        {
-            gfx.UnPaintRectangle(this.AreaArrow);
-            gfx.UnPaintRectangle(this.AreaTag);
-        }
-
-        private string GetAttributesString()
+        protected override string GetAttributesString()
         {
             var attributes = this.node.Attributes; 
             if (attributes == null || attributes.Count == 0) return null;
@@ -163,6 +104,8 @@ namespace de.springwald.xml.editor.xmlelements
             }
             return attributeString.ToString();
         }
+
+      
 
         private async Task<int> GetAttributeTextWidth(string attributesString, IGraphics gfx)
         {
@@ -206,9 +149,5 @@ namespace de.springwald.xml.editor.xmlelements
 
             return paintContext;
         }
-
-
-
-
     }
 }
