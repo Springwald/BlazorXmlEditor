@@ -46,7 +46,10 @@ namespace de.springwald.xml.editor.xmlelements
 
         public async Task<PaintContext> Paint(PaintContext paintContext, bool cursorIsOnThisNode, bool cursorBlinkOn, bool alreadyUnpainted, bool isSelected, IGraphics gfx)
         {
-            paintContext.PaintPosX += 3;
+            paintContext.PaintPosX += 1;
+
+   
+
 
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
@@ -89,8 +92,6 @@ namespace de.springwald.xml.editor.xmlelements
             this.lastAttributeString = attributesString;
             this.lastCursorBlinkOn = cursorBlinkOn;
             this.lastCursorWasOnThisNode = cursorIsOnThisNode;
-
-            paintContext.PaintPosX += this.dimensions.InnerMarginX;  // margin to left border
 
             paintContext = await this.PaintInternal(paintContext, attributesString, isSelected, gfx);
 

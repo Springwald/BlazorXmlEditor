@@ -82,7 +82,9 @@ namespace de.springwald.xml.editor.xmlelements
             paintContext.FoundMaxX = System.Math.Max(paintContext.FoundMaxX, paintContext.PaintPosX);
 
             this.lastPaintContextResult = paintContext.Clone();
+            await Task.CompletedTask;
             return paintContext;
+            
         }
 
         protected override string GetAttributesString() => string.Empty;

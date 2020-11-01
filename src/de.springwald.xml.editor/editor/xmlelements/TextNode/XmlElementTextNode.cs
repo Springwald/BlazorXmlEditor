@@ -173,7 +173,9 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 }
             }
             
-            paintContext.PaintPosX += 3;
+            paintContext.PaintPosX += 2;
+           
+
             this.lastPaintContextResult = paintContext.Clone();
             return paintContext.Clone();
         }
