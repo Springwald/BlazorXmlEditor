@@ -27,13 +27,15 @@ namespace de.springwald.xml.editor.xmlelements
         private bool lastPaintWasSelected;
         private int lastPaintY;
         private int lastPaintX;
+        private bool lastCursorBlinkOn;
+        private bool lastCursorOnThisNode;
         private int nodeNameTextWidth;
         private int lastTextWidthFontHeight;
 
         public Rectangle AreaTag { get; private set; }
         public Rectangle AreaArrow { get; private set; }
 
-        public StandardNodeStartTagPainter(EditorConfig config, StandardNodeDimensionsAndColor dimensions, System.Xml.XmlNode node, bool isClosingTagVisible)
+        public StandardNodeStartTagPainter(EditorConfig config, StandardNodeDimensionsAndColor dimensions, XmlNode node, bool isClosingTagVisible)
         {
             this.config = config;
             this.dimensions = dimensions;
@@ -41,7 +43,7 @@ namespace de.springwald.xml.editor.xmlelements
             this.isClosingTagVisible = isClosingTagVisible;
         }
 
-        public async Task<PaintContext> Paint(PaintContext paintContext, bool alreadyUnpainted, bool isSelected, IGraphics gfx)
+        public async Task<PaintContext> Paint(PaintContext paintContext, bool cursorIsOnThisNode, bool cursorBlinkOn, bool alreadyUnpainted, bool isSelected, IGraphics gfx)
         {
             paintContext.PaintPosX += 3;
 
@@ -58,11 +60,13 @@ namespace de.springwald.xml.editor.xmlelements
                 lastPaintContextResult = null;
             }
 
+
             if (lastPaintContextResult != null &&
                 this.lastPaintX == startX &&
                 this.lastPaintY == startY &&
                 this.lastPaintWasSelected == isSelected &&
-                this.lastAttributeString == attributesString)
+                this.lastAttributeString == attributesString &&
+                this.lastCursorBlinkOn == cursorBlinkOn)
             {
                 return lastPaintContextResult.Clone();
             }
@@ -73,6 +77,7 @@ namespace de.springwald.xml.editor.xmlelements
             this.lastPaintY = startY;
             this.lastPaintWasSelected = isSelected;
             this.lastAttributeString = attributesString;
+            this.lastCursorBlinkOn = cursorBlinkOn;
 
             paintContext.PaintPosX += this.dimensions.InnerMarginX;  // margin to left border
 

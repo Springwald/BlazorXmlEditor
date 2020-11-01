@@ -23,6 +23,7 @@ namespace de.springwald.xml.editor.xmlelements
         private int lastPaintX;
         private int lastPaintY;
         private bool lastPaintWasSelected;
+        private bool lastCursorBlinkOn;
         private PaintContext lastPaintContextResult;
 
         private int nodeNameTextWidth;
@@ -38,7 +39,7 @@ namespace de.springwald.xml.editor.xmlelements
             this.node = node;
         }
 
-        public async Task<PaintContext> Paint(PaintContext paintContext, bool alreadyUnpainted, bool isSelected, IGraphics gfx)
+        public async Task<PaintContext> Paint(PaintContext paintContext, bool cursorBlinkOn, bool alreadyUnpainted, bool isSelected, IGraphics gfx)
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
@@ -56,7 +57,8 @@ namespace de.springwald.xml.editor.xmlelements
             if (lastPaintContextResult != null &&
                 this.lastPaintX == startX &&
                 this.lastPaintY == startY &&
-                this.lastPaintWasSelected == isSelected)
+                this.lastPaintWasSelected == isSelected &&
+                this.lastCursorBlinkOn == cursorBlinkOn)
             {
                 return lastPaintContextResult.Clone();
             }
@@ -64,6 +66,7 @@ namespace de.springwald.xml.editor.xmlelements
             this.lastPaintX = startX;
             this.lastPaintY = startY;
             this.lastPaintWasSelected = isSelected;
+            this.lastCursorBlinkOn = cursorBlinkOn;
 
             if (!alreadyUnpainted) this.Unpaint(gfx);
 

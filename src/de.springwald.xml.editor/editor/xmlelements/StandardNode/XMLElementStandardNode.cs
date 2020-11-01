@@ -56,8 +56,6 @@ namespace de.springwald.xml.editor
 
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth)
         {
-            
-
             this.nodeDimensions.Update();
             var isSelected = XmlCursorSelectionHelper.IstNodeInnerhalbDerSelektion(cursor, this.XmlNode);
             this.CreateChildElementsIfNeeded(gfx);
@@ -89,7 +87,7 @@ namespace de.springwald.xml.editor
                 }
             }
 
-            paintContext = await this.startTag.Paint(paintContext, alreadyUnpainted,  isSelected, gfx);
+            paintContext = await this.startTag.Paint(paintContext, cursorBlinkOn, alreadyUnpainted,  isSelected, gfx);
 
             // If the cursor is inside the empty node, then draw the cursor there
             if (cursor.StartPos.ActualNode == this.XmlNode)
@@ -106,7 +104,7 @@ namespace de.springwald.xml.editor
 
             if (this.endTag != null)
             {
-                paintContext = await this.endTag.Paint(paintContext, alreadyUnpainted, isSelected, gfx);
+                paintContext = await this.endTag.Paint(paintContext, cursorBlinkOn, alreadyUnpainted, isSelected, gfx);
             }
 
             // If the cursor is behind the node, then also draw the cursor there

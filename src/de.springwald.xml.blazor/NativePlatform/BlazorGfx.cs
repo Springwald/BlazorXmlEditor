@@ -45,7 +45,6 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
         }
 
-
         public async Task<double> MeasureDisplayStringWidthAsync(string text, Font font)
         {
             await this.EndBatch();
