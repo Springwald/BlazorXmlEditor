@@ -9,6 +9,7 @@
 
 using System.Xml;
 using de.springwald.xml.cursor;
+using de.springwald.xml.rules;
 
 namespace de.springwald.xml.editor.xmlelements.Caching
 {
@@ -23,6 +24,11 @@ namespace de.springwald.xml.editor.xmlelements.Caching
         public int SelectionLength { get; set; }
         public bool CursorInNode { get; private set; }
         public int CursorPosInNode { get; private set; }
+
+        public XmlCursor LastCursor { get; set; }
+
+        public XmlCursorPos.XmlCursorPositions LastCursorPos { get; private set; }
+
         public bool CursorBlinkOn { get; private set; }
 
         public bool Equals(LastPaintingDataText second)
@@ -37,7 +43,7 @@ namespace de.springwald.xml.editor.xmlelements.Caching
             if (SelectionLength != second.SelectionLength) return false;
             if (CursorInNode == true)
             {
-                if (second.CursorInNode == false || second.CursorPosInNode != this.CursorPosInNode) return false;
+                if (second.CursorInNode == false || !second.LastCursor.Equals(this.LastCursor)) return false;
                 if (second.CursorBlinkOn != this.CursorBlinkOn) return false;
             }
             else
@@ -51,6 +57,7 @@ namespace de.springwald.xml.editor.xmlelements.Caching
         {
             return new LastPaintingDataText
             {
+                LastCursor = cursor.Clone(),
                 LastPaintPosY = paintContext.PaintPosY,
                 LastPaintPosX = paintContext.PaintPosX,
                 LastPaintLimitRight = paintContext.LimitRight,
@@ -60,7 +67,8 @@ namespace de.springwald.xml.editor.xmlelements.Caching
                 SelectionLength = selectionLength,
                 CursorInNode = cursor.StartPos.ActualNode == node,
                 CursorPosInNode = cursor.StartPos.PosInTextNode,
-                CursorBlinkOn = cursorBlinkOn
+                CursorBlinkOn = cursorBlinkOn,
+                LastCursorPos = cursor.StartPos.PosOnNode,
             };
         }
     }

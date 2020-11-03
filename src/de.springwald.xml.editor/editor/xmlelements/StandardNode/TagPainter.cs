@@ -101,8 +101,7 @@ namespace de.springwald.xml.editor.xmlelements
 
         public void Unpaint(IGraphics gfx)
         {
-          //  gfx.UnPaintRectangle(this.AreaArrow);
-            gfx.UnPaintRectangle(this.AreaTag);
+            gfx.UnPaintRectangle(this.AreaTag); // (includes the arrow area)
             this.lastPaintContextResult = null;
         }
 

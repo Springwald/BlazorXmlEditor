@@ -60,7 +60,7 @@ namespace de.springwald.xml.editor.helper
                     var invertStartLocal = invertStart - usedChars;
                     var invertEndLocal = invertedEnd - usedChars;
 
-                    if (invertStartLocal == 0)
+                    if (invertStartLocal == 0 && invertLength > 0)
                     {
                         if (inverted) throw new ApplicationException("is inverted, but invertstart=0?");
                         inverted = true;

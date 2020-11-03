@@ -35,7 +35,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
 
         private TextPart[] textParts;  // Buffer of the single, drawn lines. Each corresponds to a click area
 
-        public XmlElementTextNode(System.Xml.XmlNode xmlNode, XmlEditor xmlEditor,  EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
+        public XmlElementTextNode(System.Xml.XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext) : base(xmlNode, xmlEditor, editorContext)
         {
             this.SetColors();
         }
@@ -91,15 +91,6 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
 
             int marginY = (paintContext.HeightActualRow - this.Config.FontTextNode.Height) / 2;
 
-            // ggf. den Cursorstrich vor dem Node berechnen
-            if (this.XmlNode == cursor.StartPos.ActualNode)  // ist der Cursor im aktuellen Textnode
-            {
-                if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInFrontOfNode)
-                {
-                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
-                }
-            }
-
             const int charMarginRight = 2;
 
             var textPartsRaw = TextSplitHelper.SplitText(
@@ -146,7 +137,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                         Color = newPart.Inverted ? this.colorText.InvertedColor : this.colorText,
                         X = newPart.Rectangle.X,
                         Y = newPart.Rectangle.Y + marginY,
-                        Font =  Config.FontTextNode
+                        Font = Config.FontTextNode
                     }); ;
                 }
                 paintContext.PaintPosY = newPart.Rectangle.Y;
@@ -158,23 +149,13 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             {
                 for (int i = newTextParts.Length; i < this.textParts.Length; i++)
                 {
-                     gfx.UnPaintRectangle(this.textParts[i].Rectangle);
+                    gfx.UnPaintRectangle(this.textParts[i].Rectangle);
                 }
             }
 
             this.textParts = newTextParts;
 
-            // ggf. den Cursorstrich hinter dem Node berechnen
-            if (this.XmlNode == cursor.StartPos.ActualNode)  // ist der Cursor im aktuellen Textnode
-            {
-                if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode)
-                {
-                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 2, paintContext.PaintPosY);
-                }
-            }
-            
             paintContext.PaintPosX += 2;
-           
 
             this.lastPaintContextResult = paintContext.Clone();
             return paintContext.Clone();
@@ -184,7 +165,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
         {
             foreach (var textPart in this.textParts)
             {
-                 gfx.UnPaintRectangle(textPart.Rectangle);
+                gfx.UnPaintRectangle(textPart.Rectangle);
             }
         }
 
@@ -217,36 +198,33 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
 
                 if (this.XmlNode == cursor.StartPos.ActualNode) // ist der Cursor im aktuellen Textnode
                 {
-                    if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInsideTextNode)
+                    // Checken, ob der Cursor innerhalb dieses Textteiles liegt
+                    var cursorPos = -1;
+                    if (cursor.StartPos.ActualNode == this.XmlNode && !cursor.IsSomethingSelected)
                     {
-                        // Checken, ob der Cursor innerhalb dieses Textteiles liegt
-                        var cursorPos = -1;
-                        if (cursor.StartPos.ActualNode == this.XmlNode && !cursor.IsSomethingSelected)
+                        switch (cursor.StartPos.PosOnNode)
                         {
-                            switch (cursor.StartPos.PosOnNode)
-                            {
-                                case XmlCursorPositions.CursorInFrontOfNode:
-                                    if (part == parts.First()) cursorPos = 0;
-                                    break;
-                                case XmlCursorPositions.CursorBehindTheNode:
-                                    if (part == parts.Last()) cursorPos = part.Text.Length;
-                                    break;
-                                case XmlCursorPositions.CursorInsideTextNode:
-                                    if ((cursor.StartPos.PosInTextNode >= actualTextPartStartPos) && (cursor.StartPos.PosInTextNode <= actualTextPartStartPos + part.Text.Length))
-                                    {
-                                        cursorPos = (int)(cursor.StartPos.PosInTextNode - actualTextPartStartPos);
-                                    }
-                                    break;
-                            }
+                            case XmlCursorPositions.CursorInFrontOfNode:
+                                if (part == parts.First()) cursorPos = 0;
+                                break;
+                            case XmlCursorPositions.CursorBehindTheNode:
+                                if (part == parts.Last()) cursorPos = part.Text.Length;
+                                break;
+                            case XmlCursorPositions.CursorInsideTextNode:
+                                if ((cursor.StartPos.PosInTextNode >= actualTextPartStartPos) && (cursor.StartPos.PosInTextNode <= actualTextPartStartPos + part.Text.Length))
+                                {
+                                    cursorPos = (int)(cursor.StartPos.PosInTextNode - actualTextPartStartPos);
+                                }
+                                break;
                         }
-                        if (cursorPos != -1)
-                        {
-                            textPart.CursorPos = cursorPos;
-                            this.cursorPaintPos = new Point(
-                                    textPart.Rectangle.X + (int)(textPart.CursorPos * lastCalculatedFontWidth),
-                                    textPart.Rectangle.Y
-                                    );
-                        }
+                    }
+                    if (cursorPos != -1)
+                    {
+                        textPart.CursorPos = cursorPos;
+                        this.cursorPaintPos = new Point(
+                                textPart.Rectangle.X + (int)(textPart.CursorPos * lastCalculatedFontWidth),
+                                textPart.Rectangle.Y
+                                );
                     }
                 }
 
@@ -294,6 +272,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 {
                     case XmlCursorPositions.CursorOnNodeStartTag: // Das Node selbst ist als Startnode selektiert
                     case XmlCursorPositions.CursorOnNodeEndTag:
+                        throw new ArgumentOutOfRangeException(nameof(cursor.StartPos.PosOnNode) + ":" + cursor.StartPos.PosOnNode.ToString() + " not possible on a text node");
                         selectionStart = 0;
                         selectionEnd = actualText.Length;
                         break;
@@ -404,7 +383,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 }
                 else // Weder der Start noch das Ende der Selektion liegen genau auf diesem Node
                 {
-                    if (XmlCursorSelectionHelper.IsThisNodeInsideSelection(EditorState.CursorOptimized,this.XmlNode))
+                    if (XmlCursorSelectionHelper.IsThisNodeInsideSelection(EditorState.CursorOptimized, this.XmlNode))
                     {
                         selectionStart = 0;
                         selectionEnd = actualText.Length;   // Ganzen Textnode selektieren

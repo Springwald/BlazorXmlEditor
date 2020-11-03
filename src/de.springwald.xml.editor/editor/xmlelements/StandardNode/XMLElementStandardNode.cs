@@ -84,7 +84,7 @@ namespace de.springwald.xml.editor
                 if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorInFrontOfNode)
                 {
                     // Position für Cursor-Strich vermerken
-                    newCursorPaintPos = new Point(paintContext.PaintPosX + 1, paintContext.PaintPosY);
+                    newCursorPaintPos = new Point(paintContext.PaintPosX, paintContext.PaintPosY);
                 }
             }
 
