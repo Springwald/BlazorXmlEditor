@@ -27,6 +27,9 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         public static readonly Color Blue = new Color(0, 0, 255);
         public static readonly Color LightBlue = new Color(245, 245, 255);
         public static readonly Color DarkBlue = new Color(0, 0, 100);
+        public static readonly Color Yellow = new Color(255, 255, 0);
+        public static readonly Color Green = new Color(0, 255, 0);
+        public static readonly Color LightGreen = new Color(200, 255, 200);
         public static readonly Color Transparent = new Color(0, 0, 0, 0);
 
         private Color(byte r, byte g, byte b) : this(r, g, b, 255) { }

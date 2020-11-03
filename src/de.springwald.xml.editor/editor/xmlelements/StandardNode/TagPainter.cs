@@ -48,9 +48,6 @@ namespace de.springwald.xml.editor.xmlelements
         {
             paintContext.PaintPosX += 1;
 
-   
-
-
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
             var attributesString = this.GetAttributesString();
@@ -104,7 +101,7 @@ namespace de.springwald.xml.editor.xmlelements
 
         public void Unpaint(IGraphics gfx)
         {
-            gfx.UnPaintRectangle(this.AreaArrow);
+          //  gfx.UnPaintRectangle(this.AreaArrow);
             gfx.UnPaintRectangle(this.AreaTag);
             this.lastPaintContextResult = null;
         }
