@@ -14,7 +14,7 @@
     <div>Right click menu</div>
 }
 
-<div style="overflow: auto; @this.Style" @ref="_canvasDivReference">
+<div class="xmlEditorBox" style="overflow: auto; @this.Style" @ref="_canvasDivReference">
     <div tabindex="0" class="canvasOuter" style="width:@(canvasWidth)px; min-width:@(canvasWidth)px; height: @(canvasHeight)px; max-height:@(canvasHeight)px"
          @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
          @oncontextmenu="HandleRightClick" @oncontextmenu:preventDefault="true"

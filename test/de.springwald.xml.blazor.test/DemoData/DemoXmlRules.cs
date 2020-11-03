@@ -275,8 +275,6 @@ namespace de.springwald.xml.blazor.test.DemoData
                     sauber.Replace("Ü", "UE");
                     sauber.Replace("ß", "SS");
 
-#warning Hier optimieren
-
                     // convert to a char array
                     char[] tempArray = sauber.ToString().ToCharArray();
 

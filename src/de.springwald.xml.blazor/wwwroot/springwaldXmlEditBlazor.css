@@ -1,27 +1,7 @@
-﻿/*
-    This file is to show how CSS and other static resources (such as images) can be
-    used from a library project/package.
-*/
-
-.my-component {
-    border: 2px dashed red;
-    padding: 1em;
-    margin: 1em 0;
-    background-image: url('background.png');
-}
-
-
-.canvasOuter {
+﻿.canvasOuter {
     border: solid 1px red;
-  /*  position: relative;*/
-  /*  width: 100%;*/
-    /*height: 400px;*/
-    /*  padding-bottom: 100%;*/
 }
 
     .canvasOuter canvas {
-        /*position: absolute;*/
         border: solid 1px blue;
-     /*   width: 100%;
-        height: 100%;*/
     }
