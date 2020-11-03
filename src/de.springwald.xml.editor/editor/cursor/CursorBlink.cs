@@ -52,6 +52,7 @@ namespace de.springwald.xml.editor.cursor
             {
                 this.active = value;
                 this.ResetBlinkPhase();
+                this.PaintCursor = false;
             }
         }
 

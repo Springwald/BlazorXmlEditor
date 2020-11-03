@@ -21,7 +21,7 @@ namespace de.springwald.xml.editor
 {
     internal class KeyboardHandler : IDisposable
     {
-        private bool _naechstesLostFokusVerhindern = false; // So that leaving the focus is ignored on TAB
+        // private bool _naechstesLostFokusVerhindern = false; // So that leaving the focus is ignored on TAB
         private INativePlatform nativePlatform;
         private XmlRules regelwerk;
         private EditorActions actions;
@@ -37,14 +37,12 @@ namespace de.springwald.xml.editor
             this.regelwerk = editorContext.XmlRules;
 
             this.nativePlatform = editorContext.NativePlatform;
-            this.nativePlatform.InputEvents.Leave.Add(this.zeichnungsSteuerelement_Leave);
             this.nativePlatform.InputEvents.PreviewKey.Add(this.zeichnungsSteuerelement_PreviewKeyDown);
             this.nativePlatform.InputEvents.KeyPress.Add(this.zeichnungsSteuerelement_KeyPress);
         }
 
         public void Dispose()
         {
-            this.nativePlatform.InputEvents.Leave.Remove(this.zeichnungsSteuerelement_Leave);
             this.nativePlatform.InputEvents.PreviewKey.Remove(this.zeichnungsSteuerelement_PreviewKeyDown);
             this.nativePlatform.InputEvents.KeyPress.Remove(this.zeichnungsSteuerelement_KeyPress);
         }
@@ -162,7 +160,7 @@ namespace de.springwald.xml.editor
                         {
                             await this.editorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(node, XmlCursorPositions.CursorInsideTheEmptyNode);
                         }
-                        _naechstesLostFokusVerhindern = true; // So that leaving the focus is ignored on TAB
+                        // _naechstesLostFokusVerhindern = true; // So that leaving the focus is ignored on TAB
                         useKeyContent = false;
                         break;
 
@@ -225,14 +223,14 @@ namespace de.springwald.xml.editor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        async Task zeichnungsSteuerelement_Leave(System.EventArgs e)
-        {
-            if (_naechstesLostFokusVerhindern)
-            {
-                _naechstesLostFokusVerhindern = false;
-                await this.nativePlatform.Focus.FokusAufEingabeFormularSetzen();
-            }
-        }
+        //async Task zeichnungsSteuerelement_Leave(System.EventArgs e)
+        //{
+        //    if (_naechstesLostFokusVerhindern)
+        //    {
+        //        _naechstesLostFokusVerhindern = false;
+        //        await this.nativePlatform.Focus.FokusAufEingabeFormularSetzen();
+        //    }
+        //}
 
 
     }

@@ -18,6 +18,8 @@ namespace de.springwald.xml.editor
 {
     public class EditorState : IDisposable
     {
+        private bool hasFocus;
+
         internal CursorBlink CursorBlink { get; }
 
         public async Task SetRootNode(XmlNode rootNode)
@@ -34,6 +36,19 @@ namespace de.springwald.xml.editor
         /// This is the topmost node to edit. You must not edit higher, even if there are parents in the DOM
         /// </summary>
         public XmlNode RootNode { get; private set; }
+
+        public bool HasFocus
+        {
+            get
+            {
+                return this.hasFocus;
+            }
+            set
+            {
+                this.hasFocus = value;
+                this.CursorBlink.Active = value;
+            }
+        }
 
         internal XmlElement RootElement { get; set; }
 
@@ -113,7 +128,7 @@ namespace de.springwald.xml.editor
         {
             this.CursorRaw = new XmlCursor();
             this.CursorBlink = new CursorBlink();
-          
+
         }
 
         public void Dispose()

@@ -20,7 +20,5 @@ namespace de.springwald.xml.editor.nativeplatform.events
 
         XmlAsyncEvent<KeyEventArgs> KeyPress { get; }
         XmlAsyncEvent<KeyEventArgs> PreviewKey { get; }
-
-        XmlAsyncEvent<EventArgs> Leave { get; }
     }
 }

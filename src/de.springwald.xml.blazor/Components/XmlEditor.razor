@@ -14,11 +14,14 @@
     <div>Right click menu</div>
 }
 
-<div style="overflow: auto; @this.Style" @ref="_canvasDivReference" >
+<div style="overflow: auto; @this.Style" @ref="_canvasDivReference">
     <div tabindex="0" class="canvasOuter" style="width:@(canvasWidth)px; min-width:@(canvasWidth)px; height: @(canvasHeight)px; max-height:@(canvasHeight)px"
          @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
          @oncontextmenu="HandleRightClick" @oncontextmenu:preventDefault="true"
-         @onkeydown="EventOnKeyDown" @onkeydown:preventDefault >
+         @onkeydown="EventOnKeyDown" @onkeydown:preventDefault
+         @onfocusout="EventFocusOut"
+         @onfocus="EventFocusIn"
+         @onfocusin="EventFocusIn">
         <BECanvas Width="@canvasWidth" Height="@canvasHeight" @ref="_canvasReference">
         </BECanvas>
     </div>
@@ -133,13 +136,26 @@
 
     private async Task OuterResized()
     {
-        var size = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        var size = await JSRuntime.InvokeAsync<BoundingClientRect>
+    ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
         if (size == null) return;
         this.outerWidth = (int)size.Width - 40;
         await this.VirtualSizeChanged(EventArgs.Empty);
     }
 
     #region key events
+
+    public async void EventFocusIn(FocusEventArgs e)
+    {
+        this.EditorContext.EditorState.HasFocus = true;
+        // this.EditorContext.NativePlatform.InputEvents.FocusIn.Trigger(EventArgs.Empty);
+    }
+
+    public async void EventFocusOut(FocusEventArgs e)
+    {
+        this.EditorContext.EditorState.HasFocus = false;
+        // this.EditorContext.NativePlatform.InputEvents.FocusIn.Trigger(EventArgs.Empty);
+    }
 
     public async void EventOnKeyDown(KeyboardEventArgs e)
     {
@@ -202,7 +218,8 @@
 
     async void EventOnMouseDown(MouseEventArgs e)
     {
-        var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        var result = await JSRuntime.InvokeAsync<BoundingClientRect>
+            ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
 
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
@@ -216,7 +233,8 @@
 
     async void EventOnMouseMove(MouseEventArgs e)
     {
-        var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        var result = await JSRuntime.InvokeAsync<BoundingClientRect>
+            ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
 
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
@@ -230,7 +248,8 @@
 
     async void EventOnMouseUp(MouseEventArgs e)
     {
-        var result = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        var result = await JSRuntime.InvokeAsync<BoundingClientRect>
+            ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
 
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
@@ -249,4 +268,4 @@
 
     #endregion
 
-}
+                }
