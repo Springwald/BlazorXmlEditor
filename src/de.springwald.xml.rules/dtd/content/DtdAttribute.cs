@@ -14,31 +14,22 @@ namespace de.springwald.xml.rules.dtd
     /// </summary>
     public class DtdAttribute
     {
-        public enum PflichtArten { Pflicht, Optional, Konstante };
+        public enum MandatoryTypes { Mandatory, Optional, Constant };
 
-        /// <summary>
-        /// Der Name des Attributes
-        /// </summary>
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
-        /// Ist das Attribut Pflicht?
+        /// Is the attribute mandatory?
         /// </summary>
-        public PflichtArten Pflicht { get; set; } = PflichtArten.Optional;
+        public MandatoryTypes Mandatory { get; set; } = MandatoryTypes.Optional;
 
         /// <summary>
-        /// Die Werte, welche für dieses Attribut erlaubt sind. NULL=Keine Vorgabe, alles ist erlaubt
+        /// The values that are allowed for this attribute. NULL=No default, everything is allowed
         /// </summary>
-        public string[] ErlaubteWerte { get; set; } = new string[] { };
+        public string[] AllowedValues { get; set; } = new string[] { };
 
-        /// <summary>
-        /// Der Vorgabewert
-        /// </summary>
-        public string StandardWert { get; set; } = string.Empty;
+        public string StandardValue { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Der Typ des Attributes
-        /// </summary>
-        public string Typ { set; get; }
+        public string Type { set; get; }
     }
 }

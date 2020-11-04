@@ -22,7 +22,7 @@
 
                 <label for="@id" class="col-sm-2 col-form-label">@attribut.Name</label>
                 <div class="col-sm-10">
-                    @if (attribut.ErlaubteWerte.Any()) //  the content comes from a predefined list of values
+                    @if (attribut.AllowedValues.Any()) //  the content comes from a predefined list of values
                     {
                         <select id="@id" class="form-control selectpicker" @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))">
                             @if (actualNode.Attributes[attribut.Name] == null || string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value))
@@ -31,12 +31,12 @@
                             }
                             else
                             {
-                                @if (attribut.Pflicht == DtdAttribute.PflichtArten.Optional)
+                                @if (attribut.Mandatory == DtdAttribute.MandatoryTypes.Optional)
                                 {
                                     <option selected="@(string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value) ? true : false)" value=""></option>
                                 }
                             }
-                            @foreach (var value in attribut.ErlaubteWerte)
+                            @foreach (var value in attribut.AllowedValues)
                             {
                                 <option selected="@(value == actualNode.Attributes[attribut.Name]?.Value ? true : false)">@value</option>
                             }

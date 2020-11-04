@@ -16,89 +16,89 @@ namespace de.springwald.xml.rules.dtd
     /// </summary>
     public class DtdTestpattern
     {
-        private string _parentElementName;	    // Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)
+        private string parentElementName;	    // Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)
 
-        private string _vergleichsStringFuerRegEx;
+        private string compareStringForRegEx;
 
-        private StringBuilder _elementNamenListe;
+        private StringBuilder elementNameList;
 
         /// <summary>
         /// Das zum Test eingefügte Element. Ist es NULL, bedeutet das, dass statt Einfügen das Löschen geprüft wurde
         /// </summary>
         public string ElementName { get; }
 
-        public string VergleichStringFuerRegEx
+        public string CompareStringForRegEx
         {
             get
             {
-                if (_vergleichsStringFuerRegEx == null)
+                if (compareStringForRegEx == null)
                 {
-                    _elementNamenListe.Append("<");
-                    _vergleichsStringFuerRegEx = _elementNamenListe.ToString();
+                    elementNameList.Append("<");
+                    compareStringForRegEx = elementNameList.ToString();
                 }
-                return _vergleichsStringFuerRegEx;
+                return compareStringForRegEx;
             }
         }
 
         /// <summary>
         /// Eine schriftliche Zusammenfassung dieses Musters
         /// </summary>
-        public string Zusammenfassung
+        public string Summary
         {
             get
             {
-                StringBuilder ergebnis = new StringBuilder();
+                var result = new StringBuilder();
 
                 // Erfolgreich getestet?
-                if (this.Erfolgreich)
+                if (this.Success)
                 {
-                    ergebnis.Append("+ ");
+                    result.Append("+ ");
                 }
                 else
                 {
-                    ergebnis.Append("- ");
+                    result.Append("- ");
                 }
 
                 // Der Name des ParentNodes
-                ergebnis.Append(this._parentElementName);
-                ergebnis.Append(" (");
-                ergebnis.Append(VergleichStringFuerRegEx);
-                ergebnis.Append(")");
+                result.Append(this.parentElementName);
+                result.Append(" (");
+                result.Append(CompareStringForRegEx);
+                result.Append(")");
 
                 // Was wurde getestet?
                 if (this.ElementName == null)
                 {
-                    ergebnis.Append(" [getestet: löschen]");
+                    result.Append(" [getestet: löschen]");
                 }
                 else
                 {
-                    ergebnis.AppendFormat("[getestet: {0}]", this.ElementName);
+                    result.AppendFormat("[getestet: {0}]", this.ElementName);
                 }
 
-                return ergebnis.ToString();
+                return result.ToString();
             }
         }
 
         /// <summary>
         /// Ist das Muster erfolgreich anwendbar gewesen?
         /// </summary>
-        public bool Erfolgreich { get; set; }
+        public bool Success { get; set; }
 
         /// <param name="element">Das zum Test eingefügte Element. Ist es NULL, bedeutet das, dass statt Einfügen das Löschen geprüft wurde</param>
         /// <param name="parentElementName">Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)</param>
         public DtdTestpattern(string elementName, string parentElementName)
         {
-            _elementNamenListe = new StringBuilder();
-            _elementNamenListe.Append(">");
+            elementNameList = new StringBuilder();
+            elementNameList.Append(">");
 
             this.ElementName = elementName;
-            this._parentElementName = parentElementName;
-            this.Erfolgreich = false; // Bisher nicht bestätigt
+            this.parentElementName = parentElementName;
+            this.Success = false; // Bisher nicht bestätigt
         }
 
         public void AddElement(string elementName)
         {
-            _elementNamenListe.AppendFormat("-{0}", elementName);
+            elementNameList.AppendFormat("-{0}", elementName);
         }
     }
 }

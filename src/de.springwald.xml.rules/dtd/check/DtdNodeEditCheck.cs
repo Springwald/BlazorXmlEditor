@@ -7,8 +7,6 @@
 // All rights reserved
 // Licensed under MIT License
 
-//#define DenkProtokoll // Soll das getestete Geschehen protokolliert werden?
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,18 +16,18 @@ using static de.springwald.xml.rules.XmlCursorPos;
 namespace de.springwald.xml.rules.dtd
 {
     /// <summary>
-    /// Prüft gegen eine DTD, ob und welche Veränderungen an einem XML-Dom erlaubt sind
+    /// Checks against a DTD whether and which changes to an XML dome are allowed
     /// </summary>
     public class DtdNodeEditCheck
     {
-        private Dtd _dtd; // The DTD to be checked against
+        private Dtd dtd; // The DTD to be checked against
 
 #if DenkProtokoll
-		private StringBuilder _denkProtokoll; // Aufgrund welcher Annahmen wurde das Ergebnis von AnDieserStelleErlaubteTags erzeugt?
+		private StringBuilder _denkProtokoll; // What assumptions were used to generate the result of AtThisPosAllowedTags?
 #endif
 
         /// <summary>
-        /// Aufgrund welcher Annahmen wurde das Ergebnis von AnDieserStelleErlaubteTags erzeugt?
+        /// What assumptions were used to generate the result of AtThisPosAllowedTags?
         /// </summary>
         public string DenkProtokoll
         {
@@ -45,39 +43,36 @@ namespace de.springwald.xml.rules.dtd
 
         public DtdNodeEditCheck(Dtd dtd)
         {
-            this._dtd = dtd;
+            this.dtd = dtd;
 
 #if DenkProtokoll
-			_denkProtokoll= new StringBuilder(); // Aufgrund welcher Annahmen wurde das Ergebnis von AnDieserStelleErlaubteTags erzeugt?
+			_denkProtokoll= new StringBuilder(); // What assumptions were used to generate the result of AtThisPosAllowedTags?
 #endif
         }
 
         /// <summary>
-        /// Welche Nodes sind an dieser Stelle im XML erlaubt?
+        /// Which nodes are allowed in XML at this point?
         /// </summary>
-        /// <param name="xmlPfad">Der XMLPfad</param>
-        /// <param name="pcDATAMitAuflisten">wenn true, wird PCDATA mit als Node aufgeführt, sofern er erlaubt ist</param>
-        /// <returns></returns>
-        public string[] AtThisPosAllowedTags(XmlCursorPos zuTestendeCursorPos, bool pcDATAMitAuflisten, bool kommentareMitAufListen)
+        public string[] AtThisPosAllowedTags(XmlCursorPos cursorPosToCheck, bool allowPcDATA, bool allowComments)
         {
-            // Damit nicht aus Versehen etwas an Änderungen zurückgeben wird, erstmal die CursorPos klonen
-            XmlCursorPos cursorPos = zuTestendeCursorPos.Clone();
+            // To avoid accidentally returning some changes, first clone the CursorPos
+            var cursorPos = cursorPosToCheck.Clone();
 
 #if DenkProtokoll
 			_denkProtokoll=new StringBuilder();
 #endif
 
-            var zuTestendeMuster = GetAlleTestmuster(cursorPos);
+            var testPattern = this.GetAllTestPattern(cursorPos);
 
-            // Elemente der gültigen Testmuster ins das Ergebnis schreiben
-            var ergebnis = new List<string>();
-            foreach (var muster in zuTestendeMuster)
+            // Write elements of valid test patterns into the result
+            var result = new List<string>();
+            foreach (var muster in testPattern)
             {
-                if (muster.Erfolgreich)
+                if (muster.Success)
                 {
                     if (muster.ElementName == null)
                     {
-                        ergebnis.Add(""); // das vorhandene Element darf gelöscht werden
+                        result.Add(""); // the existing element may be deleted
                     }
                     else
                     {
@@ -85,15 +80,15 @@ namespace de.springwald.xml.rules.dtd
                         {
 
                             case "#pcdata":
-                                if (pcDATAMitAuflisten) ergebnis.Add(muster.ElementName); // Dieses Element darf eingefügt werden
+                                if (allowPcDATA) result.Add(muster.ElementName); // This element may be inserted
                                 break;
 
                             case "#comment":
-                                if (kommentareMitAufListen) ergebnis.Add(muster.ElementName); // Dieses Element darf eingefügt werden
+                                if (allowComments) result.Add(muster.ElementName); // This element may be inserted
                                 break;
 
                             default:
-                                ergebnis.Add(muster.ElementName); // Dieses Element darf eingefügt werden
+                                result.Add(muster.ElementName); // This element may be inserted
                                 break;
 
                         }
@@ -104,44 +99,41 @@ namespace de.springwald.xml.rules.dtd
 #endif
             }
 
-            return (ergebnis.ToArray());
+            return (result.ToArray());
         }
 
 
         /// <summary>
-        /// Ist das angegeben Element an dieser Stelle im XML erlaubt?
+        ///  Is the specified element allowed at this point in the XML?
         /// </summary>
-        /// <returns></returns>
         public bool IsTheNodeAllowedAtThisPos(System.Xml.XmlNode node)
         {
             if (node.ParentNode is System.Xml.XmlDocument)
             {   // Es handelt sich um das root-Element, dieses kann nicht gegen den Parent-Node geprüft
                 // werden, sondern muss getrennt verglichen werden. Wenn es das in der DTD erlaubt Root-
                 // Element ist, dann ok, sonst nicht
-
                 // Implementierung: TO DO!
                 return true;
             }
             else
             {
-                XmlCursorPos cursorPos = new XmlCursorPos();
+                var cursorPos = new XmlCursorPos();
                 cursorPos.SetPos(node, XmlCursorPositions.CursorOnNodeStartTag);
 
 #if DenkProtokoll
 				_denkProtokoll=new StringBuilder();
 #endif
 
-                // Die Testmuster zum Einfügen für alle verfügbaren Elemente erstellen
-                string elementName = Dtd.GetElementNameFromNode(node);
-                DtdTestpattern muster = CreateTestMuster(elementName, cursorPos);
+                // Create the test patterns to insert for all available elements
+                var elementName = Dtd.GetElementNameFromNode(node);
+                var pattern = this.CreateTestPattern(elementName, cursorPos);
 
-                // Zur Prüfung in eine Testmusterliste packen und die Liste zur Prüfung absenden
-                List<DtdTestpattern> liste = new List<DtdTestpattern>();
-                liste.Add(muster);
-                PruefeAlleTestmuster(liste, cursorPos);
+                // Pack into a test sample list and send the list for testing
+                var list = new List<DtdTestpattern>();
+                list.Add(pattern);
+                CheckAllTestPattern(list, cursorPos);
 
-                // Das Ergebnis der Prüfung auswerten
-                if (muster.Erfolgreich)
+                if (pattern.Success)
                 {
 #if DenkProtokoll
 					_denkProtokoll=new StringBuilder();
@@ -157,31 +149,31 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Erzeugt alle Testmuster inkl. der Ergebnisse, ob diese Zulässig sind
+        /// Generates all test patterns including the results whether they are allowed
         /// </summary>
-        private List<DtdTestpattern> GetAlleTestmuster(XmlCursorPos cursorPos)
+        private List<DtdTestpattern> GetAllTestPattern(XmlCursorPos cursorPos)
         {
-            List<DtdTestpattern> zuTestendeMuster = new List<DtdTestpattern>();
-            DtdTestpattern einMuster;
+            var patternToTest = new List<DtdTestpattern>();
+            DtdTestpattern singlePattern;
 
             if (cursorPos.ActualNode == null)
             {
-                // Wie soll denn für einen nicht vorhandenen Node geschaut werden, was erlaubt ist???
-                throw new ApplicationException("GetAlleTestmuster: cursorPos.AktNode=NULL!");
+                // How to check what is allowed for a non-existent node?
+                throw new ApplicationException("GetAllTestPattern: cursorPos.AktNode=NULL!");
             }
 
-            // Löschen prüfen (Löschen-Testmuster anmelden)
+            // Check deletion (register deletion test pattern)
             switch (cursorPos.PosOnNode)
             {
                 case XmlCursorPositions.CursorInsideTheEmptyNode:
                 case XmlCursorPositions.CursorInFrontOfNode:
                 case XmlCursorPositions.CursorBehindTheNode:
                 case XmlCursorPositions.CursorInsideTextNode:
-                    // Hier muss kein Löschen getestet werden, da kein Node selektiert ist
+                    // Here no deletion must be tested, because no node is selected
                     break;
                 case XmlCursorPositions.CursorOnNodeStartTag:
                 case XmlCursorPositions.CursorOnNodeEndTag:
-                    // Löschen-Muster zum Testen bereitstellen, ob der selektierte Node gelöscht werden kann
+                    // Provide delete pattern for testing if the selected node can be deleted
                     //einMuster = CreateTestMuster(null,cursorPos);
                     //zuTestendeMuster.Add(einMuster);
                     break;
@@ -191,99 +183,89 @@ namespace de.springwald.xml.rules.dtd
 
             if (cursorPos.ActualNode is System.Xml.XmlComment)
             {
-                // In einem Kommantar können keine Tags eingefügt werden
+                // No tags can be inserted in a comment
             }
-            else // Ist kein Kommentar
+            else // Is no comment
             {
-                string[] anDieserStelleErlaubteChildren;
+                string[] childrenAllowedAtThisPos;
                 if (cursorPos.PosOnNode == XmlCursorPositions.CursorInsideTheEmptyNode)
                 {
-                    // Im Node sind alle Children dieses Nodes erlaubt
-                    DtdElement element = _dtd.DTDElementByName(cursorPos.ActualNode.Name, false);
+                    // All children of this node are allowed in the node
+                    var element = dtd.DTDElementByName(cursorPos.ActualNode.Name, false);
                     if (element == null)
                     {
-                        // Ein Element mit diesem Namen ist nicht bekannt
-                        anDieserStelleErlaubteChildren = new string[] { };
+                        // An element with this name is not known
+                        childrenAllowedAtThisPos = new string[] { };
                     }
                     else
                     {
-                        anDieserStelleErlaubteChildren = element.AlleElementNamenWelcheAlsDirektesChildZulaessigSind;
+                        childrenAllowedAtThisPos = element.AllChildNamesAllowedAsDirectChild;
                     }
                 }
                 else
                 {
-                    // Welche Elemente sind *neben* dem Element erlaubt?   
+                    // Which elements are *next to* the element allowed?   
                     if (cursorPos.ActualNode.OwnerDocument == null)
                     {
-                        // Der AktNode hängt in keinem Dokument? Hm, sind wir vielleicht gerade mitten in einem
-                        // einfüge-Prozess...
+                        // The actual node does not hang in any document? Hm, maybe we are in the middle of an insert process...
 #warning Noch eine korrekte Meldung oder Ton einfügen
-
                         Debug.Assert(false, "Beep!");
-                        anDieserStelleErlaubteChildren = new string[] { };
+                        childrenAllowedAtThisPos = new string[] { };
                     }
                     else
                     {
                         if (cursorPos.ActualNode == cursorPos.ActualNode.OwnerDocument.DocumentElement)
                         {
-                            // Bei diesem Node handelt es sich im das Dokument-Tag selbst. Dieses ist auf dem Root 
-                            // exklusiv, daher kann es daneben keine anderen Elemente geben
-                            anDieserStelleErlaubteChildren = new string[] { };
+                            // This node is the document tag itself. This is exclusive on the root, so there can be no other elements besides it
+                            childrenAllowedAtThisPos = new string[] { };
                         }
                         else
                         {
-                            // Neben oder an der Stelle des Nodes sind alle Children des Parent erlaubt
-                            // Zuerst herausfinden, welches das Parent-Element des Nodes ist, für den gecheckt werden soll
-                            DtdElement parentElement = _dtd.DTDElementByName(cursorPos.ActualNode.ParentNode.Name, false);
+                            // All children of the parent are allowed next to or in the place of the node. 
+                            // First find out which is the parent element of the node to check for
+                            var parentElement = dtd.DTDElementByName(cursorPos.ActualNode.ParentNode.Name, false);
                             if (parentElement == null)
                             {
-                                // Ein Element mit diesem Namen ist nicht bekannt
-                                anDieserStelleErlaubteChildren = new string[] { };
+                                // An element with this name is not known
+                                childrenAllowedAtThisPos = new string[] { };
                             }
                             else
                             {
-                                anDieserStelleErlaubteChildren = parentElement.AlleElementNamenWelcheAlsDirektesChildZulaessigSind;
+                                childrenAllowedAtThisPos = parentElement.AllChildNamesAllowedAsDirectChild;
                             }
                         }
                     }
                 }
 
-                // Die Testmuster zum Einfügen für alle erlaubten Elemente erstellen
-                foreach (string elementName in anDieserStelleErlaubteChildren)
+                // Create test patterns to insert for all allowed elements
+                foreach (string elementName in childrenAllowedAtThisPos)
                 {
                     //if (element.Name =="pattern") //  || element.Name =="template") 
                     //if (element.Name == "#PCDATA")
                     //if (element.Name == "meta")
                     {
-                        einMuster = CreateTestMuster(elementName, cursorPos);
-                        zuTestendeMuster.Add(einMuster);
+                        singlePattern = CreateTestPattern(elementName, cursorPos);
+                        patternToTest.Add(singlePattern);
                     }
                 }
             }
-
-
-            // alle gesammelten Testmuster auf Gültigkeit prüfen
-            PruefeAlleTestmuster(zuTestendeMuster, cursorPos);
-
-            return zuTestendeMuster;
+            // check all collected test samples for validity
+            this.CheckAllTestPattern(patternToTest, cursorPos);
+            return patternToTest;
         }
 
-
-
         /// <summary>
-        /// Prüft alle Testmuster darauf hin, sie es im Rahmen der eingelesenen DTD gültig sind
+        /// Checks all test patterns for validity within the scope of the read DTD
         /// </summary>
-        private void PruefeAlleTestmuster(List<DtdTestpattern> alleMuster, XmlCursorPos cursorPos)
+        private void CheckAllTestPattern(List<DtdTestpattern> allPattern, XmlCursorPos cursorPos)
         {
-
-            System.Xml.XmlNode node = cursorPos.ActualNode;
-
+            var node = cursorPos.ActualNode;
             DtdElement element_;
 
             if (cursorPos.PosOnNode == XmlCursorPositions.CursorInsideTheEmptyNode)
             {
-                // Das DTDElement für den Node des Cursors holen 
-                element_ = _dtd.DTDElementByName(Dtd.GetElementNameFromNode(node), false);
+                // Get the DTD element for the node of the cursor 
+                element_ = dtd.DTDElementByName(Dtd.GetElementNameFromNode(node), false);
             }
             else
             {
@@ -294,109 +276,99 @@ namespace de.springwald.xml.rules.dtd
                 }
                 else
                 {
-                    if (node == node.OwnerDocument.DocumentElement) // Der Node ist das Root-Element
+                    if (node == node.OwnerDocument.DocumentElement) // The node is the root element
                     {
-                        // An der Stelle des Root-Elementes ist nur das Root-Element erlaubt
-                        foreach (DtdTestpattern muster in alleMuster)  // alle zu testenden Muster durchlaufen
+                        // Only the root element is allowed in place of the root element
+                        foreach (DtdTestpattern muster in allPattern) 
                         {
-                            if (muster.ElementName == node.Name) // wenn es das Root-Element ist
+                            if (muster.ElementName == node.Name) // if it is the root element
                             {
-                                muster.Erfolgreich = true; // Nur das Root-Element ist an der Stelle des Root-Elementes erlaubt 
+                                muster.Success = true; // Only the root element is allowed at the position of the root element 
                             }
                         }
                         return;
                     }
-                    else // Der node ist nicht das Root-Element
+                    else // The node is not the root element
                     {
-                        // Das DTDElement für den Parent-Node des Cursors holen 
-                        element_ = _dtd.DTDElementByName(Dtd.GetElementNameFromNode(node.ParentNode), false);
+                        // Get the DTD element for the parent node of the cursor 
+                        element_ = dtd.DTDElementByName(Dtd.GetElementNameFromNode(node.ParentNode), false);
                     }
                 }
             }
 
-            // Prüfen, ob der aktuelle DTD-Durchlauf zu einem der gesuchten Testmuster geführt hat
-            foreach (DtdTestpattern muster in alleMuster)  // alle zu testenden Muster durchlaufen
+            // Check whether the current DTD run has led to one of the searched test patterns
+            foreach (DtdTestpattern muster in allPattern)  // run through all samples to be tested
             {
-
                 if (element_ == null)
                 {
-                    // Dieses Element ist gar nicht bekannt
-                    muster.Erfolgreich = false;
+                    muster.Success = false; // This element is not known at all
                 }
                 else
                 {
-                    if (!muster.Erfolgreich)
+                    if (!muster.Success)
                     {
-
 #if DEBUGTRACE
 				    Trace.WriteLine(String.Format("Check für neues Ziel-Muster {0} > {1}",  ElementName(muster.Element) ,  muster.Zusammenfassung_ ));
 #endif
-
-                        muster.Erfolgreich = PasstMusterInElement(muster, element_);
+                        muster.Success = FitsPatternInElement(muster, element_);
                     }
                 }
             }
         }
 
-        private bool PasstMusterInElement(DtdTestpattern muster, DtdElement element)
+        private bool FitsPatternInElement(DtdTestpattern pattern, DtdElement element)
         {
-            Match match = element.ChildrenRegExObjekt.Match(muster.VergleichStringFuerRegEx);
+            Match match = element.ChildrenRegExObjekt.Match(pattern.CompareStringForRegEx);
             return match.Success;
         }
 
         /// <summary>
-        /// Fügt ein Testmuster hinzu
+        /// Adds a test pattern
         /// </summary>
-        private DtdTestpattern CreateTestMuster(string elementName, XmlCursorPos cursorPos)
+        private DtdTestpattern CreateTestPattern(string elementName, XmlCursorPos cursorPos)
         {
-            DtdTestpattern testMuster;
-            System.Xml.XmlNode node = cursorPos.ActualNode;
-
-            // Alle verfügbaren Elemente zum Testen bereitstellen
-            System.Xml.XmlNode bruder;
+            DtdTestpattern testPattern;
+            var node = cursorPos.ActualNode;
+            System.Xml.XmlNode sibling;
 
             switch (cursorPos.PosOnNode)
             {
                 case XmlCursorPositions.CursorInsideTheEmptyNode:
-                    // Der Parentnode ist leer, also müssen wir nur auf die erlaubten Elemente darin testen 
-                    // und keine Bruder-Elemente auf gleicher Ebene erwarten
-                    testMuster = new DtdTestpattern(elementName, Dtd.GetElementNameFromNode(node));
-                    testMuster.AddElement(elementName);
+                    // The parentnode is empty, so we only have to test for the allowed elements in it and not expect any sibling elements on the same level
+                    testPattern = new DtdTestpattern(elementName, Dtd.GetElementNameFromNode(node));
+                    testPattern.AddElement(elementName);
                     break;
 
                 default:
-
-                    // Wenn der Parent-Node das XML.Dokument selbst ist, dann hier abbrechen
+                    // If the parent node is the XML document itself, then abort here
                     if (node.ParentNode is System.Xml.XmlDocument)
                     {
-                        // "Für das Root-Element kann kein Testmuster erstellt werden. Seine Gültigkeit muss durch Vergleich mit dem DTD-Root-Element gewährleistet werden."
-                        throw new ApplicationException("Für das Root-Element kann kein Testmuster erstellt werden. Seine Gültigkeit muss durch Vergleich mit dem DTD-Root-Element gewährleistet werden.");
+                        throw new ApplicationException("No test pattern can be created for the root element. Its validity must be guaranteed by comparison with the DTD root element.");
                     }
 
-                    testMuster = new DtdTestpattern(elementName, Dtd.GetElementNameFromNode(node.ParentNode));
+                    testPattern = new DtdTestpattern(elementName, Dtd.GetElementNameFromNode(node.ParentNode));
 
-                    // Alle Elemente innerhalb des Parent-Elementes durchlaufen
-                    bruder = node.ParentNode.FirstChild;
-                    while (bruder != null)
+                    // Traverse all elements within the parent element
+                    sibling = node.ParentNode.FirstChild;
+                    while (sibling != null)
                     {
-                        if (bruder is System.Xml.XmlWhitespace)
+                        if (sibling is System.Xml.XmlWhitespace)
                         {
-                            // Whitespace-Tags können bei der Prüfung ignoriert werden
+                            // Whitespace tags can be ignored during the check
                         }
                         else
                         {
-                            if (bruder == node) // an dieser Stelle muss der Node eingefügt werden
+                            if (sibling == node) // at this point the node must be inserted
                             {
-                                if (bruder is System.Xml.XmlComment)
+                                if (sibling is System.Xml.XmlComment)
                                 {
-                                    testMuster.AddElement("#COMMENT");
+                                    testPattern.AddElement("#COMMENT");
                                 }
                                 else
                                 {
-                                    if (this._dtd.DTDElementByName(Dtd.GetElementNameFromNode(node), false) == null)
+                                    if (this.dtd.DTDElementByName(Dtd.GetElementNameFromNode(node), false) == null)
                                     {
-                                        // Dieses Element ist gar nicht bekannt, daher wird das 
-                                        // Element mal nicht aufgenommen
+                                        // This element is not known at all, therefore the element is sometimes not included
                                         //throw new ApplicationException(String.Format("unknown Node-Element '{0}'", DTD.GetElementNameFromNode(node)));
                                     }
                                     else
@@ -404,114 +376,93 @@ namespace de.springwald.xml.rules.dtd
                                         switch (cursorPos.PosOnNode)
                                         {
 
-                                            case XmlCursorPositions.CursorOnNodeStartTag:	// Wenn der Node selbst ausgewählt ist und somit ersetzt werden soll
+                                            case XmlCursorPositions.CursorOnNodeStartTag:	// If the node itself is selected and should be replaced
                                             case XmlCursorPositions.CursorOnNodeEndTag:
-                                                if (elementName == null) // Das Löschen wird geprüft
+                                                if (elementName == null) // check delete
                                                 {
-                                                    // Element weglassen
+                                                    // Omit element
                                                 }
-                                                else // Einfügen/Ersetzen wird geprüft
+                                                else //  check insert/replace
                                                 {
-                                                    // Statt des an dieser Stelle vorhandenen Elementes wird hier das
-                                                    // zu testende Element eingesetzt
-                                                    testMuster.AddElement(elementName);
+                                                    // Instead of the element present at this position, the element to be tested is inserted here
+                                                    testPattern.AddElement(elementName);
                                                 }
                                                 break;
 
                                             case XmlCursorPositions.CursorBehindTheNode:
-                                                if (elementName == null) // Das Löschen wird geprüft
+                                                if (elementName == null)  // check delete
                                                 {
-                                                    throw new ApplicationException("CreateTestMuster: Löschen darf bei XMLCursorPositionen.CursorHinterDemNode nicht geprüft werden!");
+                                                    throw new ApplicationException("CreateTestPattern: Delete must not be checked for XmlCursorPositions.CursorBehindTheNode!");
                                                 }
                                                 else
                                                 {
-                                                    // Hinter Stelle vorhandenen Elementes wird hinter das
-                                                    // zu testende Element eingesetzt
-
-                                                    testMuster.AddElement(Dtd.GetElementNameFromNode(node));
-                                                    testMuster.AddElement(elementName);
+                                                    // element is inserted behind the element to be tested
+                                                    testPattern.AddElement(Dtd.GetElementNameFromNode(node));
+                                                    testPattern.AddElement(elementName);
                                                 }
                                                 break;
 
                                             case XmlCursorPositions.CursorInsideTheEmptyNode:
-                                                if (elementName == null) // Das Löschen wird geprüft
+                                                if (elementName == null)  // check delete
                                                 {
-                                                    throw new ApplicationException("CreateTestMuster: Löschen darf bei XMLCursorPositionen.CursorHinterDemNode nicht geprüft werden!");
+                                                    throw new ApplicationException("CreateTestPattern: Delete must not be checked for XmlCursorPositions.CursorInsideTheEmptyNode!");
                                                 }
                                                 else
                                                 {
-                                                    throw new ApplicationException("CreateTestMuster: CursorInDemLeeremNode can´t be handled at this place!");
+                                                    throw new ApplicationException("CreateTestPattern: CursorInsideTheEmptyNode can´t be handled at this place!");
                                                 }
 
 
                                             case XmlCursorPositions.CursorInFrontOfNode:
-                                                if (elementName == null) // Das Löschen wird geprüft
+                                                if (elementName == null)  // check delete
                                                 {
-                                                    throw new ApplicationException("CreateTestMuster: Löschen darf bei XMLCursorPositionen.CursorVorDemNode nicht geprüft werden!");
+                                                    throw new ApplicationException("CreateTestPattern: Delete must not be checked for XmlCursorPositions.CursorInFrontOfNode!");
                                                 }
                                                 else
                                                 {
-                                                    // Hinter Stelle vorhandenen Elementes wird vor das
-                                                    // zu testende Element eingesetzt
-                                                    testMuster.AddElement(elementName);
-                                                    testMuster.AddElement(Dtd.GetElementNameFromNode(node));
+                                                    // Element is inserted before the element to be tested
+                                                    testPattern.AddElement(elementName);
+                                                    testPattern.AddElement(Dtd.GetElementNameFromNode(node));
                                                 }
                                                 break;
 
                                             case XmlCursorPositions.CursorInsideTextNode:
-                                                if (elementName == null) // Das Löschen wird geprüft
+                                                if (elementName == null)  // check delete
                                                 {
-                                                    throw new ApplicationException("CreateTestMuster: Löschen darf bei XMLCursorPositionen.CursorInnerhalbDesTextNodes nicht geprüft werden!");
+                                                    throw new ApplicationException("CreateTestPattern: Delete must not be checked for XmlCursorPositions.CursorInsideTextNode!");
                                                 }
                                                 else
                                                 {
                                                     if (Dtd.GetElementNameFromNode(node) != "#PCDATA")
                                                     {
-                                                        throw new ApplicationException("CreateTestMuster: CursorInnerhalbDesTextNodes angegeben, aber node.name=" + Dtd.GetElementNameFromNode(node));
+                                                        throw new ApplicationException("CreateTestPattern: CursorInsideTextNode, but node.name=" + Dtd.GetElementNameFromNode(node));
                                                     }
                                                     else
                                                     {
-                                                        // Das zu testende Element wird zwischen zwei Textnodes gesetzt
-                                                        testMuster.AddElement("#PCDATA");
-                                                        testMuster.AddElement(elementName);
-                                                        testMuster.AddElement("#PCDATA");
+                                                        // The element to be tested is placed between two text nodes
+                                                        testPattern.AddElement("#PCDATA");
+                                                        testPattern.AddElement(elementName);
+                                                        testPattern.AddElement("#PCDATA");
                                                     }
                                                 }
                                                 break;
 
                                             default:
-                                                throw new ApplicationException("Unknown XMLCursorPositionen value:" + cursorPos.PosOnNode);
+                                                throw new ApplicationException("Unknown XmlCursorPositions value:" + cursorPos.PosOnNode);
                                         }
                                     }
                                 }
                             }
-                            else // einfach normal weiter die Elemente aufzählen
+                            else // just continue enumerating the elements as usual
                             {
-                                testMuster.AddElement(Dtd.GetElementNameFromNode(bruder));
+                                testPattern.AddElement(Dtd.GetElementNameFromNode(sibling));
                             }
                         }
-                        bruder = bruder.NextSibling; // zum nächsten Element
+                        sibling = sibling.NextSibling; // to the next element
                     }
                     break;
             }
-            return testMuster;
-        }
-
-        /// <summary>
-        /// Ermittelt den Namen des in einem Testmuster hinterlegten Elementes
-        /// </summary>
-        /// <param name="element"></param>
-        /// <returns></returns>
-        private string ElementName(DtdElement element)
-        {
-            if (element == null)
-            {
-                return "[null]";
-            }
-            else
-            {
-                return element.Name;
-            }
+            return testPattern;
         }
     }
 }

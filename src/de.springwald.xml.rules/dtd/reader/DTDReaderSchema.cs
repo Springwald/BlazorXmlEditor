@@ -13,6 +13,7 @@ namespace de.springwald.xml.rules.dtd
 	{
 		public DTDReaderSchema()
 		{
+            // ## To do
 		}
 	}
 }

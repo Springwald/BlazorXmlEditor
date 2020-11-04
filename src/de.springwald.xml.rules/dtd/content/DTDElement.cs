@@ -36,7 +36,7 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Diese DTD-Elemente dürfen innerhalb dieses Elementes vorkommen.
         /// </summary>
-        public string[] AlleElementNamenWelcheAlsDirektesChildZulaessigSind
+        public string[] AllChildNamesAllowedAsDirectChild
         {
             get
             {

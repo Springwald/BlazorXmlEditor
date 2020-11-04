@@ -111,7 +111,7 @@ namespace de.springwald.xml
 
             if (element != null)
             {
-                if (element.AlleElementNamenWelcheAlsDirektesChildZulaessigSind.Length > 1) // Das Element kann Unterelement haben (> 1 statt 0, weil Kommentar ist immer dabei)
+                if (element.AllChildNamesAllowedAsDirectChild.Length > 1) // Das Element kann Unterelement haben (> 1 statt 0, weil Kommentar ist immer dabei)
                 {
                     return true;
                 }

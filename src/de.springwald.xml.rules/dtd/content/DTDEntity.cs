@@ -12,21 +12,15 @@ namespace de.springwald.xml.rules.dtd
     /// <summary>
     /// A single DTD element from a DTD
     /// </summary>
-    public class DTDEntity
+    public class DtdEntity
     {
-        /// <summary>
-        /// Der eindeutige Name  dieser Entity
-        /// </summary>
         public string Name { get; set; }
 
-        /// <summary>
-        /// Der Inhalt dieser Entity
-        /// </summary>
-        public string Inhalt { get; set; }
+        public string Content { get; set; }
 
         /// <summary>
-        /// Ist eine eine % - Entity, d.h.enthält nur einen zu ersetzenden String und bleibt nicht unter ihrem Namen als einzufügen bestehen?
+        /// Is a % - entity, which contains only a string to be replaced and does not remain under its name as to be inserted?
         /// </summary>
-        public bool IstErsetzungsEntity { get; set; }
+        public bool IsReplacementEntity { get; set; }
     }
 }

@@ -17,101 +17,82 @@ using System.Linq;
 
 namespace de.springwald.xml.rules.dtd
 {
-	public class DTDReaderDTD
+	public class DtdReaderDtd
 	{
-		private List<DtdElement> _elemente;		// Die in dieser DTD verfügbaren Elemente
-        private List<DTDEntity> _entities;		// Die bekannten Entity-Einträge dieser DTD
+		private List<DtdElement> elements;
+        private List<DtdEntity> entities;
 
-		/// <summary>
-		/// Der eingelesene Rohinhalt der DTD
-		/// </summary>
 		public string RawContent { get; private set; }
 
-		/// <summary>
-		/// Der angepasste Inhalt, in welchem z.B. bereits alle Entities aufgelöst sind
-		/// </summary>
-		public string WorkingContent { get; private set; }
+        /// <summary>
+        /// The customized content, in which e.g. all entities are already resolved
+        /// </summary>
+        public string WorkingContent { get; private set; }
 
-		public DTDReaderDTD()
+		public DtdReaderDtd()
 		{
 		}
 
-		/// <summary>
-		/// Erzeugt ein DTD-Objekt auf Basis einer DTD-Datei
-		/// </summary>
-		public Dtd GetDTDFromFile(string filename) 
+        public Dtd GetDtdFromFile(string filename) 
 		{
-			string content=""; // Der Inhalt der DTD-Datei
-			
+            var content = string.Empty;
 			try
 			{
-				using (var reader = new StreamReader(filename, System.Text.Encoding.GetEncoding("ISO-8859-15")))  // Datei öffnen
+				using (var reader = new StreamReader(filename, System.Text.Encoding.GetEncoding("ISO-8859-15"))) 
 				{
 					content = reader.ReadToEnd();
 					reader.Close();
 				}
 			}
-			catch (FileNotFoundException exc) // Falls die Datei nicht gefunden wurde
+			catch (FileNotFoundException exc) 
 			{
-                // 
 				throw new ApplicationException($"Could not read in file '{filename}:\n{exc.Message}" );
 			}
-
-			return this.GetDTDFromString(content);
+			return this.GetDtdFromString(content);
 		}
 
-		/// <summary>
-		/// Erzeugt ein DTD-Objekt auf Basis einer DTD-Datei
-		/// </summary>
-		/// <param name="content">Der Inhalt der DTD-Datei</param>
-		/// <returns></returns>
-		public Dtd GetDTDFromString(string content) 
+		public Dtd GetDtdFromString(string content) 
 		{
-			// Tabs aus dem inhalt durch Leerzeichen ersetzen
-			content = content.Replace ("\t"," ");
+            // Replace tabs from the content with spaces
+            content = content.Replace ("\t"," ");
 
-			// Den gelesenen Inhalt merken
 			this.RawContent = content;
 			this.WorkingContent = content;
 
-			// Elemente suchen und in die DTD füllen
-			_elemente = new List<DtdElement>(); // Noch keine Elemente vorhanden
-            _entities = new List<DTDEntity>();
-			InhaltAnalysieren();	// definierte Elemente einlesen
+			elements = new List<DtdElement>(); 
+            entities = new List<DtdEntity>();
+			this.AnalyzeContent();	
 
-			_elemente.Add(CreateElementFromQuellcode("#PCDATA")); // um das Element #PCDATA ergänzen
-            _elemente.Add(CreateElementFromQuellcode("#COMMENT")); // um das Element #COMMENT ergänzen
+			elements.Add(CreateElementFromQuellcode("#PCDATA")); // add element #PCDATA 
+            elements.Add(CreateElementFromQuellcode("#COMMENT")); // add element #COMMENT
 
-            return  new Dtd(_elemente,_entities);
+            return  new Dtd(elements,entities);
 		}
 
-		/// <summary>
-		/// Verarbeitet den angegebenen Inhalt und baut die entsprechenden Hintergrundstrukturen auf
-		/// </summary>
-		private void InhaltAnalysieren() 
+		private void AnalyzeContent() 
 		{
-			KommentareEntfernen();	// Damit auskommentierte Elemente nicht eingelesen werden
-			EntitiesAuslesen();
-			EntitiesAustauschen();
-			ElementeAuslesen();
+			this.RemoveComments();  // So that commented out elements are not read in
+            this.ReadEntities();
+			this.ReplaceEntities();
+			this.ReadElements();
 		}
 
-		/// <summary>
-		/// Damit auskommentierte Elemente nicht eingelesen werden
-		/// </summary>
-		private void KommentareEntfernen() 
+        /// <summary>
+        /// So that commented out elements are not read in
+        /// </summary>
+        private void RemoveComments() 
 		{
 			// Buddy: <!--((?!-->|<!--)([\t\r\n]|.))*-->
 			const string regex =  "<!--((?!-->|<!--)([\\t\\r\\n]|.))*-->";
 			this.WorkingContent =  Regex.Replace(this.WorkingContent, regex,"");
 		}
 
-		#region ELEMENTE analysieren
+        #region ELEMENTE analysieren
 
-		/// <summary>
-		/// Liest alle im DTD-Inhalt enthaltenen DTD-Elemente aus
-		/// </summary>
-		private void ElementeAuslesen() 
+        /// <summary>
+        /// Reads all DTD elements contained in the DTD content
+        /// </summary>
+        private void ReadElements() 
 		{
 			DtdElement element;
 			string elementCode;
@@ -145,7 +126,7 @@ namespace de.springwald.xml.rules.dtd
             // Nun die sortierte Liste in die Elementliste überführen
             for (int i  = 0; i <gefundene.Count;i++) 
             {
-                _elemente.Add((DtdElement)gefundene[gefundene.GetKey(i)]);
+                elements.Add((DtdElement)gefundene[gefundene.GetKey(i)]);
             }
 
 		}
@@ -161,7 +142,7 @@ namespace de.springwald.xml.rules.dtd
 		{
 			if (elementQuellcode=="#PCDATA") // Es ist kein in der DTD definiertes Element, sondern das PCDATA-Element
 			{
-                DtdElement element = new DtdElement();
+                var element = new DtdElement();
 				element.Name = "#PCDATA";
                 element.ChildElemente = new DtdChildElements("");
 				return element;
@@ -169,7 +150,7 @@ namespace de.springwald.xml.rules.dtd
 
             if (elementQuellcode == "#COMMENT") // Es ist kein in der DTD definiertes Element, sondern das COMMENT-Element
             {
-                DtdElement element = new DtdElement();
+                var element = new DtdElement();
                 element.Name = "#COMMENT";
                 element.ChildElemente = new DtdChildElements("");
                 return element;
@@ -179,7 +160,7 @@ namespace de.springwald.xml.rules.dtd
 			// element=das ganze Elementes
 			// elementname=der Name des Elementes
 			// innerelements=Liste der Child-Elemente, die im Element vorkommen dürfen 
-			string regpatternelement = @"(?<element><!ELEMENT[\t\r\n ]+(?<elementname>[\w-_]+?)([\t\r\n ]+(?<innerelements>[(]([\t\r\n]|.)+?[)][*+]?)?)?(?<empty>[\t\r\n ]+EMPTY)? *>)";
+			const string regpatternelement = @"(?<element><!ELEMENT[\t\r\n ]+(?<elementname>[\w-_]+?)([\t\r\n ]+(?<innerelements>[(]([\t\r\n]|.)+?[)][*+]?)?)?(?<empty>[\t\r\n ]+EMPTY)? *>)";
 
 			// Regulären Ausdruck zum Finden der Element-Teile zusammenbauen
 			Regex reg = new Regex(regpatternelement); //, RegexOptions.IgnoreCase);
@@ -189,7 +170,6 @@ namespace de.springwald.xml.rules.dtd
 
 			if (!match.Success) // Wenn kein Element im Element-Code gefunden wurde
 			{
-                // "Kein Vorkommen gefunden im Elementcode '{0}'."
                 throw new ApplicationException($"Kein Vorkommen gefunden im Elementcode '{elementQuellcode}'.");
 			}
 			else // ein Element gefunden
@@ -201,7 +181,6 @@ namespace de.springwald.xml.rules.dtd
 				// Name des Elementes herausfinden
 				if (!match.Groups["elementname"].Success) 
 				{	// kein Name gefunden
-                    // "Kein Name gefunden im Elementcode '{0}'."
                     throw new ApplicationException($"Kein Name gefunden im Elementcode '{elementQuellcode}'.");
 				} 
 				else 
@@ -257,18 +236,18 @@ namespace de.springwald.xml.rules.dtd
 		/// <summary>
 		/// Setzt für die verschiedenen Entities an den zitierten Stellen den Inhalt der Entities ein
 		/// </summary>
-		private void EntitiesAustauschen() 
+		private void ReplaceEntities() 
 		{
 			string vorher="";
 			while (vorher != this.WorkingContent)   // Solange das Einsetzen der Enities noch Veränderung bewirkt hat
 			{
 				vorher = this.WorkingContent;
-				foreach (DTDEntity entity in this._entities) // Alle Enities durchlaufen
+				foreach (DtdEntity entity in this.entities) // Alle Enities durchlaufen
 				{
-					if (entity.IstErsetzungsEntity ) // wenn es eine Ersetzung-Entity ist
+					if (entity.IsReplacementEntity ) // wenn es eine Ersetzung-Entity ist
 					{
 						// Nennung des Entity %name; durch den Inhalt der Entity ersetzen
-						this.WorkingContent = this.WorkingContent.Replace ("%"+entity.Name +";",entity.Inhalt ); 
+						this.WorkingContent = this.WorkingContent.Replace ("%"+entity.Name +";",entity.Content ); 
 					}
 				}
 			}
@@ -277,25 +256,25 @@ namespace de.springwald.xml.rules.dtd
 		/// <summary>
 		/// Liest alle im DTD-Inhalt enthaltenen Entities aus
 		/// </summary>
-		private void EntitiesAuslesen() 
+		private void ReadEntities() 
 		{
-			DTDEntity entity;
+			DtdEntity entity;
 			string entityCode;
 
 			// Regulären Ausdruck zum finden von DTD-Entities zusammenbauen
 			// (?<entity><!ENTITY[\t\r\n ]+[^>]+>)
 			const string regex =  "(?<entity><!ENTITY[\\t\\r\\n ]+[^>]+>)";
 
-			Regex reg = new Regex(regex); //, RegexOptions.IgnoreCase);
+			var reg = new Regex(regex); //, RegexOptions.IgnoreCase);
 			// Auf den DTD-Inhalt anwenden
-			Match match = reg.Match(this.WorkingContent);
+			var match = reg.Match(this.WorkingContent);
 
 			// Alle RegEx-Treffer durchlaufen und daraus Elemente erzeugen
 			while (match.Success) 
 			{
 				entityCode = match.Groups["entity"].Value;
 				entity = CreateEntityFromQuellcode(entityCode);
-				_entities.Add(entity);
+				entities.Add(entity);
 				match = match.NextMatch(); // Zum nächsten RegEx-Treffer
 			}
 		}
@@ -307,7 +286,7 @@ namespace de.springwald.xml.rules.dtd
 		/// z.B. so etwas könnte im Entity-Quellcode stehen:
 		/// <!ENTITY % html	"a | applet | br | em | img | p | table | ul">
 		/// </example>
-		private DTDEntity CreateEntityFromQuellcode(string entityQuellcode) 
+		private DtdEntity CreateEntityFromQuellcode(string entityQuellcode) 
 		{
 			// Der folgende Ausdruck zerteilt das ENTITY-Tag in seine Bestandteile. Gruppen:
 			// entity=die ganze Entity
@@ -318,22 +297,21 @@ namespace de.springwald.xml.rules.dtd
 			const string  regpatternelement = "(?<entity><!ENTITY[\\t\\r\\n ]+(?:(?<prozent>%)[\\t\\r\\n ]+)?(?<entityname>[\\w-_]+?)[\\t\\r\\n ]+\"(?<inhalt>[^>]+)\"[\\t\\r\\n ]?>)";
 
 			// Regulären Ausdruck zum Finden der Entity-Teile zusammenbauen
-			Regex reg = new Regex(regpatternelement); //, RegexOptions.IgnoreCase);
+			var reg = new Regex(regpatternelement); //, RegexOptions.IgnoreCase);
 
 			// Auf den Entity-Quellcode anwenden
-			Match match = reg.Match(entityQuellcode);
+			var match = reg.Match(entityQuellcode);
 
 			if (!match.Success) // Wenn keine Entity im Entity-Code gefunden wurde
 			{
-                //
                 throw new ApplicationException($"Kein Vorkommen gefunden im Entityquellcode '{entityQuellcode}'");
 			}
 			else // Genau eine Entity gefunden
 			{
-				DTDEntity entity = new DTDEntity();
+				var entity = new DtdEntity();
 
 				// am Prozentzeichen festmachen, ob Ersetzungs-Entity
-				entity.IstErsetzungsEntity =  (match.Groups["prozent"].Success);
+				entity.IsReplacementEntity =  (match.Groups["prozent"].Success);
 
 				// Name der Entity herausfinden
 				if (!match.Groups["entityname"].Success) 
@@ -349,19 +327,17 @@ namespace de.springwald.xml.rules.dtd
 					// Inhalt der Entity herausfinden
 					if (!match.Groups["inhalt"].Success) 
 					{	// kein Inhalt gefunden
-                        // 
 						throw new ApplicationException($"Kein Inhalt gefunden im Entitycode '{entityQuellcode}'" );
 					} 
 					else 
 					{
 						// Inhalt gefunden
-						entity.Inhalt = match.Groups["inhalt"].Value; // Inhalt merken
+						entity.Content = match.Groups["inhalt"].Value; // Inhalt merken
 					}
 				}
 				match = match.NextMatch();
 				if (match.Success) // Wenn mehr als eine Entity im Element-Code gefunden wurde
 				{
-                    // 
 					throw new ApplicationException($"Mehr als ein Vorkommen gefunden im Entitycode '{entityQuellcode}'" );
 				}
 				return entity;
@@ -386,9 +362,9 @@ namespace de.springwald.xml.rules.dtd
 			// (?<attributliste><!ATTLIST muster_titel[\t\r\n ]+(?<attribute>[^>]+?)[\t\r\n ]?>)
 			string ausdruckListe =  "(?<attributliste><!ATTLIST " + element.Name +"[\\t\\r\\n ]+(?<attribute>[^>]+?)[\\t\\r\\n ]?>)";
 
-			Regex regList = new Regex(ausdruckListe); //, RegexOptions.IgnoreCase);
+			var regList = new Regex(ausdruckListe); //, RegexOptions.IgnoreCase);
 			// Auf den DTD-Inhalt anwenden
-			Match match = regList.Match(this.WorkingContent);
+			var match = regList.Match(this.WorkingContent);
 
 			if (match.Success) 
 			{
@@ -400,38 +376,36 @@ namespace de.springwald.xml.rules.dtd
 				// [\t\r\n ]?(?<name>[\w-_]+)[\t\r\n ]+(?<typ>CDATA|ID|IDREF|IDREFS|NMTOKEN|NMTOKENS|ENTITY|ENTITIES|NOTATION|xml:|[(][|\w-_ \t\r\n]+[)])[\t\r\n ]+(?:(?<anzahl>#REQUIRED|#IMPLIED|#FIXED)[\t\r\n ]+)?(?:"(?<vorgabewert>[\w-_]+)")?[\t\r\n ]?
 				const string ausdruckEinzel =  "[\\t\\r\\n ]?(?<name>[\\w-_]+)[\\t\\r\\n ]+(?<typ>CDATA|ID|IDREF|IDREFS|NMTOKEN|NMTOKENS|ENTITY|ENTITIES|NOTATION|xml:|[(][|\\w-_ \\t\\r\\n]+[)])[\\t\\r\\n ]+(?:(?<anzahl>#REQUIRED|#IMPLIED|#FIXED)[\\t\\r\\n ]+)?(?:\"(?<vorgabewert>[\\w-_]+)\")?[\\t\\r\\n ]?";
 
-				Regex regEinzel = new Regex(ausdruckEinzel); //, RegexOptions.IgnoreCase);
+				var regEinzel = new Regex(ausdruckEinzel); //, RegexOptions.IgnoreCase);
 				// Auf den DTD-Inhalt anwenden
 				match = regEinzel.Match(attributListeCode);
 
 				if (match.Success) 
 				{
-
 					DtdAttribute attribut;
 					string typ;
 					string[] werteListe;
 					string delimStr = "|";
 					char [] delimiter = delimStr.ToCharArray();
 
-
 					// Alle RegEx-Treffer durchlaufen und daraus Attribute für das Element erzeugen
 					while (match.Success) 
 					{
 						attribut = new DtdAttribute (); // Attribut erzeugen
 						attribut.Name = match.Groups["name"].Value; // Name des Attributes
-						attribut.StandardWert = match.Groups["vorgabewert"].Value; // StandardWert des Attributes
+						attribut.StandardValue = match.Groups["vorgabewert"].Value; // StandardWert des Attributes
 						// Die Anzahl / Pflicht des Attributes
 						switch (match.Groups["anzahl"].Value) 
 						{
 							case "#REQUIRED":
-								attribut.Pflicht = DtdAttribute.PflichtArten.Pflicht;
+								attribut.Mandatory = DtdAttribute.MandatoryTypes.Mandatory;
 								break;
 							case "#IMPLIED":
 							case "":
-								attribut.Pflicht = DtdAttribute.PflichtArten.Optional;
+								attribut.Mandatory = DtdAttribute.MandatoryTypes.Optional;
 								break;
 							case "#FIXED":
-								attribut.Pflicht = DtdAttribute.PflichtArten.Konstante;
+								attribut.Mandatory = DtdAttribute.MandatoryTypes.Constant;
 								break;
 							default:
                                 throw new ApplicationException($"Unbekannte AttributAnzahl '{match.Groups["anzahl"].Value}' in Attribut '{match.Value}' von Element {element.Name}" );
@@ -442,18 +416,18 @@ namespace de.springwald.xml.rules.dtd
 						typ = typ.Trim();
 						if (typ.StartsWith ("("))  // Es ist eine Aufzählung der zulässigen Werte dieses Attributes (en1|en2|..)
 						{
-							attribut.Typ = "";
+							attribut.Type = "";
 							// Klammern entfernen 
 							typ = typ.Replace("(","");
 							typ = typ.Replace(")","");
 							typ = typ.Replace(")","");
 							// In einzelne Werte aufteilen
 							werteListe = typ.Split(delimiter, StringSplitOptions.RemoveEmptyEntries); // Die durch | getrennten Werte in ein Array splitten
-							attribut.ErlaubteWerte = werteListe.Select(w => w.Replace("\n", " ").Trim()).ToArray();
+							attribut.AllowedValues = werteListe.Select(w => w.Replace("\n", " ").Trim()).ToArray();
 						}
 						else // es ist eine genaue Angabe des Typs dieses Attributes wie z.B. CDATA, ID, IDREF etc.
 						{
-							attribut.Typ = typ;
+							attribut.Type = typ;
 						}
 
 						// Attribut im Element speichern
@@ -466,14 +440,12 @@ namespace de.springwald.xml.rules.dtd
 				{
 					throw new ApplicationException($"No attributes found in the AttributeList '{attributListeCode}'!");
 				}
-
 			} 
 			else 
 			{
 				Trace.WriteLine ($"No attributes available for element {element.Name}.");
 			}
 		}
-
 		#endregion
 	}
 }
