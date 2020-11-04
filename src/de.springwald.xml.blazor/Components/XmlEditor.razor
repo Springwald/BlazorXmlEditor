@@ -11,7 +11,23 @@
 
 @if (this.showContextMenu)
 {
-    <div>Right click menu</div>
+    <div class="modal" tabindex="-1" role="dialog" style="display: @(this.showContextMenu ? "block" : "none")" @onmousedown="EventClickOutsideContextMenu" @onkeydown="EventOnKeyDown" @onkeydown:preventDefault>
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="display:flex; flex-wrap: wrap">
+                    xml editor
+                    <button type="button" class="close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <button class="btn" @onclick="MenuClickCopy" @onmousedown:stopPropagation="true" @onmousedown:preventDefault="true">copy to clipboard</button>
+                    <button class="btn" @onclick="MenuClickInsert" @onmousedown:stopPropagation="true" @onmousedown:preventDefault="true">insert from clipboard</button>
+                    <button class="btn" @onclick="MenuClickCut" @onmousedown:stopPropagation="true" @onmousedown:preventDefault="true">cut to clipboard</button>
+                </div>
+                @*<div class="modal-footer">Footer</div>*@
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
 }
 
 <div class="xmlEditorBox" style="overflow: auto; @this.Style" @ref="_canvasDivReference">
@@ -145,20 +161,30 @@
 
     #region key events
 
+
+
     public async void EventFocusIn(FocusEventArgs e)
     {
         this.EditorContext.EditorState.HasFocus = true;
         // this.EditorContext.NativePlatform.InputEvents.FocusIn.Trigger(EventArgs.Empty);
+        await Task.CompletedTask;
     }
 
     public async void EventFocusOut(FocusEventArgs e)
     {
         this.EditorContext.EditorState.HasFocus = false;
         // this.EditorContext.NativePlatform.InputEvents.FocusIn.Trigger(EventArgs.Empty);
+        await Task.CompletedTask;
     }
 
     public async void EventOnKeyDown(KeyboardEventArgs e)
     {
+        if (this.showContextMenu)
+        {
+            if (e.Key == "Escape") this.showContextMenu = false;
+            return;
+        }
+
         var args = new de.springwald.xml.events.KeyEventArgs
         {
             CtrlKey = e.CtrlKey,
@@ -214,12 +240,43 @@
 
     #endregion
 
+    #region context menu
+
+    async void MenuClickInsert(MouseEventArgs e)
+    {
+        this.showContextMenu = false;
+        await this.EditorContext.NativePlatform.InputEvents.PreviewKey.Trigger(new events.KeyEventArgs { CtrlKey = true, Key = events.Keys.V });
+    }
+
+    async void MenuClickCut(MouseEventArgs e)
+    {
+        this.showContextMenu = false;
+        await this.EditorContext.NativePlatform.InputEvents.PreviewKey.Trigger(new events.KeyEventArgs { CtrlKey = true, Key = events.Keys.X });
+    }
+
+    async void MenuClickCopy(MouseEventArgs e)
+    {
+        this.showContextMenu = false;
+        await this.EditorContext.NativePlatform.InputEvents.PreviewKey.Trigger(new events.KeyEventArgs { CtrlKey = true, Key = events.Keys.C });
+    }
+
+    async void EventClickOutsideContextMenu(MouseEventArgs e)
+    {
+        this.showContextMenu = false;
+        this.StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    #endregion
+
     #region mouse events
 
     async void EventOnMouseDown(MouseEventArgs e)
     {
+        if (e.Button != 0) return;
+
         var result = await JSRuntime.InvokeAsync<BoundingClientRect>
-            ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+    ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
 
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
@@ -233,8 +290,10 @@
 
     async void EventOnMouseMove(MouseEventArgs e)
     {
+        if (e.Button != 0) return;
+
         var result = await JSRuntime.InvokeAsync<BoundingClientRect>
-            ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
 
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
@@ -248,8 +307,10 @@
 
     async void EventOnMouseUp(MouseEventArgs e)
     {
+        if (e.Button  != 0) return;
+
         var result = await JSRuntime.InvokeAsync<BoundingClientRect>
-            ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
 
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
@@ -268,4 +329,4 @@
 
     #endregion
 
-                }
+}

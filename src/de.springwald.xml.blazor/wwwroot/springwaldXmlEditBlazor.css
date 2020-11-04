@@ -1,7 +1,18 @@
-﻿.canvasOuter {
-    border: solid 1px red;
+﻿.xmlEditorBox {
+    border: 1px solid lightgrey;
 }
 
-    .canvasOuter canvas {
-        border: solid 1px blue;
+    .xmlEditorBox .canvasOuter,
+    .xmlEditorBox .canvasOuter:active,
+    .xmlEditorBox .canvasOuter:focus,
+    .xmlEditorBox .canvasOuter canvas,
+    .xmlEditorBox .canvasOuter canvas:active,
+    .xmlEditorBox .canvasOuter canvas:focus {
+        outline: none !important;
+        border: none !important;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
     }
+
+.xmlEditorContextMenu {
+
+}
