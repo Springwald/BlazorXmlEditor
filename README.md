@@ -32,13 +32,19 @@ In `Program.cs` add [CurrieTechnologies.Razor.Clipboard service](https://github.
 ```csharp
 builder.Services.AddClipboard();
 ```
+
+In `index.html` head add:
+
+```html
+ <link href="_content/de.springwald.xml.blazor/springwaldXmlEditBlazor.css"  rel="stylesheet"/>
+```
+
 In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExtensions/Canvas), [CurrieTechnologies.Razor.Clipboard service](https://github.com/Basaingeal/Razor.Clipboard) and the blazor xml editor JS:
 
 ```html
 <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
 <script src="_content/CurrieTechnologies.Razor.Clipboard/clipboard.min.js"></script>
 <script src="_content/de.springwald.xml.blazor/springwaldXmlEditBlazor.js"></script>
-
 ```
 
 ### Use the standard layout
