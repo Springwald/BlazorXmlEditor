@@ -12,11 +12,7 @@ namespace de.springwald.xml.blazor.NativePlatform
     {
         public IClipboard Clipboard { get; }
 
-        public IControlElement ControlElement { get; }
-
         public IInputEvents InputEvents { get; }
-
-        public IFocus Focus { get; }
 
         public IGraphics Gfx { get; }
 
@@ -35,9 +31,7 @@ namespace de.springwald.xml.blazor.NativePlatform
         public BlazorNativePlatform(BECanvasComponent canvas, BlazorClipboard blazorClipboard)
         {
             this.Clipboard = blazorClipboard;
-            this.ControlElement = new BlazorControlElement();
             this.InputEvents = new BlazorInputEvents();
-            this.Focus = new BlazorFocus();
             this.Gfx = new BlazorGfx(canvas);
         }
 

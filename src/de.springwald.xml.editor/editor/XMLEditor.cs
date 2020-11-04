@@ -42,7 +42,6 @@ namespace de.springwald.xml.editor
         public XmlEditor(EditorContext editorContext)
         {
             this.editorContext = editorContext;
-            this.NativePlatform.ControlElement.Enabled = false; 
             this.editorContext.EditorState.CursorRaw.ChangedEvent.Add(this.CursorChangedEvent);
             this.editorContext.EditorState.ContentChangedEvent.Add(this.OnContentChanged);
             this.MouseHandler = new MouseHandler(editorContext.NativePlatform);
@@ -75,7 +74,6 @@ namespace de.springwald.xml.editor
                     this.EditorState.RootElement.Dispose();
                     this.EditorState.RootElement = null;
                 }
-                this.NativePlatform.ControlElement.Enabled = false;
             }
             else
             {
@@ -109,10 +107,7 @@ namespace de.springwald.xml.editor
                 {
                     this.EditorState.UndoHandler = new XmlUndoHandler(this.EditorState.RootNode);
                 }
-
-                this.NativePlatform.ControlElement.Enabled = true;
             }
-
             await this.EditorState.FireContentChangedEvent();
         }
 
@@ -187,22 +182,16 @@ namespace de.springwald.xml.editor
 
         private async Task CursorBlinkedEvent(bool blinkOn)
         {
-            if (this.NativePlatform.ControlElement != null)
-            {
-                var limitRight = this.NativePlatform.Gfx.Width;
-                await this.Paint(limitRight: limitRight);
-            }
+            var limitRight = this.NativePlatform.Gfx.Width;
+            await this.Paint(limitRight: limitRight);
         }
 
         private async Task CursorChangedEvent(EventArgs e)
         {
             // Nach einer Cursorbewegung wird der Cursor zunächst als Strich gezeichnet
             this.EditorState.CursorBlink.ResetBlinkPhase();
-            if (this.NativePlatform.ControlElement != null)
-            {
-                var limitRight = this.NativePlatform.Gfx.Width;
-                await this.Paint(limitRight: limitRight);
-            }
+            var limitRight = this.NativePlatform.Gfx.Width;
+            await this.Paint(limitRight: limitRight);
         }
 
         private void CleanUpXmlElements()

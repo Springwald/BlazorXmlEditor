@@ -17,9 +17,7 @@ namespace de.springwald.xml.editor.nativeplatform
     {
         Task SetSize(int width, int height);
         IClipboard Clipboard { get; }
-        IControlElement ControlElement { get; }
         IInputEvents InputEvents { get; }
-        IFocus Focus { get; }
         IGraphics Gfx { get; }
         void LogError(string v);
     }
