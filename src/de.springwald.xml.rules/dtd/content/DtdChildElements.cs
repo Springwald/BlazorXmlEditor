@@ -162,7 +162,7 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Wenn dies ein EinzelChild ist, dann wird hier der Name des ChildElementes vermerkt
+        ///  If this is a singleChild, then the name of the ChildElement is noted here
         /// </summary>
         /*public DTDElement Element
 		{
@@ -183,7 +183,7 @@ namespace de.springwald.xml.rules.dtd
 
 
         /// <summary>
-        /// Wenn dies ein EinzelChild ist, dann wird hier der Name des ChildElementes vermerkt
+        /// If this is a singleChild, then the name of the ChildElement is noted here
         /// </summary>
         public string ElementName { get; protected set; }
 
@@ -192,18 +192,18 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Stellt einen ChildElemente-Block auf Basis des übergebenen DTD-Quellcodes bereit
+        /// Provides a ChildElement block based on the passed DTD source code
         /// </summary>
         /// <param name="childrenSourcCode">
-        /// Der DTD-Quellcode der ChildElemente
+        /// The DTD source code of the ChildElements
         /// </param>
         /// <example>
-        /// So kann z.B. eine Quellcodeangabe aussehen:
+        /// For example, a source code specification can look like this:
         /// (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*
         /// </example>
         public DtdChildElements(string childrenSourcCode)
         {
-            // Grundwerte initialisieren
+            // Initialize basic values
             this.ElementType = DtdChildElementTypes.Empty;
             this._children = new List<DtdChildElements>();
             this.DefCount = DtdChildElementAmounts.ExactOnce;
@@ -224,7 +224,6 @@ namespace de.springwald.xml.rules.dtd
             {
                 this.ReadCode();
             }
-
         }
 
         /// <summary>
@@ -254,11 +253,10 @@ namespace de.springwald.xml.rules.dtd
         public void AssignDtd(Dtd dtd)
         {
             // Pass on to the sub-children
-            foreach (DtdChildElements child in _children)
+            foreach (var child in _children)
             {
                 child.AssignDtd(dtd);
             }
-
             this._dtd = dtd;
         }
 

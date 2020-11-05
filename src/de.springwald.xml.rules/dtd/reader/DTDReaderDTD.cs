@@ -356,7 +356,7 @@ namespace de.springwald.xml.rules.dtd
 		private void CreateDTDAttributesForElement(DtdElement element) 
 		{
 			
-			element.Attribute = new List<DtdAttribute> ();
+			element.Attributes = new List<DtdAttribute> ();
 
 			// Regulären Ausdruck zum finden der AttributList-Definition zusammenbauen
 			// (?<attributliste><!ATTLIST muster_titel[\t\r\n ]+(?<attribute>[^>]+?)[\t\r\n ]?>)
@@ -431,7 +431,7 @@ namespace de.springwald.xml.rules.dtd
 						}
 
 						// Attribut im Element speichern
-						element.Attribute.Add(attribut);
+						element.Attributes.Add(attribut);
 
 						match = match.NextMatch(); // Zum nächsten RegEx-Treffer
 					}

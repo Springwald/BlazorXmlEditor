@@ -16,14 +16,14 @@ namespace de.springwald.xml.rules.dtd
     /// </summary>
     public class DtdTestpattern
     {
-        private string parentElementName;	    // Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)
+        private string parentElementName;	    // This element lies over the cursor Pos (drawing:C) to be tested
 
         private string compareStringForRegEx;
 
         private StringBuilder elementNameList;
 
         /// <summary>
-        /// Das zum Test eingefügte Element. Ist es NULL, bedeutet das, dass statt Einfügen das Löschen geprüft wurde
+        /// The element inserted for testing. If it is NULL, this means that instead of inserting, the deletion was checked
         /// </summary>
         public string ElementName { get; }
 
@@ -41,7 +41,7 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Eine schriftliche Zusammenfassung dieses Musters
+        /// A written summary of this sample
         /// </summary>
         public string Summary
         {
@@ -49,7 +49,7 @@ namespace de.springwald.xml.rules.dtd
             {
                 var result = new StringBuilder();
 
-                // Erfolgreich getestet?
+                // Successfully tested?
                 if (this.Success)
                 {
                     result.Append("+ ");
@@ -59,20 +59,20 @@ namespace de.springwald.xml.rules.dtd
                     result.Append("- ");
                 }
 
-                // Der Name des ParentNodes
+                // The name of the ParentNode
                 result.Append(this.parentElementName);
                 result.Append(" (");
                 result.Append(CompareStringForRegEx);
                 result.Append(")");
 
-                // Was wurde getestet?
+                // What was tested?
                 if (this.ElementName == null)
                 {
-                    result.Append(" [getestet: löschen]");
+                    result.Append(" [tested: delete]");
                 }
                 else
                 {
-                    result.AppendFormat("[getestet: {0}]", this.ElementName);
+                    result.AppendFormat("[tested: {0}]", this.ElementName);
                 }
 
                 return result.ToString();
@@ -80,12 +80,12 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Ist das Muster erfolgreich anwendbar gewesen?
+        /// Has the pattern been successfully applied?
         /// </summary>
         public bool Success { get; set; }
 
-        /// <param name="element">Das zum Test eingefügte Element. Ist es NULL, bedeutet das, dass statt Einfügen das Löschen geprüft wurde</param>
-        /// <param name="parentElementName">Dieses Element liegt über der zu testenden Cursor Pos (Zeichnung:C)</param>
+        /// <param name="element">The element inserted for testing. If it is NULL, this means that instead of inserting, the deletion was checked</param>
+        /// <param name="parentElementName">This element lies over the cursor Pos (drawing:C) to be tested</param>
         public DtdTestpattern(string elementName, string parentElementName)
         {
             elementNameList = new StringBuilder();
@@ -93,7 +93,7 @@ namespace de.springwald.xml.rules.dtd
 
             this.ElementName = elementName;
             this.parentElementName = parentElementName;
-            this.Success = false; // Bisher nicht bestätigt
+            this.Success = false; //  Not yet confirmed
         }
 
         public void AddElement(string elementName)

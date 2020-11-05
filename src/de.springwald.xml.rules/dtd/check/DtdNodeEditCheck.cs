@@ -102,17 +102,14 @@ namespace de.springwald.xml.rules.dtd
             return (result.ToArray());
         }
 
-
         /// <summary>
         ///  Is the specified element allowed at this point in the XML?
         /// </summary>
         public bool IsTheNodeAllowedAtThisPos(System.Xml.XmlNode node)
         {
             if (node.ParentNode is System.Xml.XmlDocument)
-            {   // Es handelt sich um das root-Element, dieses kann nicht gegen den Parent-Node geprüft
-                // werden, sondern muss getrennt verglichen werden. Wenn es das in der DTD erlaubt Root-
-                // Element ist, dann ok, sonst nicht
-                // Implementierung: TO DO!
+            {   // It is the root element, this cannot be checked against the parent node, but must be compared separately. If it is the root element allowed in the DTD, then ok, otherwise not
+                // Implementation: TO DO!
                 return true;
             }
             else
@@ -131,7 +128,7 @@ namespace de.springwald.xml.rules.dtd
                 // Pack into a test sample list and send the list for testing
                 var list = new List<DtdTestpattern>();
                 list.Add(pattern);
-                CheckAllTestPattern(list, cursorPos);
+                this.CheckAllTestPattern(list, cursorPos);
 
                 if (pattern.Success)
                 {

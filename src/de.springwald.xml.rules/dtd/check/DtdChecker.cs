@@ -57,7 +57,7 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Checks if the passed XML object is ok according to the given DTD. 
         /// </summary>
-        /// <param name="posBereitsGeprueft">Is it already known for this node whether it is allowed to stand where it stands?</param>
+        /// <param name="posAlreadyCheckedAsOk">Is it already known for this node whether it is allowed to stand where it stands?</param>
         public bool IsXmlNodeOk(System.Xml.XmlNode xmlNode, bool posAlreadyCheckedAsOk)
         {
             this.Reset();

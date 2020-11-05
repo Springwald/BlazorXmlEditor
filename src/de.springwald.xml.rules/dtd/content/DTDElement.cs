@@ -20,42 +20,41 @@ namespace de.springwald.xml.rules.dtd
     /// </summary>
     public class DtdElement
     {
-        private Regex _childrenRegExObjekt;         // Liefert ein RegEx-Objekt, mit welchem man Childfolgen darauf hin prüfen kann, ob sie für dieses Element gültig sind
-        private string[] _alleElementNamenWelcheAlsDirektesChildZulaessigSind; // Diese DTD-Elemente dürfen innerhalb dieses Elementes vorkommen
+        private Regex _childrenRegExObjekt;         // Returns a RegEx object which can be used to check if a sequence of images is valid for this element
+        private string[] allChildNamesAllowedAsDirectChild; // These DTD elements may occur within this element
 
         /// <summary>
-        /// Der eindeutige Name dieses Elementes
+        /// The unique name of this element
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Die Child-Elemente dieses Elementes
+        /// The child elements of this element
         /// </summary>
         public DtdChildElements ChildElemente { get; set; }
 
         /// <summary>
-        /// Diese DTD-Elemente dürfen innerhalb dieses Elementes vorkommen.
+        /// These DTD elements may occur within this element.
         /// </summary>
         public string[] AllChildNamesAllowedAsDirectChild
         {
             get
             {
-                if (_alleElementNamenWelcheAlsDirektesChildZulaessigSind == null)
+                if (this.allChildNamesAllowedAsDirectChild == null)
                 {
-                    _alleElementNamenWelcheAlsDirektesChildZulaessigSind = GetDTDElementeNamenAusChildElementen_(this.ChildElemente).Distinct().ToArray();
+                    this.allChildNamesAllowedAsDirectChild = GetDtdElementNamesFromChildElements(this.ChildElemente).Distinct().ToArray();
                 }
-                return _alleElementNamenWelcheAlsDirektesChildZulaessigSind;
+                return this.allChildNamesAllowedAsDirectChild;
             }
         }
 
         /// <summary>
-        /// Die für dieses Element bekannten Attribute
+        /// The attributes known for this element
         /// </summary>
-        public List<DtdAttribute> Attribute { get; set; }
+        public List<DtdAttribute> Attributes { get; set; }
 
         /// <summary>
-        /// Liefert ein RegEx-Objekt, mit welchem man Childfolgen darauf hin prüfen kann, ob sie für dieses
-        /// Element gültig sind
+        /// Returns a RegEx object which can be used to check if a sequence of images is valid for this element
         /// </summary>
         public Regex ChildrenRegExObjekt
         {
@@ -63,34 +62,28 @@ namespace de.springwald.xml.rules.dtd
             {
                 if (_childrenRegExObjekt == null)
                 {
-                    StringBuilder ausdruck = new StringBuilder();
-                    ausdruck.Append(">");
-                    ausdruck.Append(this.ChildElemente.RegExAusdruck);
-                    ausdruck.Append("<");
-                    _childrenRegExObjekt = new Regex(ausdruck.ToString());// RegexOptions.Compiled);
+                    _childrenRegExObjekt = new Regex($">{this.ChildElemente.RegExAusdruck}<");// RegexOptions.Compiled);
                 }
                 return _childrenRegExObjekt;
             }
         }
 
         /// <summary>
-        /// Liefert die Liste aller in den Children erwähnten Elemente
+        /// Returns the list of all elements mentioned in the Children
         /// </summary>
-        /// <param name="children"></param>
-        /// <returns></returns>
-        private IEnumerable<string> GetDTDElementeNamenAusChildElementen_(DtdChildElements children)
+        private IEnumerable<string> GetDtdElementNamesFromChildElements(DtdChildElements children)
         {
             switch (children.ElementType)
             {
                 case DtdChildElements.DtdChildElementTypes.SingleChild:
-                    // Ist ein einzelnes ChildElement
+                    // is a single ChildElement
                     yield return children.ElementName;
                     break;
 
                 case DtdChildElements.DtdChildElementTypes.ChildList:
                     for (int i = 0; i < children.ChildrenCount; i++)
                     {
-                        foreach (string childElementName in GetDTDElementeNamenAusChildElementen_(children.Child(i)))
+                        foreach (string childElementName in this.GetDtdElementNamesFromChildElements(children.Child(i)))
                         {
                             yield return childElementName;
                         }
@@ -101,11 +94,10 @@ namespace de.springwald.xml.rules.dtd
                     break;
 
                 default:
-                    // "Unbekannte DTDChildElementArt {0}"
-                    throw new ApplicationException($"Unbekannte DTDChildElementArt {children.ElementType}" );
+                    throw new ApplicationException($"unknown DTDChildElementType {children.ElementType}" );
             }
 
-            yield return "#COMMENT";     // Das Kommentar-Tag hinzufügen, da dieses immer zulässig ist
+            yield return "#COMMENT";     //Add the comment tag, as this is always allowed
         }
 
 
