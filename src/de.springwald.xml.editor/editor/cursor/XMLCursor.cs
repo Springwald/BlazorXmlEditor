@@ -20,9 +20,9 @@ namespace de.springwald.xml.cursor
 
     public partial class XmlCursor : IDisposable
     {
-        public XmlAsyncEvent<EventArgs> ChangedEvent { get;  }
+        public XmlAsyncEvent<EventArgs> ChangedEvent { get; }
 
-        public XmlCursorPos StartPos { get;  }
+        public XmlCursorPos StartPos { get; }
 
         public XmlCursorPos EndPos { get; }
 
@@ -81,149 +81,91 @@ namespace de.springwald.xml.cursor
             await this.ChangedEvent.Trigger(EventArgs.Empty);
         }
 
-        public void BeideCursorPosSetzenOhneChangeEvent(XmlNode node, XmlCursorPositions posAmNode, int posImTextnode)
+        public void SetBotPositionsWithoutChangedEvent(XmlNode node, XmlCursorPositions posAmNode, int posImTextnode)
         {
-            // Cursor setzen
             this.StartPos.SetPos(node, posAmNode, posImTextnode);
             this.EndPos.SetPos(node, posAmNode, posImTextnode);
         }
 
         /// <summary>
-        /// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
+        /// Sets node and position simultaneously and thus triggers only one Changed-Event instead of two
         /// </summary>
-        /// <param name="aktNode"></param>
-        /// <param name="posInNode"></param>
-        /// <param name="posImTextnode"></param>
-        public async Task BeideCursorPosSetzenMitChangeEventWennGeaendert(XmlNode node, XmlCursorPositions posAmNode, int posImTextnode)
+        public async Task SetBothPositionsAndFireChangedEventIfChanged(XmlNode node, XmlCursorPositions posOnNode, int posInTextnode)
         {
-            // Herausfinden, ob sich etwas geändert hat
-            bool geaendert;
-            if (node != StartPos.ActualNode)
-            {
-                geaendert = true;
-            }
-            else
-            {
-                if (posAmNode != StartPos.PosOnNode)
-                {
-                    geaendert = true;
-                }
-                else
-                {
-                    if (posImTextnode != StartPos.PosInTextNode)
-                    {
-                        geaendert = true;
-                    }
-                    else
-                    {
-                        geaendert = false;
-                    }
-                }
-            }
-            if (!geaendert)
-            {
-                if (node != EndPos.ActualNode)
-                {
-                    geaendert = true;
-                }
-                else
-                {
-                    if (posAmNode != EndPos.PosOnNode)
-                    {
-                        geaendert = true;
-                    }
-                    else
-                    {
-                        if (posImTextnode != EndPos.PosInTextNode)
-                        {
-                            geaendert = true;
-                        }
-                        else
-                        {
-                            geaendert = false;
-                        }
-                    }
-                }
-            }
-
-            this.BeideCursorPosSetzenOhneChangeEvent(node, posAmNode, posImTextnode);
-            if (geaendert) await this.ChangedEvent.Trigger(EventArgs.Empty); // Bescheid geben, dass nun der Cursor geändert wurde
+            bool changed =
+                node != StartPos.ActualNode || posOnNode != StartPos.PosOnNode || posInTextnode != StartPos.PosInTextNode ||
+                node != EndPos.ActualNode || posOnNode != EndPos.PosOnNode || posInTextnode != EndPos.PosInTextNode;
+            this.SetBotPositionsWithoutChangedEvent(node, posOnNode, posInTextnode);
+            if (changed) await this.ChangedEvent.Trigger(EventArgs.Empty);
         }
 
         /// <summary>
-        /// Setzt gleichzeitig Node und Position und löst dadurch nur ein Changed-Event statt zwei aus
+        /// Sets node and position simultaneously and thus triggers only one Changed-Event instead of two
         /// </summary>
-        /// <param name="aktNode"></param>
-        /// <param name="posInNode"></param>
-        public async Task BeideCursorPosSetzenMitChangeEventWennGeaendert(XmlNode node, XmlCursorPositions posAmNode)
+        public async Task SetBothPositionsAndFireChangedEventIfChanged(XmlNode node, XmlCursorPositions posAmNode)
         {
-            await BeideCursorPosSetzenMitChangeEventWennGeaendert(node, posAmNode, 0);
+            await SetBothPositionsAndFireChangedEventIfChanged(node, posAmNode, 0);
         }
 
         /// <summary>
-        /// Setzt die Positionen des Cursors für entsprechende Mausaktionen:
-        /// Bei MausDown StartUndEndpos, bei Move und Up nur die Endpos
+        /// Sets the cursor positions for corresponding mouse actions: For MouseDown StartAndEndpos, for Move and Up only the endpos
         /// </summary>
-        /// <param name="action"></param>
-        public async Task CursorPosSetzenDurchMausAktion(System.Xml.XmlNode xmlNode, XmlCursorPositions cursorPos, int posInZeile, MouseClickActions action)
+        public async Task SetCursorByMouseAction(XmlNode xmlNode, XmlCursorPositions cursorPos, int posInLine, MouseClickActions action)
         {
             switch (action)
             {
                 case MouseClickActions.MouseDown:
-                    // den Cursor an die neue Position setzen
-                    await SetPositions(xmlNode, cursorPos, posInZeile, throwChangedEventWhenValuesChanged: true);
+                    // move the cursor to the new position
+                    await SetPositions(xmlNode, cursorPos, posInLine, throwChangedEventWhenValuesChanged: true);
                     break;
                 case MouseClickActions.MouseDownMove:
                 case MouseClickActions.MouseUp:
-                    // Ende des Select-Cursors setzen
-                    if (EndPos.SetPos(xmlNode, cursorPos, posInZeile))
+                    // Set end of the select cursor
+                    if (EndPos.SetPos(xmlNode, cursorPos, posInLine))
                     {
                         await this.ForceChangedEvent();
                     }
-                    //Debug.WriteLine(SelektionAlsString);
                     break;
             }
         }
 
         /// <summary>
-        /// Setzt die Positionen des Cursors für entsprechende Mausaktionen:
-        /// Bei MausDown StartUndEndpos, bei Move und Up nur die Endpos
+        /// Sets the cursor positions for corresponding mouse actions: For MausDown StartUndEndpos, for Move and Up only the endpos
         /// </summary>
-        /// <param name="aktion"></param>
-        public async Task CursorPosSetzenDurchMausAktion(System.Xml.XmlNode xmlNode, XmlCursorPositions cursorPos, MouseClickActions aktion)
+        public async Task SetCursorByMouseAction(XmlNode xmlNode, XmlCursorPositions cursorPos, MouseClickActions action)
         {
-            await CursorPosSetzenDurchMausAktion(xmlNode, cursorPos, 0, aktion);
+            await SetCursorByMouseAction(xmlNode, cursorPos, 0, action);
         }
 
         /// <summary>
-        /// Optimiert den selektierten Bereich 
+        /// Optimizes the selected area 
         /// </summary>
         public async Task OptimizeSelection()
         {
-            // Tauschbuffer-Variablen definieren
+            // Define exchange buffer variables
             XmlCursorPositions dummyPos;
             int dummyTextPos;
 
-            if (StartPos.ActualNode == null) return; // Nix im Cursor, daher nix zu optimieren
+            if (StartPos.ActualNode == null) return;
 
-            // 1. Wenn die Startpos hinter der Endpos liegt, dann beide vertauschen
-            if (StartPos.ActualNode == EndPos.ActualNode)  // Beide Nodes sind gleich
+            // 1. if the start pos is behind the end pos, then swap both
+            if (StartPos.ActualNode == EndPos.ActualNode)  // Both nodes are equal
             {
-                if (StartPos.PosOnNode > EndPos.PosOnNode) // Wenn StartPos innerhalb eines Nodes hinter EndPos liegt
+                if (StartPos.PosOnNode > EndPos.PosOnNode) //  If StartPos is within a node behind EndPos
                 {
-                    // beide Positionen am selben Node tauschen
+                    // exchange both positions at the same node
                     dummyPos = StartPos.PosOnNode;
                     dummyTextPos = StartPos.PosInTextNode;
                     StartPos.SetPos(EndPos.ActualNode, EndPos.PosOnNode, EndPos.PosInTextNode);
                     EndPos.SetPos(EndPos.ActualNode, dummyPos, dummyTextPos);
                 }
-                else // StartPos lag nicht hinter Endpos
+                else // StartPos was not behind Endpos
                 {
-                    // Ist ist ein Textteil innerhalb eines Textnodes selektiert ?
+                    // Is a text part within a text node selected ?
                     if ((StartPos.PosOnNode == XmlCursorPositions.CursorInsideTextNode) && (EndPos.PosOnNode == XmlCursorPositions.CursorInsideTextNode))
-                    {  // Ein Teil eines Textnodes ist selektiert
-                        if (StartPos.PosInTextNode > EndPos.PosInTextNode) // Wenn die TextStartpos hinter der TextEndpos liegt, dann wechseln
-                        {   // Textauswahl tauschen
+                    {  // A part of a text node is selected
+                        if (StartPos.PosInTextNode > EndPos.PosInTextNode) // If the TextStartpos is behind the TextEndpos, then change
+                        {   // Exchange text selection
                             dummyTextPos = StartPos.PosInTextNode;
                             StartPos.SetPos(StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, EndPos.PosInTextNode);
                             EndPos.SetPos(StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, dummyTextPos);
@@ -231,9 +173,9 @@ namespace de.springwald.xml.cursor
                     }
                 }
             }
-            else // Beide Nodes sind nicht gleich
+            else // Both nodes are not equal
             {
-                // Wenn die Nodes in der Reihenfolge falsch sind, dann beide vertauschen
+                // If the nodes are wrong in the order, then swap both
                 if (ToolboxXml.Node1LaisBeforeNode2(EndPos.ActualNode, StartPos.ActualNode))
                 {
                     var tempPos = this.StartPos.Clone();
@@ -241,25 +183,25 @@ namespace de.springwald.xml.cursor
                     this.EndPos.SetPos(tempPos.ActualNode, tempPos.PosOnNode, tempPos.PosInTextNode);
                 }
 
-                // Wenn der EndNode im StartNode liegt, den gesamten, umgebenden Startnode selektieren
+                // If the EndNode is in the StartNode, select the entire surrounding StartNode
                 if (ToolboxXml.IsChild(EndPos.ActualNode, StartPos.ActualNode))
                 {
                     await SetPositions(StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag, 0, throwChangedEventWhenValuesChanged: false);
                 }
 
-                // Den ersten gemeinsamen Parent von Start und Ende finden, und in dieser Höhe die Nodes selektieren.
-                // Das führt dazu, dass z.B. bei LI-Elemente und UL beim Ziehen der Selektion über mehrere LI immer
-                // nur ganze LI selektiert werden und nicht nur Teile davon
-                if (StartPos.ActualNode.ParentNode != EndPos.ActualNode.ParentNode) // wenn Start und Ende nicht direkt im selben Parent stecken
+                // Find the first common parent of start and end and select the nodes in this height.
+                // This leads to the fact that e.g. with LI elements and UL only the whole LI 
+                // is selected when dragging the selection over several LI and not only parts of it
+                if (StartPos.ActualNode.ParentNode != EndPos.ActualNode.ParentNode) // if start and end are not directly in the same parent
                 {
-                    // - zuerst herausfinden, welches der tiefste, gemeinsame Parent von Start- und End-node ist
-                    System.Xml.XmlNode gemeinsamerParent = XmlCursorSelectionHelper.TiefsterGemeinsamerParent(StartPos.ActualNode, EndPos.ActualNode);
-                    // - dann Start- und End-Node bis vor dem Parent hoch-eskalieren
-                    System.Xml.XmlNode nodeStart = StartPos.ActualNode;
-                    while (nodeStart.ParentNode != gemeinsamerParent) nodeStart = nodeStart.ParentNode;
-                    System.Xml.XmlNode nodeEnde = EndPos.ActualNode;
-                    while (nodeEnde.ParentNode != gemeinsamerParent) nodeEnde = nodeEnde.ParentNode;
-                    // - schließlich die neuen Start- und End-Nodes anzeigen  
+                    // - first find out which is the deepest common parent of start and end node
+                    XmlNode commonParent = XmlCursorSelectionHelper.DeepestCommonParent(StartPos.ActualNode, EndPos.ActualNode);
+                    // - then upscale start- and end-node to before the parent
+                    XmlNode nodeStart = StartPos.ActualNode;
+                    while (nodeStart.ParentNode != commonParent) nodeStart = nodeStart.ParentNode;
+                    XmlNode nodeEnde = EndPos.ActualNode;
+                    while (nodeEnde.ParentNode != commonParent) nodeEnde = nodeEnde.ParentNode;
+                    // - finally show the new start and end nodes  
                     StartPos.SetPos(nodeStart, XmlCursorPositions.CursorOnNodeStartTag);
                     EndPos.SetPos(nodeEnde, XmlCursorPositions.CursorOnNodeStartTag);
                 }
@@ -267,33 +209,32 @@ namespace de.springwald.xml.cursor
         }
 
         /// <summary>
-        /// Sind Zeichen oder Nodes von diesem Cursor eingeschlossen
+        /// Are characters or nodes enclosed by this cursor?
         /// </summary>
         /// <remarks>
-        /// Entweder ist ein einzelner Node von der Startpos selektiert, oder die selektierten Bereiche liegen
-        /// zwischen StartPos und EndPos
+        /// Either a single node is selected by the StartPos, or the selected ranges lie between StartPos and EndPos
         /// </remarks>
-        public  bool IsSomethingSelected
+        public bool IsSomethingSelected
         {
             get
             {
-                // Wenn gar kein Cursor gesetzt ist, dann ist auch nix selektiert
+                // If no cursor is set, then nothing is selected
                 if (this.StartPos.ActualNode == null) return false;
 
                 if ((this.StartPos.PosOnNode == XmlCursorPositions.CursorOnNodeStartTag) ||
                     (this.StartPos.PosOnNode == XmlCursorPositions.CursorOnNodeEndTag))
                 {
-                    return true; // mindestens ein einzelner Node ist direkt selektiert
+                    return true; // at least one single node is directly selected
                 }
                 else
                 {
                     if (this.StartPos.Equals(this.EndPos))
                     {
-                        return false; // offenbar ist der Cursor nur ein Strich mittendrin, ohne etwas selektiert zu haben
+                        return false; // obviously the cursor is just a line in the middle without having selected anything
                     }
                     else
                     {
-                        return true; // Start- und Endpos sind unterschiedlich, daher sollte etwas dazwischen liegen
+                        return true; // Start and end pos are different, so there should be something in between
                     }
                 }
             }

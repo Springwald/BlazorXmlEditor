@@ -8,53 +8,35 @@
 // Licensed under MIT License
 
 using System.Collections;
+using System.Collections.Generic;
 
 namespace de.springwald.xml.editor
 {
     /// <summary>
-    /// Eine Gruppierung für XML-Elemente, damit diese in der Liste der angebotenen Elemente
-    /// zum Einfügen gruppiert dargestellt werden können
+    /// A grouping for XML elements so that they can be grouped in the list of elements offered for insertion
     /// </summary>
     public class XmlElementGroup
     {
+        private HashSet<string> elements = new HashSet<string>();
 
-        /// <summary>Diese Elementnamen sind in der Gruppe zulässig</summary>
-        private Hashtable elements = new Hashtable();
-
-        /// <summary>Der anzeigbare Titel dieser Gruppe</summary>
         public string Title { get; }
 
-        /// <summary>Ist diese Gruppe beim Start erstmal zusammen geklappt?</summary>
-        public bool StandardMaessigZusammengeklappt { get; }
+        public bool CollapsedByDefault { get; }
 
-        /// <summary>
-        /// Stellt eine neue Instanz einer Sortierungs-Gruppe bereit
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="standardMaessigZusammengeklappt"> Ist diese Gruppe beim Start erstmal zusammen geklappt?</param>
-        public XmlElementGroup(string titel, bool standardMaessigZusammengeklappt)
+        public XmlElementGroup(string title, bool collapsedByDefault)
         {
-            this.Title = titel;
-            this.StandardMaessigZusammengeklappt = standardMaessigZusammengeklappt;
+            this.Title = title;
+            this.CollapsedByDefault = collapsedByDefault;
         }
 
-        /// <summary>
-        /// Nimmt ein Element in die Liste der in dieser Gruppe verfügbaren Elemente auf
-        /// </summary>
-        /// <param name="name"></param>
         public void AddElementName(string name)
         {
-            elements.Add(name.ToLower(), null);
+            elements.Add(name.ToLower());
         }
 
-        /// <summary>
-        /// Ist ein Element in dieser Gruppe vorhanden?
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
         public bool ContainsElement(string name)
         {
-            return elements.ContainsKey(name.ToLower());
+            return elements.Contains(name.ToLower());
         }
     }
 }

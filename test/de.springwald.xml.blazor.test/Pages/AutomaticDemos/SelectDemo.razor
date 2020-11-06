@@ -59,13 +59,13 @@
         flipFlop = !flipFlop;
         if (flipFlop)
         {
-            await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(
                             patternNode,
                             rules.XmlCursorPos.XmlCursorPositions.CursorOnNodeStartTag);
         }
         else
         {
-            await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(
                             templateNode,
                             rules.XmlCursorPos.XmlCursorPositions.CursorOnNodeStartTag);
         }

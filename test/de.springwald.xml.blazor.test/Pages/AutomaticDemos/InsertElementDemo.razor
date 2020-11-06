@@ -44,7 +44,7 @@
         var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
         var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
         this.textNode = patternNode.ChildNodes[0];
-        await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+        await this.editorContext.EditorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(
             textNode,
             XmlCursorPos.XmlCursorPositions.CursorInsideTextNode,
             10);

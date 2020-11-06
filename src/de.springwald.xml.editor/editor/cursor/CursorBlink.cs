@@ -25,9 +25,11 @@ namespace de.springwald.xml.editor.cursor
 
         public CursorBlink()
         {
-            this.blinkTimer = new System.Timers.Timer();
-            this.blinkTimer.Interval = 600;
-            this.blinkTimer.Elapsed +=  BlinkTimer_Elapsed;
+            this.blinkTimer = new System.Timers.Timer()
+            {
+                Interval = 600
+            };
+            this.blinkTimer.Elapsed += BlinkTimer_Elapsed;
             this.blinkTimer.Start();
         }
 

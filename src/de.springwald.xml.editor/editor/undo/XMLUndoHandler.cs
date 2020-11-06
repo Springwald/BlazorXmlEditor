@@ -25,7 +25,7 @@ namespace de.springwald.xml.editor
         /// Where are we in the Undo steps right now? With Undo it goes backwards, with Redo forward
         /// </summary>
         private int pos = 0;
-       
+
         private XmlDocument document;
         private List<XmlUndoStep> undoSteps = new List<XmlUndoStep>();
         private bool working = false;
@@ -56,22 +56,7 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// The name of the next undo step (if a name was assigned via snapshot)
         /// </summary>
-        public string NextUndoSnapshotName 
-        {
-            get
-            {
-                if (this.UndoPossible)
-                {
-                    return String.Format(
-                        ResReader.Reader.GetString("NameUndoSchritt"),
-                        undoSteps[PreviousSnapshotPos].SnapShotName);
-                }
-                else
-                {
-                    return ResReader.Reader.GetString("KeinUndoSchrittVerfuegbar");
-                }
-            }
-        }
+        public string NextUndoSnapshotName => this.UndoPossible ? $"undo '{undoSteps[PreviousSnapshotPos].SnapShotName}'" : "no undo available";
 
         /// <summary>
         ///  Creates an XMLUndo handler that logs all changes starting from the specified root node

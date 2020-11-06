@@ -105,8 +105,6 @@ namespace de.springwald.xml.editor.xmlelements
             return attributeString.ToString();
         }
 
-      
-
         private async Task<int> GetAttributeTextWidth(string attributesString, IGraphics gfx)
         {
             if (string.IsNullOrEmpty(attributesString)) return 0;

@@ -250,7 +250,7 @@ namespace de.springwald.xml.editor.actions
         {
             if (!this.ActionsAllowed) return false;
 
-            var content = await XmlCursorSelectionHelper.GetSelektionAlsString(this.editorState.CursorRaw);
+            var content = await XmlCursorSelectionHelper.GetSelectionAsString(this.editorState.CursorRaw);
             if (string.IsNullOrEmpty(content)) return false; //Nothing selected
             try
             {

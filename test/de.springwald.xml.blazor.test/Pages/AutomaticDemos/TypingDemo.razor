@@ -61,7 +61,7 @@
         this.typingPos++;
         if (this.typingPos >= LoremIpsum.Length) this.typingPos = 0;
 
-        await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+        await this.editorContext.EditorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(
                 textNode,
                 rules.XmlCursorPos.XmlCursorPositions.CursorInsideTextNode,
                 textNode.InnerText.Length);

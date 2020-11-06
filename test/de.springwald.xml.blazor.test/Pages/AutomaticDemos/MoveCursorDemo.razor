@@ -53,7 +53,7 @@
             this.xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.LoadXml(this.documentContent);
             await this.editorContext.EditorState.SetRootNode(xmlDocument.DocumentElement);
-            await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(
+            await this.editorContext.EditorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(
                xmlDocument.DocumentElement,
                rules.XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode,
                0);
@@ -71,7 +71,7 @@
 
             var dummy = cursorStatus.StartPos.Clone();
             await this.editorContext.Actions.MoveRight(dummy);
-            await cursorStatus.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
+            await cursorStatus.SetBothPositionsAndFireChangedEventIfChanged(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
         }
         else
         {
@@ -82,7 +82,7 @@
             }
             var dummy = cursorStatus.StartPos.Clone();
             await this.editorContext.Actions.MoveLeft(dummy);
-            await cursorStatus.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
+            await cursorStatus.SetBothPositionsAndFireChangedEventIfChanged(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
         }
 
         this.cursorPos = $"{cursorStatus.StartPos.ActualNode.Name}:{cursorStatus.StartPos.PosOnNode}:{cursorStatus.StartPos.PosInTextNode}";

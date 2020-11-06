@@ -10,363 +10,344 @@ namespace de.springwald.xml.editor.cursor
 {
     internal static class XmlCursorSelectionHelper
     {
-
-
         /// <summary>
-        /// Liefert den selektierten XML-Inhalt als String 
+        /// Returns the selected XML content as string 
         /// </summary>
         /// <returns></returns>
-        public static async Task<string> GetSelektionAlsString(XmlCursor cursor)
+        public static async Task<string> GetSelectionAsString(XmlCursor cursor)
         {
-            if (cursor. IsSomethingSelected) // Es ist was selektiert
+            if (cursor. IsSomethingSelected) 
             {
-                StringBuilder ergebnis = new StringBuilder();
+                var result = new StringBuilder();
 
-                XmlCursor optimiert = cursor.Clone();
-                await optimiert.OptimizeSelection();
+                var optimized = cursor.Clone();
+                await optimized.OptimizeSelection();
 
-                System.Xml.XmlNode node = optimiert.StartPos.ActualNode; // Beim Startnode anfangen
+                System.Xml.XmlNode node = optimized.StartPos.ActualNode; // begin at the start node
 
-                // Den Startnode ins Ergebnis aufnehmen
-                switch (optimiert.StartPos.PosOnNode)
+                // Include the start node in the result
+                switch (optimized.StartPos.PosOnNode)
                 {
                     case XmlCursorPositions.CursorOnNodeEndTag:
                     case XmlCursorPositions.CursorOnNodeStartTag:
                     case XmlCursorPositions.CursorInFrontOfNode:
-
-                        ergebnis.Append(node.OuterXml);  // Den ganzen Startnode aufnehmen
+                        result.Append(node.OuterXml);  // take the entire start node
                         break;
 
                     case XmlCursorPositions.CursorBehindTheNode:
                     case XmlCursorPositions.CursorInsideTheEmptyNode:
-                        // nicht aufnehmen
                         break;
 
-                    case XmlCursorPositions.CursorInsideTextNode: // Nur einen Teil des Textes aufnehmen
-                        string textteil = node.InnerText;
+                    case XmlCursorPositions.CursorInsideTextNode: // take only a part of the text
+                        string textPart = node.InnerText;
 
-                        int start = optimiert.StartPos.PosInTextNode;
-                        int laenge = textteil.Length - start;
+                        int start = optimized.StartPos.PosInTextNode;
+                        int length = textPart.Length - start;
 
-                        if (node == optimiert.EndPos.ActualNode) // Wenn dieser Textnode sowohl Start als auch Endnode ist
+                        if (node == optimized.EndPos.ActualNode) // If this text node is both start and end node
                         {
-                            switch (optimiert.EndPos.PosOnNode)
+                            switch (optimized.EndPos.PosOnNode)
                             {
                                 case XmlCursorPositions.CursorOnNodeEndTag:
                                 case XmlCursorPositions.CursorBehindTheNode:
-                                    // Länge bleibt bis zum Ende des Nodes
+                                    // Length stays to the end of the node
                                     break;
 
                                 case XmlCursorPositions.CursorOnNodeStartTag:
                                 case XmlCursorPositions.CursorInsideTheEmptyNode:
                                 case XmlCursorPositions.CursorInFrontOfNode:
-                                    throw new ApplicationException("XMLCursor.SelektionAlsString: unwahrscheinliche EndPos.PosAmNode '" + optimiert.EndPos.PosOnNode + "' für StartPos.CursorInnerhalbDesTextNodes");
+                                    throw new ApplicationException("XMLCursor.GetSelectionAsString: implausible EndPos.PosOnNode '" + optimized.EndPos.PosOnNode + "' for StartPos.CursorInsideTextNode");
 
                                 case XmlCursorPositions.CursorInsideTextNode:
-                                    // Nicht ganz bis zum Ende des Textes 
-                                    if (optimiert.StartPos.PosInTextNode > optimiert.EndPos.PosInTextNode)
+                                    // Not quite to the end of the text 
+                                    if (optimized.StartPos.PosInTextNode > optimized.EndPos.PosInTextNode)
                                     {
-                                        throw new ApplicationException("XMLCursor.SelektionAlsString: optimiert.StartPos.PosImTextnode > optimiert.EndPos.PosImTextnode");
+                                        throw new ApplicationException("XMLCursor.GetSelectionAsString: optimized.StartPos.PosInTextNode > optimized.EndPos.PosInTextNode");
                                     }
                                     else
                                     {
-                                        // Den Text nach der Selektion von der Laenge abziehen
-                                        laenge -= (textteil.Length - optimiert.EndPos.PosInTextNode);
+                                        // Subtract the text from the length after selection
+                                        length -= (textPart.Length - optimized.EndPos.PosInTextNode);
                                     }
                                     break;
 
                                 default:
-                                    throw new ApplicationException("XMLCursor.SelektionAlsString: unbehandelte EndPos.PosAmNode'" + optimiert.EndPos.PosOnNode + "' für StartPos.CursorInnerhalbDesTextNodes");
-
+                                    throw new ApplicationException("XMLCursor.GetSelectionAsString: unhandled optimized.EndPos.PosOnNode'" + optimized.EndPos.PosOnNode + "' for StartPos.CursorInsideTextNode");
                             }
                         }
-
-                        textteil = textteil.Substring(start, laenge);
-                        ergebnis.Append(textteil);
+                        textPart = textPart.Substring(start, length);
+                        result.Append(textPart);
                         break;
 
                     default:
-                        throw new ApplicationException("XMLCursor.SelektionAlsString: unbehandelte StartPos.PosAmNode'" + optimiert.StartPos.PosOnNode + "'");
+                        throw new ApplicationException("XMLCursor.GetSelectionAsStringg: unhandled optimized.StartPos.PosOnNode'" + optimized.StartPos.PosOnNode + "'");
                 }
 
-                if (optimiert.StartPos.ActualNode != optimiert.EndPos.ActualNode) // Wenn noch weitere Nodes nach dem Startnode selektiert sind
+                if (optimized.StartPos.ActualNode != optimized.EndPos.ActualNode) // If more nodes are selected after the start node
                 {
                     do
                     {
-                        node = node.NextSibling; // Solange weiter zum nächsten Node...
+                        node = node.NextSibling; // to the next node...
 
                         if (node != null)
                         {
-                            // Den Node ins Ergebnis aufnehmen
-                            if (node == optimiert.EndPos.ActualNode) // Dieser Node ist der EndNode
+                            // Include the node in the result
+                            if (node == optimized.EndPos.ActualNode) // This node is the EndNode
                             {
-                                switch (optimiert.EndPos.PosOnNode)
+                                switch (optimized.EndPos.PosOnNode)
                                 {
                                     case XmlCursorPositions.CursorOnNodeEndTag:
                                     case XmlCursorPositions.CursorOnNodeStartTag:
                                     case XmlCursorPositions.CursorBehindTheNode:
-                                        ergebnis.Append(node.OuterXml); // Node 1:1 in Ergebnis aufnehmen
+                                        result.Append(node.OuterXml); // Include node 1:1 in result
                                         break;
 
                                     case XmlCursorPositions.CursorInsideTextNode:
-                                        // Den Anfang des Textnodes übernehmen
-                                        string textteil = node.InnerText;
-                                        ergebnis.Append(textteil.Substring(0, optimiert.EndPos.PosInTextNode + 1));
+                                        // TRake the beginning of the text node
+                                        string textPart = node.InnerText;
+                                        result.Append(textPart.Substring(0, optimized.EndPos.PosInTextNode + 1));
                                         break;
 
                                     case XmlCursorPositions.CursorInsideTheEmptyNode:
-                                        throw new ApplicationException("XMLCursor.SelektionAlsString: unwahrscheinliche EndPos.PosAmNode '" + optimiert.EndPos.PosOnNode + "' für StartPos.Node != EndPos.Node");
+                                        throw new ApplicationException("XMLCursor.GetSelectionAsString: implausible optimized.EndPos.PosOnNode '" + optimized.EndPos.PosOnNode + "' for StartPos.Node != EndPos.Node");
 
                                     default:
-                                        throw new ApplicationException("XMLCursor.SelektionAlsString: unbehandelte EndPos.PosAmNode'" + optimiert.StartPos.PosOnNode + "' für StartPos.Node != EndPos.Node");
+                                        throw new ApplicationException("XMLCursor.GetSelectionAsString: implausible optimized.StartPos.PosOnNode'" + optimized.StartPos.PosOnNode + "' for StartPos.Node != EndPos.Node");
 
                                 }
                             }
-                            else // Node 1:1 in Ergebnis aufnehmen
+                            else // Include node 1:1 in result
                             {
-                                ergebnis.Append(node.OuterXml);
+                                result.Append(node.OuterXml);
                             }
                         }
 
-                    } while ((node != optimiert.EndPos.ActualNode) && (node != null)); // ... bis der Endnode erreicht ist
+                    } while ((node != optimized.EndPos.ActualNode) && (node != null)); // ... until the end node is reached
 
                     if (node == null)
                     {
-                        throw new ApplicationException("Endnode war nicht als NextSibling von Startnode erreichbar");
+                        throw new ApplicationException("Endnode was not reachable as NextSibling from Startnode");
                     }
                 }
-                return ergebnis.ToString();
+                return result.ToString();
             }
             else
             {
-                return ""; // es ist gar nichts selektiert
+                return string.Empty; // nothing is selected at all
             }
         }
 
-        public struct SelectionLoeschenResult
+        public struct DeleteSelectionResult
         {
             public bool Success;
             public XmlCursorPos NewCursorPosAfterDelete;
         }
 
         /// <summary>
-        /// Löscht die zwischen StartPos und EndPos des Cursors gelegegen Zeichen und Nodes
+        /// Deletes the characters and nodes between StartPos and EndPos of the cursor
         /// </summary>
-        /// <param name="cursor"></param>
-        /// <param name="neueCursorPosNachLoeschen"></param>
-        internal static async Task<SelectionLoeschenResult> DeleteSelection(XmlCursor cursor)
+        internal static async Task<DeleteSelectionResult> DeleteSelection(XmlCursor cursor)
         {
-            // Wenn der Cursor gar keine Auswahl enthält
+            // If the cursor contains no selection at all
             if (!cursor.IsSomethingSelected)
             {
-                return new SelectionLoeschenResult
+                return new DeleteSelectionResult
                 {
-                    NewCursorPosAfterDelete = cursor.StartPos.Clone(), // Cursor wird nicht verändert
-                    Success = false // nichts gelöscht
+                    NewCursorPosAfterDelete = cursor.StartPos.Clone(), // Cursor is not changed
+                    Success = false // nothing deleted
                 };
             }
             else
             {
-                if (cursor.StartPos.ActualNode == cursor.EndPos.ActualNode) // Wenn beide Nodes identisch sind
+                if (cursor.StartPos.ActualNode == cursor.EndPos.ActualNode) // If both nodes are identical
                 {
                     switch (cursor.StartPos.PosOnNode)
                     {
                         case XmlCursorPositions.CursorOnNodeStartTag:
                         case XmlCursorPositions.CursorOnNodeEndTag:
-                            // ein einzelner Node ist selektiert und soll gelöscht werden
+                            // a single node is selected and should be deleted
+                            System.Xml.XmlNode nodeDelete = cursor.StartPos.ActualNode;   // This node should be deleted
+                            System.Xml.XmlNode nodeBefore = nodeDelete.PreviousSibling;   // This node is before the node to be deleted
+                            System.Xml.XmlNode nodeAfter = nodeDelete.NextSibling;       // This node lies behind the node to be deleted
 
-                            System.Xml.XmlNode loeschNode = cursor.StartPos.ActualNode;   // Dieser Node soll gelöscht werden
-                            System.Xml.XmlNode nodeVorher = loeschNode.PreviousSibling;  // Dieser Node liegt vor dem zu löschenden
-                            System.Xml.XmlNode nodeDanach = loeschNode.NextSibling;  // Dieser Node liegt hinter dem zu löschenden
+                            var newPosAfterDelete = new XmlCursorPos(); // This neighboring node will get the cursor after deletion
 
-                            var neueCursorPosNachLoeschen = new XmlCursorPos(); // Dieser benachbarte Node wird nach dem Löschen den Cursor bekommen
-
-                            // Wenn der zu löschende Node zwischen zwei Textnodes liegt, dann werden diese
-                            // zwei Textnodes zu einem zusammengefasst
-                            if (nodeVorher != null && nodeDanach != null)
+                            // If the node to be deleted is located between two text nodes, then these two text nodes are combined into one
+                            if (nodeBefore != null && nodeAfter != null)
                             {
-                                if (nodeVorher is System.Xml.XmlText && nodeDanach is System.Xml.XmlText)
-                                {   //der zu löschende Node liegt zwischen zwei Textnodes , daher werden diese zwei Textnodes zu einem zusammengefasst
+                                if (nodeBefore is System.Xml.XmlText && nodeAfter is System.Xml.XmlText)
+                                {
+                                    // the node to be deleted lies between two text nodes, therefore these two text nodes are combined into one
 
-                                    // Nachher steht der Cursor an der Einfügestelle zwischen beiden Textbausteinen
-                                    neueCursorPosNachLoeschen.SetPos(nodeVorher, XmlCursorPositions.CursorInsideTextNode, nodeVorher.InnerText.Length);
+                                    // Afterwards, the cursor is positioned at the insertion point between the two text modules
+                                    newPosAfterDelete.SetPos(nodeBefore, XmlCursorPositions.CursorInsideTextNode, nodeBefore.InnerText.Length);
 
-                                    nodeVorher.InnerText += nodeDanach.InnerText; // Den Text von Nachher-Node an den Vorhernode anhängen
+                                    nodeBefore.InnerText += nodeAfter.InnerText; // Append the text from after node to the before node
 
-                                    // zu löschenden Node löschen
-                                    loeschNode.ParentNode.RemoveChild(loeschNode);
+                                    // Delete node to be deleted
+                                    nodeDelete.ParentNode.RemoveChild(nodeDelete);
 
-                                    // Nachher-Node löschen
-                                    nodeDanach.ParentNode.RemoveChild(nodeDanach);
+                                    // delete after node
+                                    nodeAfter.ParentNode.RemoveChild(nodeAfter);
 
-                                    return new SelectionLoeschenResult
+                                    return new DeleteSelectionResult
                                     {
-                                        NewCursorPosAfterDelete = neueCursorPosNachLoeschen,
+                                        NewCursorPosAfterDelete = newPosAfterDelete,
                                         Success = true
                                     };
                                 }
                             }
 
-                            // Der zu löschende Node liegt *nicht* zwischen zwei Textnodes 
+                            // The node to be deleted is *not* between two text nodes 
 
-                            // Bestimmen, was nach dem Löschen selektiert sein soll
+                            // Determine what should be selected after deletion
 
-                            if (nodeVorher != null)
+                            if (nodeBefore != null)
                             {
-                                // Nach dem Löschen steht der Cursor hinter dem vorherigen Node
-                                neueCursorPosNachLoeschen.SetPos(nodeVorher, XmlCursorPositions.CursorBehindTheNode);
+                                // After deletion, the cursor is positioned behind the previous node
+                                newPosAfterDelete.SetPos(nodeBefore, XmlCursorPositions.CursorBehindTheNode);
                             }
                             else
                             {
-                                if (nodeDanach != null)
+                                if (nodeAfter != null)
                                 {
-                                    // Nach dem Löschen steht der Cursor vor dem folgenden Node
-                                    neueCursorPosNachLoeschen.SetPos(nodeDanach, XmlCursorPositions.CursorInFrontOfNode);
+                                    // After deletion, the cursor is positioned before the following node
+                                    newPosAfterDelete.SetPos(nodeAfter, XmlCursorPositions.CursorInFrontOfNode);
                                 }
                                 else
                                 {
-                                    // Nach dem Löschen steht der Cursor im Parent-Node
-                                    neueCursorPosNachLoeschen.SetPos(loeschNode.ParentNode, XmlCursorPositions.CursorInsideTheEmptyNode);
+                                    // After deletion, the cursor is in the parent node
+                                    newPosAfterDelete.SetPos(nodeDelete.ParentNode, XmlCursorPositions.CursorInsideTheEmptyNode);
                                 }
                             }
 
-                            // Den Node löschen
-                            loeschNode.ParentNode.RemoveChild(loeschNode);
-
-                            return new SelectionLoeschenResult
+                            // delete the node
+                            nodeDelete.ParentNode.RemoveChild(nodeDelete);
+                            return new DeleteSelectionResult
                             {
-                                NewCursorPosAfterDelete = neueCursorPosNachLoeschen,
+                                NewCursorPosAfterDelete = newPosAfterDelete,
                                 Success = true
-                            }; // Löschen war erfolgreich
+                            }; 
 
                         case XmlCursorPositions.CursorInFrontOfNode:
-                            // Start und Ende des Löschbereiches zeigen auf den selben Node und der
-                            // der Start liegt vor dem Node: Das macht nur bei einem Textnode Sinn!
+                            // Start and end of the deletion area point to the same node and the start is before the node: This only makes sense with a text node!
                             if (ToolboxXml.IsTextOrCommentNode(cursor.StartPos.ActualNode))
                             {
-                                // Den Cursor in den Textnode vor dem ersten Zeichen setzen und dann neu abschicken
+                                // Place the cursor in the text node before the first character and then resend
                                 cursor.StartPos.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, 0);
                                 return await DeleteSelection(cursor); // zum löschen neu abschicken
                             }
                             else
                             {
-                                // wenn es kein Textnode ist, dann den ganzen Node markieren und dann neu abschicken
-                                await cursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
-                                return await DeleteSelection(cursor);// zum löschen neu abschicken
+                                // if it is not a text node, then select the whole node and send it again
+                                await cursor.SetBothPositionsAndFireChangedEventIfChanged(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
+                                return await DeleteSelection(cursor); // resend to delete
                             }
 
                         case XmlCursorPositions.CursorBehindTheNode:
-                            // Start und Ende des Löschbereiches zeigen auf den selben Node und der
-                            // der Start liegt hinter dem Node
+                            // Start and end of the deletion area point to the same node and the start is behind the node
                             if (ToolboxXml.IsTextOrCommentNode(cursor.StartPos.ActualNode))
                             {
-                                // Den Cursor in den Textnode vor dem ersten Zeichen setzen und dann neu abschicken
+                                // Place the cursor in the text node before the first character and then resend
                                 cursor.StartPos.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, cursor.StartPos.ActualNode.InnerText.Length);
-                                return await DeleteSelection(cursor);// zum löschen neu abschicken
+                                return await DeleteSelection(cursor); // resend to delete
                             }
                             else
                             {
-                                // wenn es kein Textnode ist, dann den ganzen Node markieren und dann neu abschicken
-                                await cursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
-                                return await DeleteSelection(cursor);// zum löschen neu abschicken
+                                // if it is not a text node, then select the whole node and send it again
+                                await cursor.SetBothPositionsAndFireChangedEventIfChanged(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
+                                return await DeleteSelection(cursor); // resend to delete
                             }
 
                         case XmlCursorPositions.CursorInsideTextNode:
-                            // ein Teil eines Textnodes soll gelöscht werden
-                            // Den zu löschenden Teil des Textes bestimmen
+                            // a part of a text node is to be deleted
+                            // Determine the part of the text to be deleted
                             int startpos = cursor.StartPos.PosInTextNode;
                             int endpos = cursor.EndPos.PosInTextNode;
 
                             if (cursor.EndPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode)
-                            {	// Wenn das Ende der Auswahl hinter dem Textnode ist, dann 
-                                // ist der gesamte restliche Text gewählt
+                            {	
+                                // If the end of the selection is behind the text node, then all remaining text is selected
                                 endpos = cursor.StartPos.ActualNode.InnerText.Length;
                             }
 
-                            // Wenn der ganze Text markiert ist, dann den gesamten Textnode löschen
+                            // If all text is selected, then delete the entire text node
                             if (startpos == 0 && endpos >= cursor.StartPos.ActualNode.InnerText.Length)
-                            {	// Der ganze Textnode ist zu löschen, das geben wir weiter an die Methode zum löschen
-                                // einzeln selektierter Nodes
-                                XmlCursor einNodeSelektiertCursor = new XmlCursor();
-                                await einNodeSelektiertCursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
-                                return await DeleteSelection(einNodeSelektiertCursor);
+                            {
+                                // The whole text node is to be deleted, this is passed on to the method for deleting individually selected nodes
+                                XmlCursor nodeSelectedCursor = new XmlCursor();
+                                await nodeSelectedCursor.SetBothPositionsAndFireChangedEventIfChanged(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
+                                return await DeleteSelection(nodeSelectedCursor);
                             }
                             else
-                            { // Nur ein Teil des Textes ist zu löschen
+                            {
+                                // Only a part of the text is to be deleted
                                 string restText = cursor.StartPos.ActualNode.InnerText;
                                 restText = restText.Remove(startpos, endpos - startpos);
                                 cursor.StartPos.ActualNode.InnerText = restText;
 
-                                // bestimmen, wo der Cursor nach dem Löschen steht
-                                neueCursorPosNachLoeschen = new XmlCursorPos();
-                                if (startpos == 0) // Der Cursor steht vor dem ersten Zeichen
+                                // determine where the cursor is after deletion
+                                newPosAfterDelete = new XmlCursorPos();
+                                if (startpos == 0) // The cursor is positioned before the first character
                                 {
-                                    // dann kann er besser vor den Textnode selbst gestellt werden
-                                    neueCursorPosNachLoeschen.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInFrontOfNode);
+                                    // then it can better be placed before the text node itself
+                                    newPosAfterDelete.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInFrontOfNode);
                                 }
                                 else
                                 {
-                                    neueCursorPosNachLoeschen.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, startpos);
+                                    newPosAfterDelete.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, startpos);
                                 }
 
-                                return new SelectionLoeschenResult
+                                return new DeleteSelectionResult
                                 {
-                                    NewCursorPosAfterDelete = neueCursorPosNachLoeschen,
+                                    NewCursorPosAfterDelete = newPosAfterDelete,
                                     Success = true
-                                };  // Löschen erfolgreich
+                                };  
                             }
 
                         case XmlCursorPositions.CursorInsideTheEmptyNode:
                             if (cursor.EndPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode ||
                                 cursor.EndPos.PosOnNode == XmlCursorPositions.CursorInFrontOfNode)
                             {
-                                XmlCursor neucursor = new XmlCursor();
-                                await neucursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag, 0);
-                                return await DeleteSelection(neucursor);
+                                XmlCursor newCursor = new XmlCursor();
+                                await newCursor.SetBothPositionsAndFireChangedEventIfChanged(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag, 0);
+                                return await DeleteSelection(newCursor);
                             }
                             else
                             {
-                                throw new ApplicationException("AuswahlLoeschen:#6363S undefined Endpos " + cursor.EndPos.PosOnNode + "!");
+                                throw new ApplicationException("DeleteSelection:#6363S undefined Endpos " + cursor.EndPos.PosOnNode + "!");
                             }
 
                         default:
-                            // was bitteschön soll außer Text und dem Node selbst gewählt sein, wenn Startnode und Endnode identisch sind?
-                            throw new ApplicationException("AuswahlLoeschen:#63346 StartPos.PosAmNode " + cursor.StartPos.PosOnNode + " not allowed!");
+                            //  what else should be selected besides text and the node itself, if start node and end node are identical?
+                            throw new ApplicationException("DeleteSelection:#63346 StartPos.PosAmNode " + cursor.StartPos.PosOnNode + " not allowed!");
                     }
                 }
-                else // Beide Nodes sind nicht idenisch
+                else // Both nodes are not identical
                 {
-
-                    // Wenn beide Nodes nicht identisch sind, dann alle dazwischen liegenden Nodes entfernen, bis
-                    // die beiden Nodes hintereinander liegen
+                    // If both nodes are not identical, then remove all nodes in between until the two nodes are behind each other
                     while (cursor.StartPos.ActualNode.NextSibling != cursor.EndPos.ActualNode)
                     {
                         cursor.StartPos.ActualNode.ParentNode.RemoveChild(cursor.StartPos.ActualNode.NextSibling);
                     }
 
-                    // den Endnode oder einen Teil von ihm löschen
+                    // delete the endnode or a part of it
                     XmlCursor temp = cursor.Clone();
                     temp.StartPos.SetPos(cursor.EndPos.ActualNode, XmlCursorPositions.CursorInFrontOfNode);
                     await DeleteSelection(temp);
 
-                    // den Startnode, oder einen Teil von ihm löschen
-                    // -> Geschieht durch Rekursion in der Selektion-Loeschen-Methode
+                    // delete the start node, or a part of it
+                    // -> Done by recursion in the selection delete method
                     cursor.EndPos.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorBehindTheNode);
                     return await DeleteSelection(cursor);
                 }
             }
         }
 
-
-
         /// <summary>
-        /// Findet den untersten, gemeinsamen Parent von zwei Nodes. Im Extremfall ist dies das Root-Element,
-        /// wenn die Wege der Nodes in die Tiefe des DOMs komplett verschieden sind 
+        /// Finds the lowest common parent of two nodes. In extreme cases this is the root element, if the paths of the nodes into the depth of the DOM are completely different 
         /// </summary>
-        /// <param name="node1"></param>
-        /// <param name="node2"></param>
-        /// <returns></returns>
-        public static System.Xml.XmlNode TiefsterGemeinsamerParent(System.Xml.XmlNode node1, System.Xml.XmlNode node2)
+        public static System.Xml.XmlNode DeepestCommonParent(System.Xml.XmlNode node1, System.Xml.XmlNode node2)
         {
             System.Xml.XmlNode parent1 = node1.ParentNode;
             while (parent1 != null)
@@ -384,54 +365,50 @@ namespace de.springwald.xml.editor.cursor
         }
 
         /// <summary>
-        /// Findet heraus, ob der Node oder einer seiner Parent-Nodes selektiert ist
+        /// Finds out if the node or one of its parent nodes is selected
         /// </summary>
-        /// <param name="Node"></param>
-        /// <returns></returns>
         public static bool IsThisNodeInsideSelection(XmlCursor cursor, System.Xml.XmlNode node)
         {
-            // Prüfen, ob der Node selbst oder einer seiner Parents direkt selektiert sind
+            // Check if the node itself or one of its parents is directly selected
             if (cursor.StartPos.IsNodeInsideSelection(node)) return true;
             if (cursor.EndPos.IsNodeInsideSelection(node)) return true;
 
-            if (cursor.StartPos.Equals(cursor.EndPos)) // Beide Positionen gleich, also ist maximal ein einzelner Node selektiert
+            if (cursor.StartPos.Equals(cursor.EndPos)) // Both positions are the same, so a maximum of one single node is selected
             {
                 return cursor.StartPos.IsNodeInsideSelection(node);
             }
-            else // Beide Positionen sind nicht gleich, also ist evtl. etwas selektiert
+            else // Both positions are not equal, so something may be selected
             {
-
-                if ((cursor.StartPos.ActualNode == node) || (cursor.EndPos.ActualNode == node)) // Start- oder EndNode der Selektion ist dieser Node
+                if ((cursor.StartPos.ActualNode == node) || (cursor.EndPos.ActualNode == node)) // Start or EndNode of the selection is this node
                 {
-                    if (node is System.Xml.XmlText) // Ist ein Textnode
+                    if (node is System.Xml.XmlText) // is a text node
                     {
                         return true;
                     }
-                    else // Ist kein textnode
+                    else // not a textnode
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if (cursor.StartPos.LiesBehindThisPos(node)) // Node liegt hinter der Startpos
+                    if (cursor.StartPos.LiesBehindThisPos(node)) // Node is behind the starting position
                     {
-                        if (cursor.EndPos.LiesBeforeThisPos(node)) // Node liegt zwischen Startpos und  Endepos
+                        if (cursor.EndPos.LiesBeforeThisPos(node)) // Node is located between Startpos and Endepos
                         {
                             return true;
                         }
-                        else // Node liegt hinter Startpos aber auch hinter Endpos
+                        else // Node is behind Startpos but also behind Endpos
                         {
                             return false;
                         }
                     }
-                    else // Node liegt nicht hinter der Startpos
+                    else // Node is not behind the start pos
                     {
                         return false;
                     }
                 }
             }
-
         }
     }
 }

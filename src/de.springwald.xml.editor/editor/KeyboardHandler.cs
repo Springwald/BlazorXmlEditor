@@ -99,7 +99,7 @@ namespace de.springwald.xml.editor
                         {
                             dummy = this.editorState.CursorRaw.StartPos.Clone();
                             await CursorPosMoveHelper.MoveLeft(dummy, this.editorState.RootNode, this.regelwerk);
-                            await this.editorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
+                            await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
                         }
                         useKeyContent = false;
                         break;
@@ -113,7 +113,7 @@ namespace de.springwald.xml.editor
                         {
                             dummy = this.editorState.CursorRaw.StartPos.Clone();
                             await CursorPosMoveHelper.MoveRight(dummy, this.editorState.RootNode, this.regelwerk);
-                            await this.editorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
+                            await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
                         }
                         useKeyContent = false;
                         break;
@@ -158,7 +158,7 @@ namespace de.springwald.xml.editor
                         }
                         if (!abbruch)
                         {
-                            await this.editorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(node, XmlCursorPositions.CursorInsideTheEmptyNode);
+                            await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(node, XmlCursorPositions.CursorInsideTheEmptyNode);
                         }
                         // _naechstesLostFokusVerhindern = true; // So that leaving the focus is ignored on TAB
                         useKeyContent = false;

@@ -31,8 +31,8 @@ namespace de.springwald.xml.editor.xmlelements
                 paintContext.PaintPosY += paintContext.HeightActualRow;
             }
 
-            // vor dem Noderahmen einen Pfeil nach links zeichnen
-            // Pfeil nach links
+            // draw an arrow to the left in front of the node frame
+            // arrow to left
             Point point1 = new Point(paintContext.PaintPosX + this.dimensions.InnerMarginX, paintContext.PaintPosY + this.config.InnerMarginY);
             Point point2 = new Point(paintContext.PaintPosX + this.dimensions.InnerMarginX, paintContext.PaintPosY + this.config.TagHeight - this.config.InnerMarginY);
             Point point3 = new Point(paintContext.PaintPosX, paintContext.PaintPosY + this.config.TagHeight / 2);
@@ -44,11 +44,11 @@ namespace de.springwald.xml.editor.xmlelements
                 Points = new[] { point1, point2, point3 }
             });
 
-            // Den rechten Pfeilbereich merken
+            // Remember the right arrow area
             this.AreaArrow = new Rectangle(paintContext.PaintPosX, paintContext.PaintPosY, this.dimensions.InnerMarginX, this.config.TagHeight);
-            paintContext.PaintPosX += this.dimensions.InnerMarginX + 1; // Zeichnungscursor hinter den Pfeil setzen
+            paintContext.PaintPosX += this.dimensions.InnerMarginX + 1; // Place drawing cursor behind the arrow
 
-            // ## RAHMEN für schließenden Node  zeichnen ###
+            // ## Draw frame for closing node ###
             StandardNodeTagPaint.DrawNodeBodyBySize(GfxJob.Layers.TagBackground,
                 paintContext.PaintPosX, paintContext.PaintPosY,
                 this.nodeNameTextWidth + this.dimensions.InnerMarginX * 2, this.config.TagHeight, this.dimensions.CornerRadius,
@@ -56,9 +56,9 @@ namespace de.springwald.xml.editor.xmlelements
                 isSelected ? this.config.ColorNodeTagBorder.InvertedColor : this.config.ColorNodeTagBorder,
                 gfx);
 
-            paintContext.PaintPosX += this.dimensions.InnerMarginX; // Abstand zwischen Rahmen und Schrift
+            paintContext.PaintPosX += this.dimensions.InnerMarginX; // Distance between frame and font
 
-            // ## Name für schließenden Node zeichnen ###
+            //  ## Draw name for closing node ###
             gfx.AddJob(new JobDrawString
             {
                 Batchable = false,
@@ -77,7 +77,6 @@ namespace de.springwald.xml.editor.xmlelements
 
             // Remember where the mouse areas are
             this.AreaTag = new Rectangle(startX, paintContext.PaintPosY, paintContext.PaintPosX - startX, this.config.TagHeight);
-            //this._klickBereiche = this._klickBereiche.Append(_tagBereichRechts).ToArray(); // original:  _klickBereiche.Add(_tagBereichRechts);
 
             paintContext.FoundMaxX = System.Math.Max(paintContext.FoundMaxX, paintContext.PaintPosX);
 
