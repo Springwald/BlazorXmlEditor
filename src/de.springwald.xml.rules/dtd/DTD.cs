@@ -32,14 +32,14 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// The elements available in this DTD
         /// </summary>
-        public List<DtdElement> Elements { get; }
+        public DtdElement[] Elements { get; }
 
         /// <summary>
         /// The entities available in this DTD
         /// </summary>
-        public List<DtdEntity> Entities { get; }
+        public DtdEntity[] Entities { get; }
 
-        public Dtd(List<DtdElement> elements, List<DtdEntity> entities)
+        public Dtd(DtdElement[] elements, DtdEntity[] entities)
         {
             this.Elements = elements;
             this.Entities = entities;

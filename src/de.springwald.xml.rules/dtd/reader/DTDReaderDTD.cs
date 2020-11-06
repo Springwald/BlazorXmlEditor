@@ -19,8 +19,8 @@ namespace de.springwald.xml.rules.dtd
 {
 	public class DtdReaderDtd
 	{
-		private List<DtdElement> elements;
-        private List<DtdEntity> entities;
+		private DtdElement[] elements;
+        private DtdEntity[] entities;
 
 		public string RawContent { get; private set; }
 
@@ -42,7 +42,7 @@ namespace de.springwald.xml.rules.dtd
 			}
 			catch (FileNotFoundException exc) 
 			{
-				throw new ApplicationException($"Could not read in file '{filename}:\n{exc.Message}" );
+				throw new ApplicationException($"Could not read in file '{filename}':\n{exc.Message}" );
 			}
 			return this.GetDtdFromString(content);
 		}
@@ -51,27 +51,24 @@ namespace de.springwald.xml.rules.dtd
 		{
             // Replace tabs from the content with spaces
             content = content.Replace ("\t"," ");
-
 			this.RawContent = content;
 			this.WorkingContent = content;
-
-			elements = new List<DtdElement>(); 
-            entities = new List<DtdEntity>();
 			this.AnalyzeContent();	
-
-			elements.Add(CreateElementFromQuellcode("#PCDATA")); // add element #PCDATA 
-            elements.Add(CreateElementFromQuellcode("#COMMENT")); // add element #COMMENT
-
             return  new Dtd(elements,entities);
 		}
 
 		private void AnalyzeContent() 
 		{
 			this.RemoveComments();  // So that commented out elements are not read in
-            this.ReadEntities();
+            this.entities = this.ReadEntities().ToArray();
 			this.ReplaceEntities();
-			this.ReadElements();
-		}
+
+			this.elements =  this.ReadElements()
+                .Concat(new[] {
+                CreateElementFromQuellcode("#PCDATA"),
+                CreateElementFromQuellcode("#COMMENT") })
+                .ToArray();
+        }
 
         /// <summary>
         /// So that commented out elements are not read in
@@ -83,48 +80,30 @@ namespace de.springwald.xml.rules.dtd
 			this.WorkingContent =  Regex.Replace(this.WorkingContent, regex,"");
 		}
 
-        #region ELEMENTE analysieren
+        #region analyze ELEMENTS
 
         /// <summary>
         /// Reads all DTD elements contained in the DTD content
         /// </summary>
-        private void ReadElements() 
+        private IEnumerable<DtdElement> ReadElements() 
 		{
-			DtdElement element;
 			string elementCode;
 
-			// Regulären Ausdruck zum finden von DTD-Elementen zusammenbauen
-			// (?<element><!ELEMENT[\t\r\n ]+[^>]+>)
-			const string regex =  "(?<element><!ELEMENT[\\t\\r\\n ]+[^>]+>)";
+            // Regular expression to find and assemble DTD elements
+            // (?<element><!ELEMENT[\t\r\n ]+[^>]+>)
+            const string regex =  "(?<element><!ELEMENT[\\t\\r\\n ]+[^>]+>)";
 
 			Regex reg = new Regex(regex); //, RegexOptions.IgnoreCase);
-			// Auf den DTD-Inhalt anwenden
-			Match match = reg.Match(this.WorkingContent);
+            // Apply to DTD content
+            var match = reg.Match(this.WorkingContent);
 
-            SortedList gefundene = new SortedList(); // Zuerst alles in eine sortierte Liste aufnehmen
-
-			// Alle RegEx-Treffer durchlaufen und daraus Elemente erzeugen
-			while (match.Success) 
+            // Run through all RegEx hits and create elements from them
+            while (match.Success) 
 			{
 				elementCode = match.Groups["element"].Value;
-				element = CreateElementFromQuellcode(elementCode);
-                try
-                {
-                    gefundene.Add(element.Name, element);
-                }
-                catch (ArgumentException e)
-                {
-                    throw new ApplicationException(String.Format($"Error reading dtd element {element.Name}: {e.Message}"));
-                }
-				match = match.NextMatch(); // Zum nächsten RegEx-Treffer
-			}
-
-            // Nun die sortierte Liste in die Elementliste überführen
-            for (int i  = 0; i <gefundene.Count;i++) 
-            {
-                elements.Add((DtdElement)gefundene[gefundene.GetKey(i)]);
+				yield return CreateElementFromQuellcode(elementCode);
+				match = match.NextMatch(); // To the next RegEx hit
             }
-
 		}
 
 		/// <summary>
@@ -186,7 +165,7 @@ namespace de.springwald.xml.rules.dtd
 				}
 
 				// Die Attribute des Elementes auslesen
-				CreateDTDAttributesForElement(element);
+				element.Attributes = CreateDTDAttributesForElement(element).ToArray(); 
 
 				// Childelemente herausfinden
 				if (match.Groups["innerelements"].Success) // wenn ChildElemente vorhanden sind
@@ -252,9 +231,8 @@ namespace de.springwald.xml.rules.dtd
 		/// <summary>
 		/// Liest alle im DTD-Inhalt enthaltenen Entities aus
 		/// </summary>
-		private void ReadEntities() 
+		private IEnumerable<DtdEntity> ReadEntities() 
 		{
-			DtdEntity entity;
 			string entityCode;
 
 			// Regulären Ausdruck zum finden von DTD-Entities zusammenbauen
@@ -269,8 +247,7 @@ namespace de.springwald.xml.rules.dtd
 			while (match.Success) 
 			{
 				entityCode = match.Groups["entity"].Value;
-				entity = CreateEntityFromQuellcode(entityCode);
-				entities.Add(entity);
+                yield return CreateEntityFromQuellcode(entityCode);
 				match = match.NextMatch(); // Zum nächsten RegEx-Treffer
 			}
 		}
@@ -347,13 +324,8 @@ namespace de.springwald.xml.rules.dtd
 		/// <summary>
 		/// Stellt für das angegebene Element die entsprechenden Attribute bereit, sofern sie vorhanden sind
 		/// </summary>
-		/// <param name="element"></param>
-		/// <returns></returns>
-		private void CreateDTDAttributesForElement(DtdElement element) 
+		private IEnumerable<DtdAttribute> CreateDTDAttributesForElement(DtdElement element) 
 		{
-			
-			element.Attributes = new List<DtdAttribute> ();
-
 			// Regulären Ausdruck zum finden der AttributList-Definition zusammenbauen
 			// (?<attributliste><!ATTLIST muster_titel[\t\r\n ]+(?<attribute>[^>]+?)[\t\r\n ]?>)
 			string ausdruckListe =  "(?<attributliste><!ATTLIST " + element.Name +"[\\t\\r\\n ]+(?<attribute>[^>]+?)[\\t\\r\\n ]?>)";
@@ -427,7 +399,7 @@ namespace de.springwald.xml.rules.dtd
 						}
 
 						// Attribut im Element speichern
-						element.Attributes.Add(attribut);
+						yield return attribut;
 
 						match = match.NextMatch(); // Zum nächsten RegEx-Treffer
 					}

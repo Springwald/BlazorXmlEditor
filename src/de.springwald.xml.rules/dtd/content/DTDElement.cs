@@ -51,7 +51,7 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// The attributes known for this element
         /// </summary>
-        public List<DtdAttribute> Attributes { get; set; }
+        public DtdAttribute[] Attributes { get; set; }
 
         /// <summary>
         /// Returns a RegEx object which can be used to check if a sequence of images is valid for this element
