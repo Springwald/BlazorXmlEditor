@@ -447,9 +447,7 @@ namespace de.springwald.xml.editor.actions
 
             if (setUnDoSnapshot == SetUndoSnapshotOptions.Yes)
             {
-                this.editorState.UndoHandler.SetSnapshot(
-                    ResReader.Reader.GetString("AktionLoeschen"),
-                    this.editorState.CursorRaw);
+                this.editorState.UndoHandler.SetSnapshot("delete", this.editorState.CursorRaw);
             }
 
             var deleteResult = await XmlCursorSelectionHelper.DeleteSelection(deleteArea);

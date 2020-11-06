@@ -29,7 +29,7 @@ namespace de.springwald.xml.editor
 
         private bool disposed = false;
 
-        protected Point cursorPaintPos;  // there the cursor is drawn in this node, if it is the current node
+        protected Point cursorPaintPos; 
         protected XmlEditor xmlEditor;
 
         private EditorContext editorContext;
@@ -42,14 +42,11 @@ namespace de.springwald.xml.editor
         /// </summary>
         public System.Xml.XmlNode XmlNode { get; }
 
-        /// <param name="xmlNode">The XML-Node to be drawn</param>
-        /// <param name="xmlEditor">The editor for which the node is to be drawn</param>
         public XmlElement(System.Xml.XmlNode xmlNode, XmlEditor xmlEditor, EditorContext editorContext)
         {
             this.editorContext = editorContext;
             this.XmlNode = xmlNode;
             this.xmlEditor = xmlEditor;
-
             this.EditorState.CursorRaw.ChangedEvent.Add(this.Cursor_ChangedEvent);
             this.xmlEditor.MouseHandler.MouseDownEvent.Add(this._xmlEditor_MouseDownEvent);
             this.xmlEditor.MouseHandler.MouseUpEvent.Add(this._xmlEditor_MouseUpEvent);
@@ -101,8 +98,6 @@ namespace de.springwald.xml.editor
         /// <summary>
         /// The editor has asked to unload all elements that are no longer used
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void _xmlEditor_xmlElementsCleanUpEvent(object sender, EventArgs e)
         {
             if (this.XmlNode == null)
@@ -120,39 +115,28 @@ namespace de.springwald.xml.editor
 
         protected abstract Task OnMouseAction(Point point, MouseClickActions mouseAction);
 
-        /// <summary>
-        /// Ein Mausklick ist eingegangen
-        /// </summary>
         private async Task _xmlEditor_MouseDownEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MouseClickActions.MouseDown);
 
-        /// <summary>
-        /// Die Maus wurde von einem Mausklick wieder gelöst
-        /// </summary>
         async Task _xmlEditor_MouseUpEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MouseClickActions.MouseUp);
 
-        /// <summary>
-        /// Die Maus wurde mit gedrückter Maustaste bewegt
-        /// </summary>
         async Task _xmlEditor_MouseDownMoveEvent(MouseEventArgs e) => await OnMouseAction(new Point(e.X, e.Y), MouseClickActions.MouseDownMove);
 
-        /// <summary>
-        /// Der XML-Cursor hat sich geändert
-        /// </summary>
         private async Task Cursor_ChangedEvent(EventArgs e)
         {
-            if (this.XmlNode.ParentNode == null) // Wenn der betreffene Node gerade gelöscht wurde
-            {   // Dann auch das XML-Anzeige-Objekt für den Node zerstören
+            if (this.XmlNode.ParentNode == null) // If the node has just been deleted
+            {
+                // Then also destroy the XML display object for the node
                 this.Dispose();
             }
             else
             {
-                // Herausfinden, ob der Node dieses Elementes betroffen ist
+                // Find out if the node of this element is affected
                 if (this.editorContext.EditorState.CursorRaw.StartPos.ActualNode != this.XmlNode)
                 {
                     return;
                 }
 
-                // Das Element neu Zeichnen
+                //  Redraw the element
 
                 //System.Drawing.Graphics g = this._xmlEditor.ZeichnungsSteuerelement.CreateGraphics();
                 // this.UnPaint(g);	// Element wegradieren

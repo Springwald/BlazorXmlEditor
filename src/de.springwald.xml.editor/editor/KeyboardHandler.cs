@@ -21,9 +21,8 @@ namespace de.springwald.xml.editor
 {
     internal class KeyboardHandler : IDisposable
     {
-        // private bool _naechstesLostFokusVerhindern = false; // So that leaving the focus is ignored on TAB
         private INativePlatform nativePlatform;
-        private XmlRules regelwerk;
+        private XmlRules xmlRules;
         private EditorActions actions;
         private EditorState editorState;
 
@@ -34,20 +33,17 @@ namespace de.springwald.xml.editor
         {
             this.actions = editorContext.Actions;
             this.editorState = editorContext.EditorState;
-            this.regelwerk = editorContext.XmlRules;
-
+            this.xmlRules = editorContext.XmlRules;
             this.nativePlatform = editorContext.NativePlatform;
-            this.nativePlatform.InputEvents.PreviewKey.Add(this.zeichnungsSteuerelement_PreviewKeyDown);
-            this.nativePlatform.InputEvents.KeyPress.Add(this.zeichnungsSteuerelement_KeyPress);
+            this.nativePlatform.InputEvents.PreviewKey.Add(this.controlKeyPreview);
         }
 
         public void Dispose()
         {
-            this.nativePlatform.InputEvents.PreviewKey.Remove(this.zeichnungsSteuerelement_PreviewKeyDown);
-            this.nativePlatform.InputEvents.KeyPress.Remove(this.zeichnungsSteuerelement_KeyPress);
+            this.nativePlatform.InputEvents.PreviewKey.Remove(this.controlKeyPreview);
         }
 
-        public async Task zeichnungsSteuerelement_PreviewKeyDown(KeyEventArgs e)
+        public async Task controlKeyPreview(KeyEventArgs e)
         {
             //if (Regelwerk.PreviewKeyDown(e, out _naechsteTasteBeiKeyPressAlsTextAufnehmen, this))
             //{
@@ -55,7 +51,7 @@ namespace de.springwald.xml.editor
             //}
             //else
             {
-                // Dieser Tastendruck wurde nicht vom Regelwerk verarbeitet
+                // This keystroke was not processed by the rules
                 var useKeyContent = e.CtrlKey == false;
 
                 XmlCursorPos dummy;
@@ -93,12 +89,12 @@ namespace de.springwald.xml.editor
                     case Keys.Left: // move cursor to left
                         if (e.ShiftKey)
                         {
-                            await CursorPosMoveHelper.MoveLeft(this.editorState.CursorRaw.EndPos, this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveLeft(this.editorState.CursorRaw.EndPos, this.editorState.RootNode, this.xmlRules);
                         }
                         else
                         {
                             dummy = this.editorState.CursorRaw.StartPos.Clone();
-                            await CursorPosMoveHelper.MoveLeft(dummy, this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveLeft(dummy, this.editorState.RootNode, this.xmlRules);
                             await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
                         }
                         useKeyContent = false;
@@ -107,12 +103,12 @@ namespace de.springwald.xml.editor
                     case Keys.Right: // move cursor to right
                         if (e.ShiftKey)
                         {
-                            await CursorPosMoveHelper.MoveRight(this.editorState.CursorRaw.EndPos, this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveRight(this.editorState.CursorRaw.EndPos, this.editorState.RootNode, this.xmlRules);
                         }
                         else
                         {
                             dummy = this.editorState.CursorRaw.StartPos.Clone();
-                            await CursorPosMoveHelper.MoveRight(dummy, this.editorState.RootNode, this.regelwerk);
+                            await CursorPosMoveHelper.MoveRight(dummy, this.editorState.RootNode, this.xmlRules);
                             await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
                         }
                         useKeyContent = false;
@@ -160,7 +156,6 @@ namespace de.springwald.xml.editor
                         {
                             await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(node, XmlCursorPositions.CursorInsideTheEmptyNode);
                         }
-                        // _naechstesLostFokusVerhindern = true; // So that leaving the focus is ignored on TAB
                         useKeyContent = false;
                         break;
 
@@ -193,7 +188,6 @@ namespace de.springwald.xml.editor
                     default:
                         useKeyContent = true;
                         break;
-
                 }
 
                 if (useKeyContent)
@@ -202,36 +196,5 @@ namespace de.springwald.xml.editor
                 }
             }
         }
-
-
-        /// <summary>
-        /// Eingegebenen Text übernehmen, wenn nicht vorher im Key-Down abgefangen
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public async Task zeichnungsSteuerelement_KeyPress(KeyEventArgs e)
-        {
-            //if (_naechsteTasteBeiKeyPressAlsTextAufnehmen)
-            //{
-            //    // await this.actions.AktionTextAnCursorPosEinfuegen(e.KeyChar.ToString(), UndoSnapshotSetzenOptionen.ja);
-            //}
-            //_naechsteTasteBeiKeyPressAlsTextAufnehmen = false;
-        }
-
-        /// <summary>
-        /// Damit beim TAB das Verlassen des Fokus ignoriert wird
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //async Task zeichnungsSteuerelement_Leave(System.EventArgs e)
-        //{
-        //    if (_naechstesLostFokusVerhindern)
-        //    {
-        //        _naechstesLostFokusVerhindern = false;
-        //        await this.nativePlatform.Focus.FokusAufEingabeFormularSetzen();
-        //    }
-        //}
-
-
     }
 }

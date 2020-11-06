@@ -28,16 +28,7 @@ namespace de.springwald.xml.editor
 
         public PaintContext Clone()
         {
-            return new PaintContext
-            {
-                LimitLeft = this.LimitLeft,
-                LimitRight = this.LimitRight,
-                PaintPosX = this.PaintPosX,
-                PaintPosY = this.PaintPosY,
-                RowStartX = this.RowStartX,
-                HeightActualRow = this.HeightActualRow,
-                FoundMaxX = this.FoundMaxX,
-            };
+            return (PaintContext)this.MemberwiseClone();
         }
     }
 }

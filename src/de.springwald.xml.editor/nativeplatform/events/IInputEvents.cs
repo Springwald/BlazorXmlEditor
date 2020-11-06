@@ -18,7 +18,6 @@ namespace de.springwald.xml.editor.nativeplatform.events
         XmlAsyncEvent<MouseEventArgs> MouseUp { get; }
         XmlAsyncEvent<MouseEventArgs> MouseMove { get; }
 
-        XmlAsyncEvent<KeyEventArgs> KeyPress { get; }
         XmlAsyncEvent<KeyEventArgs> PreviewKey { get; }
     }
 }

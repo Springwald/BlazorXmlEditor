@@ -18,6 +18,9 @@ namespace de.springwald.xml.editor
     {
         private bool _disposed;
 
+        private bool virtualSizeChangedSinceLastPaint;
+        private bool sizeChangedSinceLastPaint = true;
+
         internal MouseHandler MouseHandler { get; }
         internal KeyboardHandler KeyboardHandler { get; }
 
@@ -119,14 +122,10 @@ namespace de.springwald.xml.editor
             return new ElementCreator(this, this.editorContext).CreatePaintElementForNode(xmlNode);
         }
 
-        private bool sizeChangedSinceLastPaint = true;
-
         public void SizeHasChanged()
         {
             this.sizeChangedSinceLastPaint = true;
         }
-
-        private bool virtualSizeChangedSinceLastPaint;
 
         public async Task Paint(int limitRight)
         {
@@ -153,11 +152,7 @@ namespace de.springwald.xml.editor
                     PaintPosX = 10,
                     PaintPosY = 10 ,
                     RowStartX = 10 ,
-                    
-
                 };
-
-                
 
                 var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), EditorState.CursorBlink.PaintCursor, this.EditorState.CursorOptimized, this.NativePlatform.Gfx, paintMode, depth: 0);
                 var newVirtualWidth = context1.FoundMaxX + 50;

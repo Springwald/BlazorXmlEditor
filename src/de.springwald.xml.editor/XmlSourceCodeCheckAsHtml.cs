@@ -23,30 +23,20 @@ namespace de.springwald.xml
             Gray
         };
 
-        private XmlRules _xmlRules;                // Das Regelwerk zur Beurteilung der Gültigkeit
-        private bool _showLineNumbers = true;     // Zeilennummern anzeigen
-
-        private int _lineNumber;                      // Der Counter für die jeweils aktuelle Zeilennummer des Quellcodes
-
-        private System.Xml.XmlNode _rootnode;               //  der Quellcode, den es zu untersuchen gilt
-
-        private StringBuilder _errorsAsHtml;              // merkt sich das Fehlerprotokoll zum aktuell angezeigten Quellcode
-        private StringBuilder _sourcecodeAsHtml;             // der Ergebnis der Quellcodeumwandlung
-
+        private XmlRules _xmlRules;
+        private bool _showLineNumbers = true;
+        private int _lineNumber;
+        private XmlNode _rootnode;
+        private StringBuilder _errorsAsHtml;
+        private StringBuilder _sourcecodeAsHtml;
         private const string HtmlNewLine = "<br/>";
-
         private bool _notRenderedYet = true;
 
-        /// <summary>
-        /// Das Regelwerk zur Beurteilung der Gültigkeit
-        /// </summary>
         public XmlRules XmlRules
         {
             set { _xmlRules = value; }
         }
 
-        /// <summary>
-        /// der Quellcode, den es zu untersuchen gilt
         public System.Xml.XmlNode Rootnode
         {
             set
@@ -56,25 +46,16 @@ namespace de.springwald.xml
             }
         }
 
-        /// <summary>
-        /// Von außen Bescheid geben, dass neu zu berechnen ist
-        /// </summary>
         public void SetChanged()
         {
             _notRenderedYet = true;
         }
 
-        /// <summary>
-        /// Liefert ein Fehlerprotokoll passend zum aktuell angezeigten Quellcode
-        /// </summary>
         public string ErrorsAsText
         {
             get
             {
-                if (this._notRenderedYet)
-                {
-                    this.Render();
-                }
+                if (this._notRenderedYet) this.Render();
                 return this._errorsAsHtml.ToString();
             }
         }
@@ -86,16 +67,13 @@ namespace de.springwald.xml
         {
             get
             {
-                if (this._notRenderedYet)
-                {
-                    this.Render();
-                }
+                if (this._notRenderedYet) this.Render();
                 return this._sourcecodeAsHtml.ToString();
             }
         }
 
         /// <summary>
-        /// Den Quellcode + Fehlerprotokoll neu berechnen
+        /// Recalculate the source code + error log
         /// </summary>
         public void Render()
         {
@@ -103,20 +81,20 @@ namespace de.springwald.xml
             this._errorsAsHtml = new StringBuilder();
 
             if (_xmlRules == null)
-            {   // Kein Editor angegeben
+            {   
                 this._errorsAsHtml.Append("<li>No xml rules attached.</li>");
             }
             else
             {
-                if (_rootnode == null)  // Wenn kein Rootnode angegeben ist
+                if (_rootnode == null)  
                 {
-                    this._errorsAsHtml.Append("<li>NochKeinRootNodeZugewiesen</li>");
+                    this._errorsAsHtml.Append("<li>no root node specified</li>");
                 }
-                else // Es ist ein Rootnode angegeben
+                else // A root node is specified
                 {
                     bool nodeFehlerhaft = false;
                     this._lineNumber = 0;
-                    _sourcecodeAsHtml.Append(GetNodeAlsQuellText(_rootnode, einzug: "", newLineNeeded: false, parentWarFehlerhaft: false, posBereitsAlsOKGeprueft: false, ref nodeFehlerhaft));
+                    _sourcecodeAsHtml.Append(GetNodeAlsQuellText(_rootnode, einzug: "", newLineNeeded: false, parentWasInvalid: false, positionAlreadyCheckedAsOk: false, ref nodeFehlerhaft));
                     _notRenderedYet = false;
                 }
             }
@@ -128,50 +106,47 @@ namespace de.springwald.xml
         /// <param name="node"></param>
         /// <param name="einzug">aktuelle Einrückung</param>
         /// <param name="newLineNeeded"></param>
-        /// <param name="parentWarFehlerhaft">Wenn True, dann war bereits der Parent-Node so fehlerhaft, dass dieser Node nicht mehr weiter gegen DTD-Fehler geprüft werden muss</param>
+        /// <param name="parentWasInvalid">Wenn True, dann war bereits der Parent-Node so fehlerhaft, dass dieser Node nicht mehr weiter gegen DTD-Fehler geprüft werden muss</param>
         /// <returns></returns>
-        private string GetNodeAlsQuellText(System.Xml.XmlNode node, string einzug, bool newLineNeeded, bool parentWarFehlerhaft, bool posBereitsAlsOKGeprueft, ref bool nodeFehlerhaft)
+        private string GetNodeAlsQuellText(System.Xml.XmlNode node, string einzug, bool newLineNeeded, bool parentWasInvalid, bool positionAlreadyCheckedAsOk, ref bool nodeInvalid)
         {
-            // Kommentare und Whitespace besonders behandeln
             if (node is XmlWhitespace)
             {
-                return ""; // Whitespace wird nicht dargestellt
+                return string.Empty; // dont paint Whitespace 
             }
-            if (node is XmlComment) return String.Format("&lt;!--{0}--&gt;", node.InnerText);
+            if (node is XmlComment) return $"&lt;!--{node.InnerText}--&gt;";
 
-            var quellcode = new StringBuilder();
-            const string einzugplus = "&nbsp;&nbsp;&nbsp;&nbsp;";
+            var sourceCode = new StringBuilder();
+            const string indentPlus = "&nbsp;&nbsp;&nbsp;&nbsp;";
             Colors nodeColor;
 
-            // Herausfinden, ob dieser Node ok ist
             string nodeErrorMsg;
 
-            if (parentWarFehlerhaft)
+            if (parentWasInvalid)
             {
-                //es war bereits der Parent-Node so fehlerhaft, dass dieser Node nicht mehr weiter gegen DTD-Fehler geprüft werden muss
-                nodeFehlerhaft = true;
-                nodeErrorMsg = null; //"parent-Node bereits fehlerhaft";
+                // the parent node was already so invalid that this node no longer needs to be checked against DTD errors
+                nodeInvalid = true;
+                nodeErrorMsg = null; //"parent-Node already invalid";
                 nodeColor = Colors.Undefined;
             }
             else
             {
-                var pruefer = _xmlRules.DtdChecker;
-                if (pruefer.IsXmlNodeOk(node, posBereitsAlsOKGeprueft))
+                var checker = _xmlRules.DtdChecker;
+                if (checker.IsXmlNodeOk(node, positionAlreadyCheckedAsOk))
                 {
-                    nodeFehlerhaft = false;
+                    nodeInvalid = false;
                     nodeErrorMsg = null;
                     nodeColor = Colors.Black;
                 }
                 else
                 {
-                    nodeFehlerhaft = true;
-                    nodeErrorMsg = pruefer.ErrorMessages;
+                    nodeInvalid = true;
+                    nodeErrorMsg = checker.ErrorMessages;
                     nodeColor = Colors.Red;
                 }
             }
 
             var renderType = _xmlRules.DisplayType(node);
-
             switch (renderType)
             {
                 case DisplayTypes.FloatingElement:
@@ -181,42 +156,40 @@ namespace de.springwald.xml
                     throw new ApplicationException("unknown render type: " + _xmlRules.DisplayType(node));
             }
 
-            if (newLineNeeded || renderType == DisplayTypes.OwnRow) quellcode.Append(StartNewLine() + einzug);
+            if (newLineNeeded || renderType == DisplayTypes.OwnRow) sourceCode.Append(StartNewLine() + einzug);
 
-            quellcode.Append($"<span style=\"{GetCss(nodeColor)}\">");  // start node color
+            sourceCode.Append($"<span style=\"{GetCss(nodeColor)}\">");  // start node color
 
-            if (node is System.Xml.XmlText) // is text node 
+            if (node is XmlText) // is text node 
             {
                 var nodetext = new StringBuilder(node.Value);
                 nodetext.Replace("\t", " ");
                 nodetext.Replace("\r\n", " ");
                 nodetext.Replace("  ", " ");
-                quellcode.Append(System.Web.HttpUtility.HtmlEncode(nodetext.ToString()));
+                sourceCode.Append(System.Web.HttpUtility.HtmlEncode(nodetext.ToString()));
             }
             else  // not a text node
             {
                 var closingTagVisible = _xmlRules.HasEndTag(node);
 
-                quellcode.Append($"&lt;{node.Name}{GetAttributeAlsQuellText(node.Attributes)}{(closingTagVisible ? "" : "/")}&gt;");
-
-                quellcode.Append(GetChildrenAlsQuellText(node.ChildNodes, einzug + einzugplus, true, nodeFehlerhaft, false)); // paint children
+                sourceCode.Append($"&lt;{node.Name}{GetAttributeAsSourcecode(node.Attributes)}{(closingTagVisible ? "" : "/")}&gt;");
+                sourceCode.Append(GetChildrenAsSourceCode(node.ChildNodes, einzug + indentPlus, true, nodeInvalid, false)); // paint children
 
                 if (closingTagVisible)
                 {
-                    quellcode.Append(StartNewLine() + einzug);
-                    quellcode.Append($"&lt;/{node.Name}&gt;");
+                    sourceCode.Append(StartNewLine() + einzug);
+                    sourceCode.Append($"&lt;/{node.Name}&gt;");
                 }
             }
 
-            quellcode.Append("</span>"); // end node color
+            sourceCode.Append("</span>"); // end node color
 
             if (nodeErrorMsg != null)
             {
-                //this._errorsAsHtml.Append($"<li><a href=\"#{this._lineNumber}\">{this._lineNumber:000000}: {System.Web.HttpUtility.HtmlEncode(nodeFehlerMsg)}</a></li>");
                 this._errorsAsHtml.Append($"<li>{this._lineNumber:000000}: {System.Web.HttpUtility.HtmlEncode(nodeErrorMsg)}</li>");
             }
 
-            return quellcode.ToString();
+            return sourceCode.ToString();
         }
 
         private string GetCss(Colors color)
@@ -233,10 +206,6 @@ namespace de.springwald.xml
             return "";
         }
 
-        /// <summary>
-        /// Liefert den Umbruch für eine neue Zeile
-        /// </summary>
-        /// <returns></returns>
         private string StartNewLine()
         {
             if (this._showLineNumbers)
@@ -250,48 +219,40 @@ namespace de.springwald.xml
             }
         }
 
-        /// <summary>
-        /// Die Childinhalte als String
-        /// </summary>
-        /// <param name="parentnode"></param>
-        /// <param name="einzug"></param>
         /// <returns></returns>
-        private string GetChildrenAlsQuellText(System.Xml.XmlNodeList children, string einzug, bool neueZeileNotwendig, bool parentNodeBereitsFehlerhaft, bool posBereitsAlsOKGeprueft)
+        private string GetChildrenAsSourceCode(XmlNodeList children, string indent, bool needNewLine, bool parentNodeAlreadyInvaliod, bool positionAlreadyCheckedAsOk)
         {
-            var quellcode = new StringBuilder();
-            bool parentOderGeschwisterBereitsFehlerhaft = parentNodeBereitsFehlerhaft;
-            bool geschwisterDefekt = false;
+            var sourceCode = new StringBuilder();
+            bool parentOrSiblingAlreadyInvalid = parentNodeAlreadyInvaliod;
+            bool siblingInvalid = false;
             foreach (XmlNode child in children)
             {
-                quellcode.Append(GetNodeAlsQuellText(child, einzug, neueZeileNotwendig, parentOderGeschwisterBereitsFehlerhaft, posBereitsAlsOKGeprueft, ref geschwisterDefekt));
-                // Wenn ein Geschwister kaputt ist, die folgenden Geschwister nicht mehr prüfen (Performance)
-                if (geschwisterDefekt)
+                sourceCode.Append(GetNodeAlsQuellText(child, indent, needNewLine, parentOrSiblingAlreadyInvalid, positionAlreadyCheckedAsOk, ref siblingInvalid));
+              
+                if (siblingInvalid)
                 {
-                    geschwisterDefekt = true;
-                    parentOderGeschwisterBereitsFehlerhaft = true;
+                    // If a sibling is broken, do not check the following siblings (performance)
+                    siblingInvalid = true;
+                    parentOrSiblingAlreadyInvalid = true;
                 }
                 else
                 {
-                    posBereitsAlsOKGeprueft = true; // Für die folgenden Geschwister merken, dass alles ok war
+                    positionAlreadyCheckedAsOk = true; // For the following siblings notice that everything was ok
                 }
-                neueZeileNotwendig = false; // musste nur beim ersten Child beachtet werden
+                needNewLine = false; // had to be considered only with the first child
             }
-            return quellcode.ToString();
+            return sourceCode.ToString();
         }
 
-        /// <summary>
-        /// Zeichnet die Attribute eines Nodes
-        /// </summary>
-        /// <param name="attribute"></param>
-        private string GetAttributeAlsQuellText(System.Xml.XmlAttributeCollection attribute)
+        private string GetAttributeAsSourcecode(XmlAttributeCollection attribute)
         {
             if (attribute == null) return "";
-            var quellcode = new StringBuilder();
-            foreach (System.Xml.XmlAttribute attrib in attribute)
+            var sourceCode = new StringBuilder();
+            foreach (XmlAttribute attrib in attribute)
             {
-                quellcode.AppendFormat(" {0}=\"{1}\"", attrib.Name, attrib.Value);
+                sourceCode.Append($" {attrib.Name}=\"{attrib.Value}\"");
             }
-            return quellcode.ToString();
+            return sourceCode.ToString();
         }
     }
 }

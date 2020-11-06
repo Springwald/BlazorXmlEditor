@@ -32,7 +32,6 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
                 && point.Y < this.Y + this.Height;
         }
 
-
         public bool Equals(Rectangle second)
         {
             if (second == null) return false;

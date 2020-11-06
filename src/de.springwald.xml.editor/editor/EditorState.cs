@@ -30,6 +30,7 @@ namespace de.springwald.xml.editor
                 await this.RootNodeChanged.Trigger(rootNode);
             }
         }
+
         public XmlAsyncEvent<XmlNode> RootNodeChanged { get; set; } = new XmlAsyncEvent<XmlNode>();
 
         /// <summary>
@@ -51,11 +52,6 @@ namespace de.springwald.xml.editor
         }
 
         internal XmlElement RootElement { get; set; }
-
-        ///// <summary>
-        ///// The set of rules on which the XML processing is based
-        ///// </summary>
-        //public XMLRegelwerk Regelwerk { get; }
 
         /// <summary>
         /// Is the current xml document treated as read-only?
@@ -79,7 +75,6 @@ namespace de.springwald.xml.editor
                 return cursor;
             }
         }
-
 
         /// <summary>
         /// Indicates whether something is selected in the editor

@@ -7,10 +7,8 @@
 // All rights reserved
 // Licensed under MIT License
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using de.springwald.xml.editor.cursor;
 
 namespace de.springwald.xml
 {
@@ -47,15 +45,5 @@ namespace de.springwald.xml
                 }
             }
         }
-
-        internal void Add(CursorBlink cursorBlink)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        //public void expose() : IXmlAsyncEvent<T> {
-        //    return this;
-        //}
     }
 }

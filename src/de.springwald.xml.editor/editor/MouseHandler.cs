@@ -23,7 +23,6 @@ namespace de.springwald.xml.editor
         public XmlAsyncEvent<MouseEventArgs> MouseDownEvent = new XmlAsyncEvent<MouseEventArgs>();
         public XmlAsyncEvent<MouseEventArgs> MouseDownMoveEvent = new XmlAsyncEvent<MouseEventArgs>();
 
-
         public MouseHandler(INativePlatform nativePlatform)
         {
             this.nativePlatform = nativePlatform;
@@ -39,27 +38,18 @@ namespace de.springwald.xml.editor
             this.nativePlatform.InputEvents.MouseMove.Remove(this.OnMouseMove);
         }
 
-        /// <summary>
-        /// The editor control was clicked
-        /// </summary>
         private async Task OnMouseDown(MouseEventArgs e)
         {
             this.mouseIsDown = true;
             await this.MouseDownEvent.Trigger(e);
         }
 
-        /// <summary>
-        /// The click in the editor control was released
-        /// </summary>
         async Task OnMouseUp(MouseEventArgs e)
         {
             this.mouseIsDown = false;
             await this.MouseUpEvent.Trigger(e);
         }
 
-        /// <summary>
-        /// The mouse is moving
-        /// </summary>
         async Task OnMouseMove(MouseEventArgs e)
         {
             if (this.mouseIsDown) await this.MouseDownMoveEvent.Trigger(e);

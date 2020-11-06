@@ -23,12 +23,10 @@ namespace de.springwald.xml
             this.xmlEditor = xmlEditor;
         }
         /// <summary>
-        /// Stellt das für den angegebenen Node optimale XML-Steuerelement bereit.
-        /// Diese Methode kann in vererbten Regelwerken überschrieben werden, wenn
-        /// spezielle Nodes eigene XML-Steuerelemente erfordern.
-        /// In dieser Grundkonfiguration gibt die Methode erst einmal nur das Standard-Steuerelement zurück
+        /// Created the optimal XML control for the specified node.
+        /// This method can be overridden in inherited rulesets if special nodes require their own XML controls.
+        /// In this basic configuration, the method initially returns only the standard paint object
         /// </summary>
-        /// <param name="XMLNode">Der anzuzeigende Node</param>
         public XmlElement CreatePaintElementForNode(System.Xml.XmlNode xmlNode) 
         {
             if (xmlNode is System.Xml.XmlElement) return new XmlElementStandardNode(xmlNode, this.xmlEditor, this.editorContext);
