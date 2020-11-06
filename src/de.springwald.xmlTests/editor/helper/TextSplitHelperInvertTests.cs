@@ -1,11 +1,10 @@
-﻿using de.springwald.xml.editor.helper;
+﻿using System.Linq;
+using de.springwald.xml.editor.helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 namespace de.springwald.xmlTests.editor.helper
 {
     [TestClass()]
-
     public class TextSplitHelperInvertTests
     {
         [TestMethod()]
@@ -52,7 +51,6 @@ namespace de.springwald.xmlTests.editor.helper
             Assert.AreEqual(0, result[0].LineNo);
         }
 
-
         [TestMethod()]
         public void SplitInvertedTest()
         {
@@ -69,7 +67,6 @@ namespace de.springwald.xmlTests.editor.helper
             Assert.IsFalse(result[2].Inverted);
             Assert.AreEqual(0, result[2].LineNo);
         }
-
 
         [TestMethod()]
         public void SplitInvertedTest1()

@@ -1,8 +1,8 @@
 ﻿@using Blazor.Extensions
 @using Blazor.Extensions.Canvas
+@using Microsoft.JSInterop
 @using de.springwald.xml.blazor.NativePlatform
 @using de.springwald.xml.editor
-@using Microsoft.JSInterop
 @using de.springwald.xml.blazor.Code
 @using CurrieTechnologies.Razor.Clipboard
 @inject IJSRuntime JSRuntime
@@ -54,7 +54,7 @@
     protected int canvasWidth = 10;
     protected int canvasHeight = 10;
 
-    public de.springwald.xml.editor.XmlEditor Editor;
+    private de.springwald.xml.editor.XmlEditor editor;
 
     [Parameter]
     public EditorContext EditorContext { get; set; }
@@ -84,9 +84,9 @@
     {
         if (this.EditorContext == null) throw new ArgumentNullException(nameof(this.EditorContext));
         this.EditorContext.NativePlatform = new BlazorNativePlatform(_canvasReference, new BlazorClipboard(this.clipboardService));
-        this.Editor = new editor.XmlEditor(this.EditorContext);
+        this.editor = new editor.XmlEditor(this.EditorContext);
         this.EditorContext.EditorState.RootNodeChanged.Add(this.RootNodeChanged);
-        this.Editor.VirtualSizeChanged.Add(this.VirtualSizeChanged);
+        this.editor.VirtualSizeChanged.Add(this.VirtualSizeChanged);
         await OnReady.InvokeAsync(EventArgs.Empty);
     }
 
@@ -94,13 +94,13 @@
     {
         BrowserResize.OnResize -= this.OuterResized;
         this.EditorContext?.EditorState.RootNodeChanged.Remove(this.RootNodeChanged);
-        this.Editor.VirtualSizeChanged.Remove(this.VirtualSizeChanged);
-        this.Editor.Dispose();
+        this.editor.VirtualSizeChanged.Remove(this.VirtualSizeChanged);
+        this.editor.Dispose();
     }
 
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
     {
-        await this.Editor.SetRootNode(rootNode);
+        await this.editor.SetRootNode(rootNode);
         await this.OuterResized();
         StateHasChanged();
     }
@@ -109,10 +109,10 @@
     {
         var changed = false;
         const int tolerance = 30;
-        if (Math.Abs((this.Editor.VirtualHeight + tolerance) - this.canvasHeight) > tolerance)
+        if (Math.Abs((this.editor.VirtualHeight + tolerance) - this.canvasHeight) > tolerance)
         {
             changed = true;
-            this.canvasHeight = this.Editor.VirtualHeight + tolerance;
+            this.canvasHeight = this.editor.VirtualHeight + tolerance;
         }
 
         if (this.outerWidth > this.canvasWidth)
@@ -122,7 +122,7 @@
         }
         else
         {
-            var targetWidth = Math.Max(this.outerWidth, this.Editor.VirtualWidth + tolerance);
+            var targetWidth = Math.Max(this.outerWidth, this.editor.VirtualWidth + tolerance);
             if (Math.Abs(targetWidth - this.canvasWidth) > tolerance)
             {
                 this.canvasWidth = targetWidth;
@@ -134,7 +134,7 @@
         {
             await this.EditorContext.NativePlatform.SetSize(this.canvasWidth, this.canvasHeight);
             this.StateHasChanged();
-            this.Editor.SizeHasChanged();
+            this.editor.SizeHasChanged();
         }
     }
 
@@ -307,7 +307,7 @@
 
     async void EventOnMouseUp(MouseEventArgs e)
     {
-        if (e.Button  != 0) return;
+        if (e.Button != 0) return;
 
         var result = await JSRuntime.InvokeAsync<BoundingClientRect>
         ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });

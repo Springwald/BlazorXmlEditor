@@ -42,6 +42,6 @@
     private async Task EditorIsReady()
     {
         await this.editorContext.EditorState.SetRootNode(xmlDocument.DocumentElement);
-        await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.ChildNodes[1].ChildNodes[1].FirstChild, rules.XmlCursorPos.XmlCursorPositions.CursorOnNodeStartTag, 2);
+        await this.editorContext.EditorState.CursorRaw.BeideCursorPosSetzenMitChangeEventWennGeaendert(xmlDocument.DocumentElement.ChildNodes[1].ChildNodes[1].FirstChild, rules.XmlCursorPos.XmlCursorPositions.CursorInsideTextNode, 2);
     }
 }

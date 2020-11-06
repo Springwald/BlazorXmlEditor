@@ -92,17 +92,17 @@
 
     private async Task ShowAttributes(EventArgs eventArgs)
     {
-        if ((this.EditorState != null) && (this.EditorState.RootNode != null)) // genug Daten, um Attribute aufzulisten
+        if ((this.EditorState != null) && (this.EditorState.RootNode != null)) //  enough data to list attributes
         {
-            if (this.EditorState.CursorRaw.StartPos.Equals(this.EditorState.CursorRaw.EndPos))  //  kein Bereich gewählt
+            if (this.EditorState.CursorRaw.StartPos.Equals(this.EditorState.CursorRaw.EndPos))  //  no area selected
             {
-                // Herausfinden, für welchen Node die Attribute angezeigt werden sollen
+                // Find out for which node the attributes should be displayed
                 switch (this.EditorState.CursorRaw.StartPos.PosOnNode)
                 {
                     case XmlCursorPos.XmlCursorPositions.CursorInsideTheEmptyNode:
                     case XmlCursorPos.XmlCursorPositions.CursorOnNodeEndTag:
                     case XmlCursorPos.XmlCursorPositions.CursorOnNodeStartTag:
-                        // Der Node selbst ist selektiert
+                        // The node itself is selected
                         this.actualNode = this.EditorState.CursorRaw.StartPos.ActualNode;
                         break;
 
@@ -112,7 +112,7 @@
 
                     case XmlCursorPos.XmlCursorPositions.CursorBehindTheNode:
                     case XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode:
-                        // Wir sind hinter oder vor dem Node, daher werden die Attribute des ParentNodes angezeigt
+                        // We are behind or in front of the node, so the attributes of the ParentNode are displayed
                         this.actualNode = this.EditorState.CursorRaw.StartPos.ActualNode.ParentNode;
                         break;
 
@@ -121,9 +121,9 @@
                         break;
                 }
 
-                while (this.actualNode is System.Xml.XmlText) // Wenn es ein Textnode ist
+                while (this.actualNode is System.Xml.XmlText) // its a text node
                 {
-                    this.actualNode = this.actualNode.ParentNode;   // dann die Attribute des Parentnodes anzeigen
+                    this.actualNode = this.actualNode.ParentNode;   //  display the attributes of the parent node
                 }
 
                 if (this.actualNode == null)
@@ -132,16 +132,15 @@
                 }
                 else
                 {
-                    this.actualNodeDtdElement = null;   // Die DTD-Info des gewählten Elementes
+                    this.actualNodeDtdElement = null;
 
-                    // Die DTD-Definitionen für den aktuellen Node holen
+                    // Get the DTD definitions for the current node
                     try
                     {
                         this.actualNodeDtdElement = this.EditorContext.XmlRules.Dtd.DTDElementByName(this.actualNode.Name, true);
                     }
                     catch (Dtd.XMLUnknownElementException e)
                     {
-                        // Debugger.GlobalDebugger.Protokolliere(String.Format("unknown element {0} in {1}->{2}", e.ElementName, this.Name, "AttributeNeuAnzeigen"));  //Eines der bezogenen Elemente ist in der DTD unbekannt
                         this.errorMessage = $"unknown element '{e.ElementName}'";
                     }
                 }

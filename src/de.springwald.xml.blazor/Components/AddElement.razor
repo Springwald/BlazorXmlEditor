@@ -60,11 +60,7 @@
         {
             try
             {
-#if CommentNichtZulassen
-    bool showCommentsToo = false;
-#else
                 bool showCommentsToo = true;
-#endif
                 var elementsRaw = this.EditorContext.XmlRules.AllowedInsertElements(this.EditorState.CursorOptimized.StartPos, false, showCommentsToo); // die Liste der erlaubten Tags holen
                 this.groups = this.EditorContext.XmlRules.ElementGroups.Append(null).ToArray();
                 this.elements = elementsRaw.Select(e => new Element { Title = e, Group = groups.Where(g => g != null && g.ContainsElement(e)).FirstOrDefault() }).ToArray();
