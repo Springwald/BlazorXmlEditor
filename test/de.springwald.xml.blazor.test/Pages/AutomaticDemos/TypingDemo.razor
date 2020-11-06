@@ -65,7 +65,7 @@
                 textNode,
                 rules.XmlCursorPos.XmlCursorPositions.CursorInsideTextNode,
                 textNode.InnerText.Length);
-        await this.editorContext.Actions.AktionTextAnCursorPosEinfuegen(LoremIpsum[this.typingPos].ToString(), EditorActions.SetUndoSnapshotOptions.Yes);
+        await this.editorContext.Actions.ActionInsertTextAtCursorPos(LoremIpsum[this.typingPos].ToString(), EditorActions.SetUndoSnapshotOptions.Yes);
 
         this.fpsCounter.Count();
         this.typingTimer.Start();

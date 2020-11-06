@@ -16,194 +16,178 @@ namespace de.springwald.xml.editor.actions
 {
     internal static class InsertAtCursorPosHelper
     {
-        internal struct TextEinfuegeResult
+        internal struct InsertTextResult
         {
             public System.Xml.XmlNode ReplaceNode;
         }
 
         /// <summary>
-        /// Fügt den angegebenen Text an der aktuellen Cursorposition ein, sofern möglich
+        /// Inserts the specified text at the current cursor position, if possible
         /// </summary>
-        /// <param name="text">Der einzufügende Text</param>
-        /// <param name="cursor">An dieser Stelle soll eingefügt werden</param>
-        /// <param name="ersatzNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
-        /// AIML-Template wir * gedrückt, dann wird ein STAR-Tag eingefügt</param>
-        internal static TextEinfuegeResult InsertText(XmlCursorPos cursorPos, string rohText, XmlRules regelwerk)
+        internal static InsertTextResult InsertText(XmlCursorPos cursorPos, string rawText, XmlRules xmlRules)
         {
-            // Den eingegebenen Text im Preprocessing ggf. überarbeiten.
-            // In einer AIML-DTD kann dies z.B. bedeuten, dass der
-            // Text zum Einfügen in das PATTERN Tag auf Großbuchstaben umgestellt wird
-            string text = regelwerk.InsertTextTextPreProcessing(rohText, cursorPos, out System.Xml.XmlNode ersatzNode);
+            // Revise the entered text in preprocessing if necessary.
+            // In an AIML 1.1 DTD this can mean, for example, that the text for insertion into the PATTERN tag is changed to upper case
+            string text = xmlRules.InsertTextTextPreProcessing(rawText, cursorPos, out System.Xml.XmlNode replacementNode);
 
-            if (ersatzNode != null)
+            if (replacementNode != null)
             {
-                // Wenn aus dem eingegebenen Text statt dessen ein Node geworden ist, z.B. bei
-                // AIML, wenn man in einem Template * drückt und dann statt dessen ein <star>
-                // eingefügt werden soll
-                return new TextEinfuegeResult { ReplaceNode = ersatzNode };
+                // If the entered text has become a node instead, e.g. with AIML, 
+                // if you press * in a template and then want to insert a <star> instead
+                return new InsertTextResult { ReplaceNode = replacementNode };
             }
-            else
+
+            switch (cursorPos.PosOnNode)
             {
-                switch (cursorPos.PosOnNode)
-                {
-                    case XmlCursorPositions.CursorOnNodeStartTag:
-                    case XmlCursorPositions.CursorOnNodeEndTag:
-                        // Zuerst checken, ob dieser Node durch durch einen Textnode ersetzt werden darf
-                        if (regelwerk.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
-                        {
-                            // Den gewählten Node durch einen neu erzeugten Textnode 
-                            System.Xml.XmlText neuerTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text);
-                            cursorPos.ActualNode.ParentNode.ReplaceChild(cursorPos.ActualNode, neuerTextNode);
-                            cursorPos.SetPos(neuerTextNode, XmlCursorPositions.CursorBehindTheNode);
-                        }
-                        throw new ApplicationException(String.Format("TextEinfuegen: unbehandelte CursorPos {0}", cursorPos.PosOnNode));
+                case XmlCursorPositions.CursorOnNodeStartTag:
+                case XmlCursorPositions.CursorOnNodeEndTag:
+                    // First check whether this node may be replaced by a text node
+                    if (xmlRules.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
+                    {
+                        // The selected node by a newly created text node 
+                        System.Xml.XmlText neuerTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text);
+                        cursorPos.ActualNode.ParentNode.ReplaceChild(cursorPos.ActualNode, neuerTextNode);
+                        cursorPos.SetPos(neuerTextNode, XmlCursorPositions.CursorBehindTheNode);
+                    }
+                    throw new ApplicationException(String.Format("InsertText: unknown CursorPos {0}", cursorPos.PosOnNode));
 
-                    case XmlCursorPositions.CursorBehindTheNode:
-                        TextZwischenZweiNodesEinfuegen(cursorPos, cursorPos.ActualNode, cursorPos.ActualNode.NextSibling, text, regelwerk);
-                        break;
+                case XmlCursorPositions.CursorBehindTheNode:
+                    InsertTextBetweenTwoNodes(cursorPos, cursorPos.ActualNode, cursorPos.ActualNode.NextSibling, text, xmlRules);
+                    break;
 
-                    case XmlCursorPositions.CursorInFrontOfNode:
-                        TextZwischenZweiNodesEinfuegen(cursorPos, cursorPos.ActualNode.PreviousSibling, cursorPos.ActualNode, text, regelwerk);
-                        break;
+                case XmlCursorPositions.CursorInFrontOfNode:
+                    InsertTextBetweenTwoNodes(cursorPos, cursorPos.ActualNode.PreviousSibling, cursorPos.ActualNode, text, xmlRules);
+                    break;
 
-                    case XmlCursorPositions.CursorInsideTheEmptyNode:
-                        // Zuerst checken, ob innerhalb des leeren Nodes Text erlaubt ist
-                        if (regelwerk.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
-                        {
-                            // Dann innerhalb des leeren Nodes einen Textnode mit dem gewünschten Textinhalt erzeugen
-                            System.Xml.XmlText neuerTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text);
-                            cursorPos.ActualNode.AppendChild(neuerTextNode);
-                            cursorPos.SetPos(neuerTextNode, XmlCursorPositions.CursorBehindTheNode);
-                        }
-                        else
-                        {
-                            //BEEEEP!
-                        }
-                        break;
+                case XmlCursorPositions.CursorInsideTheEmptyNode:
+                    // First check if text is allowed inside the empty node
+                    if (xmlRules.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
+                    {
+                        // Then create a text node within the empty node with the desired text content
+                        System.Xml.XmlText newTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text);
+                        cursorPos.ActualNode.AppendChild(newTextNode);
+                        cursorPos.SetPos(newTextNode, XmlCursorPositions.CursorBehindTheNode);
+                    }
+                    else
+                    {
+                        // Error BEEEEP!
+                    }
+                    break;
 
-                    case XmlCursorPositions.CursorInsideTextNode:
-                        string textVorCursor = cursorPos.ActualNode.InnerText.Substring(0, cursorPos.PosInTextNode);
-                        string textNachCursor = cursorPos.ActualNode.InnerText.Substring(cursorPos.PosInTextNode, cursorPos.ActualNode.InnerText.Length - cursorPos.PosInTextNode);
-                        // Das Zeichen der gedrückten Tasten nach dem Cursor einsetzen
-                        cursorPos.ActualNode.InnerText = textVorCursor + text + textNachCursor;
-                        cursorPos.SetPos(cursorPos.ActualNode, cursorPos.PosOnNode, cursorPos.PosInTextNode + text.Length);
-                        break;
+                case XmlCursorPositions.CursorInsideTextNode:
+                    string textBeforeNode = cursorPos.ActualNode.InnerText.Substring(0, cursorPos.PosInTextNode);
+                    string textAfterCursor = cursorPos.ActualNode.InnerText.Substring(cursorPos.PosInTextNode, cursorPos.ActualNode.InnerText.Length - cursorPos.PosInTextNode);
+                    // Insert the character of the pressed keys after the cursor
+                    cursorPos.ActualNode.InnerText = $"{textBeforeNode}{text}{textAfterCursor}";
+                    cursorPos.SetPos(cursorPos.ActualNode, cursorPos.PosOnNode, cursorPos.PosInTextNode + text.Length);
+                    break;
 
-                    default:
-                        throw new ApplicationException(String.Format("TextEinfuegen: Unbekannte CursorPos {0}", cursorPos.PosOnNode));
-                }
+                default:
+                    throw new ApplicationException(String.Format("InsertText: unknown CursorPos {0}", cursorPos.PosOnNode));
             }
-            return new TextEinfuegeResult { ReplaceNode = ersatzNode };
+            return new InsertTextResult { ReplaceNode = replacementNode };
         }
 
 
         /// <summary>
-        /// Fügt den angegebenen XML-Node an der angegebenen Stelle ein
+        /// Inserts the specified XML node at the specified position
         /// </summary>
-        /// <param name="node">Dieses XML-Element soll eingefügt werden</param>
-        /// <returns></returns>
-        internal static bool InsertXmlNode(XmlCursorPos cursorPos, System.Xml.XmlNode node, XmlRules regelwerk, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
+        internal static bool InsertXmlNode(XmlCursorPos cursorPos, System.Xml.XmlNode node, XmlRules xmlRules, bool setNewCursorPosBehindNewInsertedNode)
         {
             System.Xml.XmlNode parentNode = cursorPos.ActualNode.ParentNode;
 
             switch (cursorPos.PosOnNode)
             {
-                case XmlCursorPositions.CursorOnNodeStartTag: // den aktuellen Node austauschen
+                case XmlCursorPositions.CursorOnNodeStartTag: // replace the acual node
                 case XmlCursorPositions.CursorOnNodeEndTag:
                     parentNode.ReplaceChild(node, cursorPos.ActualNode);
                     break;
 
-                case XmlCursorPositions.CursorInFrontOfNode: // vor dem aktuellen Node einsetzen
+                case XmlCursorPositions.CursorInFrontOfNode: // insert before actual node
                     parentNode.InsertBefore(node, cursorPos.ActualNode);
                     break;
 
-                case XmlCursorPositions.CursorBehindTheNode: // hinter dem aktuellen Node einsetzen
+                case XmlCursorPositions.CursorBehindTheNode: // insert after actual node
                     parentNode.InsertAfter(node, cursorPos.ActualNode);
                     break;
 
-                case XmlCursorPositions.CursorInsideTheEmptyNode: // im leeren  Node einsetzen
+                case XmlCursorPositions.CursorInsideTheEmptyNode: // insert into empty node
                     cursorPos.ActualNode.AppendChild(node);
                     break;
 
-                case XmlCursorPositions.CursorInsideTextNode: // innerhalb eines Textnodes einsetzen
+                case XmlCursorPositions.CursorInsideTextNode: // insert into textnode
 
-                    // Den Text vor der Einfügeposition als Node bereitstellen
+                    // Make the text available as a node before the insertion position
                     string textDavor = cursorPos.ActualNode.InnerText.Substring(0, cursorPos.PosInTextNode);
                     System.Xml.XmlNode textDavorNode = parentNode.OwnerDocument.CreateTextNode(textDavor);
 
-                    // Den Text hinter der Einfügeposition als Node bereitstellen
-                    string textDanach = cursorPos.ActualNode.InnerText.Substring(cursorPos.PosInTextNode, cursorPos.ActualNode.InnerText.Length - cursorPos.PosInTextNode);
-                    System.Xml.XmlNode textDanachNode = parentNode.OwnerDocument.CreateTextNode(textDanach);
+                    // Provide the text behind the insert position as a node
+                    string textAfter = cursorPos.ActualNode.InnerText.Substring(cursorPos.PosInTextNode, cursorPos.ActualNode.InnerText.Length - cursorPos.PosInTextNode);
+                    System.Xml.XmlNode textAfterNode = parentNode.OwnerDocument.CreateTextNode(textAfter);
 
-                    // Einzufügenden Node zwischen dem neuen vorher- und nachher-Textnode einsetzen
-                    // -> also den alten Textnode ersetzen durch
-                    // textdavor - neuerNode - textdanach
+                    // Insert the node to be inserted between the new before and after text node
+                    // -> so replace the old text node with
+                    // textbefore - newNode - textafter
                     parentNode.ReplaceChild(textDavorNode, cursorPos.ActualNode);
                     parentNode.InsertAfter(node, textDavorNode);
-                    parentNode.InsertAfter(textDanachNode, node);
-
+                    parentNode.InsertAfter(textAfterNode, node);
                     break;
 
                 default:
-                    throw new ApplicationException(String.Format("InsertElementAnCursorPos: Unbekannte PosAmNode {0}", cursorPos.PosOnNode));
+                    throw new ApplicationException(String.Format("InsertXmlNode: unknown PosOnNode {0}", cursorPos.PosOnNode));
             }
 
-            // Cursor setzen
-            if (neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
+            // set cursor
+            if (setNewCursorPosBehindNewInsertedNode)
             {
-                // Cursor hinter den neuen Node setzen
+                // Place cursor behind the new node
                 cursorPos.SetPos(node, XmlCursorPositions.CursorBehindTheNode);
             }
             else
             {
-                if (regelwerk.HasEndTag(node))
+                if (xmlRules.HasEndTag(node))
                 {
-                    // Cursor in den neuen Node setzen
+                    // Place cursor in the new node
                     cursorPos.SetPos(node, XmlCursorPositions.CursorInsideTheEmptyNode);
                 }
                 else
                 {
-                    // Cursor hinter den neuen Node setzen
+                    // Place cursor behind the new node
                     cursorPos.SetPos(node, XmlCursorPositions.CursorBehindTheNode);
                 }
             }
             return true;
         }
 
-
         /// <summary>
-        /// Fügt einen Text zwischen zwei Nodes ein
+        /// Inserts a text between two nodes
         /// </summary>
-        /// <param name="nodeVorher"></param>
-        /// <param name="nodeNachher"></param>
-        /// <param name="text"></param>
-        internal static void TextZwischenZweiNodesEinfuegen(XmlCursorPos cursorPos, System.Xml.XmlNode nodeVorher, System.Xml.XmlNode nodeNachher, string text, XmlRules regelwerk)
+        internal static void InsertTextBetweenTwoNodes(XmlCursorPos cursorPos, System.Xml.XmlNode nodeBefore, System.Xml.XmlNode nodeAfter, string text, XmlRules xmlRules)
         {
-            if (ToolboxXml.IsTextOrCommentNode(nodeVorher))  // wenn der Node vorher schon Text ist, dann einfach an ihn anhängen
+            if (ToolboxXml.IsTextOrCommentNode(nodeBefore))  // if the node is already text before, then simply append to it
             {
-                nodeVorher.InnerText += text;
-                cursorPos.SetPos(nodeVorher, XmlCursorPositions.CursorInsideTextNode, nodeVorher.InnerText.Length);
+                nodeBefore.InnerText += text;
+                cursorPos.SetPos(nodeBefore, XmlCursorPositions.CursorInsideTextNode, nodeBefore.InnerText.Length);
             }
-            else  // der Node vorher ist kein Text
+            else  // the node before is no text
             {
-                if (ToolboxXml.IsTextOrCommentNode(nodeNachher))  // wenn der Node dahinter schon Text istm dann einfach an in einfügen
+                if (ToolboxXml.IsTextOrCommentNode(nodeAfter))  // if the node behind it is already text then just paste it into
                 {
-                    nodeNachher.InnerText = text + nodeNachher.InnerText;
-                    cursorPos.SetPos(nodeNachher, XmlCursorPositions.CursorInsideTextNode, text.Length);
+                    nodeAfter.InnerText = $"{text}{nodeAfter.InnerText}";
+                    cursorPos.SetPos(nodeAfter, XmlCursorPositions.CursorInsideTextNode, text.Length);
                 }
-                else // der Node dahinter ist auch kein Text
+                else // the node behind is also no text
                 {
-                    // Zwischen zwei Nicht-Text-Nodes einfügen
-                    if (regelwerk.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
+                    // Insert between two non-text nodes
+                    if (xmlRules.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
                     {
-                        System.Xml.XmlText neuerTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text); // Text als Textnode
-                        InsertXmlNode(cursorPos, neuerTextNode, regelwerk, false);
+                        System.Xml.XmlText newTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text); 
+                        InsertXmlNode(cursorPos, newTextNode, xmlRules, false);
                     }
                     else
                     {
-#warning Noch eine korrekte Meldung oder Ton einfügen
-                        Debug.Assert(false, "Beep!");
-                        //BEEEP
+#warning Insert another correct message or sound
+                        Debug.Assert(false, "Error - Beep!");
                     }
 
                 }

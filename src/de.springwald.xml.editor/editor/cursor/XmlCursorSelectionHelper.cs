@@ -146,7 +146,7 @@ namespace de.springwald.xml.editor.cursor
         public struct SelectionLoeschenResult
         {
             public bool Success;
-            public XmlCursorPos NeueCursorPosNachLoeschen;
+            public XmlCursorPos NewCursorPosAfterDelete;
         }
 
         /// <summary>
@@ -154,14 +154,14 @@ namespace de.springwald.xml.editor.cursor
         /// </summary>
         /// <param name="cursor"></param>
         /// <param name="neueCursorPosNachLoeschen"></param>
-        internal static async Task<SelectionLoeschenResult> SelektionLoeschen(XmlCursor cursor)
+        internal static async Task<SelectionLoeschenResult> DeleteSelection(XmlCursor cursor)
         {
             // Wenn der Cursor gar keine Auswahl enthält
             if (!cursor.IsSomethingSelected)
             {
                 return new SelectionLoeschenResult
                 {
-                    NeueCursorPosNachLoeschen = cursor.StartPos.Clone(), // Cursor wird nicht verändert
+                    NewCursorPosAfterDelete = cursor.StartPos.Clone(), // Cursor wird nicht verändert
                     Success = false // nichts gelöscht
                 };
             }
@@ -201,7 +201,7 @@ namespace de.springwald.xml.editor.cursor
 
                                     return new SelectionLoeschenResult
                                     {
-                                        NeueCursorPosNachLoeschen = neueCursorPosNachLoeschen,
+                                        NewCursorPosAfterDelete = neueCursorPosNachLoeschen,
                                         Success = true
                                     };
                                 }
@@ -235,7 +235,7 @@ namespace de.springwald.xml.editor.cursor
 
                             return new SelectionLoeschenResult
                             {
-                                NeueCursorPosNachLoeschen = neueCursorPosNachLoeschen,
+                                NewCursorPosAfterDelete = neueCursorPosNachLoeschen,
                                 Success = true
                             }; // Löschen war erfolgreich
 
@@ -246,13 +246,13 @@ namespace de.springwald.xml.editor.cursor
                             {
                                 // Den Cursor in den Textnode vor dem ersten Zeichen setzen und dann neu abschicken
                                 cursor.StartPos.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, 0);
-                                return await SelektionLoeschen(cursor); // zum löschen neu abschicken
+                                return await DeleteSelection(cursor); // zum löschen neu abschicken
                             }
                             else
                             {
                                 // wenn es kein Textnode ist, dann den ganzen Node markieren und dann neu abschicken
                                 await cursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
-                                return await SelektionLoeschen(cursor);// zum löschen neu abschicken
+                                return await DeleteSelection(cursor);// zum löschen neu abschicken
                             }
 
                         case XmlCursorPositions.CursorBehindTheNode:
@@ -262,13 +262,13 @@ namespace de.springwald.xml.editor.cursor
                             {
                                 // Den Cursor in den Textnode vor dem ersten Zeichen setzen und dann neu abschicken
                                 cursor.StartPos.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, cursor.StartPos.ActualNode.InnerText.Length);
-                                return await SelektionLoeschen(cursor);// zum löschen neu abschicken
+                                return await DeleteSelection(cursor);// zum löschen neu abschicken
                             }
                             else
                             {
                                 // wenn es kein Textnode ist, dann den ganzen Node markieren und dann neu abschicken
                                 await cursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
-                                return await SelektionLoeschen(cursor);// zum löschen neu abschicken
+                                return await DeleteSelection(cursor);// zum löschen neu abschicken
                             }
 
                         case XmlCursorPositions.CursorInsideTextNode:
@@ -289,7 +289,7 @@ namespace de.springwald.xml.editor.cursor
                                 // einzeln selektierter Nodes
                                 XmlCursor einNodeSelektiertCursor = new XmlCursor();
                                 await einNodeSelektiertCursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag);
-                                return await SelektionLoeschen(einNodeSelektiertCursor);
+                                return await DeleteSelection(einNodeSelektiertCursor);
                             }
                             else
                             { // Nur ein Teil des Textes ist zu löschen
@@ -311,7 +311,7 @@ namespace de.springwald.xml.editor.cursor
 
                                 return new SelectionLoeschenResult
                                 {
-                                    NeueCursorPosNachLoeschen = neueCursorPosNachLoeschen,
+                                    NewCursorPosAfterDelete = neueCursorPosNachLoeschen,
                                     Success = true
                                 };  // Löschen erfolgreich
                             }
@@ -322,7 +322,7 @@ namespace de.springwald.xml.editor.cursor
                             {
                                 XmlCursor neucursor = new XmlCursor();
                                 await neucursor.BeideCursorPosSetzenMitChangeEventWennGeaendert(cursor.StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag, 0);
-                                return await SelektionLoeschen(neucursor);
+                                return await DeleteSelection(neucursor);
                             }
                             else
                             {
@@ -347,12 +347,12 @@ namespace de.springwald.xml.editor.cursor
                     // den Endnode oder einen Teil von ihm löschen
                     XmlCursor temp = cursor.Clone();
                     temp.StartPos.SetPos(cursor.EndPos.ActualNode, XmlCursorPositions.CursorInFrontOfNode);
-                    await SelektionLoeschen(temp);
+                    await DeleteSelection(temp);
 
                     // den Startnode, oder einen Teil von ihm löschen
                     // -> Geschieht durch Rekursion in der Selektion-Loeschen-Methode
                     cursor.EndPos.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorBehindTheNode);
-                    return await SelektionLoeschen(cursor);
+                    return await DeleteSelection(cursor);
                 }
             }
         }

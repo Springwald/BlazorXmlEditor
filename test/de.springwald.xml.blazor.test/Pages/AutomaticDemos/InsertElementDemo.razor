@@ -63,10 +63,10 @@
     {
         this.typingTimer.Stop();
 
-        await this.editorContext.Actions.AktionNeuesElementAnAktCursorPosEinfuegen(
+        await this.editorContext.Actions.ActionInsertNewElementAtActCursorPos(
             elementNames[this.rnd.Next(0, this.elementNames.Length)],
             EditorActions.SetUndoSnapshotOptions.Yes,
-            neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen: true);
+            setNewCursorPosBehindNewInsertedNode: true);
 
         this.fpsCounter.Count();
         this.typingTimer.Start();

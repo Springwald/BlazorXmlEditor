@@ -50,7 +50,7 @@
 
     protected async Task ClickElement(string element)
     {
-        await this.EditorContext.Actions.AktionNeuesElementAnAktCursorPosEinfuegen(element, EditorActions.SetUndoSnapshotOptions.Yes, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen: false);
+        await this.EditorContext.Actions.ActionInsertNewElementAtActCursorPos(element, EditorActions.SetUndoSnapshotOptions.Yes, setNewCursorPosBehindNewInsertedNode: false);
         StateHasChanged();
     }
 

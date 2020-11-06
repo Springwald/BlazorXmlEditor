@@ -65,11 +65,11 @@ namespace de.springwald.xml.editor
                     // >>> special character keys >>>
 
                     case (Keys.A): // CTRL-A -> select all
-                        if (e.CtrlKey) await this.actions.AktionAllesMarkieren();
+                        if (e.CtrlKey) await this.actions.ActionSelectAll();
                         break;
 
                     case (Keys.C): // CTRL-C -> copy
-                        if (e.CtrlKey) await this.actions.AktionCopyToClipboard();
+                        if (e.CtrlKey) await this.actions.ActionCopyToClipboard();
                         break;
 
                     case (Keys.V): // CTRL-V -> paste
@@ -121,12 +121,12 @@ namespace de.springwald.xml.editor
                     // >>>> command keys
 
                     case (Keys.Home): // Pos1 
-                        await this.actions.AktionCursorAufPos1();
+                        await this.actions.ActionCursorOnPos1();
                         useKeyContent = false;
                         break;
 
                     case Keys.Enter: // Enter does special things, e.g. start a new day of the same kind etc.
-                        this.actions.AktionenEnterGedrueckt();
+                        this.actions.ActionEnterPressed();
                         useKeyContent = false;
                         break;
 
@@ -167,11 +167,11 @@ namespace de.springwald.xml.editor
                     case Keys.Back:  
                         if (this.editorState.CursorRaw.IsSomethingSelected)
                         {
-                            await this.actions.AktionDelete(SetUndoSnapshotOptions.Yes);
+                            await this.actions.ActionDelete(SetUndoSnapshotOptions.Yes);
                         }
                         else
                         {
-                            await this.actions.AktionNodeOderZeichenVorDerCursorPosLoeschen(this.editorState.CursorRaw.StartPos, SetUndoSnapshotOptions.Yes);
+                            await this.actions.ActionDeleteNodeOrCharInForntOfCursorPos(this.editorState.CursorRaw.StartPos, SetUndoSnapshotOptions.Yes);
                         }
                         useKeyContent = false;
                         break;
@@ -179,11 +179,11 @@ namespace de.springwald.xml.editor
                     case Keys.Delete:          
                         if (this.editorState.CursorRaw.IsSomethingSelected)
                         {
-                            await this.actions.AktionDelete(SetUndoSnapshotOptions.Yes);
+                            await this.actions.ActionDelete(SetUndoSnapshotOptions.Yes);
                         }
                         else
                         {
-                            await this.actions.AktionNodeOderZeichenHinterCursorPosLoeschen(this.editorState.CursorRaw.StartPos, SetUndoSnapshotOptions.Yes);
+                            await this.actions.ActionDeleteNodeOrSignBehindCursorPos(this.editorState.CursorRaw.StartPos, SetUndoSnapshotOptions.Yes);
                         }
                         useKeyContent = false;
                         break;
@@ -198,7 +198,7 @@ namespace de.springwald.xml.editor
 
                 if (useKeyContent)
                 {
-                    await this.actions.AktionTextAnCursorPosEinfuegen(e.Content, SetUndoSnapshotOptions.Yes);
+                    await this.actions.ActionInsertTextAtCursorPos(e.Content, SetUndoSnapshotOptions.Yes);
                 }
             }
         }
