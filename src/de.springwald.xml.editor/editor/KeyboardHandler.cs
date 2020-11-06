@@ -73,7 +73,7 @@ namespace de.springwald.xml.editor
                         break;
 
                     case (Keys.V): // CTRL-V -> paste
-                        if (e.CtrlKey)  await this.actions.AktionPasteFromClipboard(SetUndoSnapshotOptions.Yes);
+                        if (e.CtrlKey)  await this.actions.ActionPasteFromClipboard(SetUndoSnapshotOptions.Yes);
                         break;
 
                     case (Keys.X): // CTRL-X -> cut

@@ -45,15 +45,14 @@
 
 @code {
 
-    private bool showContextMenu;
-
-    protected BECanvasComponent _canvasReference;
-    protected ElementReference _canvasDivReference;
-
     protected int outerWidth = 10;
     protected int canvasWidth = 10;
     protected int canvasHeight = 10;
 
+    private bool showContextMenu;
+
+    protected BECanvasComponent _canvasReference;
+    protected ElementReference _canvasDivReference;
     private de.springwald.xml.editor.XmlEditor editor;
 
     [Parameter]
@@ -152,8 +151,7 @@
 
     private async Task OuterResized()
     {
-        var size = await JSRuntime.InvokeAsync<BoundingClientRect>
-    ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        var size = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
         if (size == null) return;
         this.outerWidth = (int)size.Width - 40;
         await this.VirtualSizeChanged(EventArgs.Empty);
@@ -161,19 +159,15 @@
 
     #region key events
 
-
-
     public async void EventFocusIn(FocusEventArgs e)
     {
         this.EditorContext.EditorState.HasFocus = true;
-        // this.EditorContext.NativePlatform.InputEvents.FocusIn.Trigger(EventArgs.Empty);
         await Task.CompletedTask;
     }
 
     public async void EventFocusOut(FocusEventArgs e)
     {
         this.EditorContext.EditorState.HasFocus = false;
-        // this.EditorContext.NativePlatform.InputEvents.FocusIn.Trigger(EventArgs.Empty);
         await Task.CompletedTask;
     }
 
@@ -208,9 +202,7 @@
             case "Enter": args.Key = events.Keys.Enter; break;
 
             default:
-
                 // check other keys in detail by key code
-
                 switch (e.Code)
                 {
                     case "KeyA": args.Key = events.Keys.A; break;
@@ -234,7 +226,6 @@
                 }
                 break;
         }
-
         await this.EditorContext.NativePlatform.InputEvents.PreviewKey.Trigger(args);
     }
 

@@ -18,7 +18,7 @@ namespace de.springwald.xml.editor.actions
     {
         internal struct TextEinfuegeResult
         {
-            public System.Xml.XmlNode ErsatzNode;
+            public System.Xml.XmlNode ReplaceNode;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace de.springwald.xml.editor.actions
                 // Wenn aus dem eingegebenen Text statt dessen ein Node geworden ist, z.B. bei
                 // AIML, wenn man in einem Template * drückt und dann statt dessen ein <star>
                 // eingefügt werden soll
-                return new TextEinfuegeResult { ErsatzNode = ersatzNode };
+                return new TextEinfuegeResult { ReplaceNode = ersatzNode };
             }
             else
             {
@@ -93,7 +93,7 @@ namespace de.springwald.xml.editor.actions
                         throw new ApplicationException(String.Format("TextEinfuegen: Unbekannte CursorPos {0}", cursorPos.PosOnNode));
                 }
             }
-            return new TextEinfuegeResult { ErsatzNode = ersatzNode };
+            return new TextEinfuegeResult { ReplaceNode = ersatzNode };
         }
 
 
@@ -102,7 +102,7 @@ namespace de.springwald.xml.editor.actions
         /// </summary>
         /// <param name="node">Dieses XML-Element soll eingefügt werden</param>
         /// <returns></returns>
-        internal static bool InsertXMLNode(XmlCursorPos cursorPos, System.Xml.XmlNode node, XmlRules regelwerk, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
+        internal static bool InsertXmlNode(XmlCursorPos cursorPos, System.Xml.XmlNode node, XmlRules regelwerk, bool neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen)
         {
             System.Xml.XmlNode parentNode = cursorPos.ActualNode.ParentNode;
 
@@ -197,7 +197,7 @@ namespace de.springwald.xml.editor.actions
                     if (regelwerk.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
                     {
                         System.Xml.XmlText neuerTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text); // Text als Textnode
-                        InsertXMLNode(cursorPos, neuerTextNode, regelwerk, false);
+                        InsertXmlNode(cursorPos, neuerTextNode, regelwerk, false);
                     }
                     else
                     {

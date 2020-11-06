@@ -80,7 +80,7 @@
                 await this.EditorContext.Actions.AktionCursorAufPos1();
                 break;
             case ClickActions.Paste:
-                await this.EditorContext.Actions.AktionPasteFromClipboard(EditorActions.SetUndoSnapshotOptions.Yes);
+                await this.EditorContext.Actions.ActionPasteFromClipboard(EditorActions.SetUndoSnapshotOptions.Yes);
                 break;
             case ClickActions.Undo:
                 await this.EditorContext.EditorState.UnDo();

@@ -14,11 +14,11 @@ namespace de.springwald.xml.blazor.NativePlatform
 {
     public class BlazorInputEvents : IInputEvents
     {
-        public XmlAsyncEvent<events.MouseEventArgs> MouseDown { get; } = new XmlAsyncEvent<events.MouseEventArgs>();
+        public XmlAsyncEvent<MouseEventArgs> MouseDown { get; } = new XmlAsyncEvent<events.MouseEventArgs>();
 
-        public XmlAsyncEvent<events.MouseEventArgs> MouseUp { get; } = new XmlAsyncEvent<events.MouseEventArgs>();
+        public XmlAsyncEvent<MouseEventArgs> MouseUp { get; } = new XmlAsyncEvent<events.MouseEventArgs>();
 
-        public XmlAsyncEvent<events.MouseEventArgs> MouseMove { get; } = new XmlAsyncEvent<events.MouseEventArgs>();
+        public XmlAsyncEvent<MouseEventArgs> MouseMove { get; } = new XmlAsyncEvent<events.MouseEventArgs>();
 
         public XmlAsyncEvent<KeyEventArgs> KeyPress { get; } = new XmlAsyncEvent<KeyEventArgs>();
 

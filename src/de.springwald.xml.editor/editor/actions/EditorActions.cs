@@ -7,13 +7,14 @@
 // All rights reserved
 // Licensed under MIT License
 
+
+using System;
+using System.Xml;
+using System.Threading.Tasks;
 using de.springwald.xml.cursor;
 using de.springwald.xml.editor.cursor;
 using de.springwald.xml.editor.nativeplatform;
 using de.springwald.xml.rules;
-using System;
-using System.Threading.Tasks;
-using System.Xml;
 using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor.actions
@@ -28,9 +29,6 @@ namespace de.springwald.xml.editor.actions
 
         public enum SetUndoSnapshotOptions { Yes, nein };
 
-        /// <summary>
-        /// Sind überhaupt irgendwelche Aktionen möglich?
-        /// </summary>
         private bool ActionsAllowed
         {
             get
@@ -51,7 +49,6 @@ namespace de.springwald.xml.editor.actions
             this.editorContext = editorContext;
         }
 
-
         public async Task<bool> MoveRight(XmlCursorPos cursorPos)
         {
             return await CursorPosMoveHelper.MoveRight(cursorPos, this.editorContext.EditorState.RootNode, this.editorContext.XmlRules);
@@ -62,43 +59,37 @@ namespace de.springwald.xml.editor.actions
             return await CursorPosMoveHelper.MoveLeft(cursorPos, this.editorContext.EditorState.RootNode, this.editorContext.XmlRules);
         }
 
-        /// <summary>
-        /// Fuegt den Zwischenablageinhalt an die aktuelle CursorPos ein
-        /// </summary>
-        /// <returns></returns>
-        public virtual async Task<bool> AktionPasteFromClipboard(SetUndoSnapshotOptions setUnDoSnapshot)
+        public virtual async Task<bool> ActionPasteFromClipboard(SetUndoSnapshotOptions setUnDoSnapshot)
         {
-
-            if (!ActionsAllowed) return false; // Wenn gar keine Aktionen zulässig sind, abbrechen
-
-            string text = "";
+            if (!ActionsAllowed) return false; // If no actions are allowed at all, cancel
+            string text = string.Empty;
 
             try
             {
-                if (await this.nativePlatform.Clipboard.ContainsText()) // wenn Text in der Zwischenablage ist
+                if (await this.nativePlatform.Clipboard.ContainsText()) // if text is in the clipboard
                 {
                     XmlCursorPos startPos;
                     XmlCursorPos endPos;
 
-                    if (this.editorState.IsRootNodeSelected) // Der Rootnode ist selektiert und soll daher durch den Clipboard-Inhalt ersetzt werden
+                    if (this.editorState.IsRootNodeSelected) // The root node is selected and should therefore be replaced by the clipboard content
                     {
                         return await AktionRootNodeDurchClipboardInhaltErsetzen(setUnDoSnapshot);
                     }
-                    else // etwas anderes als der Rootnode soll ersetzt werden
+                    else // something other than the root node should be replaced
                     {
-                        // Zuerst eine etwaige Selektion löschen
-                        if (this.editorState.IsSomethingSelected) // Es ist etwas selektiert
+                        // First delete any selection
+                        if (this.editorState.IsSomethingSelected) // Something is selected
                         {
                             if (await AktionDelete(SetUndoSnapshotOptions.nein))
                             {
                                 startPos = this.editorState.CursorRaw.StartPos;
                             }
-                            else // Löschen der Selektion fehlgeschlagen
+                            else // Failed to delete the selection
                             {
                                 return false;
                             }
                         }
-                        else // Nichts selektiert
+                        else // nothin selected
                         {
                             startPos = this.editorState.CursorOptimized.StartPos;
                         }
@@ -106,15 +97,13 @@ namespace de.springwald.xml.editor.actions
 
                     if (setUnDoSnapshot == SetUndoSnapshotOptions.Yes)
                     {
-                        this.editorState.UndoHandler.SetSnapshot(
-                            ResReader.Reader.GetString("AktionEinfuegen"),
-                            this.editorState.CursorRaw);
+                        this.editorState.UndoHandler.SetSnapshot("insert", this.editorState.CursorRaw);
                     }
 
-                    // Den Text mit einem umschließenden, virtuellen Tag umschließen
+                    // Wrap the text with an enclosing virtual tag
                     text = await this.nativePlatform.Clipboard.GetText();
 
-                    // Whitespaces entschärfen
+                    // clean whitespaces
                     text = text.Replace("\r\n", " ");
                     text = text.Replace("\n\r", " ");
                     text = text.Replace("\r", " ");
@@ -123,49 +112,51 @@ namespace de.springwald.xml.editor.actions
 
                     string content = String.Format("<paste>{0}</paste>", text);
 
-                    // den XML-Reader erzeugen
-                    var reader = new XmlTextReader(content, XmlNodeType.Element, null);
-                    reader.MoveToContent(); //Move to the cd element node.
-
-                    // Den virtuellen Paste-Node erstellen
-                    var pasteNode = this.editorState.RootNode.OwnerDocument.ReadNode(reader);
-
-                    // Nun alle Children des virtuellen Paste-Node nacheinander an der CursorPos einfügen
-                    endPos = startPos.Clone(); // Vor dem Einfügen sind start- und endPos gleich
-                    foreach (XmlNode node in pasteNode.ChildNodes)
+                    // create the XML reader
+                    using (var reader = new XmlTextReader(content, XmlNodeType.Element, null))
                     {
-                        if (node is XmlText) // Einen Text einfügen
+                        reader.MoveToContent(); //Move to the cd element node.
+
+                        // Creating the Virtual Paste Node
+                        var pasteNode = this.editorState.RootNode.OwnerDocument.ReadNode(reader);
+
+                        // Now insert all Children of the virtual Paste-Node one after the other at the CursorPos
+                        endPos = startPos.Clone(); // Before inserting start- and endPos are equal
+                        foreach (XmlNode node in pasteNode.ChildNodes)
                         {
-                            var pasteResult = InsertAtCursorPosHelper.InsertText(endPos, node.Clone().Value, this.xmlRules);
-                            if (pasteResult.ErsatzNode != null)
+                            if (node is XmlText) // Insert a text
                             {
-                                // Text konnte nicht eingefügt werden, da aus der Texteingabe eine Node-Eingabe umgewandelt
-                                // wurde. Beispiel: Im AIML-Template wird * gedrückt, und dort statt dessen ein <star> eingefügt
-                                InsertAtCursorPosHelper.InsertXMLNode(endPos, pasteResult.ErsatzNode.Clone(), this.xmlRules, true);
+                                var pasteResult = InsertAtCursorPosHelper.InsertText(endPos, node.Clone().Value, this.xmlRules);
+                                if (pasteResult.ReplaceNode != null)
+                                {
+                                    // Text could not be inserted because a node input was converted from text input.
+                                    // Example: In the AIML template, * is pressed, and a <star> is inserted there instead
+                                    InsertAtCursorPosHelper.InsertXmlNode(endPos, pasteResult.ReplaceNode.Clone(), this.xmlRules, true);
+                                }
+                            }
+                            else //  Insert a Node
+                            {
+                                InsertAtCursorPosHelper.InsertXmlNode(endPos, node.Clone(), this.xmlRules, true);
                             }
                         }
-                        else // Einen Node einfügen
-                        {
-                            InsertAtCursorPosHelper.InsertXMLNode(endPos, node.Clone(), this.xmlRules, true);
-                        }
-                    }
 
-                    switch (this.editorState.CursorRaw.EndPos.PosOnNode)
-                    {
-                        case XmlCursorPositions.CursorInsideTextNode:
-                        case XmlCursorPositions.CursorInFrontOfNode:
-                            // Ende des Einfügens liegt einem Text oder vor dem Node
-                            await this.editorState.CursorRaw.SetPositions(endPos.ActualNode, endPos.PosOnNode, endPos.PosInTextNode, throwChangedEventWhenValuesChanged: false);
-                            break;
-                        default:
-                            // Ende des Einfügens liegt hinter dem letzten eingefügten Node
-                            await this.editorState.CursorRaw.SetPositions(endPos.ActualNode, XmlCursorPositions.CursorBehindTheNode, textPosInBothNodes: 0, throwChangedEventWhenValuesChanged: false);
-                            break;
+                        switch (this.editorState.CursorRaw.EndPos.PosOnNode)
+                        {
+                            case XmlCursorPositions.CursorInsideTextNode:
+                            case XmlCursorPositions.CursorInFrontOfNode:
+                                // The end of the insert is a text or before the node
+                                await this.editorState.CursorRaw.SetPositions(endPos.ActualNode, endPos.PosOnNode, endPos.PosInTextNode, throwChangedEventWhenValuesChanged: false);
+                                break;
+                            default:
+                                // End of the insert is behind the last inserted node
+                                await this.editorState.CursorRaw.SetPositions(endPos.ActualNode, XmlCursorPositions.CursorBehindTheNode, textPosInBothNodes: 0, throwChangedEventWhenValuesChanged: false);
+                                break;
+                        }
+                        await this.editorState.FireContentChangedEvent();
+                        return true;
                     }
-                    await this.editorState.FireContentChangedEvent();
-                    return true;
                 }
-                else // Kein Text in der Zwischenablage
+                else //  No text on the clipboard
                 {
                     return false;
                 }
@@ -173,7 +164,7 @@ namespace de.springwald.xml.editor.actions
             catch (Exception e)
             {
                 this.nativePlatform.LogError(
-                    String.Format("AktionPasteFromClipboard:Fehler für Einfügetext '{0}':{1}", text, e.Message));
+                    String.Format("AktionPasteFromClipboard:Error for insert text '{0}':{1}", text, e.Message));
                 return false;
             }
         }
@@ -627,12 +618,12 @@ namespace de.springwald.xml.editor.actions
             }
 
             // den angegebenen Text an der CursorPosition einfügen
-            var ersatzNode = InsertAtCursorPosHelper.InsertText(einfuegePos, text, regelwerk).ErsatzNode;
+            var ersatzNode = InsertAtCursorPosHelper.InsertText(einfuegePos, text, regelwerk).ReplaceNode;
             if (ersatzNode != null)
             {
                 // Text konnte nicht eingefügt werden, da aus der Texteingabe eine Node-Eingabe umgewandelt
                 // wurde. Beispiel: Im AIML-Template wird * gedrückt, und dort statt dessen ein <star> eingefügt
-                InsertAtCursorPosHelper.InsertXMLNode(einfuegePos, ersatzNode, regelwerk, false);
+                InsertAtCursorPosHelper.InsertXmlNode(einfuegePos, ersatzNode, regelwerk, false);
             }
 
             // anschließend wird der Cursor nur noch ein Strich hinter dem eingefügten
@@ -654,7 +645,7 @@ namespace de.springwald.xml.editor.actions
             }
 
             // den angegebenen Node an der CursorPosition einfügen
-            if (InsertAtCursorPosHelper.InsertXMLNode(cursor.StartPos, node, regelwerk, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen))
+            if (InsertAtCursorPosHelper.InsertXmlNode(cursor.StartPos, node, regelwerk, neueCursorPosAufJedenFallHinterDenEingefuegtenNodeSetzen))
             {
                 // anschließen wird der Cursor nur noch ein Strich hinter dem eingefügten
                 cursor.EndPos.SetPos(cursor.StartPos.ActualNode, cursor.StartPos.PosOnNode, cursor.StartPos.PosInTextNode);
