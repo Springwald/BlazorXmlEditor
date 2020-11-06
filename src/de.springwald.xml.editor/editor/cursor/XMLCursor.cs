@@ -234,7 +234,7 @@ namespace de.springwald.xml.cursor
             else // Beide Nodes sind nicht gleich
             {
                 // Wenn die Nodes in der Reihenfolge falsch sind, dann beide vertauschen
-                if (ToolboxXML.Node1LaisBeforeNode2(EndPos.ActualNode, StartPos.ActualNode))
+                if (ToolboxXml.Node1LaisBeforeNode2(EndPos.ActualNode, StartPos.ActualNode))
                 {
                     var tempPos = this.StartPos.Clone();
                     this.StartPos.SetPos(this.EndPos.ActualNode, this.EndPos.PosOnNode, this.EndPos.PosInTextNode);
@@ -242,7 +242,7 @@ namespace de.springwald.xml.cursor
                 }
 
                 // Wenn der EndNode im StartNode liegt, den gesamten, umgebenden Startnode selektieren
-                if (ToolboxXML.IstChild(EndPos.ActualNode, StartPos.ActualNode))
+                if (ToolboxXml.IsChild(EndPos.ActualNode, StartPos.ActualNode))
                 {
                     await SetPositions(StartPos.ActualNode, XmlCursorPositions.CursorOnNodeStartTag, 0, throwChangedEventWhenValuesChanged: false);
                 }

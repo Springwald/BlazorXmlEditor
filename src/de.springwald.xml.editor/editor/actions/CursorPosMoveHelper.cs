@@ -51,9 +51,9 @@ namespace de.springwald.xml.editor.actions
                     break;
 
                 case XmlCursorPositions.CursorBehindTheNode:
-                    if (ToolboxXML.IstTextOderKommentarNode(actualNode)) // Bei einem Textnode wird der Cursor hinter das letzte Zeichen gesetzt
+                    if (ToolboxXml.IsTextOrCommentNode(actualNode)) // Bei einem Textnode wird der Cursor hinter das letzte Zeichen gesetzt
                     {
-                        cursorPos.SetPos(actualNode, XmlCursorPositions.CursorInsideTextNode, Math.Max(0, ToolboxXML.TextAusTextNodeBereinigt(actualNode).Length - 1));
+                        cursorPos.SetPos(actualNode, XmlCursorPositions.CursorInsideTextNode, Math.Max(0, ToolboxXml.TextFromNodeCleaned(actualNode).Length - 1));
                     }
                     else
                     {
@@ -83,7 +83,7 @@ namespace de.springwald.xml.editor.actions
                     break;
 
                 case XmlCursorPositions.CursorInsideTextNode:
-                    if (ToolboxXML.IstTextOderKommentarNode(actualNode)) // Node ist Textnode 
+                    if (ToolboxXml.IsTextOrCommentNode(actualNode)) // Node ist Textnode 
                     {
                         if (cursorPos.PosInTextNode > 1)
                         {  // Cursor ein Zeichen nach links
@@ -154,9 +154,9 @@ namespace de.springwald.xml.editor.actions
                     break;
 
                 case XmlCursorPositions.CursorInFrontOfNode:
-                    if (ToolboxXML.IstTextOderKommentarNode(node))  // Der Node selbst ist Textnode 
+                    if (ToolboxXml.IsTextOrCommentNode(node))  // Der Node selbst ist Textnode 
                     {
-                        if (ToolboxXML.TextAusTextNodeBereinigt(node).Length > 1) // Textnode ist nicht leer
+                        if (ToolboxXml.TextFromNodeCleaned(node).Length > 1) // Textnode ist nicht leer
                         {
                             cursorPos.SetPos(cursorPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, 1); // ein Zeichen vor, also hinter das erste Zeichen
                         }
@@ -189,9 +189,9 @@ namespace de.springwald.xml.editor.actions
                     break;
 
                 case XmlCursorPositions.CursorInsideTextNode:
-                    if (ToolboxXML.IstTextOderKommentarNode(node)) // Node ist Textnode
+                    if (ToolboxXml.IsTextOrCommentNode(node)) // Node ist Textnode
                     {
-                        if (ToolboxXML.TextAusTextNodeBereinigt(node).Length > cursorPos.PosInTextNode + 1) // es folgt rechts noch Text im Textnode
+                        if (ToolboxXml.TextFromNodeCleaned(node).Length > cursorPos.PosInTextNode + 1) // es folgt rechts noch Text im Textnode
                         {
                             // ein Zeichen vor, also hinter das erste Zeichen
                             cursorPos.SetPos(cursorPos.ActualNode, cursorPos.PosOnNode, cursorPos.PosInTextNode + 1);

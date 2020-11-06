@@ -49,7 +49,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth)
         {
             paintContext.PaintPosX += 3;
-            var actualText = ToolboxXML.TextAusTextNodeBereinigt(XmlNode);
+            var actualText = ToolboxXml.TextFromNodeCleaned(XmlNode);
             this.CalculateStartAndEndOfSelection(actualText, out int selektionStart, out int selektionLaenge, cursor);
             var actualPaintData = LastPaintingDataText.CalculateActualPaintData(paintContext, cursorBlinkOn, this.XmlNode, actualText, this.Config.FontTextNode.Height, cursor, selektionStart, selektionLaenge);
 

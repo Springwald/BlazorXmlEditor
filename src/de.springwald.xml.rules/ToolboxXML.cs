@@ -8,25 +8,18 @@
 // Licensed under MIT License
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.XPath;
 
 namespace de.springwald.xml
 {
-    /// <summary>
-    /// Hilferoutinen für XML-Verarbeitung
-    /// </summary>
-    public class ToolboxXML
+    public class ToolboxXml
     {
         /// <summary>
-        /// Findet heraus, ob die beiden Nodes in Reihenfolge nacheinander stehen 
+        /// None of the two nodes to be compared must be NULL
         /// </summary>
-        /// <param name="node1"></param>
-        /// <param name="node2"></param>
-        /// <returns></returns>
-        public static bool Node1LaisBeforeNode2(System.Xml.XmlNode node1, System.Xml.XmlNode node2)
+        public static bool Node1LaisBeforeNode2(XmlNode node1, XmlNode node2)
         {
             if (node1 == null || node2 == null)
             {
@@ -35,12 +28,11 @@ namespace de.springwald.xml
 
             if (node1.OwnerDocument != node2.OwnerDocument)
             {
-                //Debug.Assert(false, "Node1 und Node2 müssen dasselbe OwnerDokument haben");
                 return false;
             }
             else
             {
-                if (node1 == node2) return false; // Beide Nodes gleich, dann natürlich nicht node1 vor node2
+                if (node1 == node2) return false; // Both nodes equal, then of course not node1 before node2
                 XPathNavigator naviNode1 = node1.CreateNavigator();
                 XPathNavigator naviNode2 = node2.CreateNavigator();
                 return naviNode1.ComparePosition(naviNode2) == System.Xml.XmlNodeOrder.Before;
@@ -49,54 +41,46 @@ namespace de.springwald.xml
         }
 
         /// <summary>
-        /// Findet (auch über mehrere Stufen der Tiefe hinaus) heraus, ob der angegebene Node als Parent den angegebenen Parent hat
+        /// Finds out (even beyond several levels of depth) whether the specified node has the specified parent as a parent
         /// </summary>
-        /// <param name="child">Der zu prüfende Node</param>
-        /// <param name="parent">Der vermeindliche Parent-Node</param>
-        /// <returns></returns>
-        public static bool IstChild(System.Xml.XmlNode child, System.Xml.XmlNode parent)
+        public static bool IsChild(XmlNode child, XmlNode parent)
         {
             if (child.ParentNode == null) return false;
             if (child.ParentNode == parent) return true;
-            return IstChild(child.ParentNode, parent);
+            return IsChild(child.ParentNode, parent);
         }
 
 
         /// <summary>
-        /// Gibt aus einem Textnode den Inhaltstext zurück
+        /// Returns the content text from a text node
         /// </summary>
-        /// <param name="textNode">Der Textnode, dessen Inhalt zurückgegeben werden soll</param>
-        /// <returns></returns>
-        public static string TextAusTextNodeBereinigt(System.Xml.XmlNode textNode)
+        public static string TextFromNodeCleaned(XmlNode textNode)
         {
-            if (!(textNode is System.Xml.XmlText) && !(textNode is System.Xml.XmlComment) && !(textNode is System.Xml.XmlWhitespace))
+            if (!(textNode is XmlText) && !(textNode is XmlComment) && !(textNode is XmlWhitespace))
             {
-                //"Erhaltener Node ist kein Textnode ({0})"
                 throw (new ApplicationException($"Received node is not a textnode  ({textNode.OuterXml})"));
             }
             else
             {
-                string ergebnis = textNode.Value.ToString();
-                ergebnis = ergebnis.Replace(Environment.NewLine, ""); // Umbrüche aus Text entfernen
-                ergebnis = ergebnis.Trim(new char[] { '\n', '\t', '\r', '\v' });
-                return ergebnis;
+                var result = textNode.Value.ToString();
+                result = result.Replace(Environment.NewLine, ""); // Remove line breaks from text
+                result = result.Trim(new char[] { '\n', '\t', '\r', '\v' });
+                return result;
             }
         }
 
 
         /// <summary>
-        /// Ist dieser Node ein als Text bearbeitbarer Node
+        /// Is this node a text editable node
         /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        public static bool IstTextOderKommentarNode(System.Xml.XmlNode node)
+        public static bool IsTextOrCommentNode(XmlNode node)
         {
-            return ((node is System.Xml.XmlText) || (node is System.Xml.XmlComment));
+            return ((node is XmlText) || (node is XmlComment));
         }
 
 
         /// <summary>
-        /// Behandelt die Whitespaces und lässt nur sichtbare SPACE Whitespaces übrig. Alle Umbrüche und Tabs werden entfernt
+        /// Handles the whitespaces and leaves only visible SPACE whitespaces. All wraps and tabs are removed
         /// </summary>
         public static void CleanUpWhitespaces(System.Xml.XmlNode node)
         {
@@ -120,29 +104,27 @@ namespace de.springwald.xml
                 }
             }
 
-            // Whitespaces behandeln
+            // handle Whitespaces
             foreach (XmlWhitespace white in whites)
             {
                 if (white.Data.IndexOf(" ") != -1)
                 {
-                    // Wenn ein Leerzeichen drin ist, wird das Whitespace auf dieses reduziert, egal
-                    // ob noch Umbrüche, Tabs oder ähnliches drin sind
+                    // If there is a space in it, the whitespace will be reduced to it, no matter if there are still breaks, tabs or similar
                     XmlText textnode = white.OwnerDocument.CreateTextNode(" ");
                     white.ParentNode.ReplaceChild(textnode, white);
                 }
                 else
                 {
-                    // Kein Space im Whitespace, dann das Whitespace löschen
+                    // No space in whitespace, then delete the whitespace
                     white.ParentNode.RemoveChild(white);
                 }
             }
 
-            // In den unter-Children die Whitespaces behandeln lassen
+            // Treat the whitespaces in the sub-children
             foreach (XmlNode child in restChildren)
             {
                 CleanUpWhitespaces(child);
             }
-
         }
     }
 }

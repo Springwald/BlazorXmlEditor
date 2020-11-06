@@ -61,7 +61,7 @@ namespace de.springwald.xml.rules
         /// </summary>
         public bool LiesBehindThisPos(System.Xml.XmlNode node)
         {
-            return ToolboxXML.Node1LaisBeforeNode2(ActualNode, node);
+            return ToolboxXml.Node1LaisBeforeNode2(ActualNode, node);
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace de.springwald.xml.rules
         /// </summary>
         public bool LiesBeforeThisPos(System.Xml.XmlNode node)
         {
-            return ToolboxXML.Node1LaisBeforeNode2(node, ActualNode);
+            return ToolboxXml.Node1LaisBeforeNode2(node, ActualNode);
         }
 
         /// <summary>

@@ -179,14 +179,14 @@ namespace de.springwald.xml.editor.actions
         /// <param name="text"></param>
         internal static void TextZwischenZweiNodesEinfuegen(XmlCursorPos cursorPos, System.Xml.XmlNode nodeVorher, System.Xml.XmlNode nodeNachher, string text, XmlRules regelwerk)
         {
-            if (ToolboxXML.IstTextOderKommentarNode(nodeVorher))  // wenn der Node vorher schon Text ist, dann einfach an ihn anhängen
+            if (ToolboxXml.IsTextOrCommentNode(nodeVorher))  // wenn der Node vorher schon Text ist, dann einfach an ihn anhängen
             {
                 nodeVorher.InnerText += text;
                 cursorPos.SetPos(nodeVorher, XmlCursorPositions.CursorInsideTextNode, nodeVorher.InnerText.Length);
             }
             else  // der Node vorher ist kein Text
             {
-                if (ToolboxXML.IstTextOderKommentarNode(nodeNachher))  // wenn der Node dahinter schon Text istm dann einfach an in einfügen
+                if (ToolboxXml.IsTextOrCommentNode(nodeNachher))  // wenn der Node dahinter schon Text istm dann einfach an in einfügen
                 {
                     nodeNachher.InnerText = text + nodeNachher.InnerText;
                     cursorPos.SetPos(nodeNachher, XmlCursorPositions.CursorInsideTextNode, text.Length);

@@ -15,7 +15,7 @@ namespace de.springwald.xml.rules.dtd
     public class Dtd
     {
         /// <summary>
-        /// Diese Ausnahme wird geworfen, wenn ein Element erfragt wurde, welches in der DTD nicht definiert ist
+        /// This exception is thrown if an element was queried which is not defined in the DTD
         /// </summary>
         public class XMLUnknownElementException : Exception
         {
@@ -30,12 +30,12 @@ namespace de.springwald.xml.rules.dtd
         private Dictionary<string, DtdElement> elementsByName;
 
         /// <summary>
-        /// Die in dieser DTD verfügbaren Elemente
+        /// The elements available in this DTD
         /// </summary>
         public List<DtdElement> Elements { get; }
 
         /// <summary>
-        /// Die in dieser DTD verfügbaren Entities
+        /// The entities available in this DTD
         /// </summary>
         public List<DtdEntity> Entities { get; }
 
@@ -47,26 +47,23 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Findet heraus, ob ein Element in dieser DTD bekannt ist
+        /// Finds out if an element is known in this DTD
         /// </summary>
-        /// <param name="elementName"></param>
-        /// <returns></returns>
         public bool IsDtdElementKnown(string elementName)
         {
             return (DTDElementByNameIntern_(elementName, false) != null);
         }
 
         /// <summary>
-        /// Findet das dem angegebenen Node entsprechende DTD-Element
+        /// Finds the DTD element corresponding to the specified node
         /// </summary>
-        /// <param name="elementName"></param>
         public DtdElement DTDElementByNode_(System.Xml.XmlNode node, bool errorIfNotExists)
         {
             return DTDElementByNameIntern_(GetElementNameFromNode(node), errorIfNotExists);
         }
 
         /// <summary>
-        /// Findet das dem angegebenen Namen entsprechende DTD-Element
+        /// Finds the DTD element corresponding to the specified name
         /// </summary>
         /// <param name="elementName"></param>
         public DtdElement DTDElementByName(string elementName, bool errorIfNotExists)
@@ -75,69 +72,40 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Ermittelt für die Vergleichsmuster den Namen des angegebenen Nodes
+        /// Determines the name of the specified node for the reference samples
         /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
         public static string GetElementNameFromNode(System.Xml.XmlNode node)
         {
-            if (node == null) return "";
-
-            //if (node.Name == "#text") 
-            if (node is System.Xml.XmlText)
-            {
-                return "#PCDATA";
-            }
-            else
-            {
-                if (node is System.Xml.XmlComment)
-                {
-                    return "#COMMENT";
-                }
-                else
-                {
-                    if (node is System.Xml.XmlWhitespace)
-                    {
-                        return "#WHITESPACE";
-                    }
-                    else
-                    {
-                        return node.Name;
-                    }
-                }
-            }
+            if (node == null) return string.Empty;
+            if (node is System.Xml.XmlText) return "#PCDATA";
+            if (node is System.Xml.XmlComment) return "#COMMENT";
+            if (node is System.Xml.XmlWhitespace) return "#WHITESPACE";
+            return node.Name;
         }
 
         /// <summary>
-        /// Findet das dem angegebenen Namen entsprechende DTD-Element
+        /// Finds the DTD element corresponding to the specified name
         /// </summary>
-        /// <param name="elementName"></param>
         public DtdElement DTDElementByNameIntern_(string elementName, bool errorIfNotExists)
         {
             if (this.elementsByName.TryGetValue(elementName, out DtdElement elementInBuffer))
             {
                 return elementInBuffer;
             }
-            else
+            foreach (var element in this.Elements)
             {
-                foreach (var element in this.Elements)
+                if (elementName == element.Name)
                 {
-                    if (elementName == element.Name)
-                    {
-                        elementsByName.Add(elementName, element);
-                        return element;
-                    }
-                }
-                if (errorIfNotExists)
-                {
-                    // Das gesuchte DTD-Element mit diesem Namen existiert nicht in dieser DTD.
-                    throw new XMLUnknownElementException(elementName);
-                }
-                else
-                {
-                    return null;
+                    elementsByName.Add(elementName, element);
+                    return element;
                 }
             }
+            if (errorIfNotExists)
+            {
+                // Das gesuchte DTD-Element mit diesem Namen existiert nicht in dieser DTD.
+                throw new XMLUnknownElementException(elementName);
+            }
+            return null;
         }
     }
 }

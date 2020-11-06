@@ -29,10 +29,6 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         public string WorkingContent { get; private set; }
 
-		public DtdReaderDtd()
-		{
-		}
-
         public Dtd GetDtdFromFile(string filename) 
 		{
             var content = string.Empty;

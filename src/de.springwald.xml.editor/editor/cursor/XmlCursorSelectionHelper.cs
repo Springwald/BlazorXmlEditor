@@ -242,7 +242,7 @@ namespace de.springwald.xml.editor.cursor
                         case XmlCursorPositions.CursorInFrontOfNode:
                             // Start und Ende des Löschbereiches zeigen auf den selben Node und der
                             // der Start liegt vor dem Node: Das macht nur bei einem Textnode Sinn!
-                            if (ToolboxXML.IstTextOderKommentarNode(cursor.StartPos.ActualNode))
+                            if (ToolboxXml.IsTextOrCommentNode(cursor.StartPos.ActualNode))
                             {
                                 // Den Cursor in den Textnode vor dem ersten Zeichen setzen und dann neu abschicken
                                 cursor.StartPos.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, 0);
@@ -258,7 +258,7 @@ namespace de.springwald.xml.editor.cursor
                         case XmlCursorPositions.CursorBehindTheNode:
                             // Start und Ende des Löschbereiches zeigen auf den selben Node und der
                             // der Start liegt hinter dem Node
-                            if (ToolboxXML.IstTextOderKommentarNode(cursor.StartPos.ActualNode))
+                            if (ToolboxXml.IsTextOrCommentNode(cursor.StartPos.ActualNode))
                             {
                                 // Den Cursor in den Textnode vor dem ersten Zeichen setzen und dann neu abschicken
                                 cursor.StartPos.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, cursor.StartPos.ActualNode.InnerText.Length);
