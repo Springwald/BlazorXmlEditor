@@ -9,61 +9,60 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Collections;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace de.springwald.xml.rules.dtd
 {
-	public class DtdReaderDtd
-	{
-		private DtdElement[] elements;
+    public class DtdReaderDtd
+    {
+        private DtdElement[] elements;
         private DtdEntity[] entities;
 
-		public string RawContent { get; private set; }
+        public string RawContent { get; private set; }
 
         /// <summary>
         /// The customized content, in which e.g. all entities are already resolved
         /// </summary>
         public string WorkingContent { get; private set; }
 
-        public Dtd GetDtdFromFile(string filename) 
-		{
+        public Dtd GetDtdFromFile(string filename)
+        {
             var content = string.Empty;
-			try
-			{
-				using (var reader = new StreamReader(filename, System.Text.Encoding.GetEncoding("ISO-8859-15"))) 
-				{
-					content = reader.ReadToEnd();
-					reader.Close();
-				}
-			}
-			catch (FileNotFoundException exc) 
-			{
-				throw new ApplicationException($"Could not read in file '{filename}':\n{exc.Message}" );
-			}
-			return this.GetDtdFromString(content);
-		}
+            try
+            {
+                using (var reader = new StreamReader(filename, System.Text.Encoding.GetEncoding("ISO-8859-15")))
+                {
+                    content = reader.ReadToEnd();
+                    reader.Close();
+                }
+            }
+            catch (FileNotFoundException exc)
+            {
+                throw new ApplicationException($"Could not read in file '{filename}':\n{exc.Message}");
+            }
+            return this.GetDtdFromString(content);
+        }
 
-		public Dtd GetDtdFromString(string content) 
-		{
+        public Dtd GetDtdFromString(string content)
+        {
             // Replace tabs from the content with spaces
-            content = content.Replace ("\t"," ");
-			this.RawContent = content;
-			this.WorkingContent = content;
-			this.AnalyzeContent();	
-            return  new Dtd(elements,entities);
-		}
+            content = content.Replace("\t", " ");
+            this.RawContent = content;
+            this.WorkingContent = content;
+            this.AnalyzeContent();
+            return new Dtd(elements, entities);
+        }
 
-		private void AnalyzeContent() 
-		{
-			this.RemoveComments();  // So that commented out elements are not read in
+        private void AnalyzeContent()
+        {
+            this.RemoveComments();  // So that commented out elements are not read in
             this.entities = this.ReadEntities().ToArray();
-			this.ReplaceEntities();
+            this.ReplaceEntities();
 
-			this.elements =  this.ReadElements()
+            this.elements = this.ReadElements()
                 .Concat(new[] {
                 CreateElementFromQuellcode("#PCDATA"),
                 CreateElementFromQuellcode("#COMMENT") })
@@ -73,347 +72,288 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// So that commented out elements are not read in
         /// </summary>
-        private void RemoveComments() 
-		{
-			// Buddy: <!--((?!-->|<!--)([\t\r\n]|.))*-->
-			const string regex =  "<!--((?!-->|<!--)([\\t\\r\\n]|.))*-->";
-			this.WorkingContent =  Regex.Replace(this.WorkingContent, regex,"");
-		}
+        private void RemoveComments()
+        {
+            // Buddy: <!--((?!-->|<!--)([\t\r\n]|.))*-->
+            const string regex = "<!--((?!-->|<!--)([\\t\\r\\n]|.))*-->";
+            this.WorkingContent = Regex.Replace(this.WorkingContent, regex, "");
+        }
 
         #region analyze ELEMENTS
 
         /// <summary>
         /// Reads all DTD elements contained in the DTD content
         /// </summary>
-        private IEnumerable<DtdElement> ReadElements() 
-		{
-			string elementCode;
+        private IEnumerable<DtdElement> ReadElements()
+        {
+            string elementCode;
 
             // Regular expression to find and assemble DTD elements
             // (?<element><!ELEMENT[\t\r\n ]+[^>]+>)
-            const string regex =  "(?<element><!ELEMENT[\\t\\r\\n ]+[^>]+>)";
+            const string regex = "(?<element><!ELEMENT[\\t\\r\\n ]+[^>]+>)";
 
-			Regex reg = new Regex(regex); //, RegexOptions.IgnoreCase);
+            Regex reg = new Regex(regex); //, RegexOptions.IgnoreCase);
             // Apply to DTD content
             var match = reg.Match(this.WorkingContent);
 
             // Run through all RegEx hits and create elements from them
-            while (match.Success) 
-			{
-				elementCode = match.Groups["element"].Value;
-				yield return CreateElementFromQuellcode(elementCode);
-				match = match.NextMatch(); // To the next RegEx hit
-            }
-		}
-
-		/// <summary>
-		/// Wertet den Element-Quellcode aus und speichert den Inhalt strukturiert im Element-Objekt
-		/// </summary>
-		/// <example>
-		/// z.B. so etwas könnte im Element-Quellcode stehen:
-		/// <!ELEMENT template  (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*>
-		/// </example>
-		private DtdElement CreateElementFromQuellcode(string elementQuellcode) 
-		{
-			if (elementQuellcode=="#PCDATA") // Es ist kein in der DTD definiertes Element, sondern das PCDATA-Element
-			{
-                var element = new DtdElement();
-				element.Name = "#PCDATA";
-                element.ChildElemente = new DtdChildElements("");
-				return element;
-			}
-
-            if (elementQuellcode == "#COMMENT") // Es ist kein in der DTD definiertes Element, sondern das COMMENT-Element
+            while (match.Success)
             {
-                var element = new DtdElement();
-                element.Name = "#COMMENT";
-                element.ChildElemente = new DtdChildElements("");
-                return element;
+                elementCode = match.Groups["element"].Value;
+                yield return CreateElementFromQuellcode(elementCode);
+                match = match.NextMatch(); // To the next RegEx hit
+            }
+        }
+
+        /// <summary>
+        /// Evaluates the element source code and stores the content structured in the element object
+        /// </summary>
+        /// <example>
+        /// e.g. something like this could be in the element source code:
+        /// <!ELEMENT template  (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*>
+        /// </example>
+        private DtdElement CreateElementFromQuellcode(string elementSourcecode)
+        {
+            if (elementSourcecode == "#PCDATA") // It is not an element defined in the DTD, but the PCDATA element
+            {
+                return new DtdElement()
+                {
+                    Name = "#PCDATA",
+                    ChildElements = new DtdChildElements("")
+                };
             }
 
-			// Der folgende Ausdruck zerteilt das ELEMENT-Tag in seine Bestandteile. Gruppen:
-			// element=das ganze Elementes
-			// elementname=der Name des Elementes
-			// innerelements=Liste der Child-Elemente, die im Element vorkommen dürfen 
-			const string regpatternelement = @"(?<element><!ELEMENT[\t\r\n ]+(?<elementname>[\w-_]+?)([\t\r\n ]+(?<innerelements>[(]([\t\r\n]|.)+?[)][*+]?)?)?(?<empty>[\t\r\n ]+EMPTY)? *>)";
+            if (elementSourcecode == "#COMMENT") // It is not an element defined in the DTD, but the COMMENT element
+            {
+                return new DtdElement()
+                {
+                    Name = "#COMMENT",
+                    ChildElements = new DtdChildElements("")
+                };
+            }
 
-			// Regulären Ausdruck zum Finden der Element-Teile zusammenbauen
-			Regex reg = new Regex(regpatternelement); //, RegexOptions.IgnoreCase);
+            // The following expression splits the ELEMENT tag into its parts. groups:
+            // element=the whole element
+            // elementname=the name of the element
+            // innerelements=List of child elements that may occur in the element 
+            const string regpatternelement = @"(?<element><!ELEMENT[\t\r\n ]+(?<elementname>[\w-_]+?)([\t\r\n ]+(?<innerelements>[(]([\t\r\n]|.)+?[)][*+]?)?)?(?<empty>[\t\r\n ]+EMPTY)? *>)";
 
-			// Auf den Element-Quellcode anwenden
-			Match match = reg.Match(elementQuellcode);
+            //  Assemble regular expression to find the element parts
+            Regex reg = new Regex(regpatternelement); //, RegexOptions.IgnoreCase);
 
-			if (!match.Success) // Wenn kein Element im Element-Code gefunden wurde
-			{
-                throw new ApplicationException($"Kein Vorkommen gefunden im Elementcode '{elementQuellcode}'.");
-			}
-			else // ein Element gefunden
-			{
+            Match match = reg.Match(elementSourcecode);
 
-				//Element bereitstellen
-                var element = new DtdElement();
+            if (!match.Success) throw new ApplicationException($"No occurrence found in element code '{elementSourcecode}'.");
 
-				// Name des Elementes herausfinden
-				if (!match.Groups["elementname"].Success) 
-				{	// kein Name gefunden
-                    throw new ApplicationException($"Kein Name gefunden im Elementcode '{elementQuellcode}'.");
-				} 
-				else 
-				{
-					// Name gefunden
-					element.Name = match.Groups["elementname"].Value;
-				}
+            var element = new DtdElement();
 
-				// Die Attribute des Elementes auslesen
-				element.Attributes = CreateDTDAttributesForElement(element).ToArray(); 
+            // Find out the name of the element
+            if (!match.Groups["elementname"].Success) throw new ApplicationException($"No name found in element code '{elementSourcecode}'.");
+            element.Name = match.Groups["elementname"].Value;
 
-				// Childelemente herausfinden
-				if (match.Groups["innerelements"].Success) // wenn ChildElemente vorhanden sind
-				{
-					ChildElementeAuslesen(element,match.Groups["innerelements"].Value);
-				} 
-				else // Keine ChildElemente in diesem Element angegeben
-				{
-					//element.ChildElemente = null; //new DTDElementCollection (); // Leere Childliste einsetzen
-					ChildElementeAuslesen(element,"");
-				}
+            element.Attributes = CreateDtdAttributesForElement(element).ToArray();
 
-				match = match.NextMatch();
-				if (match.Success) // Wenn mehr als ein Element im Element-Code gefunden wurde
-				{
-                    // 
-					throw new ApplicationException($"Mehr als ein Vorkommen gefunden im Elementcode '{elementQuellcode}'.");
-				}
-				return element;
-			}
-		}
+            // find child elements
+            if (match.Groups["innerelements"].Success)
+            {
+                ReadChildElements(element, match.Groups["innerelements"].Value);
+            }
+            else
+            {
+                ReadChildElements(element, "");
+            }
 
-		/// <summary>
-		/// Wertet den Element-Quellcode aus und speichert den Inhalt strukturiert im Objekt
-		/// </summary>
-		/// <param name="childElementQuellcode">Der Code der ChildElemente
-		/// </param>
-		/// <example>
-		/// z.B. bei folgendem Element-Quellcode
-		/// <!ELEMENT template  (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*>
-		/// würde als ChildElementQuellCode erwartet
-		/// (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*
-		/// </example>
-		private void ChildElementeAuslesen(DtdElement element, string childElementeQuellcode) 
-		{
-			element.ChildElemente  = new DtdChildElements(childElementeQuellcode);
-		}
+            match = match.NextMatch();
+            if (match.Success) throw new ApplicationException($"More than one occurrence found in element code '{elementSourcecode}'.");
+            return element;
+        }
 
-		#endregion
+        /// <summary>
+        /// Evaluates the element source code and stores the content structured in the object
+        /// </summary>
+        /// <remarks>
+        /// e.g. with the following element source code
+        /// <!ELEMENT template  (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*>
+        /// would be expected as ChildElementSourceCode
+        /// (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*
+        /// </remarks>
+        private void ReadChildElements(DtdElement element, string childElementsSourcecode)
+        {
+            element.ChildElements = new DtdChildElements(childElementsSourcecode);
+        }
 
-		#region ENTITIES analysieren
+        #endregion
 
-		/// <summary>
-		/// Setzt für die verschiedenen Entities an den zitierten Stellen den Inhalt der Entities ein
-		/// </summary>
-		private void ReplaceEntities() 
-		{
-			string vorher="";
-			while (vorher != this.WorkingContent)   // Solange das Einsetzen der Enities noch Veränderung bewirkt hat
-			{
-				vorher = this.WorkingContent;
-				foreach (DtdEntity entity in this.entities) // Alle Enities durchlaufen
-				{
-					if (entity.IsReplacementEntity ) // wenn es eine Ersetzung-Entity ist
-					{
-						// Nennung des Entity %name; durch den Inhalt der Entity ersetzen
-						this.WorkingContent = this.WorkingContent.Replace ("%"+entity.Name +";",entity.Content ); 
-					}
-				}
-			}
-		}
+        #region ENTITIES analysieren
 
-		/// <summary>
-		/// Liest alle im DTD-Inhalt enthaltenen Entities aus
-		/// </summary>
-		private IEnumerable<DtdEntity> ReadEntities() 
-		{
-			string entityCode;
+        /// <summary>
+        /// Inserts the content of the entities for the different entities at the quoted positions
+        /// </summary>
+        private void ReplaceEntities()
+        {
+            string last = null;
+            while (last != this.WorkingContent)
+            {
+                last = this.WorkingContent;
+                foreach (DtdEntity entity in this.entities)
+                {
+                    if (entity.IsReplacementEntity)
+                    {
+                        // Replace the entity %name; with the content of the entity
+                        this.WorkingContent = this.WorkingContent.Replace($"%{entity.Name};", entity.Content);
+                    }
+                }
+            }
+        }
 
-			// Regulären Ausdruck zum finden von DTD-Entities zusammenbauen
-			// (?<entity><!ENTITY[\t\r\n ]+[^>]+>)
-			const string regex =  "(?<entity><!ENTITY[\\t\\r\\n ]+[^>]+>)";
+        /// <summary>
+        /// Reads all entities contained in DTD content
+        /// </summary>
+        private IEnumerable<DtdEntity> ReadEntities()
+        {
+            // Regular expression to find DTD entities
+            // (?<entity><!ENTITY[\t\r\n ]+[^>]+>)
+            const string regex = "(?<entity><!ENTITY[\\t\\r\\n ]+[^>]+>)";
+            var reg = new Regex(regex); //, RegexOptions.IgnoreCase);
+            var match = reg.Match(this.WorkingContent);
+            while (match.Success)
+            {
+                var entityCode = match.Groups["entity"].Value;
+                yield return CreateEntityFromSourcecode(entityCode);
+                match = match.NextMatch();
+            }
+        }
 
-			var reg = new Regex(regex); //, RegexOptions.IgnoreCase);
-			// Auf den DTD-Inhalt anwenden
-			var match = reg.Match(this.WorkingContent);
+        /// <summary>
+        /// Evaluates the entity source code and stores the content structured in the object
+        /// </summary>
+        /// <example>
+        /// e.g. something like this could be in the entity source code:
+        /// <!ENTITY % html	"a | applet | br | em | img | p | table | ul">
+        /// </example>
+        private DtdEntity CreateEntityFromSourcecode(string entityQuellcode)
+        {
+            // The following expression splits the ENTITY tag into its parts. groups:
+            // entity=the whole entity
+            // entityname=entity name
+            // inhalt=entity content
+            // prozent=the percent sign, which indicates whether it is a replacement entity or a building block entity
+            //(?<entity><!ENTITY[\t\r\n ]+(?:(?<prozent>%)[\t\r\n ]+)?(?<entityname>[\w-_]+?)[\t\r\n ]+"(?<inhalt>[^>]+)"[\t\r\n ]?>)
+            const string regpatternelement = "(?<entity><!ENTITY[\\t\\r\\n ]+(?:(?<prozent>%)[\\t\\r\\n ]+)?(?<entityname>[\\w-_]+?)[\\t\\r\\n ]+\"(?<inhalt>[^>]+)\"[\\t\\r\\n ]?>)";
 
-			// Alle RegEx-Treffer durchlaufen und daraus Elemente erzeugen
-			while (match.Success) 
-			{
-				entityCode = match.Groups["entity"].Value;
-                yield return CreateEntityFromQuellcode(entityCode);
-				match = match.NextMatch(); // Zum nächsten RegEx-Treffer
-			}
-		}
+            var reg = new Regex(regpatternelement); //, RegexOptions.IgnoreCase);
 
-		/// <summary>
-		/// Wertet den Entity-Quellcode aus und speichert den Inhalt strukturiert im Objekt
-		/// </summary>
-		/// <example>
-		/// z.B. so etwas könnte im Entity-Quellcode stehen:
-		/// <!ENTITY % html	"a | applet | br | em | img | p | table | ul">
-		/// </example>
-		private DtdEntity CreateEntityFromQuellcode(string entityQuellcode) 
-		{
-			// Der folgende Ausdruck zerteilt das ENTITY-Tag in seine Bestandteile. Gruppen:
-			// entity=die ganze Entity
-			// entityname=der Name der entity
-			// inhalt=der Inhalt der entity
-			// prozent=das Prozent-Zeichen, das angibt, ob es eine Ersetzungs-Entity oder eine Baustein-Entity ist
-			//(?<entity><!ENTITY[\t\r\n ]+(?:(?<prozent>%)[\t\r\n ]+)?(?<entityname>[\w-_]+?)[\t\r\n ]+"(?<inhalt>[^>]+)"[\t\r\n ]?>)
-			const string  regpatternelement = "(?<entity><!ENTITY[\\t\\r\\n ]+(?:(?<prozent>%)[\\t\\r\\n ]+)?(?<entityname>[\\w-_]+?)[\\t\\r\\n ]+\"(?<inhalt>[^>]+)\"[\\t\\r\\n ]?>)";
+            var match = reg.Match(entityQuellcode);
 
-			// Regulären Ausdruck zum Finden der Entity-Teile zusammenbauen
-			var reg = new Regex(regpatternelement); //, RegexOptions.IgnoreCase);
+            if (!match.Success) throw new ApplicationException($"No occurrence found in the entity source code '{entityQuellcode}'");
+            var entity = new DtdEntity();
 
-			// Auf den Entity-Quellcode anwenden
-			var match = reg.Match(entityQuellcode);
+            entity.IsReplacementEntity = (match.Groups["prozent"].Success);
 
-			if (!match.Success) // Wenn keine Entity im Entity-Code gefunden wurde
-			{
-                throw new ApplicationException($"Kein Vorkommen gefunden im Entityquellcode '{entityQuellcode}'");
-			}
-			else // Genau eine Entity gefunden
-			{
-				var entity = new DtdEntity();
+            // NFind out the name of the entity
+            if (!match.Groups["entityname"].Success) throw new ApplicationException($"No name found in the entity code '{entityQuellcode}'");
 
-				// am Prozentzeichen festmachen, ob Ersetzungs-Entity
-				entity.IsReplacementEntity =  (match.Groups["prozent"].Success);
+            entity.Name = match.Groups["entityname"].Value;
 
-				// Name der Entity herausfinden
-				if (!match.Groups["entityname"].Success) 
-				{	// kein Name gefunden
-                    // 
-					throw new ApplicationException($"Kein Name gefunden im Entitycode '{entityQuellcode}'");
-				} 
-				else 
-				{
-					// Name gefunden
-					entity.Name = match.Groups["entityname"].Value; // Name merken
+            if (!match.Groups["inhalt"].Success) throw new ApplicationException($"No content found in the entity code '{entityQuellcode}'");
 
-					// Inhalt der Entity herausfinden
-					if (!match.Groups["inhalt"].Success) 
-					{	// kein Inhalt gefunden
-						throw new ApplicationException($"Kein Inhalt gefunden im Entitycode '{entityQuellcode}'" );
-					} 
-					else 
-					{
-						// Inhalt gefunden
-						entity.Content = match.Groups["inhalt"].Value; // Inhalt merken
-					}
-				}
-				match = match.NextMatch();
-				if (match.Success) // Wenn mehr als eine Entity im Element-Code gefunden wurde
-				{
-					throw new ApplicationException($"Mehr als ein Vorkommen gefunden im Entitycode '{entityQuellcode}'" );
-				}
-				return entity;
-			}
-		}
+            entity.Content = match.Groups["inhalt"].Value;
 
-		#endregion analyisieren
+            match = match.NextMatch();
+            if (match.Success) throw new ApplicationException($"More than one occurrence found in the entity code '{entityQuellcode}'");
 
-		#region ATTRIBUTE analysieren
+            return entity;
+        }
 
-		/// <summary>
-		/// Stellt für das angegebene Element die entsprechenden Attribute bereit, sofern sie vorhanden sind
-		/// </summary>
-		private IEnumerable<DtdAttribute> CreateDTDAttributesForElement(DtdElement element) 
-		{
-			// Regulären Ausdruck zum finden der AttributList-Definition zusammenbauen
-			// (?<attributliste><!ATTLIST muster_titel[\t\r\n ]+(?<attribute>[^>]+?)[\t\r\n ]?>)
-			string ausdruckListe =  "(?<attributliste><!ATTLIST " + element.Name +"[\\t\\r\\n ]+(?<attribute>[^>]+?)[\\t\\r\\n ]?>)";
+        #endregion 
 
-			var regList = new Regex(ausdruckListe); //, RegexOptions.IgnoreCase);
-			// Auf den DTD-Inhalt anwenden
-			var match = regList.Match(this.WorkingContent);
+        #region analyze ATTRIBUTE
 
-			if (match.Success) 
-			{
-				// Die Liste der Attribute holen
-				string attributListeCode = match.Groups["attribute"].Value;
+        /// <summary>
+        /// Provides the corresponding attributes for the specified element, if they are available
+        /// </summary>
+        private IEnumerable<DtdAttribute> CreateDtdAttributesForElement(DtdElement element)
+        {
+            // Regular expression to find the AttributList-Definition
+            // (?<attributliste><!ATTLIST muster_titel[\t\r\n ]+(?<attribute>[^>]+?)[\t\r\n ]?>)
+            string patternList = "(?<attributliste><!ATTLIST " + element.Name + "[\\t\\r\\n ]+(?<attribute>[^>]+?)[\\t\\r\\n ]?>)";
 
-				// In der Liste der Attribute die einzelnen Attribute isolieren
-				// Regulären Ausdruck zum finden der einzelnen Attribute in der AttribuList zusammenbauen
-				// [\t\r\n ]?(?<name>[\w-_]+)[\t\r\n ]+(?<typ>CDATA|ID|IDREF|IDREFS|NMTOKEN|NMTOKENS|ENTITY|ENTITIES|NOTATION|xml:|[(][|\w-_ \t\r\n]+[)])[\t\r\n ]+(?:(?<anzahl>#REQUIRED|#IMPLIED|#FIXED)[\t\r\n ]+)?(?:"(?<vorgabewert>[\w-_]+)")?[\t\r\n ]?
-				const string ausdruckEinzel =  "[\\t\\r\\n ]?(?<name>[\\w-_]+)[\\t\\r\\n ]+(?<typ>CDATA|ID|IDREF|IDREFS|NMTOKEN|NMTOKENS|ENTITY|ENTITIES|NOTATION|xml:|[(][|\\w-_ \\t\\r\\n]+[)])[\\t\\r\\n ]+(?:(?<anzahl>#REQUIRED|#IMPLIED|#FIXED)[\\t\\r\\n ]+)?(?:\"(?<vorgabewert>[\\w-_]+)\")?[\\t\\r\\n ]?";
+            var regList = new Regex(patternList); //, RegexOptions.IgnoreCase);
+            var match = regList.Match(this.WorkingContent);
 
-				var regEinzel = new Regex(ausdruckEinzel); //, RegexOptions.IgnoreCase);
-				// Auf den DTD-Inhalt anwenden
-				match = regEinzel.Match(attributListeCode);
+            if (match.Success)
+            {
+                // Get the list of attributes
+                string attributListeCode = match.Groups["attribute"].Value;
 
-				if (match.Success) 
-				{
-					DtdAttribute attribut;
-					string typ;
-					string[] werteListe;
-					string delimStr = "|";
-					char [] delimiter = delimStr.ToCharArray();
+                // Isolate the individual attributes in the list of attributes
+                // Regular expression to find the individual attributes in the AttribuList
+                // [\t\r\n ]?(?<name>[\w-_]+)[\t\r\n ]+(?<typ>CDATA|ID|IDREF|IDREFS|NMTOKEN|NMTOKENS|ENTITY|ENTITIES|NOTATION|xml:|[(][|\w-_ \t\r\n]+[)])[\t\r\n ]+(?:(?<anzahl>#REQUIRED|#IMPLIED|#FIXED)[\t\r\n ]+)?(?:"(?<vorgabewert>[\w-_]+)")?[\t\r\n ]?
+                const string singlePattern = "[\\t\\r\\n ]?(?<name>[\\w-_]+)[\\t\\r\\n ]+(?<typ>CDATA|ID|IDREF|IDREFS|NMTOKEN|NMTOKENS|ENTITY|ENTITIES|NOTATION|xml:|[(][|\\w-_ \\t\\r\\n]+[)])[\\t\\r\\n ]+(?:(?<anzahl>#REQUIRED|#IMPLIED|#FIXED)[\\t\\r\\n ]+)?(?:\"(?<vorgabewert>[\\w-_]+)\")?[\\t\\r\\n ]?";
 
-					// Alle RegEx-Treffer durchlaufen und daraus Attribute für das Element erzeugen
-					while (match.Success) 
-					{
-						attribut = new DtdAttribute (); // Attribut erzeugen
-						attribut.Name = match.Groups["name"].Value; // Name des Attributes
-						attribut.StandardValue = match.Groups["vorgabewert"].Value; // StandardWert des Attributes
-						// Die Anzahl / Pflicht des Attributes
-						switch (match.Groups["anzahl"].Value) 
-						{
-							case "#REQUIRED":
-								attribut.Mandatory = DtdAttribute.MandatoryTypes.Mandatory;
-								break;
-							case "#IMPLIED":
-							case "":
-								attribut.Mandatory = DtdAttribute.MandatoryTypes.Optional;
-								break;
-							case "#FIXED":
-								attribut.Mandatory = DtdAttribute.MandatoryTypes.Constant;
-								break;
-							default:
-                                throw new ApplicationException($"Unbekannte AttributAnzahl '{match.Groups["anzahl"].Value}' in Attribut '{match.Value}' von Element {element.Name}" );
+                var singleRegex = new Regex(singlePattern); //, RegexOptions.IgnoreCase);
+                match = singleRegex.Match(attributListeCode);
 
-						}
-						// Der Typ des Attributes
-						typ = match.Groups["typ"].Value; 
-						typ = typ.Trim();
-						if (typ.StartsWith ("("))  // Es ist eine Aufzählung der zulässigen Werte dieses Attributes (en1|en2|..)
-						{
-							attribut.Type = "";
-							// Klammern entfernen 
-							typ = typ.Replace("(","");
-							typ = typ.Replace(")","");
-							typ = typ.Replace(")","");
-							// In einzelne Werte aufteilen
-							werteListe = typ.Split(delimiter, StringSplitOptions.RemoveEmptyEntries); // Die durch | getrennten Werte in ein Array splitten
-							attribut.AllowedValues = werteListe.Select(w => w.Replace("\n", " ").Trim()).ToArray();
-						}
-						else // es ist eine genaue Angabe des Typs dieses Attributes wie z.B. CDATA, ID, IDREF etc.
-						{
-							attribut.Type = typ;
-						}
+                if (match.Success)
+                {
+                    DtdAttribute attribut;
+                    string type;
+                    string[] valuesList;
+                    string delimStr = "|";
+                    char[] delimiter = delimStr.ToCharArray();
 
-						// Attribut im Element speichern
-						yield return attribut;
-
-						match = match.NextMatch(); // Zum nächsten RegEx-Treffer
-					}
-				} 
-				else 
-				{
-					throw new ApplicationException($"No attributes found in the AttributeList '{attributListeCode}'!");
-				}
-			} 
-			else 
-			{
-				Trace.WriteLine ($"No attributes available for element {element.Name}.");
-			}
-		}
-		#endregion
-	}
+                    // Run through all RegEx hits and create attributes for the element
+                    while (match.Success)
+                    {
+                        attribut = new DtdAttribute(); 
+                        attribut.Name = match.Groups["name"].Value; 
+                        attribut.StandardValue = match.Groups["vorgabewert"].Value; 
+                        switch (match.Groups["anzahl"].Value)
+                        {
+                            case "#REQUIRED":
+                                attribut.Mandatory = DtdAttribute.MandatoryTypes.Mandatory;
+                                break;
+                            case "#IMPLIED":
+                            case "":
+                                attribut.Mandatory = DtdAttribute.MandatoryTypes.Optional;
+                                break;
+                            case "#FIXED":
+                                attribut.Mandatory = DtdAttribute.MandatoryTypes.Constant;
+                                break;
+                            default:
+                                throw new ApplicationException($"unknown attribute mandatory value '{match.Groups["anzahl"].Value}' in attribute '{match.Value}' of  element {element.Name}");
+                        }
+                        type = match.Groups["typ"].Value;
+                        type = type.Trim();
+                        if (type.StartsWith("("))  // It is an enumeration of the permissible values of this attribute (en1|en2|..)
+                        {
+                            attribut.Type = "";
+                            // remove brackets
+                            type = type.Replace("(", "");
+                            type = type.Replace(")", "");
+                            type = type.Replace(")", "");
+                            // split into values
+                            valuesList = type.Split(delimiter, StringSplitOptions.RemoveEmptyEntries); // Split the values separated by | into an array
+                            attribut.AllowedValues = valuesList.Select(w => w.Replace("\n", " ").Trim()).ToArray();
+                        }
+                        else // it is an exact specification of the type of this attribute like CDATA, ID, IDREF etc.
+                        {
+                            attribut.Type = type;
+                        }
+                        yield return attribut;
+                        match = match.NextMatch(); 
+                    }
+                }
+                else
+                {
+                    throw new ApplicationException($"No attributes found in the AttributeList '{attributListeCode}'!");
+                }
+            }
+            else
+            {
+                Trace.WriteLine($"No attributes available for element {element.Name}.");
+            }
+        }
+        #endregion
+    }
 }

@@ -10,7 +10,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace de.springwald.xml.rules.dtd
@@ -31,7 +30,7 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// The child elements of this element
         /// </summary>
-        public DtdChildElements ChildElemente { get; set; }
+        public DtdChildElements ChildElements { get; set; }
 
         /// <summary>
         /// These DTD elements may occur within this element.
@@ -42,7 +41,7 @@ namespace de.springwald.xml.rules.dtd
             {
                 if (this.allChildNamesAllowedAsDirectChild == null)
                 {
-                    this.allChildNamesAllowedAsDirectChild = GetDtdElementNamesFromChildElements(this.ChildElemente).Distinct().ToArray();
+                    this.allChildNamesAllowedAsDirectChild = GetDtdElementNamesFromChildElements(this.ChildElements).Distinct().ToArray();
                 }
                 return this.allChildNamesAllowedAsDirectChild;
             }
@@ -62,7 +61,7 @@ namespace de.springwald.xml.rules.dtd
             {
                 if (_childrenRegExObjekt == null)
                 {
-                    _childrenRegExObjekt = new Regex($">{this.ChildElemente.RegExAusdruck}<");// RegexOptions.Compiled);
+                    _childrenRegExObjekt = new Regex($">{this.ChildElements.RegExAusdruck}<");// RegexOptions.Compiled);
                 }
                 return _childrenRegExObjekt;
             }

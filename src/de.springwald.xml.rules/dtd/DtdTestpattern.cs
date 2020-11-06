@@ -17,9 +17,7 @@ namespace de.springwald.xml.rules.dtd
     public class DtdTestpattern
     {
         private string parentElementName;	    // This element lies over the cursor Pos (drawing:C) to be tested
-
         private string compareStringForRegEx;
-
         private StringBuilder elementNameList;
 
         /// <summary>

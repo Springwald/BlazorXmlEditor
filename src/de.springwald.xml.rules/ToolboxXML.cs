@@ -21,23 +21,13 @@ namespace de.springwald.xml
         /// </summary>
         public static bool Node1LaisBeforeNode2(XmlNode node1, XmlNode node2)
         {
-            if (node1 == null || node2 == null)
-            {
-                throw new ApplicationException("Keiner der beiden zu vergleichenden Nodes darf NULL sein (Node1LiegtVorNode2)");
-            }
+            if (node1 == null || node2 == null) throw new ApplicationException("None of the two nodes to be compared must be NULL (Node1LiegtVorNode2)");
 
-            if (node1.OwnerDocument != node2.OwnerDocument)
-            {
-                return false;
-            }
-            else
-            {
-                if (node1 == node2) return false; // Both nodes equal, then of course not node1 before node2
-                XPathNavigator naviNode1 = node1.CreateNavigator();
-                XPathNavigator naviNode2 = node2.CreateNavigator();
-                return naviNode1.ComparePosition(naviNode2) == System.Xml.XmlNodeOrder.Before;
-            }
-
+            if (node1.OwnerDocument != node2.OwnerDocument) return false;
+            if (node1 == node2) return false; // Both nodes equal, then of course not node1 before node2
+            XPathNavigator naviNode1 = node1.CreateNavigator();
+            XPathNavigator naviNode2 = node2.CreateNavigator();
+            return naviNode1.ComparePosition(naviNode2) == System.Xml.XmlNodeOrder.Before;
         }
 
         /// <summary>
@@ -50,6 +40,7 @@ namespace de.springwald.xml
             return IsChild(child.ParentNode, parent);
         }
 
+        private static char[] textCleanSplitChars = new char[] { '\n', '\t', '\r', '\v' };
 
         /// <summary>
         /// Returns the content text from a text node
@@ -60,15 +51,11 @@ namespace de.springwald.xml
             {
                 throw (new ApplicationException($"Received node is not a textnode  ({textNode.OuterXml})"));
             }
-            else
-            {
-                var result = textNode.Value.ToString();
-                result = result.Replace(Environment.NewLine, ""); // Remove line breaks from text
-                result = result.Trim(new char[] { '\n', '\t', '\r', '\v' });
-                return result;
-            }
+            var result = textNode.Value.ToString();
+            result = result.Replace(Environment.NewLine, string.Empty); // Remove line breaks from text
+            result = result.Trim(textCleanSplitChars);
+            return result;
         }
-
 
         /// <summary>
         /// Is this node a text editable node
@@ -77,7 +64,6 @@ namespace de.springwald.xml
         {
             return ((node is XmlText) || (node is XmlComment));
         }
-
 
         /// <summary>
         /// Handles the whitespaces and leaves only visible SPACE whitespaces. All wraps and tabs are removed

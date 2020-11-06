@@ -78,7 +78,7 @@ namespace de.springwald.xml.rules.dtd
             // Whitespace is always ok
             if (node is System.Xml.XmlWhitespace) return true;
 
-            if (dtd.IsDtdElementKnown(Dtd.GetElementNameFromNode(node)))// Das Element dieses Nodes ist in der DTD bekannt 
+            if (dtd.IsDtdElementKnown(Dtd.GetElementNameFromNode(node))) // The element of this node is known in the DTD 
             {
                 try
                 {
@@ -88,7 +88,6 @@ namespace de.springwald.xml.rules.dtd
                     }
                     else
                     {
-                        // "Tag '{0}' hier nicht erlaubt: "
                         errorMessages.AppendFormat($"Tag '{node.Name}' not allowed here.");
                         var pos = new XmlCursorPos();
                         pos.SetPos(node, XmlCursorPositions.CursorOnNodeStartTag);

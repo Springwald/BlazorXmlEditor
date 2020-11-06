@@ -51,7 +51,7 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         public bool IsDtdElementKnown(string elementName)
         {
-            return (DTDElementByNameIntern_(elementName, false) != null);
+            return (DtdElementByNameIntern(elementName, false) != null);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         public DtdElement DTDElementByNode_(System.Xml.XmlNode node, bool errorIfNotExists)
         {
-            return DTDElementByNameIntern_(GetElementNameFromNode(node), errorIfNotExists);
+            return DtdElementByNameIntern(GetElementNameFromNode(node), errorIfNotExists);
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace de.springwald.xml.rules.dtd
         /// <param name="elementName"></param>
         public DtdElement DTDElementByName(string elementName, bool errorIfNotExists)
         {
-            return DTDElementByNameIntern_(elementName, errorIfNotExists);
+            return DtdElementByNameIntern(elementName, errorIfNotExists);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// Finds the DTD element corresponding to the specified name
         /// </summary>
-        public DtdElement DTDElementByNameIntern_(string elementName, bool errorIfNotExists)
+        public DtdElement DtdElementByNameIntern(string elementName, bool errorIfNotExists)
         {
             if (this.elementsByName.TryGetValue(elementName, out DtdElement elementInBuffer))
             {
@@ -102,7 +102,7 @@ namespace de.springwald.xml.rules.dtd
             }
             if (errorIfNotExists)
             {
-                // Das gesuchte DTD-Element mit diesem Namen existiert nicht in dieser DTD.
+                // The searched DTD element with this name does not exist in this DTD.
                 throw new XMLUnknownElementException(elementName);
             }
             return null;

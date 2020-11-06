@@ -205,7 +205,7 @@ namespace de.springwald.xml.rules.dtd
                     if (cursorPos.ActualNode.OwnerDocument == null)
                     {
                         // The actual node does not hang in any document? Hm, maybe we are in the middle of an insert process...
-#warning Noch eine korrekte Meldung oder Ton einfügen
+#warning Insert another correct message or sound
                         Debug.Assert(false, "Beep!");
                         childrenAllowedAtThisPos = new string[] { };
                     }
@@ -366,13 +366,12 @@ namespace de.springwald.xml.rules.dtd
                                     if (this.dtd.DTDElementByName(Dtd.GetElementNameFromNode(node), false) == null)
                                     {
                                         // This element is not known at all, therefore the element is sometimes not included
-                                        //throw new ApplicationException(String.Format("unknown Node-Element '{0}'", DTD.GetElementNameFromNode(node)));
+                                        // throw new ApplicationException(String.Format("unknown Node-Element '{0}'", DTD.GetElementNameFromNode(node)));
                                     }
                                     else
                                     {
                                         switch (cursorPos.PosOnNode)
                                         {
-
                                             case XmlCursorPositions.CursorOnNodeStartTag:	// If the node itself is selected and should be replaced
                                             case XmlCursorPositions.CursorOnNodeEndTag:
                                                 if (elementName == null) // check delete

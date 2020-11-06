@@ -439,11 +439,7 @@ namespace de.springwald.xml.rules.dtd
                 case "|": return DtdChildElementOperators.Or;
                 case ",": return DtdChildElementOperators.FollowedBy;
             }
-
-            // "The specified string '" + code + "' is not an operator!
             throw new ApplicationException("The specified string '" + code + "' is not an operator!");
         }
-
-
     }
 }
