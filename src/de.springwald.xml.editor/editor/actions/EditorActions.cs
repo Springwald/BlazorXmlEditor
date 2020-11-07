@@ -498,7 +498,7 @@ namespace de.springwald.xml.editor.actions
         /// Inserts a new XML element at the current cursor position
         /// </summary>
         /// <param name="nodeName">Such a node should be created</param>
-        public virtual async Task<System.Xml.XmlNode> ActionInsertNewElementAtActCursorPos(string nodeName, SetUndoSnapshotOptions setUnDoSnapshot, bool setNewCursorPosBehindNewInsertedNode)
+        public virtual async Task<XmlNode> ActionInsertNewElementAtActCursorPos(string nodeName, SetUndoSnapshotOptions setUnDoSnapshot, bool setNewCursorPosBehindNewInsertedNode)
         {
             if (!this.ActionsAllowed) return null;
 

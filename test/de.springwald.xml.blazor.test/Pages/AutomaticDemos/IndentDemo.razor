@@ -1,0 +1,77 @@
+﻿@page "/IndentDemo"
+@using de.springwald.xml.editor
+@using de.springwald.xml.editor.actions
+@using de.springwald.xml.blazor.test.DemoData
+@using System.Timers
+@using de.springwald.xml.rules
+@implements IDisposable
+
+
+<h1>indent demo</h1>
+<p>@this.elementCount elements</p>
+<de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" Style="max-height: 500px; height: 500px; width: 500px; min-width: 500px" />
+
+@code {
+
+    private string documentContent = "<category><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><pattern id=\"test\" id2=\"test2\">A Lorem ipsum dolor sit amet, consetetur sadipscing elitr</pattern><template>Lorem ipsum Dolor sit amet</template><template id=\"test2\" id2=\"LOREM ipsum Dolor Sit Amet lorem ipsum Dolor sit amet\">lorem ipsum dolor sit amet <star/> lorem ipsum dolor sit amet</template><template id=\"1\"></template></category>";
+    private string[] elementNames = new[] { "person2" };
+
+    private EditorContext editorContext;
+    private Timer typingTimer;
+    private System.Xml.XmlDocument xmlDocument;
+    private System.Xml.XmlNode textNode;
+    private Random rnd = new Random();
+    private int elementCount =0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var demoDtd = DemoDtd.LoadDemoDtd();
+        this.editorContext = new EditorContext(BlazorEditorConfig.StandardConfig, new DemoXmlRules(demoDtd));
+        this.xmlDocument = new System.Xml.XmlDocument();
+        this.xmlDocument.LoadXml(this.documentContent);
+        await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        this.typingTimer.Stop();
+        this.typingTimer.Elapsed -= TypingTimerEvent;
+    }
+
+    private async Task EditorIsReady()
+    {
+        await this.editorContext.EditorState.SetRootNode(xmlDocument.DocumentElement);
+        var patternNode = xmlDocument.DocumentElement.ChildNodes[0];
+        var templateNode = xmlDocument.DocumentElement.ChildNodes[1];
+        this.textNode = patternNode.ChildNodes[0];
+        await this.editorContext.EditorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(
+            textNode,
+            XmlCursorPos.XmlCursorPositions.CursorInsideTextNode,
+            10);
+        this.InitTypingTimer();
+    }
+
+    private void InitTypingTimer()
+    {
+        this.typingTimer = new Timer();
+        this.typingTimer.Elapsed += TypingTimerEvent;
+        this.typingTimer.Interval = 1;
+        this.typingTimer.Start();
+    }
+
+    private async void TypingTimerEvent(Object source, System.Timers.ElapsedEventArgs e)
+    {
+        this.typingTimer.Stop();
+
+        await this.editorContext.Actions.ActionInsertNewElementAtActCursorPos(
+            elementNames[this.rnd.Next(0, this.elementNames.Length)],
+            EditorActions.SetUndoSnapshotOptions.Yes,
+            setNewCursorPosBehindNewInsertedNode: false);
+
+        if (this.elementCount++ < 15)
+        {
+            this.typingTimer.Start();
+            this.StateHasChanged();
+        } 
+    }
+}

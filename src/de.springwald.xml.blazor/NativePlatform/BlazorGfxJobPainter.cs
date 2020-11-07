@@ -11,23 +11,40 @@ using System;
 using System.Threading.Tasks;
 using de.springwald.xml.editor.nativeplatform.gfx.Jobs;
 using de.springwald.xml.editor.nativeplatform.gfx;
-using de.springwald.xml.editor.nativeplatform.gfxobs;
 
 namespace de.springwald.xml.blazor.NativePlatform
 {
     internal static class BlazorGfxJobPainter
     {
-        private const bool DebugUnPaint = false;
+        private const bool DebugUnPaint = true;
 
         private static Color[] unPaintColors = new[] { Color.LightBlue, Color.LightGray, Color.Yellow, Color.LightGreen };
         private static int unPaintColor = 0;
+
+        private static Color UnPaintColor
+        {
+            get
+            {
+                unPaintColor++;
+                if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
+                return unPaintColors[unPaintColor];
+            }
+        }
 
         internal static async Task PaintJob(GfxJob job, BlazorGfxContext gfx, Color backgroundColor)
         {
             switch (job.JobType)
             {
                 case GfxJob.JobTypes.Clear:
-                    await gfx.ClearAsync((job as JobClear).FillColor);
+                    if (DebugUnPaint)
+                    {
+                        await gfx.ClearAsync(UnPaintColor);
+                    }
+                    else
+                    {
+                        
+                        await gfx.ClearAsync(backgroundColor);
+                    }
                     break;
 
                 case GfxJob.JobTypes.DrawLine:
@@ -56,11 +73,9 @@ namespace de.springwald.xml.blazor.NativePlatform
                     var rectangle = new Rectangle(unpaintJob.Rectangle.X - margin, unpaintJob.Rectangle.Y - margin, unpaintJob.Rectangle.Width + margin + margin, unpaintJob.Rectangle.Height + margin + margin);
                     if (DebugUnPaint)
                     {
-                        unPaintColor++;
-                        if (unPaintColor >= unPaintColors.Length) unPaintColor = 0;
-                        var fillColor = unPaintColors[unPaintColor]; // this.xmlEditor.NativePlatform.ControlElement.BackColor,
-                        await gfx.DrawRectangleAsync(fillColor, null, 0, rectangle);
-                    } else
+                        await gfx.DrawRectangleAsync(UnPaintColor, null, 0, rectangle);
+                    }
+                    else
                     {
                         await gfx.DrawRectangleAsync(backgroundColor, null, 0, rectangle);
                     }
