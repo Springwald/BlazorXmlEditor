@@ -64,33 +64,38 @@
     private System.Xml.XmlNode actualNode;
     private DtdElement actualNodeDtdElement;
     private string errorMessage;
-
-    private async Task ValueSelected(string name, string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            (this.actualNode as System.Xml.XmlElement).RemoveAttribute(name);
-        }
-        else
-        {
-            (this.actualNode as System.Xml.XmlElement).SetAttribute(name, value);
-        }
-        this.StateHasChanged();
-        await Task.CompletedTask;
-    }
+    private System.Timers.Timer updateTimer;
 
     protected override Task OnInitializedAsync()
     {
-        this.EditorState.CursorRaw.ChangedEvent.Add(this.ShowAttributes);
+        this.EditorState.CursorRaw.ChangedEvent.Add(this.CursorChanged);
+        this.updateTimer = new System.Timers.Timer(300);
+        this.updateTimer.Elapsed += this.UpdateTimer_Elapsed;
+        this.updateTimer.Stop();
         return base.OnInitializedAsync();
     }
 
     public void Dispose()
     {
-        this.EditorState.CursorRaw.ChangedEvent.Remove(this.ShowAttributes);
+        this.updateTimer.Stop();
+        this.updateTimer.Elapsed -= this.UpdateTimer_Elapsed;
+        this.EditorState.CursorRaw.ChangedEvent.Remove(this.CursorChanged);
     }
 
-    private async Task ShowAttributes(EventArgs eventArgs)
+    private async void UpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        this.updateTimer.Stop();
+        await this.ShowAttributes();
+    }
+
+    protected async Task CursorChanged(EventArgs e)
+    {
+        this.updateTimer.Stop();
+        this.updateTimer.Start();
+        await Task.CompletedTask;
+    }
+
+    private async Task ShowAttributes()
     {
         if ((this.EditorState != null) && (this.EditorState.RootNode != null)) //  enough data to list attributes
         {
@@ -148,5 +153,19 @@
             StateHasChanged();
             await Task.CompletedTask;
         }
+    }
+
+    private async Task ValueSelected(string name, string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            (this.actualNode as System.Xml.XmlElement).RemoveAttribute(name);
+        }
+        else
+        {
+            (this.actualNode as System.Xml.XmlElement).SetAttribute(name, value);
+        }
+        this.StateHasChanged();
+        await Task.CompletedTask;
     }
 }
