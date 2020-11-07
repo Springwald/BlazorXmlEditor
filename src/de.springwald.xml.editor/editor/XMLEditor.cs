@@ -148,15 +148,16 @@ namespace de.springwald.xml.editor
                 var paintContext = new PaintContext
                 {
                     LimitLeft = 0,
-                    LimitRight = limitRight,
+                    LimitRight = limitRight - 20,
                     PaintPosX = 10,
                     PaintPosY = 10 ,
                     RowStartX = 10 ,
                 };
 
                 var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), EditorState.CursorBlink.PaintCursor, this.EditorState.CursorOptimized, this.NativePlatform.Gfx, paintMode, depth: 0);
-                var newVirtualWidth = context1.FoundMaxX + 50;
-                var newVirtualHeight = context1.PaintPosY + 50;
+
+                var newVirtualWidth = ((context1.FoundMaxX + 30) / 30) * 30;
+                var newVirtualHeight = ((context1.PaintPosY + 30) / 30) * 30;
                 if (this.VirtualWidth != newVirtualWidth || this.VirtualHeight != newVirtualHeight)
                 {
                     this.VirtualWidth = newVirtualWidth;

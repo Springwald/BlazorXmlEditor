@@ -173,12 +173,15 @@ namespace de.springwald.xml.editor
                 // and unmanaged resources.
                 if (disposing) // Dispose managed resources.
                 {
+                    this.UnPaint(this.xmlEditor.NativePlatform.Gfx);
+
                     // Von den Events abmelden
                     editorContext.EditorState.CursorRaw.ChangedEvent.Remove(this.Cursor_ChangedEvent);
                     xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
                     xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
                     xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
                     xmlEditor.CleanUpXmlElementsEvent -= new EventHandler(_xmlEditor_xmlElementsCleanUpEvent);
+
 
                     // Referenzen lösen
                     this.xmlEditor = null;

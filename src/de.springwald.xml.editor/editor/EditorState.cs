@@ -28,6 +28,7 @@ namespace de.springwald.xml.editor
             {
                 this.RootNode = rootNode;
                 await this.RootNodeChanged.Trigger(rootNode);
+                await this.ContentChangedEvent.Trigger(EventArgs.Empty);
             }
         }
 
