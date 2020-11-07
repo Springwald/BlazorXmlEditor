@@ -9,7 +9,6 @@
     <p>Error: this.errorMessage</p>
 }
 
-<form>
     @if (this.actualNodeDtdElement != null)
     {
         @foreach (var attribut in this.actualNodeDtdElement.Attributes)
@@ -22,7 +21,7 @@
 
                 <label for="@id" class="col-sm-2 col-form-label">@attribut.Name</label>
                 <div class="col-sm-10">
-                    @if (attribut.AllowedValues.Any()) //  the content comes from a predefined list of values
+                    @if (attribut.AllowedValues?.Any() == true) //  the content comes from a predefined list of values
                     {
                         <select id="@id" class="form-control selectpicker" @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))">
                             @if (actualNode.Attributes[attribut.Name] == null || string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value))
@@ -52,7 +51,6 @@
             </div>
         }
     }
-</form>
 
 @code {
 
@@ -165,7 +163,6 @@
         {
             (this.actualNode as System.Xml.XmlElement).SetAttribute(name, value);
         }
-        this.StateHasChanged();
-        await Task.CompletedTask;
+        await this.EditorState.ContentChangedEvent.Trigger(EventArgs.Empty);
     }
 }

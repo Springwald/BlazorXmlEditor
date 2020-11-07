@@ -26,7 +26,7 @@ namespace de.springwald.xml.rules.dtd
         /// <summary>
         /// The values that are allowed for this attribute. NULL=No default, everything is allowed
         /// </summary>
-        public string[] AllowedValues { get; set; } = new string[] { };
+        public string[] AllowedValues { get; set; } = null;
 
         public string StandardValue { get; set; } = string.Empty;
 
