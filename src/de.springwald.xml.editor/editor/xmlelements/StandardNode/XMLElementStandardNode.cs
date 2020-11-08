@@ -200,6 +200,7 @@ namespace de.springwald.xml.editor
                     default:
                         throw new ArgumentOutOfRangeException(nameof(displayType) + ":" + displayType.ToString());
                 }
+                paintContext.FoundMaxX = childPaintContext.FoundMaxX;
                 paintContext.PaintPosX = childPaintContext.PaintPosX;
                 paintContext.PaintPosY = childPaintContext.PaintPosY;
             }
@@ -214,7 +215,6 @@ namespace de.springwald.xml.editor
             }
             return paintContext;
         }
-
 
         protected override async Task OnMouseAction(Point point, MouseClickActions mouseAction)
         {
@@ -275,13 +275,13 @@ namespace de.springwald.xml.editor
             for (int childLauf = 0; childLauf < this.XmlNode.ChildNodes.Count; childLauf++)
             {
                 if (childLauf >= childElements.Count)
-                {  
+                {
                     // If not yet as many ChildControls are created as there are ChildXMLNodes
                     var childElement = this.xmlEditor.CreateElement(this.XmlNode.ChildNodes[childLauf]);
                     childElements.Add(childElement);
                 }
                 else
-                {   
+                {
                     // there is already a control at this point
                     var childElement = (XmlElement)childElements[childLauf];
                     if (childElement == null)
@@ -291,7 +291,7 @@ namespace de.springwald.xml.editor
 
                     // check if it also represents the same XML node
                     if (childElement.XmlNode != this.XmlNode.ChildNodes[childLauf])
-                    {   
+                    {
                         // The ChildControl does not contain the same ChildNode, so delete and redo
                         childElement.UnPaint(gfx);
                         childElement.Dispose(); // delete old

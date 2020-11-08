@@ -83,7 +83,6 @@ namespace de.springwald.xml.editor.xmlelements
             this.lastPaintContextResult = paintContext.Clone();
             await Task.CompletedTask;
             return paintContext;
-            
         }
 
         protected override string GetAttributesString() => string.Empty;
