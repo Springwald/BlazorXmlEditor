@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "IndentDemo",
+      "launchUrl": "Indent2Demo",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

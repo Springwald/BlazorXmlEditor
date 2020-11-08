@@ -40,8 +40,8 @@ namespace de.springwald.xml.rules.dtd
         public enum DtdChildElementOperators { FollowedBy = 0, Or = -1 };
 
         private string sourceCode;
-        private List<DtdChildElements> _children;		    // The children of this child area
-        private Dtd _dtd;                                   // The DTD, on which everything is based
+        private List<DtdChildElements> children = new List<DtdChildElements>();		    // The children of this child area
+        private Dtd dtd;                                   // The DTD, on which everything is based
 
         private AllPossibleElementsOfAChildBlock allPossibleElements; // Determines all elements which this childblock can ever cover / contain
 
@@ -76,7 +76,7 @@ namespace de.springwald.xml.rules.dtd
                             break;
                         case DtdChildElementTypes.ChildList:
                             value.Append("(");
-                            for (int i = 0; i < _children.Count; i++)
+                            for (int i = 0; i < children.Count; i++)
                             {
                                 if (i != 0)
                                 {
@@ -88,15 +88,15 @@ namespace de.springwald.xml.rules.dtd
                                         case DtdChildElementOperators.FollowedBy:
                                             break;
                                         default:
-                                            throw new ApplicationException("Unhandled DTDChildElementOperatoren '" + this.Operator + "'");
+                                            throw new ApplicationException($"Unhandled Operator '{this.Operator}'");
                                     }
                                 }
-                                value.Append(((DtdChildElements)_children[i]).RegExAusdruck);
+                                value.Append(((DtdChildElements)children[i]).RegExAusdruck);
                             }
                             value.Append(")");
                             break;
                         default:
-                            throw new ApplicationException("Unhandled DTDChildElementArt '" + this.ElementType + "'");
+                            throw new ApplicationException($"Unhandled ElementType '{this.ElementType}'");
                     }
 
                     // Die Anzahl anfügen
@@ -114,7 +114,7 @@ namespace de.springwald.xml.rules.dtd
                             value.Append("*");
                             break;
                         default:
-                            throw new ApplicationException("Unhandled DTDChildElementAnzahl '" + this.DefCount + "'");
+                            throw new ApplicationException("Unhandled DefCount '" + DefCount + "'");
                     }
 
                     value.Append(")");
@@ -158,7 +158,7 @@ namespace de.springwald.xml.rules.dtd
 
         public int ChildrenCount
         {
-            get { return _children.Count; }
+            get { return children.Count; }
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace de.springwald.xml.rules.dtd
         {
             // Initialize basic values
             this.ElementType = DtdChildElementTypes.Empty;
-            this._children = new List<DtdChildElements>();
+            this.children = new List<DtdChildElements>();
             this.DefCount = DtdChildElementAmounts.ExactOnce;
             this.ElementName = "";
             this.Operator = DtdChildElementOperators.Or;
@@ -231,33 +231,24 @@ namespace de.springwald.xml.rules.dtd
         /// </summary>
         public DtdChildElements Clone()
         {
-            var clone = new DtdChildElements()
-            {
-                allPossibleElements = null,
-                ElementName = this.ElementName,
-                ElementType = this.ElementType,
-                Operator = this.Operator,
-                DefCount = this.DefCount,
-                _dtd = this._dtd,
-                sourceCode = this.sourceCode,
-            };
-            clone._children = new List<DtdChildElements>();
-            clone._children.AddRange(this._children);
+            var clone = (DtdChildElements)this.MemberwiseClone();
+            clone.sourceCode = this.sourceCode;
+            clone.dtd = this.dtd;
+            clone.children.AddRange(this.children);
             return clone;
         }
 
         /// <summary>
         /// Assigns this child which DTD it belongs to
         /// </summary>
-        /// <param name="dtd"></param>
         public void AssignDtd(Dtd dtd)
         {
             // Pass on to the sub-children
-            foreach (var child in _children)
+            foreach (var child in children)
             {
                 child.AssignDtd(dtd);
             }
-            this._dtd = dtd;
+            this.dtd = dtd;
         }
 
         /// <summary>
@@ -277,7 +268,7 @@ namespace de.springwald.xml.rules.dtd
                     if (count >= 0) return true; else return false; ;
                 default:
                     // "unknown DTDChildElementAnzahl: {0}"
-                    throw new ApplicationException($"unknown DTDChildElementAnzahl: {this.DefCount}");
+                    throw new ApplicationException($"unknown DefCount: {this.DefCount}");
             }
         }
 
@@ -287,7 +278,7 @@ namespace de.springwald.xml.rules.dtd
         /// <param name="index">Number of the desired Child, zero-based</param>
         public DtdChildElements Child(int index)
         {
-            return (DtdChildElements)this._children[index];
+            return (DtdChildElements)this.children[index];
         }
 
         /// <summary>
@@ -372,7 +363,7 @@ namespace de.springwald.xml.rules.dtd
 
                         if (done.Length == 0)
                         {
-                            throw new ApplicationException("found empty childcode in '" + rawCode + "'");
+                            throw new ApplicationException($"found empty childcode in '{rawCode}'");
                         }
                         else
                         {
@@ -411,7 +402,7 @@ namespace de.springwald.xml.rules.dtd
                                                     //{
                                                     //	Trace.WriteLine(code + child._defAnzahl.ToString());
                                                     //}
-            this._children.Add(child); // Save child to list
+            this.children.Add(child); // Save child to list
 
         }
 
@@ -439,7 +430,7 @@ namespace de.springwald.xml.rules.dtd
                 case "|": return DtdChildElementOperators.Or;
                 case ",": return DtdChildElementOperators.FollowedBy;
             }
-            throw new ApplicationException("The specified string '" + code + "' is not an operator!");
+            throw new ApplicationException($"The specified string '{code}' is not an operator!");
         }
     }
 }
