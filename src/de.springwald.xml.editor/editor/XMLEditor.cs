@@ -18,9 +18,6 @@ namespace de.springwald.xml.editor
     public partial class XmlEditor : IDisposable
     {
         private bool _disposed;
-
-        private bool virtualSizeChangedSinceLastPaint;
-        private bool sizeChangedSinceLastPaint = true;
         private System.Timers.Timer lateUpdatePaintTimer;
 
         internal MouseHandler MouseHandler { get; }
@@ -128,9 +125,10 @@ namespace de.springwald.xml.editor
             return new ElementCreator(this, this.editorContext).CreatePaintElementForNode(xmlNode);
         }
 
-        public void SizeHasChanged()
+        public async Task CanvasSizeHasChanged()
         {
-            this.sizeChangedSinceLastPaint = true;
+            var limitRight = this.NativePlatform.Gfx.Width;
+            await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
         }
 
         protected async Task Paint(int limitRight, bool forceRepaint, bool isCursorBlink)
@@ -138,17 +136,13 @@ namespace de.springwald.xml.editor
             if (!isCursorBlink) this.lateUpdatePaintTimer.Stop();
             var paintMode = XmlElement.PaintModes.OnlyPaintWhenChanged;
 
-            if (this.virtualSizeChangedSinceLastPaint)
-            {
-                await this.VirtualSizeChanged.Trigger(EventArgs.Empty);
-            }
-
-            if (forceRepaint || this.sizeChangedSinceLastPaint)
+            if (forceRepaint )
             {
                 this.NativePlatform.Gfx.AddJob(new JobClear());
-                this.sizeChangedSinceLastPaint = false;
                 paintMode = XmlElement.PaintModes.ForcePaintNoUnPaintNeeded;
             }
+
+            var virtualSizeChangedSinceLastPaint = false;
 
             if (this.EditorState.RootElement != null)
             {
@@ -162,17 +156,21 @@ namespace de.springwald.xml.editor
                 };
 
                 var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), EditorState.CursorBlink.PaintCursor, this.EditorState.CursorOptimized, this.NativePlatform.Gfx, paintMode, depth: 0);
-
-                var newVirtualWidth = ((context1.FoundMaxX + 30) / 30) * 30;
-                var newVirtualHeight = ((context1.PaintPosY + 30) / 30) * 30;
+                const int margin = 50;
+                var newVirtualWidth = ((context1.FoundMaxX + margin) / margin) * margin;
+                var newVirtualHeight = ((context1.PaintPosY + margin) / margin) * margin;
                 if (this.VirtualWidth != newVirtualWidth || this.VirtualHeight != newVirtualHeight)
                 {
                     this.VirtualWidth = newVirtualWidth;
                     this.VirtualHeight = newVirtualHeight;
-                    this.virtualSizeChangedSinceLastPaint = true;
+                    virtualSizeChangedSinceLastPaint = true;
                 }
             }
             await this.NativePlatform.Gfx.PaintJobs(EditorConfig.ColorBackground);
+            if (virtualSizeChangedSinceLastPaint)
+            {
+                await this.VirtualSizeChanged.Trigger(EventArgs.Empty);
+            }
         }
 
         private async void LateUpdatePaintTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)

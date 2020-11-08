@@ -132,7 +132,7 @@
         {
             await this.EditorContext.NativePlatform.SetSize(this.canvasWidth, this.canvasHeight);
             this.StateHasChanged();
-            this.editor.SizeHasChanged();
+            await this.editor.CanvasSizeHasChanged();
         }
     }
 
