@@ -17,8 +17,18 @@
 @code {
 
     private string documentContent =    "<category>" +
-                                            "<pattern>Lorem ipsum dolor sit amet, consetetur sadipscing elitr Lorem ipsum dolor sit amet, consetetur</pattern>" +
-                                            "<template>Lorem<script>lorem</script>ipsum<star/>ipsum Dolor sit amet</template>" +
+                                            "<pattern>What time is it</pattern>" +
+                                            "<template>It is <get name=\"DateTime.Now.Hour\"/> a clock " +
+                                                "<condition name=\"DateTime.Now.Minute\">" +
+                                                    "<li value=\"0\">.</li>" +
+                                                    "<li value=\"1\">and one minute.</li>" +
+                                                    "<li>and <get name=\"DateTime.Now.Minute\"/> minutes.</li>" +
+                                                "</condition>" +
+                                                "<random>"+
+                                                    "<li>Have a nice day.</li>" +
+                                                    "<li>See you soon.</li>" +
+                                                "</random>"
+                                            +"</template>" +
                                         "</category>";
     private EditorContext editorContext;
     private System.Xml.XmlDocument xmlDocument;
