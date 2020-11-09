@@ -106,5 +106,10 @@ namespace de.springwald.xml.blazor.NativePlatform
             }
             return this.contextCache;
         }
+
+        public void DeleteAllPaintJobs()
+        {
+            this.jobs.Clear();
+        }
     }
 }

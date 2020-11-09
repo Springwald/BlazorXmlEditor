@@ -133,16 +133,17 @@ namespace de.springwald.xml.editor
 
         protected async Task Paint(int limitRight, bool forceRepaint, bool isCursorBlink)
         {
+            var gfx = this.NativePlatform.Gfx;
+            gfx.DeleteAllPaintJobs();
+
             if (!isCursorBlink) this.lateUpdatePaintTimer.Stop();
             var paintMode = XmlElement.PaintModes.OnlyPaintWhenChanged;
 
             if (forceRepaint )
             {
-                this.NativePlatform.Gfx.AddJob(new JobClear());
+                gfx.AddJob(new JobClear());
                 paintMode = XmlElement.PaintModes.ForcePaintNoUnPaintNeeded;
             }
-
-            var virtualSizeChangedSinceLastPaint = false;
 
             if (this.EditorState.RootElement != null)
             {
@@ -155,7 +156,7 @@ namespace de.springwald.xml.editor
                     RowStartX = 10,
                 };
 
-                var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), EditorState.CursorBlink.PaintCursor, this.EditorState.CursorOptimized, this.NativePlatform.Gfx, paintMode, depth: 0);
+                var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), EditorState.CursorBlink.PaintCursor, this.EditorState.CursorOptimized, gfx, paintMode, depth: 0);
                 const int margin = 50;
                 var newVirtualWidth = ((context1.FoundMaxX + margin) / margin) * margin;
                 var newVirtualHeight = ((context1.PaintPosY + margin) / margin) * margin;
@@ -163,13 +164,12 @@ namespace de.springwald.xml.editor
                 {
                     this.VirtualWidth = newVirtualWidth;
                     this.VirtualHeight = newVirtualHeight;
-                    virtualSizeChangedSinceLastPaint = true;
+                    gfx.DeleteAllPaintJobs();
+                    await this.VirtualSizeChanged.Trigger(EventArgs.Empty);
+                } else
+                {
+                    await gfx.PaintJobs(EditorConfig.ColorBackground);
                 }
-            }
-            await this.NativePlatform.Gfx.PaintJobs(EditorConfig.ColorBackground);
-            if (virtualSizeChangedSinceLastPaint)
-            {
-                await this.VirtualSizeChanged.Trigger(EventArgs.Empty);
             }
         }
 

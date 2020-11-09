@@ -24,6 +24,8 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         
         Task PaintJobs(Color backgroundColor);
 
+        void DeleteAllPaintJobs();
+
         Task<double> MeasureDisplayStringWidthAsync(string text, Font drawFont);
     }
 }
