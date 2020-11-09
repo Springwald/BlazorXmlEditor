@@ -1,4 +1,4 @@
-﻿MyDOMGetBoundingClientRect = (element, param) => {
+﻿XmlEditorGetBoundingClientRect = (element, param) => {
     if (element) {
         return element.getBoundingClientRect();
     } else {
@@ -19,5 +19,11 @@ window.browserResize = {
     },
     resized: function () {
         DotNet.invokeMethodAsync("de.springwald.xml.blazor", 'OnBrowserResize').then(data => data);
+    }
+}
+
+function XmlEditorFocusElement(element) {
+    if (element instanceof HTMLElement) {
+        element.focus();
     }
 }

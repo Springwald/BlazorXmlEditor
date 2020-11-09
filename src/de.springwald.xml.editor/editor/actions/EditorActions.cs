@@ -152,7 +152,7 @@ namespace de.springwald.xml.editor.actions
                                 await this.editorState.CursorRaw.SetPositions(endPos.ActualNode, XmlCursorPositions.CursorBehindTheNode, textPosInBothNodes: 0, throwChangedEventWhenValuesChanged: false);
                                 break;
                         }
-                        await this.editorState.FireContentChangedEvent();
+                        await this.editorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
                         return true;
                     }
                 }
@@ -232,7 +232,7 @@ namespace de.springwald.xml.editor.actions
                         this.editorState.RootNode.AppendChild(child);
                     }
                     await this.editorState.CursorRaw.SetPositions(this.editorState.RootNode, XmlCursorPositions.CursorOnNodeStartTag, 0, throwChangedEventWhenValuesChanged: false);
-                    await this.editorState.FireContentChangedEvent();
+                    await this.editorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
                     return true;
                 }
             }
@@ -353,7 +353,7 @@ namespace de.springwald.xml.editor.actions
             if (deleteResult.Success)
             {
                 await this.editorState.CursorRaw.SetPositions(deleteResult.NewCursorPosAfterDelete.ActualNode, deleteResult.NewCursorPosAfterDelete.PosOnNode, deleteResult.NewCursorPosAfterDelete.PosInTextNode, throwChangedEventWhenValuesChanged: false);
-                await this.editorState.FireContentChangedEvent();
+                await this.editorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
                 return true;
             }
             else
@@ -376,7 +376,7 @@ namespace de.springwald.xml.editor.actions
             }
 
             await InsertText(this.editorState.CursorRaw, insertText, this.xmlRules);
-            await this.editorState.FireContentChangedEvent();
+            await this.editorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
             return true;
         }
 
@@ -424,7 +424,7 @@ namespace de.springwald.xml.editor.actions
                     }
                 }
             }
-            await this.editorState.FireContentChangedEvent();
+            await this.editorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
             return true;
         }
 
@@ -455,7 +455,7 @@ namespace de.springwald.xml.editor.actions
             {
                 // After successful deletion the new CursorPos is retrieved here
                 await this.editorState.CursorRaw.SetPositions(deleteResult.NewCursorPosAfterDelete.ActualNode, deleteResult.NewCursorPosAfterDelete.PosOnNode, deleteResult.NewCursorPosAfterDelete.PosInTextNode, throwChangedEventWhenValuesChanged: false);
-                await this.editorState.FireContentChangedEvent();
+                await this.editorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
                 return true;
             }
             return false;
@@ -487,7 +487,7 @@ namespace de.springwald.xml.editor.actions
             {
                 // After successful deletion the new CursorPos is retrieved here
                 await this.editorState.CursorRaw.SetPositions(deleteResult.NewCursorPosAfterDelete.ActualNode, deleteResult.NewCursorPosAfterDelete.PosOnNode, deleteResult.NewCursorPosAfterDelete.PosInTextNode, throwChangedEventWhenValuesChanged: false);
-                await this.editorState.FireContentChangedEvent();
+                await this.editorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
                 return true;
             }
 
@@ -523,7 +523,9 @@ namespace de.springwald.xml.editor.actions
 
             // Insert node at current CursorPos
             await XMLNodeEinfuegen(this.editorState.CursorRaw, node, this.xmlRules, setNewCursorPosBehindNewInsertedNode);
-            await this.editorState.FireContentChangedEvent();
+            await this.editorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: true);
+
+            
             return node;
         }
 

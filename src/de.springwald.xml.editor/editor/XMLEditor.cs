@@ -114,7 +114,7 @@ namespace de.springwald.xml.editor
                     this.EditorState.UndoHandler = new XmlUndoHandler(this.EditorState.RootNode);
                 }
             }
-            await this.EditorState.FireContentChangedEvent();
+            await this.EditorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
         }
 
         /// <summary>

@@ -163,6 +163,6 @@
         {
             (this.actualNode as System.Xml.XmlElement).SetAttribute(name, value);
         }
-        await this.EditorState.ContentChangedEvent.Trigger(EventArgs.Empty);
+        await this.EditorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
     }
 }

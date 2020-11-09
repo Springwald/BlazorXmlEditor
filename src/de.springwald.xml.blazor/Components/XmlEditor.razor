@@ -30,14 +30,15 @@
     <div class="modal-backdrop fade show"></div>
 }
 
-<div class="xmlEditorBox" style="overflow: auto; @this.Style" @ref="_canvasDivReference">
+<div class="xmlEditorBox" style="overflow: auto; @this.Style" @ref="_xmlEditorBoxDivReference">
     <div tabindex="0" class="canvasOuter" style="width:@(canvasWidth)px; min-width:@(canvasWidth)px; height: @(canvasHeight)px; max-height:@(canvasHeight)px"
          @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
          @oncontextmenu="HandleRightClick" @oncontextmenu:preventDefault="true"
          @onkeydown="EventOnKeyDown" @onkeydown:preventDefault
          @onfocusout="EventFocusOut"
          @onfocus="EventFocusIn"
-         @onfocusin="EventFocusIn">
+         @onfocusin="EventFocusIn"
+         @ref="_canvasOuterDivReference">
         <BECanvas Width="@canvasWidth" Height="@canvasHeight" @ref="_canvasReference">
         </BECanvas>
     </div>
@@ -52,7 +53,8 @@
     private bool showContextMenu;
 
     protected BECanvasComponent _canvasReference;
-    protected ElementReference _canvasDivReference;
+    protected ElementReference _xmlEditorBoxDivReference;
+    protected ElementReference _canvasOuterDivReference;
     private de.springwald.xml.editor.XmlEditor editor;
 
     [Parameter]
@@ -85,6 +87,7 @@
         this.EditorContext.NativePlatform = new BlazorNativePlatform(_canvasReference, new BlazorClipboard(this.clipboardService));
         this.editor = new editor.XmlEditor(this.EditorContext);
         this.EditorContext.EditorState.RootNodeChanged.Add(this.RootNodeChanged);
+        this.EditorContext.EditorState.ContentChangedEvent.Add(this.ContentChanged);
         this.editor.VirtualSizeChanged.Add(this.VirtualSizeChanged);
         await OnReady.InvokeAsync(EventArgs.Empty);
     }
@@ -95,6 +98,15 @@
         this.EditorContext?.EditorState.RootNodeChanged.Remove(this.RootNodeChanged);
         this.editor.VirtualSizeChanged.Remove(this.VirtualSizeChanged);
         this.editor.Dispose();
+    }
+
+    private async Task ContentChanged(EditorState.ContentChangedEventArgs e)
+    {
+        if(e.NeedToSetFocusOnEditorWhenLost) // && !this.EditorContext.EditorState.HasFocus)
+        {
+            await Task.Delay(400);
+            await JSRuntime.InvokeVoidAsync("XmlEditorFocusElement", _canvasOuterDivReference);
+        }
     }
 
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
@@ -150,7 +162,7 @@
 
     private async Task OuterResized()
     {
-        var size = await JSRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        var size = await JSRuntime.InvokeAsync<BoundingClientRect>("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
         if (size == null) return;
         this.outerWidth = (int)size.Width - 40;
         await this.VirtualSizeChanged(EventArgs.Empty);
@@ -266,7 +278,7 @@
         if (e.Button != 0) return;
 
         var result = await JSRuntime.InvokeAsync<BoundingClientRect>
-    ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+    ("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
 
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
@@ -283,7 +295,7 @@
         if (e.Button != 0) return;
 
         var result = await JSRuntime.InvokeAsync<BoundingClientRect>
-        ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        ("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
 
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
@@ -300,7 +312,7 @@
         if (e.Button != 0) return;
 
         var result = await JSRuntime.InvokeAsync<BoundingClientRect>
-        ("MyDOMGetBoundingClientRect", new object[] { this._canvasDivReference });
+        ("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
 
         var x = (int)(e.ClientX - result.Left);
         var y = (int)(e.ClientY - result.Top);
