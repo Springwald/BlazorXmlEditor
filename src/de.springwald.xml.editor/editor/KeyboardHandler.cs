@@ -100,7 +100,7 @@ namespace de.springwald.xml.editor
                         useKeyContent = false;
                         break;
 
-                    case Keys.Right: // move cursor to right
+                    case Keys.Down: // move cursor to right
                         if (e.ShiftKey)
                         {
                             await CursorPosMoveHelper.MoveRight(this.editorState.CursorRaw.EndPos, this.editorState.RootNode, this.xmlRules);

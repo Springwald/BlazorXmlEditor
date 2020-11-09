@@ -186,58 +186,20 @@
     {
         if (this.showContextMenu)
         {
-            if (e.Key == "Escape") this.showContextMenu = false;
+            if (e.Key == "Escape" || e.Key == "ContextMenu") this.showContextMenu = false;
+            return;
+        }
+        if (e.Key == "ContextMenu")
+        {
+            this.showContextMenu = true;
             return;
         }
 
-        var args = new de.springwald.xml.events.KeyEventArgs
+        var args = KeyEventTranslation.Translate(e);
+        if (args != null)
         {
-            CtrlKey = e.CtrlKey,
-            AltKey = e.AltKey,
-            ShiftKey = e.ShiftKey,
-            Content = e.Key,
-            Key = events.Keys.undefined
-        };
-
-        switch (e.Key)
-        {
-            // check control keys here to prevent checking ControlLeft vs. ControlRight etc.
-
-            case "Control":
-            case "Shift":
-            case "Alt":
-                // skip this keydowns
-                return;
-
-            case "Home": args.Key = events.Keys.Home; break;
-            case "Enter": args.Key = events.Keys.Enter; break;
-
-            default:
-                // check other keys in detail by key code
-                switch (e.Code)
-                {
-                    case "KeyA": args.Key = events.Keys.A; break;
-                    case "KeyC": args.Key = events.Keys.C; break;
-                    case "KeyS": args.Key = events.Keys.S; break;
-                    case "KeyV": args.Key = events.Keys.V; break;
-                    case "KeyX": args.Key = events.Keys.X; break;
-                    case "KeyY": args.Key = events.Keys.Y; break;
-                    case "KeyZ": args.Key = events.Keys.Z; break;
-
-                    case "Backspace": args.Key = events.Keys.Back; break;
-                    case "Delete": args.Key = events.Keys.Delete; break;
-                    case "Escape": args.Key = events.Keys.Escape; break;
-
-                    case "ArrowLeft": args.Key = events.Keys.Left; break;
-                    case "ArrowRight": args.Key = events.Keys.Right; break;
-
-                    case "Tab":
-                        args.Key = events.Keys.Tab;
-                        break;
-                }
-                break;
+            await this.EditorContext.NativePlatform.InputEvents.PreviewKey.Trigger(args);
         }
-        await this.EditorContext.NativePlatform.InputEvents.PreviewKey.Trigger(args);
     }
 
     #endregion

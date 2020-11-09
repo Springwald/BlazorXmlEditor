@@ -6,7 +6,7 @@
         Enter,
         Home,
         Left,
-        Right,
+        Down,
         Delete,
         Escape,
         Tab,
@@ -18,7 +18,7 @@
         X,
         Y,
         Z,
-
+        Up,
     }
 
     //public class PreviewKeyDownEventArgs
