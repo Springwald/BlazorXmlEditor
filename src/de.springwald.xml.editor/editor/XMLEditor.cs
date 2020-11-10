@@ -11,6 +11,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using de.springwald.xml.editor.nativeplatform;
+using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.editor.nativeplatform.gfxobs;
 using static de.springwald.xml.editor.EditorState;
 
@@ -47,6 +48,7 @@ namespace de.springwald.xml.editor
             this.editorContext = editorContext;
             this.editorContext.EditorState.CursorRaw.ChangedEvent.Add(this.CursorChangedEvent);
             this.editorContext.EditorState.ContentChangedEvent.Add(this.OnContentChanged);
+            this.EditorState.RootNodeChanged.Add(this.OnRootNodeChanged);
             this.MouseHandler = new MouseHandler(editorContext.NativePlatform);
             this.KeyboardHandler = new KeyboardHandler(this.editorContext);
             this.EditorState.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
@@ -62,6 +64,7 @@ namespace de.springwald.xml.editor
                 this.CleanUpXmlElements();
                 this.editorContext.EditorState.CursorRaw.ChangedEvent.Remove(this.CursorChangedEvent);
                 this.editorContext.EditorState.ContentChangedEvent.Remove(this.OnContentChanged);
+                this.EditorState.RootNodeChanged.Remove(this.OnRootNodeChanged);
                 this.lateUpdatePaintTimer.Elapsed -= this.LateUpdatePaintTimerElapsed;
                 this.MouseHandler.Dispose();
                 this.KeyboardHandler.Dispose();
@@ -70,10 +73,8 @@ namespace de.springwald.xml.editor
             }
         }
 
-        public async Task SetRootNode(System.Xml.XmlNode value)
+        private async Task OnRootNodeChanged(System.Xml.XmlNode value)
         {
-            await this.EditorState.SetRootNode(value);
-
             if (this.EditorState.RootNode == null)
             {
                 if (this.EditorState.RootElement != null)
@@ -94,6 +95,7 @@ namespace de.springwald.xml.editor
                         this.EditorState.RootElement = null;
                     }
                 }
+
                 // If XML element is (yet) not instantiated, then create
                 if (this.EditorState.RootElement == null)
                 {
@@ -114,6 +116,17 @@ namespace de.springwald.xml.editor
                 {
                     this.EditorState.UndoHandler = new XmlUndoHandler(this.EditorState.RootNode);
                 }
+
+                await this.EditorState.CursorRaw.SetPositions(null, rules.XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode, 0, false);
+            }
+
+            const bool debugUpdate = false;
+            if (debugUpdate)
+            {
+                this.NativePlatform.Gfx.DeleteAllPaintJobs();
+                this.NativePlatform.Gfx.AddJob(new JobClear());
+                await this.NativePlatform.Gfx.PaintJobs(Color.Blue);
+                Console.WriteLine("rootnode changed" + this.EditorState.RootNode?.InnerText + DateTime.Now.Ticks);
             }
             await this.EditorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false, forceFullRepaint: true );
         }
@@ -131,6 +144,7 @@ namespace de.springwald.xml.editor
             var limitRight = this.NativePlatform.Gfx.Width;
             await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
         }
+
 
         protected async Task Paint(int limitRight, bool forceRepaint, bool isCursorBlink)
         {
@@ -157,19 +171,17 @@ namespace de.springwald.xml.editor
                     RowStartX = 10,
                 };
 
-                var context1 = await this.EditorState.RootElement.Paint(paintContext.Clone(), EditorState.CursorBlink.PaintCursor, this.EditorState.CursorOptimized, gfx, paintMode, depth: 0);
+                var paintResultContext = await this.EditorState.RootElement.Paint(paintContext.Clone(), EditorState.CursorBlink.PaintCursor, this.EditorState.CursorOptimized, gfx, paintMode, depth: 0);
+                await gfx.PaintJobs(EditorConfig.ColorBackground);
+
                 const int margin = 50;
-                var newVirtualWidth = ((context1.FoundMaxX + margin) / margin) * margin;
-                var newVirtualHeight = ((context1.PaintPosY + margin) / margin) * margin;
+                var newVirtualWidth = ((paintResultContext.FoundMaxX + margin) / margin) * margin;
+                var newVirtualHeight = ((paintResultContext.PaintPosY + margin) / margin) * margin;
                 if (this.VirtualWidth != newVirtualWidth || this.VirtualHeight != newVirtualHeight)
                 {
                     this.VirtualWidth = newVirtualWidth;
                     this.VirtualHeight = newVirtualHeight;
-                    gfx.DeleteAllPaintJobs();
                     await this.VirtualSizeChanged.Trigger(EventArgs.Empty);
-                } else
-                {
-                    await gfx.PaintJobs(EditorConfig.ColorBackground);
                 }
             }
         }
@@ -182,6 +194,7 @@ namespace de.springwald.xml.editor
 
         private async Task OnContentChanged(ContentChangedEventArgs e)
         {
+            Console.WriteLine("OnContentChanged: ForceFullRepaint:" + e.ForceFullRepaint);
             var limitRight = this.NativePlatform.Gfx.Width;
             this.EditorState.CursorBlink.ResetBlinkPhase();  // After a change, the cursor line is drawn directly
             this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup

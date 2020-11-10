@@ -111,7 +111,6 @@
 
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
     {
-        await this.editor.SetRootNode(rootNode);
         await this.OuterResized();
     }
 
