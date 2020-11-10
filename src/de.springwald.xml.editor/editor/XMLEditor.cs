@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using de.springwald.xml.editor.nativeplatform;
 using de.springwald.xml.editor.nativeplatform.gfxobs;
+using static de.springwald.xml.editor.EditorState;
 
 namespace de.springwald.xml.editor
 {
@@ -114,7 +115,7 @@ namespace de.springwald.xml.editor
                     this.EditorState.UndoHandler = new XmlUndoHandler(this.EditorState.RootNode);
                 }
             }
-            await this.EditorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
+            await this.EditorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false, forceFullRepaint: true );
         }
 
         /// <summary>
@@ -179,12 +180,12 @@ namespace de.springwald.xml.editor
             await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
         }
 
-        private async Task OnContentChanged(EventArgs e)
+        private async Task OnContentChanged(ContentChangedEventArgs e)
         {
             var limitRight = this.NativePlatform.Gfx.Width;
-            await this.Paint(limitRight: limitRight, forceRepaint: false, isCursorBlink: false);
             this.EditorState.CursorBlink.ResetBlinkPhase();  // After a change, the cursor line is drawn directly
             this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
+            await this.Paint(limitRight: limitRight, forceRepaint: e.ForceFullRepaint, isCursorBlink: false);
             this.lateUpdatePaintTimer.Start();
         }
 

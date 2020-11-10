@@ -18,9 +18,11 @@ namespace de.springwald.xml.editor
 {
     public class EditorState : IDisposable
     {
-        public class ContentChangedEventArgs: EventArgs
+        public class ContentChangedEventArgs : EventArgs
         {
             public bool NeedToSetFocusOnEditorWhenLost { get; set; }
+
+            public bool ForceFullRepaint { get; set; }
         }
 
         private bool hasFocus;
@@ -33,7 +35,6 @@ namespace de.springwald.xml.editor
             {
                 this.RootNode = rootNode;
                 await this.RootNodeChanged.Trigger(rootNode);
-                await this.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false);
             }
         }
 
@@ -137,9 +138,14 @@ namespace de.springwald.xml.editor
             this.CursorBlink.Dispose();
         }
 
-        public async Task FireContentChangedEvent(bool needToSetFocusOnEditorWhenLost)
+        public async Task FireContentChangedEvent(bool needToSetFocusOnEditorWhenLost, bool forceFullRepaint)
         {
-            await this.ContentChangedEvent.Trigger(new ContentChangedEventArgs { NeedToSetFocusOnEditorWhenLost = needToSetFocusOnEditorWhenLost });
+            await this.ContentChangedEvent.Trigger(
+                new ContentChangedEventArgs
+                {
+                    NeedToSetFocusOnEditorWhenLost = needToSetFocusOnEditorWhenLost,
+                    ForceFullRepaint = forceFullRepaint
+                });
         }
 
         public async Task UnDo()
@@ -159,7 +165,7 @@ namespace de.springwald.xml.editor
                         c.EndPos.ActualNode, c.EndPos.PosOnNode, c.EndPos.PosInTextNode,
                          throwChangedEventWhenValuesChanged: true);
                 }
-                await this.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false );
+                await this.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false, forceFullRepaint: false);
             }
         }
     }
