@@ -19,7 +19,7 @@ Project is developed and maintained by [Daniel Springwald](https://blog.springwa
 
 The following libraries are required:
 
-- Blazor Webassembly
+- Blazor Webassembly / dotnet 5
 - Bootstrap 4
 - Font Awesome by Dave Gandy - http://fontawesome.io
 - CurrieTechnologies.Razor.Clipboard - https://github.com/Basaingeal/Razor.Clipboard
@@ -33,12 +33,6 @@ In `Program.cs` add [CurrieTechnologies.Razor.Clipboard service](https://github.
 
 ```csharp
 builder.Services.AddClipboard();
-```
-
-In `index.html` head add:
-
-```html
- <link href="_content/de.springwald.xml.blazor/springwaldXmlEditBlazor.css"  rel="stylesheet"/>
 ```
 
 In `index.html` body add [Blazor Extensions Canvas](https://github.com/BlazorExtensions/Canvas), [CurrieTechnologies.Razor.Clipboard service](https://github.com/Basaingeal/Razor.Clipboard) and the blazor xml editor JS:
