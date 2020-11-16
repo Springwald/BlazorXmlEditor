@@ -116,7 +116,7 @@
                     case XmlCursorPos.XmlCursorPositions.CursorBehindTheNode:
                     case XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode:
                         // We are behind or in front of the node, so the attributes of the ParentNode are displayed
-                        this.actualNode = this.EditorState.CursorRaw.StartPos.ActualNode.ParentNode;
+                        this.actualNode = this.EditorState.CursorRaw.StartPos.ActualNode?.ParentNode;
                         break;
 
                     default:

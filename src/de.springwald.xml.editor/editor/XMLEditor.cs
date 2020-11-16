@@ -128,7 +128,7 @@ namespace de.springwald.xml.editor
                 await this.NativePlatform.Gfx.PaintJobs(Color.Blue);
                 Console.WriteLine("rootnode changed" + this.EditorState.RootNode?.InnerText + DateTime.Now.Ticks);
             }
-            await this.EditorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false, forceFullRepaint: true );
+            await this.EditorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false, forceFullRepaint: true);
         }
 
         /// <summary>
@@ -151,17 +151,22 @@ namespace de.springwald.xml.editor
             var gfx = this.NativePlatform.Gfx;
             gfx.DeleteAllPaintJobs();
 
-            if (!isCursorBlink) this.lateUpdatePaintTimer.Stop();
-            var paintMode = XmlElement.PaintModes.OnlyPaintWhenChanged;
-
-            if (forceRepaint )
+            if (this.EditorState.RootElement == null)
             {
                 gfx.AddJob(new JobClear());
-                paintMode = XmlElement.PaintModes.ForcePaintNoUnPaintNeeded;
+                await gfx.PaintJobs(EditorConfig.ColorBackground);
             }
-
-            if (this.EditorState.RootElement != null)
+            else
             {
+                if (!isCursorBlink) this.lateUpdatePaintTimer.Stop();
+                var paintMode = XmlElement.PaintModes.OnlyPaintWhenChanged;
+
+                if (forceRepaint)
+                {
+                    gfx.AddJob(new JobClear());
+                    paintMode = XmlElement.PaintModes.ForcePaintNoUnPaintNeeded;
+                }
+
                 var paintContext = new PaintContext
                 {
                     LimitLeft = 0,
@@ -194,7 +199,6 @@ namespace de.springwald.xml.editor
 
         private async Task OnContentChanged(ContentChangedEventArgs e)
         {
-            Console.WriteLine("OnContentChanged: ForceFullRepaint:" + e.ForceFullRepaint);
             var limitRight = this.NativePlatform.Gfx.Width;
             this.EditorState.CursorBlink.ResetBlinkPhase();  // After a change, the cursor line is drawn directly
             this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
