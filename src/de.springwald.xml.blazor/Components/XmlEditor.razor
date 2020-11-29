@@ -47,6 +47,7 @@
 @code {
 
     protected int outerWidth = 10;
+    protected int outerHeight = 10;
     protected int canvasWidth = 10;
     protected int canvasHeight = 10;
 
@@ -118,10 +119,20 @@
     {
         var changed = false;
         const int tolerance = 30;
-        if (Math.Abs((this.editor.VirtualHeight + tolerance) - this.canvasHeight) > tolerance)
+
+        //if (this.outerHeight > this.canvasHeight)
+        //{
+        //    this.canvasHeight = this.outerHeight;
+        //    changed = true;
+        //}
+        //else
         {
-            changed = true;
-            this.canvasHeight = this.editor.VirtualHeight + tolerance;
+
+            if (Math.Abs((this.editor.VirtualHeight + tolerance) - this.canvasHeight) > tolerance)
+            {
+                changed = true;
+                this.canvasHeight = this.editor.VirtualHeight + tolerance;
+            }
         }
 
         if (this.outerWidth > this.canvasWidth)
@@ -164,6 +175,7 @@
         var size = await JSRuntime.InvokeAsync<BoundingClientRect>("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
         if (size == null) return;
         this.outerWidth = (int)size.Width - 40;
+        this.outerHeight= (int)size.Height - 40;
         await this.VirtualSizeChanged(EventArgs.Empty);
     }
 

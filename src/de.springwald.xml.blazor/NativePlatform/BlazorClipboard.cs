@@ -38,7 +38,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             {
                 return await this.clipboard.ReadTextAsync();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return string.Empty;
             }
@@ -50,7 +50,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             {
                 await this.clipboard.WriteTextAsync(text);
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }

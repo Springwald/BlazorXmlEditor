@@ -16,7 +16,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 {
     internal static class BlazorGfxJobPainter
     {
-        private const bool DebugUnPaint = false;
+        private static bool DebugUnPaint = false;
 
         private static Color[] unPaintColors = new[] { Color.LightBlue, Color.LightGray, Color.Yellow, Color.LightGreen };
         private static int unPaintColor = 0;

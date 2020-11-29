@@ -272,10 +272,10 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 {
                     case XmlCursorPositions.CursorOnNodeStartTag: // The node itself is selected as start node
                     case XmlCursorPositions.CursorOnNodeEndTag:
-                        throw new ArgumentOutOfRangeException(nameof(cursor.StartPos.PosOnNode) + ":" + cursor.StartPos.PosOnNode.ToString() + " not possible on a text node");
-                        result.Start = 0;
-                        result.Length = actualText.Length;
-                        break;
+                        throw new ArgumentOutOfRangeException($"{nameof(cursor.StartPos.PosOnNode)}:{cursor.StartPos.PosOnNode.ToString()} not possible on a text node");
+                        // result.Start = 0;
+                        // result.Length = actualText.Length;
+                        // break;
 
                     case XmlCursorPositions.CursorBehindTheNode:
                     case XmlCursorPositions.CursorInsideTheEmptyNode:

@@ -120,7 +120,7 @@ namespace de.springwald.xml.editor
                 await this.EditorState.CursorRaw.SetPositions(null, rules.XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode, 0, false);
             }
 
-            const bool debugUpdate = false;
+            bool debugUpdate = false;
             if (debugUpdate)
             {
                 this.NativePlatform.Gfx.DeleteAllPaintJobs();

@@ -150,8 +150,7 @@ namespace de.springwald.xml.editor
                                                                // Set X-cursor to the start of the new line
                                                                // line down and then right into the ChildElement
                                                                // Line down
-                        const bool paintLines = false;
-
+                        bool paintLines = false;
                         if (paintLines)
                         {
                             gfx.AddJob(new JobDrawLine
