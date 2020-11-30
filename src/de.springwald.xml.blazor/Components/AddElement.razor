@@ -2,7 +2,7 @@
 @using de.springwald.xml.editor.actions
 @implements IDisposable
 
-<div class="addAttributes">
+<div class="addElement @Class">
     @foreach (var group in groups)
     {
         var elems = this.elements.Where(e => e.Group == group);
@@ -37,6 +37,9 @@
 
     [Parameter]
     public EditorContext EditorContext { get; set; }
+
+    [Parameter]
+    public string Class { get; set; }
 
     protected override Task OnInitializedAsync()
     {

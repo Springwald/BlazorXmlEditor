@@ -30,7 +30,7 @@
     <div class="modal-backdrop fade show"></div>
 }
 
-<div class="xmlEditorBox" style="overflow: auto; @this.Style" @ref="_xmlEditorBoxDivReference">
+<div class="xmlEditorBox @this.Class" style="overflow: auto; @this.Style" @ref="_xmlEditorBoxDivReference">
     <div tabindex="0" class="canvasOuter" style="width:@(canvasWidth)px; min-width:@(canvasWidth)px; height: @(canvasHeight)px; max-height:@(canvasHeight)px"
          @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
          @oncontextmenu="HandleRightClick" @oncontextmenu:preventDefault="true"
@@ -63,6 +63,9 @@
 
     [Parameter]
     public string Style { get; set; }
+
+    [Parameter]
+    public string Class { get; set; }
 
     [Parameter] public EventCallback OnReady { get; set; }
 

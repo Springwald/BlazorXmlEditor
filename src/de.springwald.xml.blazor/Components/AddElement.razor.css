@@ -1,9 +1,10 @@
 ﻿
 /* attribute editor */
-.addAttributes {
+.addElement {
+    overflow-y: auto;
 }
 
-    .addAttributes .elementGroup {
+    .addElement .elementGroup {
         padding: 0.4em;
         margin-bottom: 0.4em;
         border-radius: 0.2em;
@@ -13,11 +14,11 @@
         background: #FDFDFD;
     }
 
-        .addAttributes .elementGroup .title {
+        .addElement .elementGroup .title {
             font-style: italic;
             /*  font-weight: bold;*/
         }
 
-        .addAttributes .elementGroup button {
+        .addElement .elementGroup button {
             font-size: 0.8em;
         }
