@@ -14,42 +14,43 @@
     {
         @foreach (var attribut in this.actualNodeDtdElement.Attributes)
         {
-            <div class="form-group row">
+
+            <div class="form-group">
 
                 @{
                     string id = new Guid().ToString();
                 }
 
-                <label for="@id" class="col-sm-2 col-form-label">@attribut.Name</label>
-                <div class="col-sm-10">
-                    @if (attribut.AllowedValues?.Any() == true) //  the content comes from a predefined list of values
-                    {
-                        <select id="@id" class="form-control selectpicker" @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))">
-                            @if (actualNode.Attributes[attribut.Name] == null || string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value))
+
+                <label for="@id">@attribut.Name </label>
+                @if (attribut.AllowedValues?.Any() == true) //  the content comes from a predefined list of values
+                {
+                    <select id="@id" class="form-control selectpicker" @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))">
+                        @if (actualNode.Attributes[attribut.Name] == null || string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value))
+                        {
+                            <option selected="selected">--select--</option>
+                        }
+                        else
+                        {
+                            @if (attribut.Mandatory == DtdAttribute.MandatoryTypes.Optional)
                             {
-                                <option selected="selected">--select--</option>
+                                <option selected="@(string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value) ? true : false)" value=""></option>
                             }
-                            else
-                            {
-                                @if (attribut.Mandatory == DtdAttribute.MandatoryTypes.Optional)
-                                {
-                                    <option selected="@(string.IsNullOrEmpty(actualNode.Attributes[attribut.Name]?.Value) ? true : false)" value=""></option>
-                                }
-                            }
-                            @foreach (var value in attribut.AllowedValues)
-                            {
-                                <option selected="@(value == actualNode.Attributes[attribut.Name]?.Value ? true : false)">@value</option>
-                            }
-                        </select>
-                    }
-                    else  // Content is free
-                    {
-                        <input id="@id" class="form-control" type="text" value="@actualNode.Attributes[attribut.Name]?.Value"
-                               @oninput="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))"
-                               @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))" />
-                    }
-                </div>
+                        }
+                        @foreach (var value in attribut.AllowedValues)
+                        {
+                            <option selected="@(value == actualNode.Attributes[attribut.Name]?.Value ? true : false)">@value</option>
+                        }
+                    </select>
+                }
+                else  // Content is free
+                {
+                    <input id="@id" class="form-control" type="text" value="@actualNode.Attributes[attribut.Name]?.Value"
+                           @oninput="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))"
+                           @onchange="(async (e) => await this.ValueSelected(attribut.Name, ((ChangeEventArgs)(e)).Value as string))" />
+                }
             </div>
+
         }
     }
 </div>
