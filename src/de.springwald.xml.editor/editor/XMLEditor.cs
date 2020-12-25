@@ -20,7 +20,6 @@ namespace de.springwald.xml.editor
     public partial class XmlEditor : IDisposable
     {
         private bool _disposed;
-        private System.Timers.Timer lateUpdatePaintTimer;
 
         internal MouseHandler MouseHandler { get; }
         internal KeyboardHandler KeyboardHandler { get; }
@@ -52,9 +51,6 @@ namespace de.springwald.xml.editor
             this.MouseHandler = new MouseHandler(editorContext.NativePlatform);
             this.KeyboardHandler = new KeyboardHandler(this.editorContext);
             this.EditorState.CursorBlink.BlinkIntervalChanged.Add(this.CursorBlinkedEvent);
-            this.lateUpdatePaintTimer = new System.Timers.Timer(1000);
-            this.lateUpdatePaintTimer.Elapsed += this.LateUpdatePaintTimerElapsed;
-            this.lateUpdatePaintTimer.Stop();
         }
 
         public void Dispose()
@@ -65,7 +61,6 @@ namespace de.springwald.xml.editor
                 this.editorContext.EditorState.CursorRaw.ChangedEvent.Remove(this.CursorChangedEvent);
                 this.editorContext.EditorState.ContentChangedEvent.Remove(this.OnContentChanged);
                 this.EditorState.RootNodeChanged.Remove(this.OnRootNodeChanged);
-                this.lateUpdatePaintTimer.Elapsed -= this.LateUpdatePaintTimerElapsed;
                 this.MouseHandler.Dispose();
                 this.KeyboardHandler.Dispose();
                 this.editorContext.Dispose();
@@ -158,7 +153,6 @@ namespace de.springwald.xml.editor
             }
             else
             {
-                if (!isCursorBlink) this.lateUpdatePaintTimer.Stop();
                 var paintMode = XmlElement.PaintModes.OnlyPaintWhenChanged;
 
                 if (forceRepaint)
@@ -203,7 +197,6 @@ namespace de.springwald.xml.editor
             this.EditorState.CursorBlink.ResetBlinkPhase();  // After a change, the cursor line is drawn directly
             this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
             await this.Paint(limitRight: limitRight, forceRepaint: e.ForceFullRepaint, isCursorBlink: false);
-            this.lateUpdatePaintTimer.Start();
         }
 
         private async Task CursorBlinkedEvent(bool blinkOn)
