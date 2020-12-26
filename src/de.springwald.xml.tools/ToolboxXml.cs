@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.XPath;
 
-namespace de.springwald.xml
+namespace de.springwald.xml.tools
 {
     public class ToolboxXml
     {
@@ -21,7 +21,7 @@ namespace de.springwald.xml
         /// </summary>
         public static bool Node1LaisBeforeNode2(XmlNode node1, XmlNode node2)
         {
-            if (node1 == null || node2 == null) throw new ApplicationException("None of the two nodes to be compared must be NULL (Node1LiegtVorNode2)");
+            if (node1 == null || node2 == null) throw new ApplicationException("None of the two nodes to be compared must be NULL (Node1LaisBeforeNode2)");
 
             if (node1.OwnerDocument != node2.OwnerDocument) return false;
             if (node1 == node2) return false; // Both nodes equal, then of course not node1 before node2

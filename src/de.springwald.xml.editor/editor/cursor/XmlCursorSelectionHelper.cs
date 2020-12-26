@@ -1,5 +1,6 @@
 ﻿using de.springwald.xml.cursor;
 using de.springwald.xml.rules;
+using de.springwald.xml.tools;
 using System;
 using System.Collections.Generic;
 using System.Text;

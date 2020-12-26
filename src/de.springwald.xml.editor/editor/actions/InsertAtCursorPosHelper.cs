@@ -8,6 +8,7 @@
 // Licensed under MIT License
 
 using de.springwald.xml.rules;
+using de.springwald.xml.tools;
 using System;
 using System.Diagnostics;
 using static de.springwald.xml.rules.XmlCursorPos;

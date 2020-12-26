@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.editor.cursor;
 using de.springwald.xml.rules;
+using de.springwald.xml.tools;
 using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.cursor

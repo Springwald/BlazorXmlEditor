@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using de.springwald.xml.editor.cursor;
 using static de.springwald.xml.rules.XmlCursorPos;
 using System.Runtime.InteropServices;
+using de.springwald.xml.tools;
 
 namespace de.springwald.xml.editor.xmlelements.TextNode
 {

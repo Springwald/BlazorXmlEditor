@@ -7,6 +7,8 @@
 // All rights reserved
 // Licensed under MIT License
 
+using de.springwald.xml.tools;
+
 namespace de.springwald.xml.rules
 {
     public partial class XmlCursorPos

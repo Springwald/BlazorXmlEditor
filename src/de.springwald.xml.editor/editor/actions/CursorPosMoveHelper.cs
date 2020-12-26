@@ -10,6 +10,7 @@
 using System;
 using System.Threading.Tasks;
 using de.springwald.xml.rules;
+using de.springwald.xml.tools;
 using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor.actions
