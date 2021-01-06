@@ -253,11 +253,8 @@
     {
         if (e.Button != 0) return;
 
-        var result = await JSRuntime.InvokeAsync<BoundingClientRect>
-    ("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
-
-        var x = (int)(e.ClientX - result.Left);
-        var y = (int)(e.ClientY - result.Top);
+        var x = (int)e.OffsetX;
+        var y = (int)e.OffsetY;
 
         await this.EditorContext.NativePlatform.InputEvents.MouseDown.Trigger(new de.springwald.xml.events.MouseEventArgs
         {
@@ -268,13 +265,8 @@
 
     async void EventOnMouseMove(MouseEventArgs e)
     {
-        if (e.Button != 0) return;
-
-        var result = await JSRuntime.InvokeAsync<BoundingClientRect>
-        ("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
-
-        var x = (int)(e.ClientX - result.Left);
-        var y = (int)(e.ClientY - result.Top);
+        var x = (int)e.OffsetX;
+        var y = (int)e.OffsetY;
 
         await this.EditorContext.NativePlatform.InputEvents.MouseMove.Trigger(new de.springwald.xml.events.MouseEventArgs
         {
@@ -287,11 +279,8 @@
     {
         if (e.Button != 0) return;
 
-        var result = await JSRuntime.InvokeAsync<BoundingClientRect>
-        ("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
-
-        var x = (int)(e.ClientX - result.Left);
-        var y = (int)(e.ClientY - result.Top);
+        var x = (int)e.OffsetX;
+        var y = (int)e.OffsetY;
 
         await this.EditorContext.NativePlatform.InputEvents.MouseUp.Trigger(new de.springwald.xml.events.MouseEventArgs
         {
