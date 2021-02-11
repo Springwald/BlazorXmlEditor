@@ -80,7 +80,7 @@
         {
             await this.Init();
             await JSRuntime.InvokeVoidAsync("browserResize.registerResizeCallback");
-            BrowserResize.OnResize += this.OuterResized;
+            BrowserResize.OnResize.Add(this.OuterResized);
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -98,7 +98,7 @@
 
     public void Dispose()
     {
-        BrowserResize.OnResize -= this.OuterResized;
+        BrowserResize.OnResize.Remove(this.OuterResized);
         this.EditorContext?.EditorState.RootNodeChanged.Remove(this.RootNodeChanged);
         this.editor.VirtualSizeChanged.Remove(this.VirtualSizeChanged);
         this.editor.Dispose();
@@ -115,7 +115,7 @@
 
     private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
     {
-        await this.OuterResized();
+        await this.OuterResized(EventArgs.Empty);
     }
 
     private async Task VirtualSizeChanged(EventArgs e)
@@ -173,7 +173,7 @@
         public double Left { get; set; }
     }
 
-    private async Task OuterResized()
+    private async Task OuterResized(EventArgs e)
     {
         var size = await JSRuntime.InvokeAsync<BoundingClientRect>("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
         if (size == null) return;

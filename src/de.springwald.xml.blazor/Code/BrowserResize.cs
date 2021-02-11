@@ -1,7 +1,7 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical XML editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2021 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -15,12 +15,12 @@ namespace de.springwald.xml.blazor.Code
 {
     public class BrowserResize
     {
-        public static event Func<Task> OnResize;
+        public static XmlAsyncEvent<EventArgs> OnResize = new XmlAsyncEvent<EventArgs>();
 
         [JSInvokable]
         public static async Task OnBrowserResize()
         {
-            await OnResize?.Invoke();
+            await OnResize.Trigger(EventArgs.Empty);
         }
     }
 }
