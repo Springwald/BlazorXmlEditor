@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.editor.xmlelements.StandardNode;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using System;
 
 namespace de.springwald.xml.editor.xmlelements
 {
@@ -100,7 +101,7 @@ namespace de.springwald.xml.editor.xmlelements
             var attributeString = new StringBuilder();
             for (int i = 0; i < attributes.Count; i++)
             {
-                attributeString.AppendFormat($" {attributes[i].Name}=\"{attributes[i].Value}\"");
+                    attributeString.Append($" {attributes[i].Name}=\"{attributes[i].Value}\"");
             }
             return attributeString.ToString();
         }
