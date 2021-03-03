@@ -1,7 +1,7 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical XML editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2021 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -89,7 +89,7 @@ namespace de.springwald.xml.editor.actions
                                 return false;
                             }
                         }
-                        else // nothin selected
+                        else // nothing selected
                         {
                             startPos = this.editorState.CursorOptimized.StartPos;
                         }
@@ -103,7 +103,7 @@ namespace de.springwald.xml.editor.actions
                     // Wrap the text with an enclosing virtual tag
                     text = await this.nativePlatform.Clipboard.GetText();
 
-                    // clean whitespaces
+                    // clean white-spaces
                     text = text.Replace("\r\n", " ");
                     text = text.Replace("\n\r", " ");
                     text = text.Replace("\r", " ");
@@ -115,7 +115,7 @@ namespace de.springwald.xml.editor.actions
                     // create the XML reader
                     using (var reader = new XmlTextReader(content, XmlNodeType.Element, null))
                     {
-                        reader.MoveToContent(); //Move to the cd element node.
+                        reader.MoveToContent(); // Move to the cd element node.
 
                         // Creating the Virtual Paste Node
                         var pasteNode = this.editorState.RootNode.OwnerDocument.ReadNode(reader);
@@ -194,7 +194,7 @@ namespace de.springwald.xml.editor.actions
                 var text = await this.nativePlatform.Clipboard.GetText();
                 using (var reader = new XmlTextReader(text, System.Xml.XmlNodeType.Element, null))
                 {
-                    reader.MoveToContent(); //Move to the cd element node.
+                    reader.MoveToContent(); // Move to the cd element node.
 
                     // Create a new root node from the clipboard, from which we can then steal the children
                     var pasteNode = this.editorState.RootNode.OwnerDocument.ReadNode(reader);
@@ -271,7 +271,7 @@ namespace de.springwald.xml.editor.actions
         {
             if (this.editorState.RootNode == null)
             {
-#warning hier noch beep
+                // TODO: notify error
                 return false;
             }
             else
@@ -363,7 +363,7 @@ namespace de.springwald.xml.editor.actions
         }
 
         /// <summary>
-        /// Inserts text at the specified cursor pos
+        /// Inserts text at the specified cursor position
         /// </summary>
         public virtual async Task<bool> ActionInsertTextAtCursorPos(string insertText, SetUndoSnapshotOptions setUnDoSnapShot)
         {
@@ -435,7 +435,7 @@ namespace de.springwald.xml.editor.actions
         {
             if (!this.ActionsAllowed) return false;
 
-            // Move the cursor one pos to the left
+            // Move the cursor one position to the left
             var deleteArea = new XmlCursor();
             deleteArea.StartPos.SetPos(position.ActualNode, position.PosOnNode, position.PosInTextNode);
             var endPos = deleteArea.StartPos.Clone();
@@ -443,7 +443,7 @@ namespace de.springwald.xml.editor.actions
             deleteArea.EndPos.SetPos(endPos.ActualNode, endPos.PosOnNode, endPos.PosInTextNode);
             await deleteArea.OptimizeSelection();
 
-            if (deleteArea.StartPos.ActualNode == this.editorState.RootNode) return false; // You must not delete the rootnot
+            if (deleteArea.StartPos.ActualNode == this.editorState.RootNode) return false; // You must not delete the root node
 
             if (setUnDoSnapshot == SetUndoSnapshotOptions.Yes)
             {
@@ -584,6 +584,5 @@ namespace de.springwald.xml.editor.actions
                 cursor.EndPos.SetPos(cursor.StartPos.ActualNode, cursor.StartPos.PosOnNode, cursor.StartPos.PosInTextNode);
             }
         }
-
     }
 }
