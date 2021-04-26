@@ -431,7 +431,7 @@ namespace de.springwald.xml.editor.actions
         /// <summary>
         /// Delete the node or character in front of the cursor
         /// </summary>
-        public async Task<bool> ActionDeleteNodeOrCharInForntOfCursorPos(XmlCursorPos position, SetUndoSnapshotOptions setUnDoSnapshot)
+        public async Task<bool> ActionDeleteNodeOrCharInFrontOfCursorPos(XmlCursorPos position, SetUndoSnapshotOptions setUnDoSnapshot)
         {
             if (!this.ActionsAllowed) return false;
 

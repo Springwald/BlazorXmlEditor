@@ -166,7 +166,7 @@ namespace de.springwald.xml.editor
                         }
                         else
                         {
-                            await this.actions.ActionDeleteNodeOrCharInForntOfCursorPos(this.editorState.CursorRaw.StartPos, SetUndoSnapshotOptions.Yes);
+                            await this.actions.ActionDeleteNodeOrCharInFrontOfCursorPos(this.editorState.CursorRaw.StartPos, SetUndoSnapshotOptions.Yes);
                         }
                         useKeyContent = false;
                         break;

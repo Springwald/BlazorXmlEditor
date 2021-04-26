@@ -50,7 +50,7 @@ namespace de.springwald.xml.blazor
                 case "Meta":
                 case "AltGraph":
                 case "NumLock":
-                case "Delete":
+              
                 case "Dead":
                 case "Escape":
                 case "ContextMenu":
