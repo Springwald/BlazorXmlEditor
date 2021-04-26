@@ -167,7 +167,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             switch (font.Unit)
             {
                 case Font.GraphicsUnit.Pixel:
-                    return  $"normal normal {font.Height}px {FontHtmlString(font)}";
+                    return  $"normal {font.Height}px {FontHtmlString(font)}";
                 default: throw new ArgumentOutOfRangeException($"{nameof(font.Unit)}:{font.Unit.ToString()}");
             }
         }

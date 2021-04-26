@@ -1,4 +1,4 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -101,18 +101,18 @@ namespace de.springwald.xml
         }
 
         /// <summary>
-        /// Zeichnet einen XML-Node
+        /// Draws an XML node
         /// </summary>
         /// <param name="node"></param>
-        /// <param name="einzug">aktuelle Einrückung</param>
+        /// <param name="einzug">current indentation</param>
         /// <param name="newLineNeeded"></param>
-        /// <param name="parentWasInvalid">Wenn True, dann war bereits der Parent-Node so fehlerhaft, dass dieser Node nicht mehr weiter gegen DTD-Fehler geprüft werden muss</param>
+        /// <param name="parentWasInvalid">If True, then the parent node was already so faulty that this node no longer needs to be checked against DTD errors.</param>
         /// <returns></returns>
         private string GetNodeAlsQuellText(System.Xml.XmlNode node, string einzug, bool newLineNeeded, bool parentWasInvalid, bool positionAlreadyCheckedAsOk, ref bool nodeInvalid)
         {
             if (node is XmlWhitespace)
             {
-                return string.Empty; // dont paint Whitespace 
+                return string.Empty; // don't paint Whitespace 
             }
             if (node is XmlComment) return $"&lt;!--{node.InnerText}--&gt;";
 

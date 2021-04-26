@@ -1,4 +1,4 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -7,13 +7,12 @@
 // All rights reserved
 // Licensed under MIT License
 
-using System;
-using System.Threading.Tasks;
-using de.springwald.xml.cursor;
 using de.springwald.xml.editor.actions;
 using de.springwald.xml.editor.nativeplatform;
 using de.springwald.xml.events;
 using de.springwald.xml.rules;
+using System;
+using System.Threading.Tasks;
 using static de.springwald.xml.editor.actions.EditorActions;
 using static de.springwald.xml.rules.XmlCursorPos;
 
@@ -21,10 +20,10 @@ namespace de.springwald.xml.editor
 {
     internal class KeyboardHandler : IDisposable
     {
-        private INativePlatform nativePlatform;
-        private XmlRules xmlRules;
-        private EditorActions actions;
-        private EditorState editorState;
+        private readonly INativePlatform nativePlatform;
+        private readonly XmlRules xmlRules;
+        private readonly EditorActions actions;
+        private readonly EditorState editorState;
 
         public XmlAsyncEvent<KeyEventArgs> KeyDownEvent = new XmlAsyncEvent<KeyEventArgs>();
         public XmlAsyncEvent<KeyEventArgs> KeyPressEvent = new XmlAsyncEvent<KeyEventArgs>();
@@ -35,15 +34,15 @@ namespace de.springwald.xml.editor
             this.editorState = editorContext.EditorState;
             this.xmlRules = editorContext.XmlRules;
             this.nativePlatform = editorContext.NativePlatform;
-            this.nativePlatform.InputEvents.PreviewKey.Add(this.controlKeyPreview);
+            this.nativePlatform.InputEvents.PreviewKey.Add(this.ControlKeyPreview);
         }
 
         public void Dispose()
         {
-            this.nativePlatform.InputEvents.PreviewKey.Remove(this.controlKeyPreview);
+            this.nativePlatform.InputEvents.PreviewKey.Remove(this.ControlKeyPreview);
         }
 
-        public async Task controlKeyPreview(KeyEventArgs e)
+        public async Task ControlKeyPreview(KeyEventArgs e)
         {
             //if (Regelwerk.PreviewKeyDown(e, out _naechsteTasteBeiKeyPressAlsTextAufnehmen, this))
             //{
@@ -69,7 +68,7 @@ namespace de.springwald.xml.editor
                         break;
 
                     case (Keys.V): // CTRL-V -> paste
-                        if (e.CtrlKey)  await this.actions.ActionPasteFromClipboard(SetUndoSnapshotOptions.Yes);
+                        if (e.CtrlKey) await this.actions.ActionPasteFromClipboard(SetUndoSnapshotOptions.Yes);
                         break;
 
                     case (Keys.X): // CTRL-X -> cut
@@ -77,7 +76,7 @@ namespace de.springwald.xml.editor
                         break;
 
                     case (Keys.Y): //CTRL-Y -> ReDo (not implemented yet)
-                        if (e.CtrlKey) {  }
+                        if (e.CtrlKey) { }
                         break;
 
                     case (Keys.Z): //CTRL-Z -> UnDo
@@ -128,7 +127,7 @@ namespace de.springwald.xml.editor
 
                     case Keys.Tab: // Tab jumps to the next day
                         System.Xml.XmlNode node = this.editorState.CursorRaw.StartPos.ActualNode;
-                        bool abbruch = false;
+                        bool abort = false;
                         if (node.FirstChild != null)
                         {
                             node = node.FirstChild;
@@ -148,18 +147,18 @@ namespace de.springwald.xml.editor
                                 else
                                 {
                                     // Hm, where could TAB *still* go? 
-                                    abbruch = true;
+                                    abort = true;
                                 }
                             }
                         }
-                        if (!abbruch)
+                        if (!abort)
                         {
                             await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(node, XmlCursorPositions.CursorInsideTheEmptyNode);
                         }
                         useKeyContent = false;
                         break;
 
-                    case Keys.Back:  
+                    case Keys.Back:
                         if (this.editorState.CursorRaw.IsSomethingSelected)
                         {
                             await this.actions.ActionDelete(SetUndoSnapshotOptions.Yes);
@@ -171,7 +170,7 @@ namespace de.springwald.xml.editor
                         useKeyContent = false;
                         break;
 
-                    case Keys.Delete:          
+                    case Keys.Delete:
                         if (this.editorState.CursorRaw.IsSomethingSelected)
                         {
                             await this.actions.ActionDelete(SetUndoSnapshotOptions.Yes);

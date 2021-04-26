@@ -1,4 +1,4 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -19,7 +19,7 @@ namespace de.springwald.xml.editor.cursor
         public XmlAsyncEvent<bool> BlinkIntervalChanged = new XmlAsyncEvent<bool>();
 
         /// <summary>
-        /// true = phase 1, paint cursor line; false = phase 2, dont paint cursor line
+        /// true = phase 1, paint cursor line; false = phase 2, don`t paint cursor line
         /// </summary>
         public bool PaintCursor { get; private set; }
 

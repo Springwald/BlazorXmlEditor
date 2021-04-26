@@ -1,4 +1,4 @@
-// A platform indepentend tag-view-style graphical xml editor
+// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -139,7 +139,7 @@ namespace de.springwald.xml.editor
                 //  Redraw the element
 
                 //System.Drawing.Graphics g = this._xmlEditor.ZeichnungsSteuerelement.CreateGraphics();
-                // this.UnPaint(g);	// Element wegradieren
+                // this.UnPaint(g);	// erase element
                 //this.Paint (false,new PaintEventArgs (g,this._xmlEditor.ZeichnungsSteuerelement.ClientRectangle)); // Neu zeichnen
             }
             await Task.CompletedTask; // to prevent warning because of empty async method
@@ -175,15 +175,13 @@ namespace de.springwald.xml.editor
                 {
                     this.UnPaint(this.xmlEditor.NativePlatform.Gfx);
 
-                    // Von den Events abmelden
+                    // Unsubscribe from the events
                     editorContext.EditorState.CursorRaw.ChangedEvent.Remove(this.Cursor_ChangedEvent);
                     xmlEditor.MouseHandler.MouseDownEvent.Remove(this._xmlEditor_MouseDownEvent);
                     xmlEditor.MouseHandler.MouseUpEvent.Remove(this._xmlEditor_MouseUpEvent);
                     xmlEditor.MouseHandler.MouseDownMoveEvent.Remove(this._xmlEditor_MouseDownMoveEvent);
                     xmlEditor.CleanUpXmlElementsEvent -= new EventHandler(_xmlEditor_xmlElementsCleanUpEvent);
 
-
-                    // Referenzen lösen
                     this.xmlEditor = null;
                 }
             }

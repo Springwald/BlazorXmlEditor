@@ -1,4 +1,4 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -25,7 +25,6 @@ namespace de.springwald.xml.editor.xmlelements.StandardNode
         private int lastNodeNameHeight = 0;
         private int lastAttributeHeight = 0;
         
-
         public StandardNodeDimensionsAndColor(EditorConfig config, Color backgroundColor)
         {
             this.config = config;

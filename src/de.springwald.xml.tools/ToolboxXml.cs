@@ -1,4 +1,4 @@
-// A platform indepentend tag-view-style graphical xml editor
+// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -49,7 +49,7 @@ namespace de.springwald.xml.tools
         {
             if (!(textNode is XmlText) && !(textNode is XmlComment) && !(textNode is XmlWhitespace))
             {
-                throw (new ApplicationException($"Received node is not a textnode  ({textNode.OuterXml})"));
+                throw (new ApplicationException($"Received node is not a text node  ({textNode.OuterXml})"));
             }
             var result = textNode.Value.ToString();
             result = result.Replace(Environment.NewLine, string.Empty); // Remove line breaks from text
@@ -66,7 +66,7 @@ namespace de.springwald.xml.tools
         }
 
         /// <summary>
-        /// Handles the whitespaces and leaves only visible SPACE whitespaces. All wraps and tabs are removed
+        /// Handles the whitespace and leaves only visible SPACE whitespace. All wraps and tabs are removed
         /// </summary>
         public static void CleanUpWhitespaces(System.Xml.XmlNode node)
         {
@@ -90,7 +90,7 @@ namespace de.springwald.xml.tools
                 }
             }
 
-            // handle Whitespaces
+            // handle whitespace
             foreach (XmlWhitespace white in whites)
             {
                 if (white.Data.IndexOf(" ") != -1)
@@ -106,7 +106,7 @@ namespace de.springwald.xml.tools
                 }
             }
 
-            // Treat the whitespaces in the sub-children
+            // Treat the whitespace in the sub-children
             foreach (XmlNode child in restChildren)
             {
                 CleanUpWhitespaces(child);

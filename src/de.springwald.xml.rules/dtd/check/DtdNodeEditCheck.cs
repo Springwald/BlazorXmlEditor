@@ -1,4 +1,4 @@
-// A platform indepentend tag-view-style graphical xml editor
+// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -7,9 +7,12 @@
 // All rights reserved
 // Licensed under MIT License
 
+#define NOThinkLogging
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 using static de.springwald.xml.rules.XmlCursorPos;
 
@@ -22,21 +25,21 @@ namespace de.springwald.xml.rules.dtd
     {
         private Dtd dtd; // The DTD to be checked against
 
-#if DenkProtokoll
-		private StringBuilder _denkProtokoll; // What assumptions were used to generate the result of AtThisPosAllowedTags?
+#if ThinkLogging
+        private StringBuilder _thinkLog; // What assumptions were used to generate the result of AtThisPosAllowedTags?
 #endif
 
         /// <summary>
         /// What assumptions were used to generate the result of AtThisPosAllowedTags?
         /// </summary>
-        public string DenkProtokoll
+        public string ThinkLog
         {
             get
             {
-#if DenkProtokoll
-                        return _denkProtokoll.ToString(); 
+#if ThinkLogging
+                return _thinkLog.ToString();
 #else
-                return "DenkProtokoll is per Define deaktivated (DTDNodeEditCheck.cs)";
+                return "ThinkLog is deactivated by define (DTDNodeEditCheck.cs)";
 #endif
             }
         }
@@ -45,8 +48,8 @@ namespace de.springwald.xml.rules.dtd
         {
             this.dtd = dtd;
 
-#if DenkProtokoll
-			_denkProtokoll= new StringBuilder(); // What assumptions were used to generate the result of AtThisPosAllowedTags?
+#if ThinkLogging
+            _thinkLog = new StringBuilder(); // What assumptions were used to generate the result of AtThisPosAllowedTags?
 #endif
         }
 
@@ -58,8 +61,8 @@ namespace de.springwald.xml.rules.dtd
             // To avoid accidentally returning some changes, first clone the CursorPos
             var cursorPos = cursorPosToCheck.Clone();
 
-#if DenkProtokoll
-			_denkProtokoll=new StringBuilder();
+#if ThinkLogging
+            _thinkLog = new StringBuilder();
 #endif
 
             var testPattern = this.GetAllTestPattern(cursorPos);
@@ -94,8 +97,8 @@ namespace de.springwald.xml.rules.dtd
                         }
                     }
                 }
-#if DenkProtokoll
-				_denkProtokoll.Append(muster.Zusammenfassung + "\r\n");
+#if ThinkLogging
+                _thinkLog.Append(muster.Summary + "\r\n");
 #endif
             }
 
@@ -117,8 +120,8 @@ namespace de.springwald.xml.rules.dtd
                 var cursorPos = new XmlCursorPos();
                 cursorPos.SetPos(node, XmlCursorPositions.CursorOnNodeStartTag);
 
-#if DenkProtokoll
-				_denkProtokoll=new StringBuilder();
+#if ThinkLogging
+                _thinkLog = new StringBuilder();
 #endif
 
                 // Create the test patterns to insert for all available elements
@@ -132,9 +135,9 @@ namespace de.springwald.xml.rules.dtd
 
                 if (pattern.Success)
                 {
-#if DenkProtokoll
-					_denkProtokoll=new StringBuilder();
-					_denkProtokoll.Append(muster.Zusammenfassung + "\r\n");
+#if ThinkLogging
+                    _thinkLog = new StringBuilder();
+                    _thinkLog.Append(pattern.Summary + "\r\n");
 #endif
                     return true;
                 }
@@ -331,7 +334,7 @@ namespace de.springwald.xml.rules.dtd
             switch (cursorPos.PosOnNode)
             {
                 case XmlCursorPositions.CursorInsideTheEmptyNode:
-                    // The parentnode is empty, so we only have to test for the allowed elements in it and not expect any sibling elements on the same level
+                    // The parent node is empty, so we only have to test for the allowed elements in it and not expect any sibling elements on the same level
                     testPattern = new DtdTestpattern(elementName, Dtd.GetElementNameFromNode(node));
                     testPattern.AddElement(elementName);
                     break;

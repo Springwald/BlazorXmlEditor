@@ -1,4 +1,4 @@
-// A platform indepentend tag-view-style graphical xml editor
+// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 namespace de.springwald.xml.rules.dtd
 {
     /// <summary>
-    /// Returns all DTD elements for a given childblock, which this block could provide
+    /// Returns all DTD elements for a given child block, which this block could provide
     /// </summary>
     public class AllPossibleElementsOfAChildBlock
     {
@@ -25,7 +25,7 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Searches the Childblock for new elements
+        /// Searches the child block for new elements
         /// </summary>
         private void Search(DtdChildElements childBlock)
         {

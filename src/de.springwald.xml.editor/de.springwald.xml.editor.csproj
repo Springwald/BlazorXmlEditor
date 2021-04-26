@@ -8,7 +8,7 @@
     <PackageLicenseExpression>MIT Licence</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Springwald/BlazorXmlEditor</PackageProjectUrl>
     <Copyright>(C) 2020 Daniel Springwald</Copyright>
-    <Description>A platform indepentend tag-view-style graphical xml editor</Description>
+    <Description>A platform independent tag-view-style graphical xml editor</Description>
   </PropertyGroup>
 
   <ItemGroup>

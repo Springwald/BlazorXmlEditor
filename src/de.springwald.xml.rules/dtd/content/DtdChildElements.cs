@@ -1,4 +1,4 @@
-// A platform indepentend tag-view-style graphical xml editor
+// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -43,12 +43,12 @@ namespace de.springwald.xml.rules.dtd
         private List<DtdChildElements> children = new List<DtdChildElements>();		    // The children of this child area
         private Dtd dtd;                                   // The DTD, on which everything is based
 
-        private AllPossibleElementsOfAChildBlock allPossibleElements; // Determines all elements which this childblock can ever cover / contain
+        private AllPossibleElementsOfAChildBlock allPossibleElements; // Determines all elements which this child block can ever cover / contain
 
-        private string regExValue;  // The RegEx expression corresponding to this Childblock
+        private string regExValue;  // The RegEx expression corresponding to this child block
 
         /// <summary>
-        /// The RegEx expression corresponding to this Childblock
+        /// The RegEx expression corresponding to this child block
         /// </summary>
         public string RegExAusdruck
         {
@@ -125,7 +125,7 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Determines all elements of the specified DTD, which this Childblock can ever cover / contain
+        /// Determines all elements of the specified DTD, which this child block can ever cover / contain
         /// </summary>
         public AllPossibleElementsOfAChildBlock AllPossibleElements
         {
@@ -147,7 +147,7 @@ namespace de.springwald.xml.rules.dtd
         public DtdChildElementTypes ElementType { get; protected set; }
 
         /// <summary>
-        /// So often this Childblock may occur
+        /// So often this child block may occur
         /// </summary>
         public DtdChildElementAmounts DefCount { get; protected set; }
 
@@ -324,7 +324,7 @@ namespace de.springwald.xml.rules.dtd
         }
 
         /// <summary>
-        /// Evaluates the existing Childran
+        /// Evaluates the existing children
         /// </summary>
         private void ReadChildren(string code)
         {
@@ -363,7 +363,7 @@ namespace de.springwald.xml.rules.dtd
 
                         if (done.Length == 0)
                         {
-                            throw new ApplicationException($"found empty childcode in '{rawCode}'");
+                            throw new ApplicationException($"found empty child code in '{rawCode}'");
                         }
                         else
                         {
@@ -373,7 +373,7 @@ namespace de.springwald.xml.rules.dtd
                         // start new element
                         actualElement = new StringBuilder();
                     }
-                    else // Operator belongs to the inside enclosed Childblock
+                    else // Operator belongs to the inside enclosed child block
                     {
                         actualElement.Append(nextChar);
                     }
@@ -397,7 +397,7 @@ namespace de.springwald.xml.rules.dtd
         private void SaveChildElement(string code)
         {
             code = code.Trim();
-            var child = new DtdChildElements(code); // Create new child or childlist from the code
+            var child = new DtdChildElements(code); // Create new child or child list from the code
                                                     //if (child.Art ==DTDChildElementArten.EinzelChild) 
                                                     //{
                                                     //	Trace.WriteLine(code + child._defAnzahl.ToString());

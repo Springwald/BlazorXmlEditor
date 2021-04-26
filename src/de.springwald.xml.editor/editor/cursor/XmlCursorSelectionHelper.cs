@@ -386,7 +386,7 @@ namespace de.springwald.xml.editor.cursor
                     {
                         return true;
                     }
-                    else // not a textnode
+                    else // not a text node
                     {
                         return false;
                     }

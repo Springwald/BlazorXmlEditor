@@ -1,4 +1,4 @@
-// A platform indepentend tag-view-style graphical xml editor
+// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -94,8 +94,8 @@ namespace de.springwald.xml
             if (xmlNode is System.Xml.XmlText) return false;
             var element = this.Dtd.DTDElementByNode_(xmlNode, false);
             if (element == null) return true;
-            if (element.AllChildNamesAllowedAsDirectChild.Length > 1) return true;// The element can have subelements (> 1 instead of 0, because comment is always included)
-            return false;  // The element cannot have any subelements
+            if (element.AllChildNamesAllowedAsDirectChild.Length > 1) return true;// The element can have sub elements (> 1 instead of 0, because comment is always included)
+            return false;  // The element cannot have any sub elements
         }
 
         /// <summary>
@@ -131,9 +131,8 @@ namespace de.springwald.xml
         }
 
         /// <summary>
-        /// Konvertiert / Formatiert einen Text, welcher an eine bestimmte Stelle eingefügt werden soll so, 
-        /// wie es diese Stelle erfordert. In einer AIML-DTD kann dies z.B. bedeuten, 
-        /// dass der Text zum Einfügen in das PATTERN Tag auf Großbuchstaben umgestellt wird
+        /// Converts / formats text to be inserted in a specific location as required by that location. 
+        /// In an AIML DTD, for example, this can mean that the text is converted to upper case for insertion into the PATTERN tag.
         /// </summary>
         /// <param name="replacementNode">If a node is to be inserted instead of the text. Example: In the AIML-Template we press *, then a STAR-Tag is inserted</param>
         public virtual string InsertTextTextPreProcessing(string textToInsert, XmlCursorPos insertWhere, out System.Xml.XmlNode replacementNode)

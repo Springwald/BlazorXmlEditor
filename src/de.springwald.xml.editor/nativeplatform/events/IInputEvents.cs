@@ -1,4 +1,4 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -7,7 +7,6 @@
 // All rights reserved
 // Licensed under MIT License
 
-using System;
 using de.springwald.xml.events;
 
 namespace de.springwald.xml.editor.nativeplatform.events
@@ -17,7 +16,6 @@ namespace de.springwald.xml.editor.nativeplatform.events
         XmlAsyncEvent<MouseEventArgs> MouseDown { get; }
         XmlAsyncEvent<MouseEventArgs> MouseUp { get; }
         XmlAsyncEvent<MouseEventArgs> MouseMove { get; }
-
         XmlAsyncEvent<KeyEventArgs> PreviewKey { get; }
     }
 }

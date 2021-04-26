@@ -1,4 +1,4 @@
-// A platform indepentend tag-view-style graphical xml editor
+// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -24,7 +24,7 @@ namespace de.springwald.xml.editor
         internal MouseHandler MouseHandler { get; }
         internal KeyboardHandler KeyboardHandler { get; }
 
-        private EditorContext editorContext;
+        private readonly EditorContext editorContext;
 
         private EditorState EditorState => this.editorContext.EditorState;
 
@@ -121,7 +121,7 @@ namespace de.springwald.xml.editor
                 this.NativePlatform.Gfx.DeleteAllPaintJobs();
                 this.NativePlatform.Gfx.AddJob(new JobClear());
                 await this.NativePlatform.Gfx.PaintJobs(Color.Blue);
-                Console.WriteLine("rootnode changed" + this.EditorState.RootNode?.InnerText + DateTime.Now.Ticks);
+                Console.WriteLine("root node changed " + this.EditorState.RootNode?.InnerText + DateTime.Now.Ticks);
             }
             await this.EditorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false, forceFullRepaint: true);
         }
@@ -207,7 +207,7 @@ namespace de.springwald.xml.editor
 
         private async Task CursorChangedEvent(EventArgs e)
         {
-            // Nach einer Cursorbewegung wird der Cursor zunächst als Strich gezeichnet
+            // After a cursor movement, the cursor is first drawn as a line
             this.EditorState.CursorBlink.ResetBlinkPhase();
             var limitRight = this.NativePlatform.Gfx.Width;
             await this.Paint(limitRight: limitRight, forceRepaint: false, isCursorBlink: false);

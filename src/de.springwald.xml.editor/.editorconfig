@@ -4,7 +4,7 @@ root = true
 # C# files
 [*.cs]
 
-file_header_template =A platform indepentend tag-view-style graphical xml editor\r\nhttps://github.com/Springwald/BlazorXmlEditor\r\n\r\n(C) 2020 Daniel Springwald, Bochum Germany\r\nSpringwald Software  -   www.springwald.de\r\ndaniel@springwald.de -  +49 234 298 788 46\r\nAll rights reserved\r\nLicensed under MIT License
+file_header_template =A platform independent tag-view-style graphical xml editor\r\nhttps://github.com/Springwald/BlazorXmlEditor\r\n\r\n(C) 2020 Daniel Springwald, Bochum Germany\r\nSpringwald Software  -   www.springwald.de\r\ndaniel@springwald.de -  +49 234 298 788 46\r\nAll rights reserved\r\nLicensed under MIT License
 
 #### Core EditorConfig Options ####
 

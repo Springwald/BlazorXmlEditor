@@ -1,4 +1,4 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -68,7 +68,7 @@ namespace de.springwald.xml.editor.helper
 
                     if (invertStartLocal > 0 && invertStartLocal != invertEndLocal && invertStartLocal < partTextLocal.Length)
                     {
-                        yield return new TextPartRaw // the not inverted part before the inverstart
+                        yield return new TextPartRaw // the not inverted part before the invertstart
                         {
                             LineNo = lineNo,
                             Inverted = false,

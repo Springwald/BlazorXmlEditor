@@ -1,4 +1,4 @@
-// A platform indepentend tag-view-style graphical xml editor
+// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -27,7 +27,6 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
     /// </summary>
     public partial class XmlElementTextNode : XmlElement
     {
-
         private class Selection
         {
             public int Start;
@@ -120,7 +119,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 var oldPart = (this.textParts != null && i < this.textParts.Length) ? this.textParts[i] : null;
                 if (alreadyUnpainted == false && newPart.Equals(oldPart))
                 {
-                    // no need to paint the textpart again
+                    // no need to paint the text part again
                 }
                 else
                 {
@@ -155,7 +154,7 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 paintContext.FoundMaxX = Math.Max(paintContext.FoundMaxX, paintContext.PaintPosX);
             }
 
-            if (this.textParts != null) // unpaint old textparts out of new parts range
+            if (this.textParts != null) // unpaint old text parts out of new parts range
             {
                 for (int i = newTextParts.Length; i < this.textParts.Length; i++)
                 {

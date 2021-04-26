@@ -1,4 +1,4 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -138,7 +138,7 @@ namespace de.springwald.xml
         }
 
         /// <summary>
-        /// draw a xml node
+        /// draws a xml node
         /// </summary>
         /// <param name="parentHasErrors">If True, then already the parent node was so faulty that this node does not need to be checked against DTD errors</param>
         /// <returns></returns>
@@ -154,7 +154,7 @@ namespace de.springwald.xml
             }
             if (node is System.Xml.XmlComment) return $"<!--{node.InnerText}-->";
 
-            var quellcode = new StringBuilder();
+            var sourceCode = new StringBuilder();
             string indentPlus = "    ";
             string nodeColor;
 
@@ -187,13 +187,13 @@ namespace de.springwald.xml
 
             if (node is System.Xml.XmlText)
             {
-                if (needNewRow) quellcode.Append($"{GetNewLine()}{indent}");
-                quellcode.Append(nodeColor);
+                if (needNewRow) sourceCode.Append($"{GetNewLine()}{indent}");
+                sourceCode.Append(nodeColor);
                 StringBuilder nodetext = new StringBuilder(node.Value);
                 nodetext.Replace("\t", " ");
                 nodetext.Replace("\r\n", " ");
                 nodetext.Replace("  ", " ");
-                quellcode.Append(nodetext.ToString());
+                sourceCode.Append(nodetext.ToString());
                 nodetext = null;
             }
             else  // not a  text node
@@ -206,10 +206,10 @@ namespace de.springwald.xml
                     {
                         case DisplayTypes.OwnRow:
 
-                            quellcode.Append(GetNewLine());
-                            quellcode.Append(nodeColor);
-                            quellcode.Append(indent);
-                            quellcode.Append("<{node.Name}{GetAttributesAsSourcecode(node.Attributes)}>");
+                            sourceCode.Append(GetNewLine());
+                            sourceCode.Append(nodeColor);
+                            sourceCode.Append(indent);
+                            sourceCode.Append("<{node.Name}{GetAttributesAsSourcecode(node.Attributes)}>");
 
                             if (nodeErrorMessage != null)
                             {
@@ -217,28 +217,28 @@ namespace de.springwald.xml
                             }
 
                             // draw children
-                            quellcode.Append(GetChildrenAsSourcecode(node.ChildNodes, indent + indentPlus, true, nodeHasError, false));
+                            sourceCode.Append(GetChildrenAsSourcecode(node.ChildNodes, indent + indentPlus, true, nodeHasError, false));
 
                             // close node
-                            quellcode.Append(GetNewLine());
-                            quellcode.Append(nodeColor);
-                            quellcode.Append(indent);
-                            quellcode.Append($"</{node.Name}>");
+                            sourceCode.Append(GetNewLine());
+                            sourceCode.Append(nodeColor);
+                            sourceCode.Append(indent);
+                            sourceCode.Append($"</{node.Name}>");
 
                             break;
 
                         case DisplayTypes.FloatingElement:
 
-                            if (needNewRow) quellcode.Append(GetNewLine() + indent);
+                            if (needNewRow) sourceCode.Append(GetNewLine() + indent);
 
                             // open node
-                            quellcode.Append($"{nodeColor}<{ node.Name}{GetAttributesAsSourcecode(node.Attributes)}>");
+                            sourceCode.Append($"{nodeColor}<{ node.Name}{GetAttributesAsSourcecode(node.Attributes)}>");
 
                             // draw children
-                            quellcode.Append(GetChildrenAsSourcecode(node.ChildNodes, indent + indentPlus, true, nodeHasError, false));
+                            sourceCode.Append(GetChildrenAsSourcecode(node.ChildNodes, indent + indentPlus, true, nodeHasError, false));
 
                             // close node
-                            quellcode.Append($"{nodeColor}</{node.Name}>");
+                            sourceCode.Append($"{nodeColor}</{node.Name}>");
                             break;
 
                         default:
@@ -247,13 +247,13 @@ namespace de.springwald.xml
                 }
                 else
                 {
-                    if (needNewRow) quellcode.Append(GetNewLine() + indent);
+                    if (needNewRow) sourceCode.Append(GetNewLine() + indent);
 
-                    quellcode.Append(nodeColor);
-                    quellcode.Append($"<{node.Name}{GetAttributesAsSourcecode(node.Attributes)}>");
+                    sourceCode.Append(nodeColor);
+                    sourceCode.Append($"<{node.Name}{GetAttributesAsSourcecode(node.Attributes)}>");
                 }
             }
-            return quellcode.ToString();
+            return sourceCode.ToString();
         }
 
         private string GetNewLine()

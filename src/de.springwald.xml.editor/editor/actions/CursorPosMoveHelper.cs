@@ -1,4 +1,4 @@
-﻿// A platform indepentend tag-view-style graphical xml editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
 // (C) 2020 Daniel Springwald, Bochum Germany
@@ -91,9 +91,9 @@ namespace de.springwald.xml.editor.actions
                             cursorPos.SetPos(cursorPos.ActualNode, XmlCursorPositions.CursorInFrontOfNode);
                         }
                     }
-                    else // not a textnode
+                    else // not a text node
                     {
-                        throw new ApplicationException(string.Format("XMLCursorPos.MoveLeft: CursorPos is XMLCursorPositions.CursorInsideTextNodes, but no textnode is selected, but the node {0}", actualNode.OuterXml));
+                        throw new ApplicationException(string.Format("XMLCursorPos.MoveLeft: CursorPos is XMLCursorPositions.CursorInsideTextNodes, but no text node is selected, but the node {0}", actualNode.OuterXml));
                     }
                     break;
 
@@ -146,11 +146,11 @@ namespace de.springwald.xml.editor.actions
                 case XmlCursorPositions.CursorInFrontOfNode:
                     if (ToolboxXml.IsTextOrCommentNode(node))  // The node itself is text node 
                     {
-                        if (ToolboxXml.TextFromNodeCleaned(node).Length > 1) // Textnode ist nicht leer
+                        if (ToolboxXml.TextFromNodeCleaned(node).Length > 1) // Text node ist nicht leer
                         {
                             cursorPos.SetPos(cursorPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, 1); // one character forward, i.e. after the first character
                         }
-                        else  // Textnode is empty
+                        else  // Text node is empty
                         {
                             cursorPos.SetPos(cursorPos.ActualNode, XmlCursorPositions.CursorBehindTheNode);
                         }
@@ -198,10 +198,9 @@ namespace de.springwald.xml.editor.actions
                     }
                     else // Node is not a text node
                     {
-                        throw new ApplicationException(String.Format("XMLCurorPos.MoveRight: CursorPos is XMLCursorPositions.CursorInsideTextNodes, but no textnode is selected, but the node {0}", node.OuterXml));
+                        throw new ApplicationException(String.Format("XMLCurorPos.MoveRight: CursorPos is XMLCursorPositions.CursorInsideTextNodes, but no text node is selected, but the node {0}", node.OuterXml));
                     }
                     break;
-
 
                 default:
                     throw new ApplicationException(String.Format("XMLCurorPos.MoveRight: unknown CursorPos {0}", cursorPos.PosOnNode));
