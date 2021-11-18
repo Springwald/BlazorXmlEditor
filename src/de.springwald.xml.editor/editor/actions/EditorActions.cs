@@ -525,7 +525,7 @@ namespace de.springwald.xml.editor.actions
             await XMLNodeEinfuegen(this.editorState.CursorRaw, node, this.xmlRules, setNewCursorPosBehindNewInsertedNode);
             await this.editorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: true, forceFullRepaint: false);
 
-            
+
             return node;
         }
 

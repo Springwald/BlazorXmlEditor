@@ -21,8 +21,8 @@
             this.editorContext = value;
             if (this.editorContext != null)
             {
-                this.editorContext.EditorState.CursorRaw.ChangedEvent.Add(this.OnChanged);
-                this.editorContext.EditorState.ContentChangedEvent.Add(this.OnChanged);
+                this.editorContext.EditorState.CursorRaw.ChangedEvent.Add(this.ContentOrCursorChanged);
+                this.editorContext.EditorState.ContentChangedEvent.Add(this.ContentOrCursorChanged);
             }
         }
     }
@@ -53,11 +53,11 @@
 
     public void Dispose()
     {
-        this.editorContext?.EditorState.CursorRaw.ChangedEvent.Remove(this.OnChanged);
-        this.editorContext?.EditorState.ContentChangedEvent.Remove(this.OnChanged);
+        this.editorContext?.EditorState.CursorRaw.ChangedEvent.Remove(this.ContentOrCursorChanged);
+        this.editorContext?.EditorState.ContentChangedEvent.Remove(this.ContentOrCursorChanged);
     }
 
-    private async Task OnChanged(EventArgs e)
+    private async Task ContentOrCursorChanged(EventArgs e)
     {
         await this.UpdateButtonStates();
         await Task.CompletedTask;

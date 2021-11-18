@@ -7,9 +7,9 @@
 // All rights reserved
 // Licensed under MIT License
 
-using System;
 using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using System;
 
 namespace de.springwald.xml.blazor
 {
