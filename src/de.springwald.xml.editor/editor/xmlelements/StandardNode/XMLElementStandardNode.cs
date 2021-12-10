@@ -111,9 +111,10 @@ namespace de.springwald.xml.editor
             {
                 if (cursor.StartPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode)
                 {
-                    this.cursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
+                    newCursorPaintPos = new Point(paintContext.PaintPosX - 1, paintContext.PaintPosY);
                 }
             }
+
             this.cursorPaintPos = newCursorPaintPos;
             return paintContext.Clone();
         }

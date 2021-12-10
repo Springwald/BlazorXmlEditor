@@ -113,7 +113,6 @@ namespace de.springwald.xml.editor
                         break;
 
                     case Keys.Up:
-                   
                         useKeyContent = false;
                         break;
 
