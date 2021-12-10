@@ -84,7 +84,6 @@ namespace de.springwald.xml.editor
                         break;
 
                     // >>>> cursor keys
-
                     case Keys.Left: // move cursor to left
                         if (e.ShiftKey)
                         {
@@ -99,7 +98,7 @@ namespace de.springwald.xml.editor
                         useKeyContent = false;
                         break;
 
-                    case Keys.Down: // move cursor to right
+                    case Keys.Right: // move cursor to right
                         if (e.ShiftKey)
                         {
                             await CursorPosMoveHelper.MoveRight(this.editorState.CursorRaw.EndPos, this.editorState.RootNode, this.xmlRules);
@@ -110,6 +109,11 @@ namespace de.springwald.xml.editor
                             await CursorPosMoveHelper.MoveRight(dummy, this.editorState.RootNode, this.xmlRules);
                             await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(dummy.ActualNode, dummy.PosOnNode, dummy.PosInTextNode);
                         }
+                        useKeyContent = false;
+                        break;
+
+                    case Keys.Up:
+                   
                         useKeyContent = false;
                         break;
 
@@ -125,7 +129,8 @@ namespace de.springwald.xml.editor
                         useKeyContent = false;
                         break;
 
-                    case Keys.Tab: // Tab jumps to the next day
+                    case Keys.Tab:  // Tab jumps to the next tag
+                    case Keys.Down: // down too
                         System.Xml.XmlNode node = this.editorState.CursorRaw.StartPos.ActualNode;
                         bool abort = false;
                         if (node.FirstChild != null)

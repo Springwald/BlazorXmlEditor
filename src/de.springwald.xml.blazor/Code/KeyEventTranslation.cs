@@ -77,7 +77,7 @@ namespace de.springwald.xml.blazor
                         case "Escape": args.Key = Keys.Escape; break;
 
                         case "ArrowLeft": args.Key = Keys.Left; break;
-                        case "ArrowRight": args.Key = Keys.Down; break;
+                        case "ArrowRight": args.Key = Keys.Right; break;
                         case "ArrowUp": args.Key = Keys.Up; break;
                         case "ArrowDown": args.Key = Keys.Down; break;
 
