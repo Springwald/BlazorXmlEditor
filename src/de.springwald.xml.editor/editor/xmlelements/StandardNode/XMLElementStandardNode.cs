@@ -55,7 +55,7 @@ namespace de.springwald.xml.editor
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, bool cursorBlinkOn, XmlCursor cursor, IGraphics gfx, PaintModes paintMode, int depth)
         {
             this.nodeDimensions.Update();
-            var isSelected = XmlCursorSelectionHelper.IsThisNodeInsideSelection(cursor, this.XmlNode);
+            var isSelected = cursor?.StartPos != null && XmlCursorSelectionHelper.IsThisNodeInsideSelection(cursor, this.XmlNode);
             this.CreateChildElementsIfNeeded(gfx);
 
             Point newCursorPaintPos = null;
