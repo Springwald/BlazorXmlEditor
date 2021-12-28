@@ -209,6 +209,10 @@ namespace de.springwald.xml.blazor.demo.DemoData
                             return DisplayTypes.OwnRow;
                         }
 
+                    case "br":
+                    case "p":
+                        return DisplayTypes.OwnRow;
+
                     default: return base.DisplayType(xmlNode);
                 }
             }
