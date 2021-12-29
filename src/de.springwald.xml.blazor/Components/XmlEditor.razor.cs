@@ -93,6 +93,7 @@ namespace de.springwald.xml.blazor.Components
             var changed = false;
             const int tolerance = 30;
 
+            //Console.WriteLine($"outersize: {this.outerWidth}x{this.outerHeight}");
             //if (this.outerHeight > this.canvasHeight)
             //{
             //    this.canvasHeight = this.outerHeight;
@@ -125,6 +126,7 @@ namespace de.springwald.xml.blazor.Components
 
             if (changed)
             {
+                Console.WriteLine($"set canvas: {this.canvasWidth}x{this.canvasHeight}");
                 await this.EditorContext.NativePlatform.SetSize(this.canvasWidth, this.canvasHeight);
                 this.StateHasChanged();
                 await this.editor.CanvasSizeHasChanged();
@@ -143,7 +145,7 @@ namespace de.springwald.xml.blazor.Components
             public double Left { get; set; }
         }
 
-        private async Task OuterResized(EventArgs e)
+        public async Task OuterResized(EventArgs e)
         {
             var size = await JSRuntime.InvokeAsync<BoundingClientRect>("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
             if (size == null) return;

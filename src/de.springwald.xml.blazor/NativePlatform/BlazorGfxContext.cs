@@ -7,9 +7,6 @@
 // All rights reserved
 // Licensed under MIT License
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
 using de.springwald.xml.editor.nativeplatform.gfx;
@@ -105,7 +102,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             return (double)size.Width;
         }
 
-        internal async Task DrawPolygonAsync(Color fillColor, Color borderColor, float borderWidth , Point[] points)
+        internal async Task DrawPolygonAsync(Color fillColor, Color borderColor, float borderWidth, Point[] points)
         {
             if (points.Length == 0) return;
 
@@ -156,7 +153,7 @@ namespace de.springwald.xml.blazor.NativePlatform
         private async Task SetFontFormat(Font font)
         {
             var fontString = GetFontString(font);
-            await ctx.SetFontAsync(fontString); 
+            await ctx.SetFontAsync(fontString);
         }
 
         /// <summary>
@@ -167,7 +164,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             switch (font.Unit)
             {
                 case Font.GraphicsUnit.Pixel:
-                    return  $"normal {font.Height}px {FontHtmlString(font)}";
+                    return $"normal {font.Height}px {FontHtmlString(font)}";
                 default: throw new ArgumentOutOfRangeException($"{nameof(font.Unit)}:{font.Unit.ToString()}");
             }
         }

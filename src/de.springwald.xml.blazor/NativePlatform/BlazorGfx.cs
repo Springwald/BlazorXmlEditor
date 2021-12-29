@@ -7,20 +7,17 @@
 // All rights reserved
 // Licensed under MIT License
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Blazor.Extensions;
-using de.springwald.xml.editor.nativeplatform.gfx.Jobs;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.editor.nativeplatform.gfx.Jobs;
 
 namespace de.springwald.xml.blazor.NativePlatform
 {
     public class BlazorGfx : IGraphics
     {
-        private BECanvasComponent canvas;
+        private readonly BECanvasComponent canvas;
+        private readonly List<GfxJob> jobs = new();
         private BlazorGfxContext contextCache;
-        private List<GfxJob> jobs = new List<GfxJob>();
 
         public int Width { get; private set; }
         public int Height { get; private set; }

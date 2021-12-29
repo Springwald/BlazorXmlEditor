@@ -1,0 +1,11 @@
+﻿@page "/ResizeDemo"
+
+<h1>resize demo</h1>
+
+<de.springwald.xml.blazor.demo.Components.FpsCounter @ref="fpsCounter" />
+
+<div style="width:@(this.width)px;min-width:@(this.width)px;max-width:@(this.width)px;border-size: 1px; border-style:solid; border-color: gray; overflow:auto ">
+
+    <de.springwald.xml.blazor.Components.XmlEditor EditorContext="this.editorContext" OnReady="this.EditorIsReady" Style="width:100%;min-width:100%;max-width:100%;" @ref="this.xmlEditor" />
+
+</div>

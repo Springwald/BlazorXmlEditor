@@ -137,6 +137,7 @@ namespace de.springwald.xml.editor
         public async Task CanvasSizeHasChanged()
         {
             var limitRight = this.NativePlatform.Gfx.Width;
+            Console.WriteLine("limitRight: " + limitRight);
             await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
         }
 
