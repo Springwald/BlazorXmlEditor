@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using de.springwald.xml.editor.xmlelements.StandardNode;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using System;
 
 namespace de.springwald.xml.editor.xmlelements
 {
@@ -25,10 +26,12 @@ namespace de.springwald.xml.editor.xmlelements
             var startX = paintContext.PaintPosX;
 
             var esteemedWidth = this.nodeNameTextWidth + this.dimensions.InnerMarginX * 3;
-            if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight && paintContext.PaintPosX != paintContext.LimitLeft)
+            if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight)
             {
+                paintContext.HeightActualRow = Math.Max(paintContext.HeightActualRow, config.MinLineHeight);
                 paintContext.PaintPosX = paintContext.LimitLeft + this.config.ChildIndentX;
                 paintContext.PaintPosY += paintContext.HeightActualRow;
+                paintContext.HeightActualRow = config.MinLineHeight;
             }
 
             // draw an arrow to the left in front of the node frame
