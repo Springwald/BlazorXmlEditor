@@ -116,10 +116,9 @@ namespace de.springwald.xml.blazor.Components
                 this.canvasHeight = this.editor.VirtualHeight + PreventHorizontalScrollBarTolerance;
             }
       
-
             if (changed)
             {
-                await this.EditorContext.NativePlatform.SetActualSize(actualWidth: this.canvasWidth,  this.canvasHeight);
+                //await this.EditorContext.NativePlatform.SetActualSize(actualWidth: this.canvasWidth,  this.canvasHeight);
                 this.StateHasChanged();
                 await this.editor.CanvasSizeHasChanged();
             }

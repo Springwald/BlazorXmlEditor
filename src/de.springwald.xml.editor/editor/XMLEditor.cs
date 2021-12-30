@@ -136,7 +136,7 @@ namespace de.springwald.xml.editor
 
         public async Task CanvasSizeHasChanged()
         {
-            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
+            var limitRight = this.NativePlatform.DesiredMaxWidth;
             Console.WriteLine("limitRight: " + limitRight);
             await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
         }
@@ -187,13 +187,13 @@ namespace de.springwald.xml.editor
 
         private async void LateUpdatePaintTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
+            var limitRight = this.NativePlatform.DesiredMaxWidth;
             await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
         }
 
         private async Task OnContentChanged(ContentChangedEventArgs e)
         {
-            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
+            var limitRight = this.NativePlatform.DesiredMaxWidth;
             this.EditorState.CursorBlink.ResetBlinkPhase();  // After a change, the cursor line is drawn directly
             this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
             await this.Paint(limitRight: limitRight, forceRepaint: e.ForceFullRepaint, isCursorBlink: false);
@@ -201,7 +201,7 @@ namespace de.springwald.xml.editor
 
         private async Task CursorBlinkedEvent(bool blinkOn)
         {
-            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
+            var limitRight = this.NativePlatform.DesiredMaxWidth;
             await this.Paint(limitRight: limitRight, forceRepaint: false, isCursorBlink: true);
         }
 
@@ -209,7 +209,7 @@ namespace de.springwald.xml.editor
         {
             // After a cursor movement, the cursor is first drawn as a line
             this.EditorState.CursorBlink.ResetBlinkPhase();
-            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
+            var limitRight = this.NativePlatform.DesiredMaxWidth;
             await this.Paint(limitRight: limitRight, forceRepaint: false, isCursorBlink: false);
         }
 

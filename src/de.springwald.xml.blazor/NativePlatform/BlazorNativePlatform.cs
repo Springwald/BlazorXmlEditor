@@ -23,6 +23,8 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public IGraphics Gfx { get; }
 
+        public int DesiredMaxWidth { get; private set; }
+
         public BlazorNativePlatform(BECanvasComponent canvas, BlazorClipboard blazorClipboard)
         {
             this.Clipboard = blazorClipboard;
@@ -34,13 +36,9 @@ namespace de.springwald.xml.blazor.NativePlatform
         {
         }
 
-        public async Task SetActualSize(int actualWidth, int actualHeight)
-        {
-            await this.Gfx.SetActualSize(actualWidth, actualHeight);
-        }
         public async Task SetDesiredSize(int desiredMaxWidth)
         {
-            await this.Gfx.SetDesiredSize(desiredMaxWidth);
+            this.DesiredMaxWidth =  desiredMaxWidth;
         }
     }
 }
