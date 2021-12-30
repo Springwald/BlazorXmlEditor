@@ -1,7 +1,7 @@
-﻿// A platform independent tag-view-style graphical XML editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2021 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -15,7 +15,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 {
     internal class BlazorGfxContext
     {
-        private Font actualFont = null;
+        private Font actualFont = null!;
         private float actualLineWidth = 0;
         private Canvas2DContext ctx;
         private BECanvasComponent canvas;
@@ -30,7 +30,7 @@ namespace de.springwald.xml.blazor.NativePlatform
 
         public async Task StartBatch()
         {
-            this.actualFont = null;
+            this.actualFont = null!;
             this.IsInBatch = true;
             await this.ctx.BeginBatchAsync();
         }
@@ -40,7 +40,7 @@ namespace de.springwald.xml.blazor.NativePlatform
             if (!this.IsInBatch) return;
             this.IsInBatch = false;
             await this.ctx.EndBatchAsync();
-            this.actualFont = null;
+            this.actualFont = null!;
         }
 
         internal async Task SetStrokeColor(Color color)

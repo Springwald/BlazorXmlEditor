@@ -1,4 +1,13 @@
-﻿using Blazor.Extensions;
+﻿// A platform independent tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2022 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
+using Blazor.Extensions;
 using CurrieTechnologies.Razor.Clipboard;
 using de.springwald.xml.blazor.Code;
 using de.springwald.xml.blazor.NativePlatform;
@@ -84,7 +93,7 @@ namespace de.springwald.xml.blazor.Components
 
         private async Task ContentChanged(EditorState.ContentChangedEventArgs e)
         {
-            if (e.NeedToSetFocusOnEditorWhenLost) // && !this.EditorContext.EditorState.HasFocus)
+            if (e.NeedToSetFocusOnEditorWhenLost)
             {
                 await Task.Delay(400);
                 await JSRuntime.InvokeVoidAsync("XmlEditorFocusElement", _canvasOuterDivReference);
@@ -130,7 +139,7 @@ namespace de.springwald.xml.blazor.Components
             var desiredMaxSize = outerWidth - (PreventHorizontalScrollBarTolerance + 5);
             await this.EditorContext.NativePlatform.SetDesiredSize(desiredMaxWidth: desiredMaxSize);
             await this.editor.CanvasSizeHasChanged();
-            
+
         }
 
         #region key events

@@ -1,24 +1,23 @@
 // A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
 // Licensed under MIT License
 
 using de.springwald.xml.cursor;
-using de.springwald.xml.editor.xmlelements.Caching;
+using de.springwald.xml.editor.cursor;
 using de.springwald.xml.editor.helper;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.editor.xmlelements.Caching;
+using de.springwald.xml.tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using de.springwald.xml.editor.cursor;
 using static de.springwald.xml.rules.XmlCursorPos;
-using System.Runtime.InteropServices;
-using de.springwald.xml.tools;
 
 namespace de.springwald.xml.editor.xmlelements.TextNode
 {
@@ -247,15 +246,15 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
         {
             // Find out where the text was clicked
             int posInLine = 0;
-            foreach (var part in textParts) 
+            foreach (var part in textParts)
             {
-                if (part.Rectangle.Contains(point)) 
+                if (part.Rectangle.Contains(point))
                 {
                     posInLine += Math.Min(part.Text.Length - 1, (int)((point.X - part.Rectangle.X) / Math.Max(1, this.lastCalculatedFontWidth) + 0.5));
                     await EditorState.CursorRaw.SetCursorByMouseAction(this.XmlNode, XmlCursorPositions.CursorInsideTextNode, posInLine, action);
                     return;
                 }
-                else 
+                else
                 {
                     posInLine += part.Text.Length;
                 }
@@ -273,9 +272,9 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                     case XmlCursorPositions.CursorOnNodeStartTag: // The node itself is selected as start node
                     case XmlCursorPositions.CursorOnNodeEndTag:
                         throw new ArgumentOutOfRangeException($"{nameof(cursor.StartPos.PosOnNode)}:{cursor.StartPos.PosOnNode.ToString()} not possible on a text node");
-                        // result.Start = 0;
-                        // result.Length = actualText.Length;
-                        // break;
+                    // result.Start = 0;
+                    // result.Length = actualText.Length;
+                    // break;
 
                     case XmlCursorPositions.CursorBehindTheNode:
                     case XmlCursorPositions.CursorInsideTheEmptyNode:

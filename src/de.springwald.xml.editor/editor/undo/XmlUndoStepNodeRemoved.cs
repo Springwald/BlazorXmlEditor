@@ -1,7 +1,7 @@
 // A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -19,9 +19,9 @@ namespace de.springwald.xml.editor
         private System.Xml.XmlNode nextSibling;
 
         /// <summary>
-        /// Erzeugt einen neuen Undoschritt für das Löschen eines Nodes
+        /// Creates a new undo step for deleting a node
         /// </summary>
-        /// <param name="deletedNode">Dieser Node wurde gelöscht</param>
+        /// <param name="deletedNode">This node was deleted</param>
         public XmlUndoStepNodeRemoved(System.Xml.XmlNode deletedNode) : base()
         {
             this.deletedNode = deletedNode;

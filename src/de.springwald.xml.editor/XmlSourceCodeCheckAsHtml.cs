@@ -1,7 +1,7 @@
 ﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -81,12 +81,12 @@ namespace de.springwald.xml
             this._errorsAsHtml = new StringBuilder();
 
             if (_xmlRules == null)
-            {   
+            {
                 this._errorsAsHtml.Append("<li>No xml rules attached.</li>");
             }
             else
             {
-                if (_rootnode == null)  
+                if (_rootnode == null)
                 {
                     this._errorsAsHtml.Append("<li>no root node specified</li>");
                 }
@@ -228,7 +228,7 @@ namespace de.springwald.xml
             foreach (XmlNode child in children)
             {
                 sourceCode.Append(GetNodeAlsQuellText(child, indent, needNewLine, parentOrSiblingAlreadyInvalid, positionAlreadyCheckedAsOk, ref siblingInvalid));
-              
+
                 if (siblingInvalid)
                 {
                     // If a sibling is broken, do not check the following siblings (performance)

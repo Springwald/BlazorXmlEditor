@@ -1,8 +1,14 @@
+// A platform independent tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2022 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
 
-
-using System.IO;
-using System.Reflection;
 using de.springwald.xml.rules.dtd;
+using System.Reflection;
 
 namespace de.springwald.xml.blazor.demo.DemoData
 {
@@ -11,39 +17,36 @@ namespace de.springwald.xml.blazor.demo.DemoData
     /// </summary>
     public static class DemoDtd
     {
-        private static string _dtdInhalt;       // the dtd content
+        private static string dtdContent; // the dtd content
 
         /// <summary>
         /// the dtd content
         /// </summary>
-        private static string DTDInhalt
+        private static string DtdContent
         {
             get
             {
-                if (_dtdInhalt == null)
+                if (dtdContent == null)
                 {
-                    // Zuerst die DTDDatei einlesen. Diese ist als Ressource in die DLL kompiliert
+                    // First read in the DTD file. This is compiled as a resource into the DLL
                     var myAssembly = Assembly.GetExecutingAssembly();
                     using (var fs = myAssembly.GetManifestResourceStream("de.springwald.xml.blazor.demo.DemoData.Resources.demo.dtd"))
                     {
                         using (var sr = new StreamReader(fs))
                         {
-                            _dtdInhalt = sr.ReadToEnd();
+                            dtdContent = sr.ReadToEnd();
                             sr.Close();
                         }
                     }
                 }
-                return _dtdInhalt;
+                return dtdContent;
             }
         }
 
-        /// <summary>
-        /// loads the dtd
-        /// </summary>
         public static Dtd LoadDemoDtd()
         {
-            // nun daraus die DTD erzeugen und zurückgeben
-            return new DtdReaderDtd().GetDtdFromString(DTDInhalt);
+            // now generate the DTD from it and return it
+            return new DtdReaderDtd().GetDtdFromString(DtdContent);
         }
 
     }

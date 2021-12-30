@@ -1,7 +1,7 @@
 ﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -9,7 +9,6 @@
 
 using System;
 using System.Text;
-using de.springwald.xml.rules.dtd;
 
 namespace de.springwald.xml
 {
@@ -38,7 +37,7 @@ namespace de.springwald.xml
         private StringBuilder errorLogAsText;
         private StringBuilder sourcecodeAsRtf;
 
-        private string _rtf_Header = "{\\rtf1\\ansi\\deff0" + "\r\n" +                                  // Rtf-Header
+        private string _rtf_Header = "{\\rtf1\\ansi\\deff0" + "\r\n" +          // Rtf-Header
             "{\\colortbl;\\red0\\green0\\blue0;" +                              // farbe1=schwarz
             "\\red255\\green0\\blue0;" +                                        // farbe2=rot
             "\\red200\\green200\\blue200;}";                                    // farbe3=grau

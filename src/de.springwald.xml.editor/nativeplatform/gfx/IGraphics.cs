@@ -16,7 +16,7 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         void AddJob(GfxJob job);
 
         void UnPaintRectangle(Rectangle rectangle);
-        
+
         Task PaintJobs(Color backgroundColor);
 
         void DeleteAllPaintJobs();

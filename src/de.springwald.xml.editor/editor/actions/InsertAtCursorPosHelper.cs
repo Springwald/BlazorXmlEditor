@@ -1,7 +1,7 @@
 ﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -182,7 +182,7 @@ namespace de.springwald.xml.editor.actions
                     // Insert between two non-text nodes
                     if (xmlRules.IsThisTagAllowedAtThisPos("#PCDATA", cursorPos))
                     {
-                        System.Xml.XmlText newTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text); 
+                        System.Xml.XmlText newTextNode = cursorPos.ActualNode.OwnerDocument.CreateTextNode(text);
                         InsertXmlNode(cursorPos, newTextNode, xmlRules, false);
                     }
                     else

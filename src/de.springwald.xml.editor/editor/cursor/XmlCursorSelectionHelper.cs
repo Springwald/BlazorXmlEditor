@@ -1,8 +1,16 @@
-﻿using de.springwald.xml.cursor;
+﻿// A platform independent tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2022 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
+
+using de.springwald.xml.cursor;
 using de.springwald.xml.rules;
 using de.springwald.xml.tools;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using static de.springwald.xml.rules.XmlCursorPos;
@@ -14,10 +22,9 @@ namespace de.springwald.xml.editor.cursor
         /// <summary>
         /// Returns the selected XML content as string 
         /// </summary>
-        /// <returns></returns>
         public static async Task<string> GetSelectionAsString(XmlCursor cursor)
         {
-            if (cursor. IsSomethingSelected) 
+            if (cursor.IsSomethingSelected)
             {
                 var result = new StringBuilder();
 
@@ -57,7 +64,7 @@ namespace de.springwald.xml.editor.cursor
                                 case XmlCursorPositions.CursorOnNodeStartTag:
                                 case XmlCursorPositions.CursorInsideTheEmptyNode:
                                 case XmlCursorPositions.CursorInFrontOfNode:
-                                    throw new ApplicationException("XMLCursor.GetSelectionAsString: implausible EndPos.PosOnNode '" + optimized.EndPos.PosOnNode + "' for StartPos.CursorInsideTextNode");
+                                    throw new ApplicationException($"XMLCursor.GetSelectionAsString: implausible EndPos.PosOnNode '{optimized.EndPos.PosOnNode}' for StartPos.CursorInsideTextNode");
 
                                 case XmlCursorPositions.CursorInsideTextNode:
                                     // Not quite to the end of the text 
@@ -73,7 +80,7 @@ namespace de.springwald.xml.editor.cursor
                                     break;
 
                                 default:
-                                    throw new ApplicationException("XMLCursor.GetSelectionAsString: unhandled optimized.EndPos.PosOnNode'" + optimized.EndPos.PosOnNode + "' for StartPos.CursorInsideTextNode");
+                                    throw new ApplicationException($"XMLCursor.GetSelectionAsString: unhandled optimized.EndPos.PosOnNode'{optimized.EndPos.PosOnNode}' for StartPos.CursorInsideTextNode");
                             }
                         }
                         textPart = textPart.Substring(start, length);
@@ -81,7 +88,7 @@ namespace de.springwald.xml.editor.cursor
                         break;
 
                     default:
-                        throw new ApplicationException("XMLCursor.GetSelectionAsStringg: unhandled optimized.StartPos.PosOnNode'" + optimized.StartPos.PosOnNode + "'");
+                        throw new ApplicationException($"XMLCursor.GetSelectionAsStringg: unhandled optimized.StartPos.PosOnNode'{optimized.StartPos.PosOnNode}'");
                 }
 
                 if (optimized.StartPos.ActualNode != optimized.EndPos.ActualNode) // If more nodes are selected after the start node
@@ -110,10 +117,10 @@ namespace de.springwald.xml.editor.cursor
                                         break;
 
                                     case XmlCursorPositions.CursorInsideTheEmptyNode:
-                                        throw new ApplicationException("XMLCursor.GetSelectionAsString: implausible optimized.EndPos.PosOnNode '" + optimized.EndPos.PosOnNode + "' for StartPos.Node != EndPos.Node");
+                                        throw new ApplicationException($"XMLCursor.GetSelectionAsString: implausible optimized.EndPos.PosOnNode '{optimized.EndPos.PosOnNode}' for StartPos.Node != EndPos.Node");
 
                                     default:
-                                        throw new ApplicationException("XMLCursor.GetSelectionAsString: implausible optimized.StartPos.PosOnNode'" + optimized.StartPos.PosOnNode + "' for StartPos.Node != EndPos.Node");
+                                        throw new ApplicationException($"XMLCursor.GetSelectionAsString: implausible optimized.StartPos.PosOnNode'{optimized.StartPos.PosOnNode}' for StartPos.Node != EndPos.Node");
 
                                 }
                             }
@@ -228,7 +235,7 @@ namespace de.springwald.xml.editor.cursor
                             {
                                 NewCursorPosAfterDelete = newPosAfterDelete,
                                 Success = true
-                            }; 
+                            };
 
                         case XmlCursorPositions.CursorInFrontOfNode:
                             // Start and end of the deletion area point to the same node and the start is before the node: This only makes sense with a text node!
@@ -236,7 +243,7 @@ namespace de.springwald.xml.editor.cursor
                             {
                                 // Place the cursor in the text node before the first character and then resend
                                 cursor.StartPos.SetPos(cursor.StartPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, 0);
-                                return await DeleteSelection(cursor); // zum löschen neu abschicken
+                                return await DeleteSelection(cursor); // resend to delete
                             }
                             else
                             {
@@ -267,7 +274,7 @@ namespace de.springwald.xml.editor.cursor
                             int endpos = cursor.EndPos.PosInTextNode;
 
                             if (cursor.EndPos.PosOnNode == XmlCursorPositions.CursorBehindTheNode)
-                            {	
+                            {
                                 // If the end of the selection is behind the text node, then all remaining text is selected
                                 endpos = cursor.StartPos.ActualNode.InnerText.Length;
                             }
@@ -303,7 +310,7 @@ namespace de.springwald.xml.editor.cursor
                                 {
                                     NewCursorPosAfterDelete = newPosAfterDelete,
                                     Success = true
-                                };  
+                                };
                             }
 
                         case XmlCursorPositions.CursorInsideTheEmptyNode:
@@ -316,12 +323,12 @@ namespace de.springwald.xml.editor.cursor
                             }
                             else
                             {
-                                throw new ApplicationException("DeleteSelection:#6363S undefined Endpos " + cursor.EndPos.PosOnNode + "!");
+                                throw new ApplicationException($"DeleteSelection:#6363S undefined Endpos '{cursor.EndPos.PosOnNode}'!");
                             }
 
                         default:
                             //  what else should be selected besides text and the node itself, if start node and end node are identical?
-                            throw new ApplicationException("DeleteSelection:#63346 StartPos.PosAmNode " + cursor.StartPos.PosOnNode + " not allowed!");
+                            throw new ApplicationException($"DeleteSelection:#63346 StartPos.PosAmNode '{cursor.StartPos.PosOnNode}' not allowed!");
                     }
                 }
                 else // Both nodes are not identical

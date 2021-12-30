@@ -1,7 +1,7 @@
 // A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -68,7 +68,7 @@ namespace de.springwald.xml.tools
         /// <summary>
         /// Handles the whitespace and leaves only visible SPACE whitespace. All wraps and tabs are removed
         /// </summary>
-        public static void CleanUpWhitespaces(System.Xml.XmlNode node)
+        public static void CleanUpWhitespaces(XmlNode node)
         {
             if (node == null) return;
 

@@ -1,23 +1,29 @@
-
+// A platform independent tag-view-style graphical xml editor
+// https://github.com/Springwald/BlazorXmlEditor
+//
+// (C) 2022 Daniel Springwald, Bochum Germany
+// Springwald Software  -   www.springwald.de
+// daniel@springwald.de -  +49 234 298 788 46
+// All rights reserved
+// Licensed under MIT License
 
 using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.rules;
 using de.springwald.xml.rules.dtd;
 using System.Collections;
-using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
 namespace de.springwald.xml.blazor.demo.DemoData
 {
     /// <summary>
-    /// Die Regeln, wie die AIML-XML-Elemente im Zusammenhang stehen
+    /// The rules of how the AIML XML elements relate to each other
     /// </summary>
     public class DemoXmlRules : XmlRules
     {
         /// <summary>
-        /// Die Gruppierungen, in welchen die XML-Elemente zum Einfügen angeboten werden
+        /// The groupings in which the XML elements are offered for insertion
         /// </summary>
         public override List<XmlElementGroup> ElementGroups
         {
@@ -27,11 +33,11 @@ namespace de.springwald.xml.blazor.demo.DemoData
                 {
                     elementGroups = new List<XmlElementGroup>();
 
-                    // Unwichtige Gruppen zuerst mal zusammenklappen?
-                    const bool zusammengeklappt = true;
+                    // Collapse unimportant groups first?
+                    const bool collapsed = true;
 
-                    // Die Gruppe der Standard-Elemente
-                    XmlElementGroup standard = new XmlElementGroup("standard", false);
+                    // The group of standard elements
+                    var standard = new XmlElementGroup("standard", false);
                     standard.AddElementName("bot");
                     standard.AddElementName("get");
                     standard.AddElementName("li");
@@ -47,8 +53,8 @@ namespace de.springwald.xml.blazor.demo.DemoData
                     standard.AddElementName("think");
                     elementGroups.Add(standard);
 
-                    // Die Gruppe der Fortgeschrittenen-Elemente
-                    XmlElementGroup fortschritten = new XmlElementGroup("advanced", zusammengeklappt);
+                    // The group of advanced elements
+                    var fortschritten = new XmlElementGroup("advanced", collapsed);
                     fortschritten.AddElementName("condition");
                     fortschritten.AddElementName("formal");
                     fortschritten.AddElementName("gender");
@@ -58,8 +64,8 @@ namespace de.springwald.xml.blazor.demo.DemoData
                     fortschritten.AddElementName("sentence");
                     elementGroups.Add(fortschritten);
 
-                    // Die Gruppe der HTML-Elemente
-                    XmlElementGroup html = new XmlElementGroup("html", zusammengeklappt);
+                    // The group of HTML elements
+                    var html = new XmlElementGroup("html", collapsed);
                     html.AddElementName("a");
                     html.AddElementName("applet");
                     html.AddElementName("br");
@@ -70,8 +76,8 @@ namespace de.springwald.xml.blazor.demo.DemoData
                     html.AddElementName("ul");
                     elementGroups.Add(html);
 
-                    // Die Gruppe der besonderen GaitoBot-Elemente
-                    XmlElementGroup gaitobot = new XmlElementGroup("GaitoBot", zusammengeklappt);
+                    // The group of special GaitoBot elements
+                    var gaitobot = new XmlElementGroup("GaitoBot", collapsed);
                     gaitobot.AddElementName("script");
                     elementGroups.Add(gaitobot);
                 }
@@ -82,11 +88,8 @@ namespace de.springwald.xml.blazor.demo.DemoData
         public DemoXmlRules(Dtd dtd) : base(dtd) { }
 
         /// <summary>
-        /// Findet heraus, welche Farbe der Node haben soll
+        /// Finds out what color the node should have
         /// </summary>
-        /// <param name="node"></param>
-        /// <param name="selektiert"></param>
-        /// <returns></returns>
         public override Color NodeColor(XmlNode node)
         {
             switch (node.Name)
@@ -116,21 +119,19 @@ namespace de.springwald.xml.blazor.demo.DemoData
         }
 
         /// <summary>
-        /// Wird der übergebene Node 2x gezeichnet, einmal mit > und einmal mit < ?
+        /// Is the passed node drawn 2x, once with > and once with < ?
         /// </summary>
-        /// <param name="xmlNode"></param>
-        /// <returns></returns>
         public override bool HasEndTag(XmlNode xmlNode)
         {
             switch (xmlNode.Name)
             {
-                case "that": // Ein That im Template ist geschlossenes Fliesstext-Element, eines in der Category eine eigene, offene Zeile
+                case "that": // One "That" in the template is closed continuous text element, one in the category is a separate open line
 
-                    if (xmlNode.ParentNode.Name == "template")  // that liegt im template node
+                    if (xmlNode.ParentNode.Name == "template")  // "that" lies im template node
                     {
                         return false;
                     }
-                    else  // steckt nicht im Template-Tag
+                    else  // is not inside the template tag
                     {
                         return true;
                     }
@@ -141,10 +142,8 @@ namespace de.springwald.xml.blazor.demo.DemoData
         }
 
         /// <summary>
-        /// In welcher Art soll der übergebene Node gezeichnet werden?
+        /// In what way should the node be drawn?
         /// </summary>
-        /// <param name="xmlNode"></param>
-        /// <returns></returns>
         public override DisplayTypes DisplayType(XmlNode xmlNode)
         {
             if (xmlNode is System.Xml.XmlElement)
@@ -160,33 +159,32 @@ namespace de.springwald.xml.blazor.demo.DemoData
                     case "person2":
                         return DisplayTypes.FloatingElement;
 
-                    case "think": // Kommt ein think direkt nach dem Template vor, dann erhält es eine eigene Zeile, kommt es im Fließtext vor, dann nicht
+                    case "think": // If a "think" occurs directly after the "template", then it gets its own line, if it occurs in the body text, then not
 
-                        if (xmlNode.ParentNode.Name == "template")  // think liegt im template node
+                        if (xmlNode.ParentNode.Name == "template")  // "think" lies inside template node
                         {
-                            if (xmlNode.PreviousSibling != null) // es gibt ein Element vor dem Think
+                            if (xmlNode.PreviousSibling != null) // there is an element before the "think"
                             {
                                 if (xmlNode.PreviousSibling.Name == "think")
-                                { // Zwei Thinks/Thats aufeinander? Um Rekursion zu vermeiden,
-                                    // bei der beide Thinks sich gegenseitig als Sibling fragen,
-                                    // wird hier der Umbruch zurückgegeben
-                                    //return DarstellungsArten.EigeneZeile ;
+                                {
+                                    // Two Thinks/Thats on top of each other? To avoid recursion, where both Thinks ask each other as Sibling, the wrap is returned here
+                                    // return DarstellungsArten.EigeneZeile ;
                                 }
                                 else
                                 {
                                     if (DisplayType(xmlNode.PreviousSibling) == DisplayTypes.FloatingElement)
                                     {
-                                        // direkt vor dem Think liegt ein Fliesstextelement, also ist das Think auch eines
+                                        // directly in front of the "think" is a floating text element, so the think is one too
                                         return DisplayTypes.FloatingElement;
                                     }
                                 }
                             }
 
-                            if (xmlNode.NextSibling != null) // es gibt ein Element nach dem Think
+                            if (xmlNode.NextSibling != null) // there is an element after the "think"
                             {
                                 if (DisplayType(xmlNode.NextSibling) == DisplayTypes.FloatingElement)
                                 {
-                                    // direkt vor dem Think liegt ein Fliesstextelement, also ist das Think auch eines
+                                    // directly in front of the "think" is a floating text element, so the "think" is one too
                                     return DisplayTypes.FloatingElement;
                                 }
                             }
@@ -194,17 +192,17 @@ namespace de.springwald.xml.blazor.demo.DemoData
                         }
                         else
                         {
-                            return DisplayTypes.FloatingElement;  // steckt nicht im Template-Tag
+                            return DisplayTypes.FloatingElement;  // is not in the template tag
                         }
 
 
-                    case "that": // Ein That im Template ist Fliestext-Element, eines in der Category eine eigene Zeile
+                    case "that": // One "That" in the template is a flow text element, one in the category a separate line
 
-                        if (xmlNode.ParentNode.Name == "template")  // that liegt im template node
+                        if (xmlNode.ParentNode.Name == "template")  // "that" lies inside template node
                         {
                             return DisplayTypes.FloatingElement;
                         }
-                        else  // steckt nicht im Template-Tag
+                        else  // is not inside the template tag
                         {
                             return DisplayTypes.OwnRow;
                         }
@@ -220,60 +218,58 @@ namespace de.springwald.xml.blazor.demo.DemoData
         }
 
         /// <summary>
-        /// Konvertiert / Formatiert einen Text, welcher an eine bestimmte Stelle eingefügt werden soll
-        /// so, wie es diese Stelle erfordert. In einer AIML-DTD kann dies z.B. bedeuten, dass der
-        /// Text zum Einfügen in das PATTERN Tag auf Großbuchstaben umgestellt wird
+        /// Converts / formats a text which is to be inserted into a specific location as required by that location. 
+        /// In an AIML DTD, for example, this can mean that the text is converted to uppercase for insertion into the PATTERN tag.
         /// </summary>
-        /// <param name="ersatzNode">Wenn statt des Textes ein Node eingefügt werden soll. Beispiel: Im
-        /// AIML-Template wir * gedrückt, dann wird ein STAR-Tag eingefügt</param>
-        public override string InsertTextTextPreProcessing(string einfuegeText, XmlCursorPos woEinfuegen, out XmlNode ersatzNode)
+        /// <param name="replacementNode">If a node is to be inserted instead of the text. Example: In the AIML template we press *, then a STAR tag is inserted.</param>
+        public override string InsertTextTextPreProcessing(string insertText, XmlCursorPos insertWhere, out XmlNode replacementNode)
         {
             XmlNode node;
 
-            if (woEinfuegen.ActualNode is XmlText)
-            { // Pos ist ein Textnode
-                // Node ist der Parent des Textnode
-                node = woEinfuegen.ActualNode.ParentNode;
+            if (insertWhere.ActualNode is XmlText)
+            { // Pos id a Textnode
+                // Node is the parent of the text node
+                node = insertWhere.ActualNode.ParentNode;
             }
             else
-            { // Pos ist kein Textnode
-                // Die Pos selbst ist der Node
-                node = woEinfuegen.ActualNode;
+            { // Pos is not a Textnode
+                // The Pos itself is the node
+                node = insertWhere.ActualNode;
             }
 
             string ausgabe;
 
-            // An bestimmten Stellen beim drücken von * statt dessen SRAI verwenden
-            if (einfuegeText == "*")
+            // In certain places when pressing * use SRAI instead of it
+            if (insertText == "*")
             {
                 switch (node.Name)
                 {
                     case "pattern":
                     case "that":
                     case "script":
-                        // Hier ist der normale Stern erlaub
+                        // Here is the normal star allowed
                         break;
                     default:
-                        ersatzNode = woEinfuegen.ActualNode.OwnerDocument.CreateElement("star");
-                        return ""; // Den einfüge-Text leeren, da er ja schon als Star-Node zurück gegeben wurde
+                        replacementNode = insertWhere.ActualNode.OwnerDocument.CreateElement("star");
+                        return ""; // Empty the insert-text, because it was already returned as a star-node
                 }
             }
 
-            // Ja nach Node verschiedene Eingaben zulassen / herausfiltern
+            // Allow / filter out different inputs depending on the node
             switch (node.Name)
             {
 
-                case "srai":        // Im Srai-Tag immer Großbuchstaben und keine Sonderzeichen
-                    ausgabe = einfuegeText;
-                    ausgabe = ausgabe.Replace("*", ""); // Kein * im SRAI erlaubt
-                    ausgabe = ausgabe.Replace("_", ""); // Kein _ im SRAI erlaubt
-                    ersatzNode = null;
+                case "srai":        // In Srai tag always capital letters and no special characters
+                    ausgabe = insertText;
+                    ausgabe = ausgabe.Replace("*", ""); // No * allowed in SRAI
+                    ausgabe = ausgabe.Replace("_", ""); // No _ allowed in SRAI
+                    replacementNode = null!;
                     return ausgabe;
 
-                case "pattern":     // Im Pattern-Tag immer Großbuchstaben und keine Sonderzeichen
+                case "pattern":     // In the pattern tag always capital letters and no special characters
 
-                    StringBuilder sauber = new StringBuilder(einfuegeText); // einfuegeText.ToUpper());
-                    // Bei der Eingabe Umlaute bereits ausschreiben
+                    StringBuilder sauber = new StringBuilder(insertText); // einfuegeText.ToUpper());
+                    // Already write out "german Umlaute" when entering
                     sauber.Replace("Ä", "AE");
                     sauber.Replace("Ö", "OE");
                     sauber.Replace("Ü", "UE");
@@ -282,14 +278,14 @@ namespace de.springwald.xml.blazor.demo.DemoData
                     // convert to a char array
                     char[] tempArray = sauber.ToString().ToCharArray();
 
-                    ArrayList verarbeiteteZeichen = new ArrayList();
+                    ArrayList doneCharacters = new ArrayList();
 
                     // iterate through the char array 
                     for (int i = 0; i < tempArray.Length; i++)
                     {
                         if (((tempArray[i] == '*') || (tempArray[i] == '_')) && (node.Name == "pattern"))
                         {
-                            verarbeiteteZeichen.Add((char)tempArray[i]); // * und _ sind nur in Pattern, nicht im SRAI erlaubt
+                            doneCharacters.Add((char)tempArray[i]); // * and _ are only allowed in patterns, not in SRAI
                         }
                         else
                         {
@@ -301,74 +297,44 @@ namespace de.springwald.xml.blazor.demo.DemoData
                                 (tempArray[i] > 47) & (tempArray[i] < 58) || // 0-9
                                 (tempArray[i] == 32))  // space
                             {
-                                verarbeiteteZeichen.Add((char)tempArray[i]);
+                                doneCharacters.Add((char)tempArray[i]);
                             }
                         }
                     }
 
                     // turn the arraylist into a char array
-                    char[] verarbeitet = new char[verarbeiteteZeichen.Count];
+                    char[] done = new char[doneCharacters.Count];
 
-                    for (int i = 0; i < verarbeiteteZeichen.Count; i++)
+                    for (int i = 0; i < doneCharacters.Count; i++)
                     {
-                        verarbeitet[i] = (char)verarbeiteteZeichen[i];
+                        done[i] = (char)doneCharacters[i];
                     }
-                    ausgabe = new string(verarbeitet);
+                    ausgabe = new string(done);
 
                     // et voila!
-                    ersatzNode = null;
+                    replacementNode = null;
                     return ausgabe;
 
                 default:
-                    return base.InsertTextTextPreProcessing(einfuegeText, woEinfuegen, out ersatzNode);
+                    return base.InsertTextTextPreProcessing(insertText, insertWhere, out replacementNode);
             }
         }
 
         /// <summary>
-        /// Ermittelt, welche Elemente an dieser Stelle erlaubt sind
+        /// Determines which elements are allowed at this position
         /// </summary>
-        /// <param name="zielPunkt"></param>
-        /// <param name="pcDATAMitAuflisten"></param>
-        /// <param name="kommentareMitAuflisten"></param>
-        /// <returns></returns>
-        public override string[] AllowedInsertElements(XmlCursorPos zielPunkt, bool pcDATAMitAuflisten, bool kommentareMitAuflisten)
+        public override string[] AllowedInsertElements(XmlCursorPos targetPos, bool listPcDataToo, bool listCommentsToo)
         {
-            if (zielPunkt.ActualNode != null)
+            if (targetPos.ActualNode != null)
             {
-                if (zielPunkt.ActualNode.Name.ToLower() == "category")
+                if (targetPos.ActualNode.Name.ToLower() == "category")
                 {
-                    // Anstelle des Category-Tags werden keine anderen Tags
-                    // alternativ angeboten. Sonst würde man bei der Bearbeitung
-                    // der Category auch die Tags META und TOPIC angezeigt bekommen,
-                    // da diese laut DTD an dieser Stelle ja erlaubt wären
+                    // No other tags are offered as alternatives instead of the category tag.
+                    // Otherwise, the tags META and TOPIC would be displayed when editing the category, since they would be allowed at this point according to the DTD.
                     return new string[] { };
                 }
             }
-
-            return base.AllowedInsertElements(zielPunkt, pcDATAMitAuflisten, kommentareMitAuflisten);
+            return base.AllowedInsertElements(targetPos, listPcDataToo, listCommentsToo);
         }
-
-        /* 
-         * Noch nicht in GB2020 übernommen:
-         * 
-         * public override XMLElement createPaintElementForNode(XmlNode xmlNode, XMLEditor xmlEditor)
-           {
-               if (xmlNode is System.Xml.XmlText)
-               {
-                   if (xmlNode.ParentNode != null)
-                   {
-                       if (xmlNode.ParentNode.Name.ToLower() == "script") 
-                       {
-                           return new
-                           de.springwald.xml.editor.XMLElement_TextNode(xmlNode, xmlEditor)
-                           {
-                                ZeichenZumUmbrechen = new char[] {'}','{',';' }
-                           };
-                       }
-                   }
-               }
-
-               return base.createPaintElementForNode(xmlNode, xmlEditor);
-           }*/
     }
 }

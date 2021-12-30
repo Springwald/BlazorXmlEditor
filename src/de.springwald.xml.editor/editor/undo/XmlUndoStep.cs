@@ -1,7 +1,7 @@
 // A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -14,9 +14,9 @@ namespace de.springwald.xml.editor
     /// <summary>
     /// A single step in the undo history 
     /// </summary>
-    public  class XmlUndoStep
+    public class XmlUndoStep
     {
-        protected XmlCursor previousCursor;// Cursor vor der Änderung
+        protected XmlCursor previousCursor; // Cursor before change
 
         /// <summary>
         /// Is this step a named snapshot?
@@ -39,7 +39,7 @@ namespace de.springwald.xml.editor
 
         public XmlUndoStep()
         {
-             this.SnapShotName = null;
+            this.SnapShotName = null;
         }
 
         /// <summary>

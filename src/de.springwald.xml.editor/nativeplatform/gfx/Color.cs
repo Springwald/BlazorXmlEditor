@@ -1,13 +1,11 @@
 ﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
 // Licensed under MIT License
-
-using Microsoft.Win32.SafeHandles;
 
 namespace de.springwald.xml.editor.nativeplatform.gfx
 {
@@ -47,7 +45,7 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
         {
             get
             {
-                if (this.invertedColor == null) this.invertedColor =  new Color(r: (byte)(255 - this.R), g: (byte)(255 - this.G), b: (byte)(255 - this.B), a: this.A);
+                if (this.invertedColor == null) this.invertedColor = new Color(r: (byte)(255 - this.R), g: (byte)(255 - this.G), b: (byte)(255 - this.B), a: this.A);
                 return this.invertedColor;
             }
         }

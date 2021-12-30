@@ -1,20 +1,20 @@
 ﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
 // Licensed under MIT License
 
-using System;
-using System.Threading.Tasks;
 using de.springwald.xml.editor.nativeplatform;
 using de.springwald.xml.events;
+using System;
+using System.Threading.Tasks;
 
 namespace de.springwald.xml.editor
 {
-    internal class MouseHandler: IDisposable
+    internal class MouseHandler : IDisposable
     {
         private INativePlatform nativePlatform;
         private bool mouseIsDown = false; // Is the mouse button still held down?

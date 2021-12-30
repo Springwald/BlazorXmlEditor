@@ -1,16 +1,14 @@
-﻿// A platform independent tag-view-style graphical XML editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2021 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
 // Licensed under MIT License
 
-using System;
-using System.Threading.Tasks;
-using de.springwald.xml.editor.nativeplatform.gfx.Jobs;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.editor.nativeplatform.gfx.Jobs;
 
 namespace de.springwald.xml.blazor.NativePlatform
 {
@@ -42,7 +40,7 @@ namespace de.springwald.xml.blazor.NativePlatform
                     }
                     else
                     {
-                        
+
                         await gfx.ClearAsync(backgroundColor);
                     }
                     break;
@@ -73,11 +71,11 @@ namespace de.springwald.xml.blazor.NativePlatform
                     var rectangle = new Rectangle(unpaintJob.Rectangle.X - margin, unpaintJob.Rectangle.Y - margin, unpaintJob.Rectangle.Width + margin + margin, unpaintJob.Rectangle.Height + margin + margin);
                     if (DebugUnPaint)
                     {
-                        await gfx.DrawRectangleAsync(UnPaintColor, null, 0, rectangle);
+                        await gfx.DrawRectangleAsync(UnPaintColor, null!, 0, rectangle);
                     }
                     else
                     {
-                        await gfx.DrawRectangleAsync(backgroundColor, null, 0, rectangle);
+                        await gfx.DrawRectangleAsync(backgroundColor, null!, 0, rectangle);
                     }
                     break;
 

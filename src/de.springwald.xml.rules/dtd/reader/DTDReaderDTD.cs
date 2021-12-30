@@ -1,7 +1,7 @@
 // A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -64,8 +64,8 @@ namespace de.springwald.xml.rules.dtd
 
             this.elements = this.ReadElements()
                 .Concat(new[] {
-                CreateElementFromQuellcode("#PCDATA"),
-                CreateElementFromQuellcode("#COMMENT") })
+                CreateElementFromSourcecode("#PCDATA"),
+                CreateElementFromSourcecode("#COMMENT") })
                 .ToArray();
         }
 
@@ -100,7 +100,7 @@ namespace de.springwald.xml.rules.dtd
             while (match.Success)
             {
                 elementCode = match.Groups["element"].Value;
-                yield return CreateElementFromQuellcode(elementCode);
+                yield return CreateElementFromSourcecode(elementCode);
                 match = match.NextMatch(); // To the next RegEx hit
             }
         }
@@ -112,7 +112,7 @@ namespace de.springwald.xml.rules.dtd
         /// e.g. something like this could be in the element source code:
         /// <!ELEMENT template  (#PCDATA | srai | sr | that | get | bot | birthday | set | A | star | random )*>
         /// </example>
-        private DtdElement CreateElementFromQuellcode(string elementSourcecode)
+        private DtdElement CreateElementFromSourcecode(string elementSourcecode)
         {
             if (elementSourcecode == "#PCDATA") // It is not an element defined in the DTD, but the PCDATA element
             {
@@ -231,7 +231,7 @@ namespace de.springwald.xml.rules.dtd
         /// e.g. something like this could be in the entity source code:
         /// <!ENTITY % html	"a | applet | br | em | img | p | table | ul">
         /// </example>
-        private DtdEntity CreateEntityFromSourcecode(string entityQuellcode)
+        private DtdEntity CreateEntityFromSourcecode(string entitySourcecode)
         {
             // The following expression splits the ENTITY tag into its parts. groups:
             // entity=the whole entity
@@ -243,24 +243,24 @@ namespace de.springwald.xml.rules.dtd
 
             var reg = new Regex(regpatternelement); //, RegexOptions.IgnoreCase);
 
-            var match = reg.Match(entityQuellcode);
+            var match = reg.Match(entitySourcecode);
 
-            if (!match.Success) throw new ApplicationException($"No occurrence found in the entity source code '{entityQuellcode}'");
+            if (!match.Success) throw new ApplicationException($"No occurrence found in the entity source code '{entitySourcecode}'");
             var entity = new DtdEntity();
 
             entity.IsReplacementEntity = (match.Groups["prozent"].Success);
 
             // NFind out the name of the entity
-            if (!match.Groups["entityname"].Success) throw new ApplicationException($"No name found in the entity code '{entityQuellcode}'");
+            if (!match.Groups["entityname"].Success) throw new ApplicationException($"No name found in the entity code '{entitySourcecode}'");
 
             entity.Name = match.Groups["entityname"].Value;
 
-            if (!match.Groups["inhalt"].Success) throw new ApplicationException($"No content found in the entity code '{entityQuellcode}'");
+            if (!match.Groups["inhalt"].Success) throw new ApplicationException($"No content found in the entity code '{entitySourcecode}'");
 
             entity.Content = match.Groups["inhalt"].Value;
 
             match = match.NextMatch();
-            if (match.Success) throw new ApplicationException($"More than one occurrence found in the entity code '{entityQuellcode}'");
+            if (match.Success) throw new ApplicationException($"More than one occurrence found in the entity code '{entitySourcecode}'");
 
             return entity;
         }
@@ -305,9 +305,9 @@ namespace de.springwald.xml.rules.dtd
                     // Run through all RegEx hits and create attributes for the element
                     while (match.Success)
                     {
-                        attribut = new DtdAttribute(); 
-                        attribut.Name = match.Groups["name"].Value; 
-                        attribut.StandardValue = match.Groups["vorgabewert"].Value; 
+                        attribut = new DtdAttribute();
+                        attribut.Name = match.Groups["name"].Value;
+                        attribut.StandardValue = match.Groups["vorgabewert"].Value;
                         switch (match.Groups["anzahl"].Value)
                         {
                             case "#REQUIRED":
@@ -341,7 +341,7 @@ namespace de.springwald.xml.rules.dtd
                             attribut.Type = type;
                         }
                         yield return attribut;
-                        match = match.NextMatch(); 
+                        match = match.NextMatch();
                     }
                 }
                 else

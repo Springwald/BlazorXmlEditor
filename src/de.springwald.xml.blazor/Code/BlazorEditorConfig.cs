@@ -1,7 +1,7 @@
-﻿// A platform independent tag-view-style graphical XML editor
+﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2021 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -9,7 +9,6 @@
 
 using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
-using System;
 
 namespace de.springwald.xml.blazor
 {

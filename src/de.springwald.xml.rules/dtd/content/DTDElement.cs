@@ -1,7 +1,7 @@
 // A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -93,7 +93,7 @@ namespace de.springwald.xml.rules.dtd
                     break;
 
                 default:
-                    throw new ApplicationException($"unknown DTDChildElementType {children.ElementType}" );
+                    throw new ApplicationException($"unknown DTDChildElementType {children.ElementType}");
             }
 
             yield return "#COMMENT";     //Add the comment tag, as this is always allowed

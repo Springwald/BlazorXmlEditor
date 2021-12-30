@@ -1,28 +1,27 @@
 ﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
 // Licensed under MIT License
 
+using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.editor.xmlelements.StandardNode;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using de.springwald.xml.editor.xmlelements.StandardNode;
-using de.springwald.xml.editor.nativeplatform.gfx;
-using System;
 
 namespace de.springwald.xml.editor.xmlelements
 {
     internal class StandardNodeStartTagPainter : TagPainter
     {
-        public StandardNodeStartTagPainter(EditorConfig config, StandardNodeDimensionsAndColor dimensions, XmlNode node, bool isClosingTagVisible): base(config, dimensions, node, isClosingTagVisible)
+        public StandardNodeStartTagPainter(EditorConfig config, StandardNodeDimensionsAndColor dimensions, XmlNode node, bool isClosingTagVisible) : base(config, dimensions, node, isClosingTagVisible)
         {
         }
 
-        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, string attributesString,  bool isSelected, IGraphics gfx)
+        protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, string attributesString, bool isSelected, IGraphics gfx)
         {
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
@@ -86,7 +85,7 @@ namespace de.springwald.xml.editor.xmlelements
             paintContext.HeightActualRow = System.Math.Max(paintContext.HeightActualRow, this.config.MinLineHeight); // See how high the current line is
 
             // Remember where the mouse areas are
-            this.AreaTag = new Rectangle(startX-2, startY, paintContext.PaintPosX + 2 - (startX), this.config.TagHeight);
+            this.AreaTag = new Rectangle(startX - 2, startY, paintContext.PaintPosX + 2 - (startX), this.config.TagHeight);
 
             paintContext.FoundMaxX = System.Math.Max(paintContext.FoundMaxX, paintContext.PaintPosX);
 
@@ -96,12 +95,12 @@ namespace de.springwald.xml.editor.xmlelements
 
         protected override string GetAttributesString()
         {
-            var attributes = this.node.Attributes; 
+            var attributes = this.node.Attributes;
             if (attributes == null || attributes.Count == 0) return null;
             var attributeString = new StringBuilder();
             for (int i = 0; i < attributes.Count; i++)
             {
-                    attributeString.Append($" {attributes[i].Name}=\"{attributes[i].Value}\"");
+                attributeString.Append($" {attributes[i].Name}=\"{attributes[i].Value}\"");
             }
             return attributeString.ToString();
         }

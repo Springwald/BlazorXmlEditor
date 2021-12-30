@@ -1,7 +1,7 @@
 ﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -27,7 +27,7 @@ namespace de.springwald.xml
         /// This method can be overridden in inherited rule sets if special nodes require their own XML controls.
         /// In this basic configuration, the method initially returns only the standard paint object
         /// </summary>
-        public XmlElement CreatePaintElementForNode(System.Xml.XmlNode xmlNode) 
+        public XmlElement CreatePaintElementForNode(System.Xml.XmlNode xmlNode)
         {
             if (xmlNode is System.Xml.XmlElement) return new XmlElementStandardNode(xmlNode, this.xmlEditor, this.editorContext);
             if (xmlNode is System.Xml.XmlText) return new XmlElementTextNode(xmlNode, this.xmlEditor, this.editorContext);

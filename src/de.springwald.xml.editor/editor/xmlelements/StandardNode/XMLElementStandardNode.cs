@@ -1,7 +1,7 @@
 // A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -286,7 +286,7 @@ namespace de.springwald.xml.editor
                     var childElement = (XmlElement)childElements[childLauf];
                     if (childElement == null)
                     {
-                        throw new ApplicationException($"CreateChildElementsIfNeeded:childElement is empty: outerxml:{this.XmlNode.OuterXml} >> innerxml {this.XmlNode.InnerXml}");
+                        throw new ApplicationException($"CreateChildElementsIfNeeded:childElement is empty: outerxml: '{this.XmlNode.OuterXml}' >> innerxml '{this.XmlNode.InnerXml}'");
                     }
 
                     // check if it also represents the same XML node

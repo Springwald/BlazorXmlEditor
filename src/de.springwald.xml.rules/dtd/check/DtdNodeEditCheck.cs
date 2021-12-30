@@ -1,7 +1,7 @@
 // A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
@@ -12,7 +12,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Text.RegularExpressions;
 using static de.springwald.xml.rules.XmlCursorPos;
 
@@ -279,7 +278,7 @@ namespace de.springwald.xml.rules.dtd
                     if (node == node.OwnerDocument.DocumentElement) // The node is the root element
                     {
                         // Only the root element is allowed in place of the root element
-                        foreach (DtdTestpattern muster in allPattern) 
+                        foreach (DtdTestpattern muster in allPattern)
                         {
                             if (muster.ElementName == node.Name) // if it is the root element
                             {

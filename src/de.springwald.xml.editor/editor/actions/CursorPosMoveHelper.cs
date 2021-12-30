@@ -1,16 +1,16 @@
 ﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
 // Licensed under MIT License
 
-using System;
-using System.Threading.Tasks;
 using de.springwald.xml.rules;
 using de.springwald.xml.tools;
+using System;
+using System.Threading.Tasks;
 using static de.springwald.xml.rules.XmlCursorPos;
 
 namespace de.springwald.xml.editor.actions
@@ -19,8 +19,8 @@ namespace de.springwald.xml.editor.actions
     {
         internal static async Task<bool> MoveLeft(XmlCursorPos cursorPos, System.Xml.XmlNode rootnode, XmlRules xmlRules)
         {
-            var actualNode = cursorPos.ActualNode; 
-            
+            var actualNode = cursorPos.ActualNode;
+
             switch (cursorPos.PosOnNode)
             {
                 case XmlCursorPositions.CursorOnNodeStartTag:
@@ -31,7 +31,7 @@ namespace de.springwald.xml.editor.actions
                 case XmlCursorPositions.CursorInFrontOfNode:
                     if (actualNode != rootnode)
                     {
-                        if (actualNode.PreviousSibling != null) 
+                        if (actualNode.PreviousSibling != null)
                         {
                             cursorPos.SetPos(actualNode.PreviousSibling, XmlCursorPositions.CursorBehindTheNode);
                             await MoveLeft(cursorPos, rootnode, xmlRules);
@@ -54,7 +54,7 @@ namespace de.springwald.xml.editor.actions
                     }
                     else
                     {
-                        if (actualNode.ChildNodes.Count == 0) 
+                        if (actualNode.ChildNodes.Count == 0)
                         {
                             if (xmlRules.HasEndTag(actualNode))
                             {
@@ -105,7 +105,7 @@ namespace de.springwald.xml.editor.actions
 
         internal static async Task<bool> MoveRight(XmlCursorPos cursorPos, System.Xml.XmlNode rootnode, XmlRules xmlRules)
         {
-            System.Xml.XmlNode node = cursorPos.ActualNode; 
+            System.Xml.XmlNode node = cursorPos.ActualNode;
 
             switch (cursorPos.PosOnNode)
             {
@@ -115,7 +115,7 @@ namespace de.springwald.xml.editor.actions
                     break;
 
                 case XmlCursorPositions.CursorBehindTheNode:
-                    if (node.NextSibling != null) 
+                    if (node.NextSibling != null)
                     {
                         // Place in front of the next sibling
                         cursorPos.SetPos(node.NextSibling, XmlCursorPositions.CursorInFrontOfNode);
@@ -146,7 +146,7 @@ namespace de.springwald.xml.editor.actions
                 case XmlCursorPositions.CursorInFrontOfNode:
                     if (ToolboxXml.IsTextOrCommentNode(node))  // The node itself is text node 
                     {
-                        if (ToolboxXml.TextFromNodeCleaned(node).Length > 1) // Text node ist nicht leer
+                        if (ToolboxXml.TextFromNodeCleaned(node).Length > 1) // Text node is not empty
                         {
                             cursorPos.SetPos(cursorPos.ActualNode, XmlCursorPositions.CursorInsideTextNode, 1); // one character forward, i.e. after the first character
                         }
@@ -157,7 +157,7 @@ namespace de.springwald.xml.editor.actions
                     }
                     else  // Node is not a text node
                     {
-                        if (node.ChildNodes.Count == 0) 
+                        if (node.ChildNodes.Count == 0)
                         {
                             if (!xmlRules.HasEndTag(node)) // If no closed tag is displayed for this node, then directly behind the node
                             {
@@ -186,9 +186,7 @@ namespace de.springwald.xml.editor.actions
 
                             /*if ((XMLEditor.TextAusTextNodeBereinigt(node).Length == cursor.PosInNode) && (node.NextSibling != null)) 
                             {
-                                // Wenn hinter dem letzten Zeichnen des Textnodes und folgendes Geschwister vorhanden, dann
-                                // vor den folgenden Geschwisternode
-								
+                                // If after the last drawing of the text node and following sibling exists, then before the following sibling node
                             }*/
                         }
                         else  // no text follows in the text node

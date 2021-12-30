@@ -1,14 +1,14 @@
 ﻿// A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2022 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
 // Licensed under MIT License
 
-using System;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using System;
 
 
 namespace de.springwald.xml.editor
@@ -32,7 +32,7 @@ namespace de.springwald.xml.editor
 
         public int InnerMarginY => Math.Max(1, this.FontNodeName.Height / 3);
 
-        public int  ChildIndentX => (int)(this.FontNodeName.Height * 1.5);
+        public int ChildIndentX => (int)(this.FontNodeName.Height * 1.5);
 
         public int SpaceYBetweenLines => (int)(Math.Max(1, this.FontNodeName.Height * 0.2));
 
