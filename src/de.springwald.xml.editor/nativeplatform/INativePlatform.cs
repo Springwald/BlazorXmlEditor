@@ -15,7 +15,9 @@ namespace de.springwald.xml.editor.nativeplatform
 {
     public interface INativePlatform
     {
-        Task SetSize(int width, int height);
+        Task SetActualSize(int actualWidth, int actualHeight);
+        Task SetDesiredSize( int desiredMaxWidth);
+
         IClipboard Clipboard { get; }
         IInputEvents InputEvents { get; }
         IGraphics Gfx { get; }

@@ -13,8 +13,18 @@ namespace de.springwald.xml.blazor.Components
 {
     public partial class XmlEditor : ComponentBase, IDisposable
     {
-        protected int outerWidth = 10;
-        protected int outerHeight = 10;
+        public class BoundingClientRect
+        {
+            public double X { get; set; }
+            public double Y { get; set; }
+            public double Width { get; set; }
+            public double Height { get; set; }
+            public double Top { get; set; }
+            public double Right { get; set; }
+            public double Bottom { get; set; }
+            public double Left { get; set; }
+        }
+
         protected int canvasWidth = 10;
         protected int canvasHeight = 10;
 
@@ -88,70 +98,41 @@ namespace de.springwald.xml.blazor.Components
             await this.OuterResized(EventArgs.Empty);
         }
 
+        const int PreventHorizontalScrollBarTolerance = 20;
+
         private async Task VirtualSizeChanged(EventArgs e)
         {
             var changed = false;
-            const int tolerance = 30;
 
-            //Console.WriteLine($"outersize: {this.outerWidth}x{this.outerHeight}");
-            //if (this.outerHeight > this.canvasHeight)
-            //{
-            //    this.canvasHeight = this.outerHeight;
-            //    changed = true;
-            //}
-            //else
+            if (Math.Abs((this.editor.VirtualWidth + PreventHorizontalScrollBarTolerance) - this.canvasWidth) >= PreventHorizontalScrollBarTolerance)
             {
-
-                if (Math.Abs((this.editor.VirtualHeight + tolerance) - this.canvasHeight) > tolerance)
-                {
-                    changed = true;
-                    this.canvasHeight = this.editor.VirtualHeight + tolerance;
-                }
-            }
-
-            if (this.outerWidth > this.canvasWidth)
-            {
-                this.canvasWidth = this.outerWidth;
                 changed = true;
+                this.canvasWidth = this.editor.VirtualWidth + PreventHorizontalScrollBarTolerance;
             }
-            else
+
+            if (Math.Abs((this.editor.VirtualHeight + PreventHorizontalScrollBarTolerance) - this.canvasHeight) >= PreventHorizontalScrollBarTolerance)
             {
-                var targetWidth = Math.Max(this.outerWidth, this.editor.VirtualWidth + tolerance);
-                if (Math.Abs(targetWidth - this.canvasWidth) > tolerance)
-                {
-                    this.canvasWidth = targetWidth;
-                    changed = true;
-                }
+                changed = true;
+                this.canvasHeight = this.editor.VirtualHeight + PreventHorizontalScrollBarTolerance;
             }
+      
 
             if (changed)
             {
-                Console.WriteLine($"set canvas: {this.canvasWidth}x{this.canvasHeight}");
-                await this.EditorContext.NativePlatform.SetSize(this.canvasWidth, this.canvasHeight);
+                await this.EditorContext.NativePlatform.SetActualSize(actualWidth: this.canvasWidth,  this.canvasHeight);
                 this.StateHasChanged();
                 await this.editor.CanvasSizeHasChanged();
             }
-        }
-
-        public class BoundingClientRect
-        {
-            public double X { get; set; }
-            public double Y { get; set; }
-            public double Width { get; set; }
-            public double Height { get; set; }
-            public double Top { get; set; }
-            public double Right { get; set; }
-            public double Bottom { get; set; }
-            public double Left { get; set; }
         }
 
         public async Task OuterResized(EventArgs e)
         {
             var size = await JSRuntime.InvokeAsync<BoundingClientRect>("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
             if (size == null) return;
-            this.outerWidth = (int)size.Width - 40;
-            this.outerHeight = (int)size.Height - 40;
-            await this.VirtualSizeChanged(EventArgs.Empty);
+            var outerWidth = (int)size.Width;
+            await this.EditorContext.NativePlatform.SetDesiredSize(desiredMaxWidth: outerWidth - (PreventHorizontalScrollBarTolerance+5));
+            this.StateHasChanged();
+            await this.editor.CanvasSizeHasChanged();
         }
 
         #region key events

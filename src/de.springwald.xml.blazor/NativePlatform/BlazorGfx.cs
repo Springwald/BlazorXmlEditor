@@ -19,21 +19,29 @@ namespace de.springwald.xml.blazor.NativePlatform
         private readonly List<GfxJob> jobs = new();
         private BlazorGfxContext contextCache;
 
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        public int DesiredMaxWidth { get; private set; }
+        public int ActualWidth { get; private set; }
+        public int ActualHeight { get; private set; }
 
         public BlazorGfx(BECanvasComponent canvas)
         {
             this.canvas = canvas;
         }
 
-        public Task SetSize(int width, int height)
+        public Task SetActualSize(int actualWidth, int actualHeight)
         {
-            this.Width = width;
-            this.Height = height;
+            this.ActualWidth = actualWidth;
+            this.ActualHeight = actualHeight;
             return Task.CompletedTask;
         }
 
+        public Task SetDesiredSize(int desiredMaxWidth)
+        {
+            this.DesiredMaxWidth = desiredMaxWidth;
+            return Task.CompletedTask;
+        }
+
+   
         public async Task StartBatch()
         {
             if (contextCache?.IsInBatch == true) await this.contextCache.EndBatch();

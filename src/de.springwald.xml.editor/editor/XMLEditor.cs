@@ -136,11 +136,10 @@ namespace de.springwald.xml.editor
 
         public async Task CanvasSizeHasChanged()
         {
-            var limitRight = this.NativePlatform.Gfx.Width;
+            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
             Console.WriteLine("limitRight: " + limitRight);
             await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
         }
-
 
         protected async Task Paint(int limitRight, bool forceRepaint, bool isCursorBlink)
         {
@@ -165,7 +164,7 @@ namespace de.springwald.xml.editor
                 var paintContext = new PaintContext
                 {
                     LimitLeft = 0,
-                    LimitRight = limitRight - 20,
+                    LimitRight = limitRight - 10,
                     PaintPosX = 10,
                     PaintPosY = 10,
                     RowStartX = 10,
@@ -174,7 +173,7 @@ namespace de.springwald.xml.editor
                 var paintResultContext = await this.EditorState.RootElement.Paint(paintContext.Clone(), EditorState.CursorBlink.PaintCursor, this.EditorState.CursorOptimized, gfx, paintMode, depth: 0);
                 await gfx.PaintJobs(EditorConfig.ColorBackground);
 
-                const int margin = 50;
+                const int margin = 20;
                 var newVirtualWidth = ((paintResultContext.FoundMaxX + margin) / margin) * margin;
                 var newVirtualHeight = ((paintResultContext.PaintPosY + margin) / margin) * margin;
                 if (this.VirtualWidth != newVirtualWidth || this.VirtualHeight != newVirtualHeight)
@@ -188,13 +187,13 @@ namespace de.springwald.xml.editor
 
         private async void LateUpdatePaintTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            var limitRight = this.NativePlatform.Gfx.Width;
+            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
             await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
         }
 
         private async Task OnContentChanged(ContentChangedEventArgs e)
         {
-            var limitRight = this.NativePlatform.Gfx.Width;
+            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
             this.EditorState.CursorBlink.ResetBlinkPhase();  // After a change, the cursor line is drawn directly
             this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
             await this.Paint(limitRight: limitRight, forceRepaint: e.ForceFullRepaint, isCursorBlink: false);
@@ -202,7 +201,7 @@ namespace de.springwald.xml.editor
 
         private async Task CursorBlinkedEvent(bool blinkOn)
         {
-            var limitRight = this.NativePlatform.Gfx.Width;
+            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
             await this.Paint(limitRight: limitRight, forceRepaint: false, isCursorBlink: true);
         }
 
@@ -210,7 +209,7 @@ namespace de.springwald.xml.editor
         {
             // After a cursor movement, the cursor is first drawn as a line
             this.EditorState.CursorBlink.ResetBlinkPhase();
-            var limitRight = this.NativePlatform.Gfx.Width;
+            var limitRight = this.NativePlatform.Gfx.DesiredMaxWidth;
             await this.Paint(limitRight: limitRight, forceRepaint: false, isCursorBlink: false);
         }
 

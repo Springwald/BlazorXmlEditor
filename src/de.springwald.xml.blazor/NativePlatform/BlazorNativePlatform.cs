@@ -34,9 +34,13 @@ namespace de.springwald.xml.blazor.NativePlatform
         {
         }
 
-        public async Task SetSize(int width, int height)
+        public async Task SetActualSize(int actualWidth, int actualHeight)
         {
-            await this.Gfx.SetSize(width, height);
+            await this.Gfx.SetActualSize(actualWidth, actualHeight);
+        }
+        public async Task SetDesiredSize(int desiredMaxWidth)
+        {
+            await this.Gfx.SetDesiredSize(desiredMaxWidth);
         }
     }
 }

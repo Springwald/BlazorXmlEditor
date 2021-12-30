@@ -17,7 +17,7 @@ namespace de.springwald.xml.blazor.demo.Pages.AutomaticDemos
         private EditorContext editorContext;
         private System.Timers.Timer resizeTimer;
         private System.Xml.XmlDocument xmlDocument;
-        private int width;
+        private int width = 400;
         private int speed = 1;
 
         protected override async Task OnInitializedAsync()
@@ -55,7 +55,7 @@ namespace de.springwald.xml.blazor.demo.Pages.AutomaticDemos
 
             this.width += this.speed;
             if (this.width > 1000) this.speed = -this.speed;
-            if (this.width < 10) { this.width = 10; this.speed = -this.speed; }
+            if (this.width < 300) { this.width = 300; this.speed = -this.speed; }
 
             await this.xmlEditor.OuterResized(EventArgs.Empty);
 

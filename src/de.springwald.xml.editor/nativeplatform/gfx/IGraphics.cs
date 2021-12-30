@@ -13,10 +13,13 @@ namespace de.springwald.xml.editor.nativeplatform.gfx
 {
     public interface IGraphics
     {
-        int Height { get; }
-        int Width { get; }
+        int DesiredMaxWidth { get;  }
+        int ActualWidth { get; }
+        int ActualHeight { get;  }
 
-        Task SetSize(int width, int height);
+        Task SetActualSize(int actualWidth, int actualHeight);
+
+        Task SetDesiredSize(int desiredMaxWidth);
 
         void AddJob(GfxJob job);
 
