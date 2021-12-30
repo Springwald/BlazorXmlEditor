@@ -1,14 +1,13 @@
 // A platform independent tag-view-style graphical xml editor
 // https://github.com/Springwald/BlazorXmlEditor
 //
-// (C) 2020 Daniel Springwald, Bochum Germany
+// (C) 2021 Daniel Springwald, Bochum Germany
 // Springwald Software  -   www.springwald.de
 // daniel@springwald.de -  +49 234 298 788 46
 // All rights reserved
 // Licensed under MIT License
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using de.springwald.xml.editor.nativeplatform;
 using de.springwald.xml.editor.nativeplatform.gfx;
@@ -111,7 +110,6 @@ namespace de.springwald.xml.editor
                 {
                     this.EditorState.UndoHandler = new XmlUndoHandler(this.EditorState.RootNode);
                 }
-
                 await this.EditorState.CursorRaw.SetPositions(null, rules.XmlCursorPos.XmlCursorPositions.CursorInFrontOfNode, 0, false);
             }
 
@@ -121,7 +119,7 @@ namespace de.springwald.xml.editor
                 this.NativePlatform.Gfx.DeleteAllPaintJobs();
                 this.NativePlatform.Gfx.AddJob(new JobClear());
                 await this.NativePlatform.Gfx.PaintJobs(Color.Blue);
-                Console.WriteLine("root node changed " + this.EditorState.RootNode?.InnerText + DateTime.Now.Ticks);
+                // Console.WriteLine("root node changed " + this.EditorState.RootNode?.InnerText + DateTime.Now.Ticks);
             }
             await this.EditorState.FireContentChangedEvent(needToSetFocusOnEditorWhenLost: false, forceFullRepaint: true);
         }
@@ -137,11 +135,10 @@ namespace de.springwald.xml.editor
         public async Task CanvasSizeHasChanged()
         {
             var limitRight = this.NativePlatform.DesiredMaxWidth;
-            Console.WriteLine("limitRight: " + limitRight);
-            await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
+            await this.Paint(limitRight: limitRight, forceRepaint: true, isBecauseOfCursorBlink: false);
         }
 
-        protected async Task Paint(int limitRight, bool forceRepaint, bool isCursorBlink)
+        protected async Task Paint(int limitRight, bool forceRepaint, bool isBecauseOfCursorBlink)
         {
             var gfx = this.NativePlatform.Gfx;
             gfx.DeleteAllPaintJobs();
@@ -188,7 +185,7 @@ namespace de.springwald.xml.editor
         private async void LateUpdatePaintTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             var limitRight = this.NativePlatform.DesiredMaxWidth;
-            await this.Paint(limitRight: limitRight, forceRepaint: true, isCursorBlink: false);
+            await this.Paint(limitRight: limitRight, forceRepaint: true, isBecauseOfCursorBlink: false);
         }
 
         private async Task OnContentChanged(ContentChangedEventArgs e)
@@ -196,13 +193,13 @@ namespace de.springwald.xml.editor
             var limitRight = this.NativePlatform.DesiredMaxWidth;
             this.EditorState.CursorBlink.ResetBlinkPhase();  // After a change, the cursor line is drawn directly
             this.CleanUpXmlElements(); // XML elements may have lost their parent due to the change etc. Therefore trigger the cleanup
-            await this.Paint(limitRight: limitRight, forceRepaint: e.ForceFullRepaint, isCursorBlink: false);
+            await this.Paint(limitRight: limitRight, forceRepaint: e.ForceFullRepaint, isBecauseOfCursorBlink: false);
         }
 
         private async Task CursorBlinkedEvent(bool blinkOn)
         {
             var limitRight = this.NativePlatform.DesiredMaxWidth;
-            await this.Paint(limitRight: limitRight, forceRepaint: false, isCursorBlink: true);
+            await this.Paint(limitRight: limitRight, forceRepaint: false, isBecauseOfCursorBlink: true);
         }
 
         private async Task CursorChangedEvent(EventArgs e)
@@ -210,7 +207,7 @@ namespace de.springwald.xml.editor
             // After a cursor movement, the cursor is first drawn as a line
             this.EditorState.CursorBlink.ResetBlinkPhase();
             var limitRight = this.NativePlatform.DesiredMaxWidth;
-            await this.Paint(limitRight: limitRight, forceRepaint: false, isCursorBlink: false);
+            await this.Paint(limitRight: limitRight, forceRepaint: false, isBecauseOfCursorBlink: false);
         }
 
         private void CleanUpXmlElements()

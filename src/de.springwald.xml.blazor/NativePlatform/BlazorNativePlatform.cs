@@ -39,6 +39,7 @@ namespace de.springwald.xml.blazor.NativePlatform
         public async Task SetDesiredSize(int desiredMaxWidth)
         {
             this.DesiredMaxWidth =  desiredMaxWidth;
+            await Task.CompletedTask;
         }
     }
 }

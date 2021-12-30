@@ -6,8 +6,6 @@ using de.springwald.xml.editor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using System;
-using System.Threading.Tasks;
 
 namespace de.springwald.xml.blazor.Components
 {
@@ -115,10 +113,9 @@ namespace de.springwald.xml.blazor.Components
                 changed = true;
                 this.canvasHeight = this.editor.VirtualHeight + PreventHorizontalScrollBarTolerance;
             }
-      
+
             if (changed)
             {
-                //await this.EditorContext.NativePlatform.SetActualSize(actualWidth: this.canvasWidth,  this.canvasHeight);
                 this.StateHasChanged();
                 await this.editor.CanvasSizeHasChanged();
             }
@@ -129,8 +126,7 @@ namespace de.springwald.xml.blazor.Components
             var size = await JSRuntime.InvokeAsync<BoundingClientRect>("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
             if (size == null) return;
             var outerWidth = (int)size.Width;
-            await this.EditorContext.NativePlatform.SetDesiredSize(desiredMaxWidth: outerWidth - (PreventHorizontalScrollBarTolerance+5));
-            this.StateHasChanged();
+            await this.EditorContext.NativePlatform.SetDesiredSize(desiredMaxWidth: outerWidth - (PreventHorizontalScrollBarTolerance + 5));
             await this.editor.CanvasSizeHasChanged();
         }
 
