@@ -93,6 +93,7 @@ namespace de.springwald.xml.blazor.Components
 
         private async Task RootNodeChanged(System.Xml.XmlNode rootNode)
         {
+            if (rootNode == null) return;
             await this.OuterResized(EventArgs.Empty);
         }
 
@@ -124,10 +125,12 @@ namespace de.springwald.xml.blazor.Components
         public async Task OuterResized(EventArgs e)
         {
             var size = await JSRuntime.InvokeAsync<BoundingClientRect>("XmlEditorGetBoundingClientRect", new object[] { this._xmlEditorBoxDivReference });
-            if (size == null) return;
+            if (size == null || size.Width < 50) return;
             var outerWidth = (int)size.Width;
-            await this.EditorContext.NativePlatform.SetDesiredSize(desiredMaxWidth: outerWidth - (PreventHorizontalScrollBarTolerance + 5));
+            var desiredMaxSize = outerWidth - (PreventHorizontalScrollBarTolerance + 5);
+            await this.EditorContext.NativePlatform.SetDesiredSize(desiredMaxWidth: desiredMaxSize);
             await this.editor.CanvasSizeHasChanged();
+            
         }
 
         #region key events

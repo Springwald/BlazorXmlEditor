@@ -29,14 +29,14 @@
 }
 
 <div class="xmlEditorBox @this.Class" style="overflow: auto; @this.Style" @ref="_xmlEditorBoxDivReference">
-    <div tabindex="0" class="canvasOuter" style="width:@(canvasWidth)px; min-width:@(canvasWidth)px; height: @(canvasHeight)px; max-height:@(canvasHeight)px"
-         @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
-         @oncontextmenu="HandleRightClick" @oncontextmenu:preventDefault="true"
-         @onkeydown="EventOnKeyDown" @onkeydown:preventDefault
-         @onfocusout="EventFocusOut"
-         @onfocus="EventFocusIn"
-         @onfocusin="EventFocusIn"
-         @ref="_canvasOuterDivReference">
+    <div tabindex="0" class="canvasOuter"
+            @onmousedown="EventOnMouseDown" @onmousemove="EventOnMouseMove" @onmouseup="EventOnMouseUp"
+            @oncontextmenu="HandleRightClick" @oncontextmenu:preventDefault="true"
+            @onkeydown="EventOnKeyDown" @onkeydown:preventDefault
+            @onfocusout="EventFocusOut"
+            @onfocus="EventFocusIn"
+            @onfocusin="EventFocusIn"
+            @ref="_canvasOuterDivReference">
         <BECanvas Width="@canvasWidth" Height="@canvasHeight" @ref="_canvasReference">
         </BECanvas>
     </div>
