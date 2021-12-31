@@ -9,6 +9,7 @@
 
 using de.springwald.xml.editor.nativeplatform.gfx;
 using de.springwald.xml.editor.xmlelements.StandardNode;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -23,6 +24,15 @@ namespace de.springwald.xml.editor.xmlelements
 
         protected override async Task<PaintContext> PaintInternal(PaintContext paintContext, string attributesString, bool isSelected, IGraphics gfx)
         {
+            var esteemedWidth = this.nodeNameTextWidth + this.dimensions.InnerMarginX * 3;
+            if (paintContext.PaintPosX + esteemedWidth > paintContext.LimitRight)
+            {
+                paintContext.HeightActualRow = Math.Max(paintContext.HeightActualRow, config.MinLineHeight);
+                paintContext.PaintPosX = paintContext.LimitLeft + this.config.ChildIndentX;
+                paintContext.PaintPosY += paintContext.HeightActualRow;
+                paintContext.HeightActualRow = config.MinLineHeight;
+            }
+
             var startX = paintContext.PaintPosX;
             var startY = paintContext.PaintPosY;
 
