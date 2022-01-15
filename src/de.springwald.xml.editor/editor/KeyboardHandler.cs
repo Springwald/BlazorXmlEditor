@@ -44,21 +44,19 @@ namespace de.springwald.xml.editor
 
         public async Task ControlKeyPreview(KeyEventArgs e)
         {
-            //if (Regelwerk.PreviewKeyDown(e, out _naechsteTasteBeiKeyPressAlsTextAufnehmen, this))
-            //{
-            //    // Dieser Tastendruck wurde bereits vom Regelwerk verarbeitet
-            //}
-            //else
+            if (xmlRules.KeyPreviewHandled(e))
+            {
+               // Dieser Tastendruck wurde bereits vom Regelwerk verarbeitet
+            } else
             {
                 // This keystroke was not processed by the rules
-                var useKeyContent = e.CtrlKey == false;
+                var useKeyContent = true;
 
                 XmlCursorPos dummy;
 
                 switch (e.Key)
                 {
                     // >>> special character keys >>>
-
                     case (Keys.A): // CTRL-A -> select all
                         if (e.CtrlKey) await this.actions.ActionSelectAll();
                         break;
@@ -187,9 +185,12 @@ namespace de.springwald.xml.editor
                         break;
 
                     case Keys.Escape:
+                        useKeyContent = true;
+                        break;
+
                     case Keys.undefined:
                     default:
-                        useKeyContent = true;
+                        useKeyContent = e.CtrlKey == false;
                         break;
                 }
 

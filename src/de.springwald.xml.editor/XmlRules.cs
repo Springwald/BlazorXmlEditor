@@ -9,6 +9,7 @@
 
 using de.springwald.xml.editor;
 using de.springwald.xml.editor.nativeplatform.gfx;
+using de.springwald.xml.events;
 using de.springwald.xml.rules;
 using de.springwald.xml.rules.dtd;
 using System;
@@ -60,6 +61,8 @@ namespace de.springwald.xml
                 return elementGroups;
             }
         }
+
+       
 
         public XmlRules(Dtd dtd)
         {
@@ -139,6 +142,15 @@ namespace de.springwald.xml
         {
             replacementNode = null;
             return textToInsert; // In the standard form the text always goes through
+        }
+
+        /// <summary>
+        /// Check, if this keypress should be handled by the xml rules instead of the xml editor
+        /// </summary>
+        /// <returns>true if handled by the xml rules</returns>
+        public virtual bool KeyPreviewHandled(KeyEventArgs e)
+        {
+            return false;
         }
 
 
