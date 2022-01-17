@@ -179,7 +179,7 @@ namespace de.springwald.xml.editor.actions
 
         internal async Task Undo()
         {
-            await Task.CompletedTask;
+            await this.editorContext.EditorState.UnDo();
         }
 
         /// <summary>

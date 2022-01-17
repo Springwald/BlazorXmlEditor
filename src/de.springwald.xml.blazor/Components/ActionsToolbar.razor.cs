@@ -45,7 +45,7 @@ namespace de.springwald.xml.blazor.Components
 
         private bool IsDisabled = true;
         private bool SomethingIsSelected;
-        private string UndoTitle;
+        private string? UndoTitle;
         private bool InsertPossible;
 
         protected override async void OnInitialized()

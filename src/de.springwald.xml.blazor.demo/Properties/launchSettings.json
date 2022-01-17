@@ -11,7 +11,7 @@
     "de.springwald.xml.blazor.demo": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "Indent2Demo",
+      "launchUrl": "StandardLayoutDemo",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

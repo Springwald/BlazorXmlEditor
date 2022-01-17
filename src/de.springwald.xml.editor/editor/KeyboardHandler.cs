@@ -46,11 +46,12 @@ namespace de.springwald.xml.editor
         {
             if (xmlRules.KeyPreviewHandled(e))
             {
-               // Dieser Tastendruck wurde bereits vom Regelwerk verarbeitet
-            } else
+                // This keystroke has already been processed by the ruleset
+            }
+            else
             {
                 // This keystroke was not processed by the rules
-                var useKeyContent = true;
+                var useKeyContent = e.CtrlKey == false;
 
                 XmlCursorPos dummy;
 
@@ -73,12 +74,19 @@ namespace de.springwald.xml.editor
                         if (e.CtrlKey) await this.actions.AktionCutToClipboard(SetUndoSnapshotOptions.Yes);
                         break;
 
-                    case (Keys.Y): //CTRL-Y -> ReDo (not implemented yet)
-                        if (e.CtrlKey) { }
-                        break;
-
                     case (Keys.Z): //CTRL-Z -> UnDo
-                        if (e.CtrlKey) await this.actions.Undo();
+                    case (Keys.Y): //CTRL-Y -> ReDo (not implemented yet)
+                        if (e.CtrlKey)
+                        {
+                            if (e.Content == "z") //Y and Z are sometimes swapped by keyboard localization (e.G. german keyboard) 😬
+                            {
+                                await this.actions.Undo();
+                            }
+                            if (e.Content == "y")
+                            {
+                                // ReDo (not implemented yet)
+                            }
+                        }
                         break;
 
                     // >>>> cursor keys
@@ -190,7 +198,6 @@ namespace de.springwald.xml.editor
 
                     case Keys.undefined:
                     default:
-                        useKeyContent = e.CtrlKey == false;
                         break;
                 }
 
@@ -202,3 +209,4 @@ namespace de.springwald.xml.editor
         }
     }
 }
+
