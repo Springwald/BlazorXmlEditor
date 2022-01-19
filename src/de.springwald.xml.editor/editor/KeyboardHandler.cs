@@ -13,6 +13,7 @@ using de.springwald.xml.events;
 using de.springwald.xml.rules;
 using System;
 using System.Threading.Tasks;
+using System.Xml;
 using static de.springwald.xml.editor.actions.EditorActions;
 using static de.springwald.xml.rules.XmlCursorPos;
 
@@ -137,33 +138,17 @@ namespace de.springwald.xml.editor
                     case Keys.Tab:  // Tab jumps to the next tag
                     case Keys.Down: // down too
                         System.Xml.XmlNode node = this.editorState.CursorRaw.StartPos.ActualNode;
-                        bool abort = false;
-                        if (node.FirstChild != null)
+                        var jumpToNode = this.HandleTabKeypress(node);
+                        if (jumpToNode != null)
                         {
-                            node = node.FirstChild;
-                        }
-                        else
-                        {
-                            if (node.NextSibling != null)
+                            if (jumpToNode.NodeType == XmlNodeType.Text)
                             {
-                                node = node.NextSibling;
-                            }
-                            else
+                                await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(jumpToNode, XmlCursorPositions.CursorInsideTextNode);
+                            } else
                             {
-                                if (node.ParentNode.NextSibling != null)
-                                {
-                                    node = node.ParentNode.NextSibling;
-                                }
-                                else
-                                {
-                                    // Hm, where could TAB *still* go? 
-                                    abort = true;
-                                }
+                                await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(jumpToNode, XmlCursorPositions.CursorInsideTheEmptyNode);
                             }
-                        }
-                        if (!abort)
-                        {
-                            await this.editorState.CursorRaw.SetBothPositionsAndFireChangedEventIfChanged(node, XmlCursorPositions.CursorInsideTheEmptyNode);
+                            
                         }
                         useKeyContent = false;
                         break;
@@ -206,6 +191,27 @@ namespace de.springwald.xml.editor
                     await this.actions.ActionInsertTextAtCursorPos(e.Content, SetUndoSnapshotOptions.Yes);
                 }
             }
+        }
+
+        private XmlNode HandleTabKeypress(XmlNode node)
+        {
+            if (node.FirstChild != null) return node.FirstChild;
+            if (node.NextSibling != null) return node.NextSibling;
+            if (node.ParentNode != null)
+            {
+                if (node.ParentNode.NextSibling != null)
+                {
+                    if (node.ParentNode.NextSibling.FirstChild != null) return node.ParentNode.NextSibling.FirstChild;
+                    return node.ParentNode.NextSibling;
+                }
+
+                if (node.ParentNode.ParentNode.NextSibling != null)
+                {
+                    if (node.ParentNode.ParentNode.NextSibling.FirstChild != null) return node.ParentNode.ParentNode.NextSibling.FirstChild;
+                    return node.ParentNode.ParentNode.NextSibling;
+                }
+            }
+            return null;
         }
     }
 }
