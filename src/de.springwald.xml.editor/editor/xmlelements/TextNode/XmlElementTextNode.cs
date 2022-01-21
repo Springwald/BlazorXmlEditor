@@ -26,6 +26,14 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
     /// </summary>
     public partial class XmlElementTextNode : XmlElement
     {
+        private class LastMouseUp
+        {
+            public DateTime Time { get; set; }
+            public Point Pos { get; set; }
+        }
+
+        private LastMouseUp lastMouseUp;
+
         private class Selection
         {
             public int Start;
@@ -242,15 +250,50 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
             }
         }
 
+
+
         protected override async Task OnMouseAction(Point point, MouseClickActions action)
         {
             // Find out where the text was clicked
             int posInLine = 0;
+            var lastUp = this.lastMouseUp;
+            if (action == MouseClickActions.MouseUp)
+            {
+                this.lastMouseUp = null;
+            }
             foreach (var part in textParts)
             {
                 if (part.Rectangle.Contains(point))
                 {
                     posInLine += Math.Min(part.Text.Length - 1, (int)((point.X - part.Rectangle.X) / Math.Max(1, this.lastCalculatedFontWidth) + 0.5));
+
+                    // Check if it was doubleclick 
+                    if (action == MouseClickActions.MouseUp)
+                    {
+                        this.lastMouseUp = new LastMouseUp
+                        {
+                            Time = DateTime.UtcNow,
+                            Pos = point
+                        };
+
+                        if (lastUp != null && (DateTime.UtcNow - lastUp.Time) < TimeSpan.FromMilliseconds(500) && Math.Abs(point.X - lastUp.Pos.X) + Math.Abs(point.Y - lastUp.Pos.Y) < 10)
+                        {
+                            // Double-click -> select word under mouse
+                            posInLine = Math.Min(posInLine, Math.Max(0, part.Text.Length - 1));
+                            var startPos = posInLine;
+                            while (startPos > 0 && IsWordPart(part.Text[startPos - 1])) startPos--;
+                            var endPos = posInLine;
+                            while (endPos < part.Text.Length && IsWordPart(part.Text[endPos])) endPos++;
+
+                            await EditorState.CursorRaw.SetPositions(
+                                startNode: this.XmlNode, posAtStartNode: XmlCursorPositions.CursorInsideTextNode, textPosInStartNode: startPos,
+                                endNode: this.XmlNode, posAtEndNode: XmlCursorPositions.CursorInsideTextNode, textPosInEndNode: endPos,
+                                throwChangedEventWhenValuesChanged: false
+                                );
+                            return;
+                        }
+                    }
+
                     await EditorState.CursorRaw.SetCursorByMouseAction(this.XmlNode, XmlCursorPositions.CursorInsideTextNode, posInLine, action);
                     return;
                 }
@@ -258,6 +301,29 @@ namespace de.springwald.xml.editor.xmlelements.TextNode
                 {
                     posInLine += part.Text.Length;
                 }
+            }
+        }
+
+        private bool IsWordPart(char chr)
+        {
+            if (chr >= 'A' && chr <= 'Z') return true;
+            if (chr >= 'a' && chr <= 'z') return true;
+            if (chr >= '0' && chr <= '9') return true;
+
+            switch (chr)
+            {
+                case '-':
+                case '@':
+                    return true;
+
+                case ' ':
+                case '.':
+                case '!':
+                case '?':
+                    return false;
+
+                default:
+                    return false;
             }
         }
 
